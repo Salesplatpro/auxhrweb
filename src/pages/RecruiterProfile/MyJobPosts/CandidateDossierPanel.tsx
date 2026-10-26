@@ -25,6 +25,7 @@ import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { AssessmentChat } from './AssessmentChat'
 import styles from './CandidateDossierPanel.module.scss'
+import { CompanyTestResults } from './CompanyTestResults'
 import { MBTI_TYPES } from './mbtiLegend'
 import { Messaging } from './Messaging/Messaging'
 
@@ -360,6 +361,8 @@ export const CandidateDossierPanel = ({
               feedback={analysis?.questionFeedback}
             />
           </PagePanel>
+
+          <CompanyTestResults application={application} />
 
           <PagePanel title="Why they fit">
             {analysis?.whyFit ? (

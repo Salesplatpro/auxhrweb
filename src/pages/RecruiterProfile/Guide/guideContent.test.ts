@@ -18,6 +18,7 @@ describe('guide content', () => {
       'cv-match',
       'tailored-questions',
       'personality-check',
+      'company-tests',
       'notes-for-ai',
       'setup-name',
     ]) {

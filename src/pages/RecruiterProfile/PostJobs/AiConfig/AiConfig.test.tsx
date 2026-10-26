@@ -105,13 +105,13 @@ describe('AiConfig (screening step)', () => {
 
   it('shows a plain-language tip for every section', () => {
     renderAiConfig()
-    expect(screen.getAllByText(/^Tip:/)).toHaveLength(6)
+    expect(screen.getAllByText(/^Tip:/)).toHaveLength(7)
   })
 
   it('links every tip to its guide entry in a new tab', () => {
     renderAiConfig()
     const links = screen.getAllByRole('link', { name: /learn more/i })
-    expect(links).toHaveLength(6)
+    expect(links).toHaveLength(7)
     expect(links[1].getAttribute('href')).toBe(
       '/recruiterDashboard/guide#cv-match',
     )
@@ -120,7 +120,7 @@ describe('AiConfig (screening step)', () => {
 
   it('has no switch for the skills test — its score is always set', () => {
     renderAiConfig()
-    expect(screen.getAllByRole('switch')).toHaveLength(3)
+    expect(screen.getAllByRole('switch')).toHaveLength(5)
     expect(screen.getByLabelText(/minimum skills test score/i)).toBeTruthy()
   })
 
@@ -158,6 +158,26 @@ describe('AiConfig (screening step)', () => {
     })
     expect(screen.getByText('You changed the settings below.')).toBeTruthy()
     expect(presetButton(/balanced/i).getAttribute('aria-pressed')).toBe('false')
+  })
+
+  it('has problem-solving and culture-fit test switches, each with a 1–10 question count', () => {
+    renderAiConfig()
+    expect(
+      screen.queryByLabelText(/number of problem-solving questions/i),
+    ).toBeNull()
+    fireEvent.click(
+      screen.getByRole('switch', { name: /problem-solving test/i }),
+    )
+    const problemSolving = screen.getByLabelText(
+      /number of problem-solving questions/i,
+    )
+    expect(problemSolving.getAttribute('max')).toBe('10')
+    expect(problemSolving.getAttribute('min')).toBe('1')
+
+    fireEvent.click(screen.getByRole('switch', { name: /culture-fit test/i }))
+    expect(
+      screen.getByLabelText(/number of culture-fit questions/i).getAttribute('max'),
+    ).toBe('10')
   })
 
   it('updates the candidate journey as settings change', () => {

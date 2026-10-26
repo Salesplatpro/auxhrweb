@@ -1,0 +1,1211 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "store-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:2189618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2189632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v3.2.6 /home/user/tab/work/supportpro/wt/fe-day5
+
+(node:2189664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2189663) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2189662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ src/pages/RecruiterProfile/Guide/guideContent.test.ts (9 tests | 1 failed) 16ms
+   ✓ guide content > uses unique ids so every link lands in one place 1ms
+   × guide content > has an entry for every screening tip link 9ms
+     → expected [ 'getting-started', …(40) ] to include 'company-tests'
+   ✓ guide content > covers every recruiter sidebar page 1ms
+   ✓ guide content > keeps every entry short and to the point 1ms
+   ✓ guide content > builds guide links 0ms
+   ✓ filterGuide > returns everything for an empty search 1ms
+   ✓ filterGuide > matches titles, bodies and tips, ignoring case 1ms
+   ✓ filterGuide > needs every word to match 0ms
+   ✓ filterGuide > drops sections with no matching entries 0ms
+(node:2189723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Browserslist: browsers data (caniuse-lite) is 17 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+stderr | src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx > AiConfig (screening step) > starts a new job on the Balanced preset with a generated name
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ❯ src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx (19 tests | 4 failed) 2030ms
+   ✓ AiConfig (screening step) > starts a new job on the Balanced preset with a generated name 163ms
+   × AiConfig (screening step) > shows a plain-language tip for every section 41ms
+     → expected [ …(6) ] to have a length of 7 but got 6
+   × AiConfig (screening step) > links every tip to its guide entry in a new tab 68ms
+     → expected [ Array(6) ] to have a length of 7 but got 6
+   × AiConfig (screening step) > has no switch for the skills test — its score is always set 33ms
+     → expected [ <button …(6)>…(1)</button>, …(2) ] to have a length of 5 but got 3
+   ✓ AiConfig (screening step) > applies the Thorough preset and renames the setup 152ms
+   ✓ AiConfig (screening step) > keeps a name the recruiter typed when switching presets 63ms
+   ✓ AiConfig (screening step) > switches to Custom once a setting is changed 56ms
+   × AiConfig (screening step) > has problem-solving and culture-fit test switches, each with a 1–10 question count 628ms
+     → Unable to find an accessible element with the role "switch" and name `/problem-solving test/i`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "How should applicants be screened?":
+  [36m<h2[39m
+    [33mclass[39m=[32m"_heading_9632bc"[39m
+  [36m/>[39m
+
+  Name "Skills test score":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "CV match":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Tailored questions":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Personality check":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Notes for the AI (optional)":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Setup name":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_subheading_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_journeyTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_journeyTime_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Pick a starting point, then fine-tune below":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"_presets_9632bc"[39m
+  [36m/>[39m
+
+  Name "AI writing help":
+  [36m<div[39m
+    [33maria-label[39m=[32m"AI writing help"[39m
+    [33mclass[39m=[32m"_actions_46b765"[39m
+    [33mrole[39m=[32m"group"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Light Skills test only High-volume or entry-level roles where you want many applicants.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc "[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Balanced Skills test, CV match and 5 tailored questions Most roles. A good filter without scaring people off.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc _presetSelected_9632bc"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Thorough Everything, plus a personality check Senior or team-critical hires where fit matters a lot.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc "[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Draft notes with AI":
+  [36m<button[39m
+    [33mclass[39m=[32m"_chipButton_46b765"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Back to details":
+  [36m<button[39m
+    [33mclass[39m=[32m"_button_fd9c3b _outline_fd9c3b _lg_fd9c3b"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Save and review":
+  [36m<button[39m
+    [33mclass[39m=[32m"_button_fd9c3b _primary_fd9c3b _lg_fd9c3b"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  slider:
+
+  Name "Minimum skills test score":
+  [36m<input[39m
+    [33maria-valuetext[39m=[32m"60% — Typical"[39m
+    [33mclass[39m=[32m"_slider_9632bc"[39m
+    [33mid[39m=[32m":r1f:"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"5"[39m
+    [33mtype[39m=[32m"range"[39m
+    [33mvalue[39m=[32m"60"[39m
+  [36m/>[39m
+
+  Name "Minimum CV match":
+  [36m<input[39m
+    [33maria-valuetext[39m=[32m"65% — Typical"[39m
+    [33mclass[39m=[32m"_slider_9632bc"[39m
+    [33mid[39m=[32m":r1h:"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"5"[39m
+    [33mtype[39m=[32m"range"[39m
+    [33mvalue[39m=[32m"65"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#skills-test-score"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#cv-match"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#tailored-questions"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#personality-check"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#notes-for-ai"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#setup-name"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  switch:
+
+  Name "Use CV match":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33maria-labelledby[39m=[32m":r1g:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc _switchOn_9632bc"[39m
+    [33mdata-field[39m=[32m"cvSimilarity"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Ask tailored questions":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33maria-labelledby[39m=[32m":r1i:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc _switchOn_9632bc"[39m
+    [33mdata-field[39m=[32m"personalizedAssessment"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Add a personality check":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33maria-labelledby[39m=[32m":r1k:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc "[39m
+    [33mdata-field[39m=[32m"personalityEvaluation"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  spinbutton:
+
+  Name "Number of questions":
+  [36m<input[39m
+    [33mclass[39m=[32m"_numberInput_9632bc"[39m
+    [33mid[39m=[32m":r1j:"[39m
+    [33minputmode[39m=[32m"numeric"[39m
+    [33mmax[39m=[32m"20"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"5"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Notes for the AI":
+  [36m<textarea[39m
+    [33mclass[39m=[32m"_textarea_9632bc"[39m
+    [33mid[39m=[32m"recruiterGuide"[39m
+    [33mname[39m=[32m"recruiterGuide"[39m
+    [33mplaceholder[39m=[32m"What should a strong candidate show for this role?"[39m
+  [36m/>[39m
+
+  Name "Setup name":
+  [36m<input[39m
+    [33maria-required[39m=[32m"true"[39m
+    [33mclass[39m=[32m"_input_4ab7e8"[39m
+    [33mid[39m=[32m"name"[39m
+    [33mname[39m=[32m"name"[39m
+    [33mplaceholder[39m=[32m"e.g. Backend engineer – Balanced"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m"Engineer – Balanced"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  region:
+
+  Name "What candidates will go through":
+  [36m<section[39m
+    [33maria-label[39m=[32m"What candidates will go through"[39m
+    [33mclass[39m=[32m"_journey_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ol[39m
+    [33mclass[39m=[32m"_journeyList_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_page_9632bc"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"_heading_9632bc"[39m
+      [36m>[39m
+        [0mHow should applicants be screened?[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"_subheading_9632bc"[39m
+      [36m>[39m
+        [0mStart from a preset, then adjust anything. Each part adds a step candidates complete before they reach you.[0m
+      [36m</p>[39m
+      [36m<form[39m
+        [33maction[39m=[32m"#"[39m
+        [33mdata-tour[39m=[32m"ai-config"[39m
+        [33mnovalidate[39m=[32m""[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_layout_9632bc"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_formColumn_9632bc"[39m
+          [36m>[39m
+            [36m<fieldset[39m
+              [33mclass[39m=[32m"_presets_9632bc"[39m
+            [36m>[39m
+              [36m<legend[39m
+                [33mclass[39m=[32m"_presetsLegend_9632bc"[39m
+              [36m>[39m
+                [0mPick a starting point, then fine-tune below[0m
+              [36m</legend>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"_presetGrid_9632bc"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc "[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mLight[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mSkills test only[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mHigh-volume or entry-level roles where you want many applicants.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc _presetSelected_9632bc"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mBalanced[0m
+                    [36m</span>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 448 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mSkills test, CV match and 5 tailored questions[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mMost roles. A good filter without scaring people off.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc "[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mThorough[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mEverything, plus a personality check[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mSenior or team-critical hires where fit matters a lot.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<div[39m
+                  [33maria-live[39m=[32m"polite"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc _presetCustom_9632bc "[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mCustom[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mYour own mix[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mChange any setting below to make it your own.[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</fieldset>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_copyRow_9632bc"[39m
+            [36m/>[39m
+            [36m<section[39m
+              [33mclass...
+   ✓ AiConfig (screening step) > updates the candidate journey as settings change 32ms
+   ✓ AiConfig (screening step) > saves a new setup, clears the draft and goes to review without publishing 61ms
+   ✓ AiConfig (screening step) > disables the save button while saving 64ms
+   ✓ AiConfig (screening step) > updates the existing setup instead of creating another 90ms
+   ✓ AiConfig (screening step) > shows the API error and stays when saving fails 90ms
+   ✓ AiConfig (screening step) > blocks saving without a setup name 87ms
+   ✓ AiConfig (screening step) > needs at least one personality question once the check is on 117ms
+   ✓ AiConfig (screening step) > writes preview questions for each trait in one go 133ms
+   ✓ AiConfig (screening step) > copies a setup saved on another job 106ms
+   ✓ AiConfig (screening step) > hides the copy picker when there is nothing to copy 22ms
+   ✓ AiConfig (screening step) > restores an unsaved draft, fixing blank switches from older drafts 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/RecruiterProfile/Guide/guideContent.test.ts > guide content > has an entry for every screening tip link
+AssertionError: expected [ 'getting-started', …(40) ] to include 'company-tests'
+ ❯ src/pages/RecruiterProfile/Guide/guideContent.test.ts:25:22
+     23|       'setup-name',
+     24|     ]) {
+     25|       expect(allIds).toContain(id)
+       |                      ^
+     26|     }
+     27|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx > AiConfig (screening step) > shows a plain-language tip for every section
+AssertionError: expected [ …(6) ] to have a length of 7 but got 6
+
+- Expected
++ Received
+
+- 7
++ 6
+
+ ❯ src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx:108:42
+    106|   it('shows a plain-language tip for every section', () => {
+    107|     renderAiConfig()
+    108|     expect(screen.getAllByText(/^Tip:/)).toHaveLength(7)
+       |                                          ^
+    109|   })
+    110| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx > AiConfig (screening step) > links every tip to its guide entry in a new tab
+AssertionError: expected [ Array(6) ] to have a length of 7 but got 6
+
+- Expected
++ Received
+
+- 7
++ 6
+
+ ❯ src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx:114:19
+    112|     renderAiConfig()
+    113|     const links = screen.getAllByRole('link', { name: /learn more/i })
+    114|     expect(links).toHaveLength(7)
+       |                   ^
+    115|     expect(links[1].getAttribute('href')).toBe(
+    116|       '/recruiterDashboard/guide#cv-match',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx > AiConfig (screening step) > has no switch for the skills test — its score is always set
+AssertionError: expected [ <button …(6)>…(1)</button>, …(2) ] to have a length of 5 but got 3
+
+- Expected
++ Received
+
+- 5
++ 3
+
+ ❯ src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx:123:43
+    121|   it('has no switch for the skills test — its score is always set', ()…
+    122|     renderAiConfig()
+    123|     expect(screen.getAllByRole('switch')).toHaveLength(5)
+       |                                           ^
+    124|     expect(screen.getByLabelText(/minimum skills test score/i)).toBeTr…
+    125|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx > AiConfig (screening step) > has problem-solving and culture-fit test switches, each with a 1–10 question count
+TestingLibraryElementError: Unable to find an accessible element with the role "switch" and name `/problem-solving test/i`
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "How should applicants be screened?":
+  [36m<h2[39m
+    [33mclass[39m=[32m"_heading_9632bc"[39m
+  [36m/>[39m
+
+  Name "Skills test score":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "CV match":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Tailored questions":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Personality check":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Notes for the AI (optional)":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "Setup name":
+  [36m<h3[39m
+    [33mclass[39m=[32m"_sectionTitle_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_subheading_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_sectionWhat_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_tip_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_journeyTitle_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"_journeyTime_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  group:
+
+  Name "Pick a starting point, then fine-tune below":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"_presets_9632bc"[39m
+  [36m/>[39m
+
+  Name "AI writing help":
+  [36m<div[39m
+    [33maria-label[39m=[32m"AI writing help"[39m
+    [33mclass[39m=[32m"_actions_46b765"[39m
+    [33mrole[39m=[32m"group"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Light Skills test only High-volume or entry-level roles where you want many applicants.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc "[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Balanced Skills test, CV match and 5 tailored questions Most roles. A good filter without scaring people off.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"true"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc _presetSelected_9632bc"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Thorough Everything, plus a personality check Senior or team-critical hires where fit matters a lot.":
+  [36m<button[39m
+    [33maria-pressed[39m=[32m"false"[39m
+    [33mclass[39m=[32m"_presetCard_9632bc "[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Draft notes with AI":
+  [36m<button[39m
+    [33mclass[39m=[32m"_chipButton_46b765"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Back to details":
+  [36m<button[39m
+    [33mclass[39m=[32m"_button_fd9c3b _outline_fd9c3b _lg_fd9c3b"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Save and review":
+  [36m<button[39m
+    [33mclass[39m=[32m"_button_fd9c3b _primary_fd9c3b _lg_fd9c3b"[39m
+    [33mtype[39m=[32m"submit"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  slider:
+
+  Name "Minimum skills test score":
+  [36m<input[39m
+    [33maria-valuetext[39m=[32m"60% — Typical"[39m
+    [33mclass[39m=[32m"_slider_9632bc"[39m
+    [33mid[39m=[32m":r1f:"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"5"[39m
+    [33mtype[39m=[32m"range"[39m
+    [33mvalue[39m=[32m"60"[39m
+  [36m/>[39m
+
+  Name "Minimum CV match":
+  [36m<input[39m
+    [33maria-valuetext[39m=[32m"65% — Typical"[39m
+    [33mclass[39m=[32m"_slider_9632bc"[39m
+    [33mid[39m=[32m":r1h:"[39m
+    [33mmax[39m=[32m"100"[39m
+    [33mmin[39m=[32m"0"[39m
+    [33mstep[39m=[32m"5"[39m
+    [33mtype[39m=[32m"range"[39m
+    [33mvalue[39m=[32m"65"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#skills-test-score"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#cv-match"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#tailored-questions"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#personality-check"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#notes-for-ai"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  Name "Learn more (opens in a new tab)":
+  [36m<a[39m
+    [33mclass[39m=[32m"_learnMore_9632bc"[39m
+    [33mhref[39m=[32m"/recruiterDashboard/guide#setup-name"[39m
+    [33mrel[39m=[32m"noopener noreferrer"[39m
+    [33mtarget[39m=[32m"_blank"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  switch:
+
+  Name "Use CV match":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33maria-labelledby[39m=[32m":r1g:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc _switchOn_9632bc"[39m
+    [33mdata-field[39m=[32m"cvSimilarity"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Ask tailored questions":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"true"[39m
+    [33maria-labelledby[39m=[32m":r1i:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc _switchOn_9632bc"[39m
+    [33mdata-field[39m=[32m"personalizedAssessment"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  Name "Add a personality check":
+  [36m<button[39m
+    [33maria-checked[39m=[32m"false"[39m
+    [33maria-labelledby[39m=[32m":r1k:"[39m
+    [33mclass[39m=[32m"_switchTrack_9632bc "[39m
+    [33mdata-field[39m=[32m"personalityEvaluation"[39m
+    [33mrole[39m=[32m"switch"[39m
+    [33mtype[39m=[32m"button"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  spinbutton:
+
+  Name "Number of questions":
+  [36m<input[39m
+    [33mclass[39m=[32m"_numberInput_9632bc"[39m
+    [33mid[39m=[32m":r1j:"[39m
+    [33minputmode[39m=[32m"numeric"[39m
+    [33mmax[39m=[32m"20"[39m
+    [33mmin[39m=[32m"1"[39m
+    [33mtype[39m=[32m"number"[39m
+    [33mvalue[39m=[32m"5"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Notes for the AI":
+  [36m<textarea[39m
+    [33mclass[39m=[32m"_textarea_9632bc"[39m
+    [33mid[39m=[32m"recruiterGuide"[39m
+    [33mname[39m=[32m"recruiterGuide"[39m
+    [33mplaceholder[39m=[32m"What should a strong candidate show for this role?"[39m
+  [36m/>[39m
+
+  Name "Setup name":
+  [36m<input[39m
+    [33maria-required[39m=[32m"true"[39m
+    [33mclass[39m=[32m"_input_4ab7e8"[39m
+    [33mid[39m=[32m"name"[39m
+    [33mname[39m=[32m"name"[39m
+    [33mplaceholder[39m=[32m"e.g. Backend engineer – Balanced"[39m
+    [33mtype[39m=[32m"text"[39m
+    [33mvalue[39m=[32m"Engineer – Balanced"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  region:
+
+  Name "What candidates will go through":
+  [36m<section[39m
+    [33maria-label[39m=[32m"What candidates will go through"[39m
+    [33mclass[39m=[32m"_journey_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  list:
+
+  Name "":
+  [36m<ol[39m
+    [33mclass[39m=[32m"_journeyList_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  listitem:
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<li[39m
+    [33mclass[39m=[32m"_journeyStage_9632bc"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"_page_9632bc"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"_heading_9632bc"[39m
+      [36m>[39m
+        [0mHow should applicants be screened?[0m
+      [36m</h2>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"_subheading_9632bc"[39m
+      [36m>[39m
+        [0mStart from a preset, then adjust anything. Each part adds a step candidates complete before they reach you.[0m
+      [36m</p>[39m
+      [36m<form[39m
+        [33maction[39m=[32m"#"[39m
+        [33mdata-tour[39m=[32m"ai-config"[39m
+        [33mnovalidate[39m=[32m""[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"_layout_9632bc"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"_formColumn_9632bc"[39m
+          [36m>[39m
+            [36m<fieldset[39m
+              [33mclass[39m=[32m"_presets_9632bc"[39m
+            [36m>[39m
+              [36m<legend[39m
+                [33mclass[39m=[32m"_presetsLegend_9632bc"[39m
+              [36m>[39m
+                [0mPick a starting point, then fine-tune below[0m
+              [36m</legend>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"_presetGrid_9632bc"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc "[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mLight[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mSkills test only[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mHigh-volume or entry-level roles where you want many applicants.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"true"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc _presetSelected_9632bc"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mBalanced[0m
+                    [36m</span>[39m
+                    [36m<svg[39m
+                      [33maria-hidden[39m=[32m"true"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 448 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mSkills test, CV match and 5 tailored questions[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mMost roles. A good filter without scaring people off.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33maria-pressed[39m=[32m"false"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc "[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mThorough[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mEverything, plus a personality check[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mSenior or team-critical hires where fit matters a lot.[0m
+                  [36m</span>[39m
+                [36m</button>[39m
+                [36m<div[39m
+                  [33maria-live[39m=[32m"polite"[39m
+                  [33mclass[39m=[32m"_presetCard_9632bc _presetCustom_9632bc "[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetTop_9632bc"[39m
+                  [36m>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"_presetTitle_9632bc"[39m
+                    [36m>[39m
+                      [0mCustom[0m
+                    [36m</span>[39m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetSummary_9632bc"[39m
+                  [36m>[39m
+                    [0mYour own mix[0m
+                  [36m</span>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"_presetBestFor_9632bc"[39m
+                  [36m>[39m
+                    [0mChange any setting below to make it your own.[0m
+                  [36m</span>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</fieldset>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"_copyRow_9632bc"[39m
+            [36m/>[39m
+            [36m<section[39m
+              [33mclass...
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/pages/RecruiterProfile/PostJobs/AiConfig/AiConfig.test.tsx:169:14
+    167|     ).toBeNull()
+    168|     fireEvent.click(
+    169|       screen.getByRole('switch', { name: /problem-solving test/i }),
+       |              ^
+    170|     )
+    171|     const problemSolving = screen.getByLabelText(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  5 failed | 23 passed (28)
+   Start at  18:47:28
+   Duration  4.10s (transform 815ms, setup 236ms, collect 1.27s, tests 2.05s, environment 731ms, prepare 226ms)
+
+(node:2189751) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

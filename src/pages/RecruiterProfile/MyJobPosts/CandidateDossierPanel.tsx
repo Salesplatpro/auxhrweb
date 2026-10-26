@@ -26,9 +26,9 @@ import { viewCandidateCv } from '@/utils/viewCandidateCv'
 import { AssessmentChat } from './AssessmentChat'
 import styles from './CandidateDossierPanel.module.scss'
 import { CompanyTestResults } from './CompanyTestResults'
-import { PersonalityFit } from './PersonalityFit'
 import { MBTI_TYPES } from './mbtiLegend'
 import { Messaging } from './Messaging/Messaging'
+import { PersonalityFit } from './PersonalityFit'
 
 const HERO: Record<
   string,

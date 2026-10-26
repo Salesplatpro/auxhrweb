@@ -26,6 +26,7 @@ import { viewCandidateCv } from '@/utils/viewCandidateCv'
 import { AssessmentChat } from './AssessmentChat'
 import styles from './CandidateDossierPanel.module.scss'
 import { CompanyTestResults } from './CompanyTestResults'
+import { PersonalityFit } from './PersonalityFit'
 import { MBTI_TYPES } from './mbtiLegend'
 import { Messaging } from './Messaging/Messaging'
 
@@ -330,6 +331,8 @@ export const CandidateDossierPanel = ({
               caption={typeCaption}
             />
           </StatGrid>
+
+          <PersonalityFit application={application} />
 
           <ReactTooltip
             id="mbti-legend"

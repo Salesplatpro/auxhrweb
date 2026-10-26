@@ -108,6 +108,37 @@ export const AiConfigFields = ({
       </ScreeningSection>
 
       <ScreeningSection
+        title="Problem-solving and culture-fit tests"
+        guideId="company-tests"
+        what="Short written tests on this job's page. Problem-solving questions check how someone reasons; culture-fit questions are based on your company values. AI marks the answers and only you see the scores."
+        tip="Generate the questions for this job after you switch a test on. Each candidate gets a random set of the number you choose.">
+        <SwitchField
+          name={fieldName('problemSolvingAssessment')}
+          label="Problem-solving test"
+        />
+        {values.problemSolvingAssessment === 'true' && (
+          <NumberField
+            name={fieldName('noOfProblemSolvingQuestions')}
+            label="Number of problem-solving questions"
+            min={1}
+            max={10}
+          />
+        )}
+        <SwitchField
+          name={fieldName('cultureFitAssessment')}
+          label="Culture-fit test"
+        />
+        {values.cultureFitAssessment === 'true' && (
+          <NumberField
+            name={fieldName('noOfCultureFitQuestions')}
+            label="Number of culture-fit questions"
+            min={1}
+            max={10}
+          />
+        )}
+      </ScreeningSection>
+
+      <ScreeningSection
         title="Personality check"
         guideId="personality-check"
         what="Everyday workplace questions that show how someone likes to work. Candidates see situations, never personality labels."

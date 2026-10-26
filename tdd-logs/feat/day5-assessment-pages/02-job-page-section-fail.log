@@ -1,0 +1,49 @@
+$ npx vitest run src/pages/TalentProfile/TalentAssessment/CompanyAssessments.test.tsx
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "store-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:2183724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2183737) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v3.2.6 /home/user/tab/work/supportpro/wt/fe-day5
+
+(node:2183768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2183769) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2183767) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/TalentProfile/TalentAssessment/CompanyAssessments.test.tsx [ src/pages/TalentProfile/TalentAssessment/CompanyAssessments.test.tsx ]
+Error: Failed to resolve import "./CompanyAssessments" from "src/pages/TalentProfile/TalentAssessment/CompanyAssessments.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/user/tab/work/supportpro/wt/fe-day5/src/pages/TalentProfile/TalentAssessment/CompanyAssessments.test.tsx:5:0
+  16 |  const __vi_import_0__ = await import("react/jsx-dev-runtime");
+  17 |  const __vi_import_1__ = await import("@testing-library/react");
+  18 |  const __vi_import_2__ = await import("./CompanyAssessments");
+     |                                       ^
+  19 |  
+  20 |  
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42517:41
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42514:16
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40493:23
+ ❯ node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40612:37
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40539:7
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42312:18
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:35738:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:36:22
+   Duration  747ms (transform 31ms, setup 98ms, collect 0ms, tests 0ms, environment 323ms, prepare 114ms)
+
+(node:2183829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

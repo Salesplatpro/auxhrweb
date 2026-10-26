@@ -186,6 +186,12 @@ export const GUIDE_SECTIONS: GuideSection[] = [
         tip: '4–8 questions works well. More than that and people may give up halfway.',
       },
       {
+        id: 'company-tests',
+        title: 'Problem-solving and culture-fit tests',
+        body: "Short written tests on the job's page. Problem-solving questions check how someone reasons; culture-fit questions are based on your company values. AI marks each answer and only you see the scores, in the candidate panel.",
+        tip: 'Generate the questions for the job after you switch a test on. You choose 1–10 questions per test.',
+      },
+      {
         id: 'personality-check',
         title: 'Personality check',
         body: 'Everyday workplace questions that show how someone likes to work: team energy, detail vs big picture, how they decide, and planning style. Candidates see situations, never labels.',

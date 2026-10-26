@@ -13,6 +13,10 @@ export interface AiConfigApiRecord {
   minCvSimilarityScore?: number | null
   personalizedAssessment?: boolean
   noPersonalizedQuestions?: number | null
+  problemSolvingAssessment?: boolean
+  noOfProblemSolvingQuestions?: number | null
+  cultureFitAssessment?: boolean
+  noOfCultureFitQuestions?: number | null
   personalityEvaluation?: boolean
   noOfEIQuestions?: number | null
   noOfSNQuestions?: number | null
@@ -32,6 +36,10 @@ export const aiConfigFromApi = (
   minCvSimilarityScore: config.minCvSimilarityScore ?? '',
   personalizedAssessment: config.personalizedAssessment ? 'true' : 'false',
   noPersonalizedQuestions: config.noPersonalizedQuestions ?? '',
+  problemSolvingAssessment: config.problemSolvingAssessment ? 'true' : 'false',
+  noOfProblemSolvingQuestions: config.noOfProblemSolvingQuestions ?? '',
+  cultureFitAssessment: config.cultureFitAssessment ? 'true' : 'false',
+  noOfCultureFitQuestions: config.noOfCultureFitQuestions ?? '',
   personalityEvaluation: config.personalityEvaluation ? 'true' : 'false',
   noOfEIQuestions: config.noOfEIQuestions ?? '',
   noOfSNQuestions: config.noOfSNQuestions ?? '',
@@ -46,6 +54,8 @@ export const aiConfigFromApi = (
 const SWITCH_FIELDS = [
   'cvSimilarity',
   'personalizedAssessment',
+  'problemSolvingAssessment',
+  'cultureFitAssessment',
   'personalityEvaluation',
 ] as const
 
@@ -72,6 +82,12 @@ export const aiConfigToPayload = (values: AiConfigFieldValues) => {
   if (values.personalizedAssessment !== 'true') {
     delete cleaned.noPersonalizedQuestions
   }
+  if (values.problemSolvingAssessment !== 'true') {
+    delete cleaned.noOfProblemSolvingQuestions
+  }
+  if (values.cultureFitAssessment !== 'true') {
+    delete cleaned.noOfCultureFitQuestions
+  }
   if (values.personalityEvaluation !== 'true') {
     delete cleaned.uploadedQuestions
     DICHOTOMY_COUNT_FIELDS.forEach((field) => delete cleaned[field])
@@ -96,6 +112,8 @@ export const aiConfigToPayload = (values: AiConfigFieldValues) => {
     prescreeningAssessment: values.prescreeningAssessment === 'true',
     cvSimilarity: values.cvSimilarity === 'true',
     personalizedAssessment: values.personalizedAssessment === 'true',
+    problemSolvingAssessment: values.problemSolvingAssessment === 'true',
+    cultureFitAssessment: values.cultureFitAssessment === 'true',
     personalityEvaluation: values.personalityEvaluation === 'true',
   }
 }

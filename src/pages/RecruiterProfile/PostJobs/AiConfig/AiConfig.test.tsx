@@ -176,7 +176,9 @@ describe('AiConfig (screening step)', () => {
 
     fireEvent.click(screen.getByRole('switch', { name: /culture-fit test/i }))
     expect(
-      screen.getByLabelText(/number of culture-fit questions/i).getAttribute('max'),
+      screen
+        .getByLabelText(/number of culture-fit questions/i)
+        .getAttribute('max'),
     ).toBe('10')
   })
 

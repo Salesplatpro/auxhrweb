@@ -10,6 +10,15 @@ const base = {
   minPrescreeningScore: 50,
 }
 
+// Formik turns '' into undefined before it runs the schema; do the same here.
+const asFormikValidates = (values: Record<string, unknown>) =>
+  Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [
+      key,
+      value === '' ? undefined : value,
+    ]),
+  )
+
 describe('problem-solving and culture-fit test switches', () => {
   it('are off by default with no question count', () => {
     expect(AI_CONFIG_DEFAULT_VALUES.problemSolvingAssessment).toBe('false')
@@ -64,11 +73,9 @@ describe('problem-solving and culture-fit test switches', () => {
     ['cultureFitAssessment', 'noOfCultureFitQuestions'],
   ] as const)('%s needs a count of 1–10 while on', async (toggle, count) => {
     const valid = (value: unknown) =>
-      aiConfigValidationSchema.isValid({
-        ...base,
-        [toggle]: 'true',
-        [count]: value,
-      })
+      aiConfigValidationSchema.isValid(
+        asFormikValidates({ ...base, [toggle]: 'true', [count]: value }),
+      )
     expect(await valid('')).toBe(false)
     expect(await valid(0)).toBe(false)
     expect(await valid(11)).toBe(false)
@@ -76,11 +83,9 @@ describe('problem-solving and culture-fit test switches', () => {
     expect(await valid(1)).toBe(true)
     expect(await valid(10)).toBe(true)
     expect(
-      await aiConfigValidationSchema.isValid({
-        ...base,
-        [toggle]: 'false',
-        [count]: '',
-      }),
+      await aiConfigValidationSchema.isValid(
+        asFormikValidates({ ...base, [toggle]: 'false', [count]: '' }),
+      ),
     ).toBe(true)
   })
 })

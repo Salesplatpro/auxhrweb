@@ -35,6 +35,10 @@ type SingleJobTableProps = {
   onRegenerateMatch?: (applicationId: string) => void
   /** Application id currently regenerating its AI match — shows a spinner on that row's ring. */
   regeneratingRowId?: string | null
+  /** Recalculates a missing CV match score — omit when the job has CV matching off. */
+  onRetryCvScore?: (applicationId: string) => void
+  /** Application id currently recalculating its CV match score. */
+  retryingCvScoreRowId?: string | null
   /** Application id currently being updated (e.g. via a row-level shortlist/reject) — shows a spinner in that row's actions cell instead of a static disabled state. */
   loadingRowId?: string | null
   visibleColumnKeys?: string[]
@@ -216,6 +220,39 @@ const AiMatchDisplay = ({
   )
 }
 
+const CvScoreRetry = ({
+  item,
+  onRetry,
+  isRetrying,
+}: {
+  item: SingleJobDetails
+  onRetry: (applicationId: string) => void
+  isRetrying?: boolean
+}) => (
+  <button
+    type="button"
+    disabled={isRetrying}
+    onClick={(event) => {
+      event.stopPropagation()
+      onRetry(item.id)
+    }}
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      fontSize: 'var(--text-xs)',
+      color: 'var(--color-primary)',
+      textDecoration: 'underline',
+      cursor: isRetrying ? 'default' : 'pointer',
+    }}>
+    {isRetrying ? <Spinner size="sm" /> : <BsArrowRepeat size={12} />}
+    Retry CV score
+  </button>
+)
+
 const AiMatchCell = ({
   item,
   onOpen,
@@ -255,6 +292,8 @@ export const buildColumns = ({
   onOpenAiMatch,
   onRegenerateMatch,
   regeneratingRowId,
+  onRetryCvScore,
+  retryingCvScoreRowId,
 }: {
   onShortlist?: (applicationId: string) => void
   onReject?: (applicationId: string) => void
@@ -263,6 +302,8 @@ export const buildColumns = ({
   onOpenAiMatch?: (item: SingleJobDetails) => void
   onRegenerateMatch?: (applicationId: string) => void
   regeneratingRowId?: string | null
+  onRetryCvScore?: (applicationId: string) => void
+  retryingCvScoreRowId?: string | null
 }): ColumnDef<SingleJobDetails>[] => [
   {
     key: 'name',
@@ -328,23 +369,37 @@ export const buildColumns = ({
     align: 'center',
     hideBelow: 900,
     toggleable: true,
-    render: (item) =>
-      onOpenAiMatch ? (
-        <AiMatchCell
-          item={item}
-          onOpen={onOpenAiMatch}
-          onRegenerateMatch={onRegenerateMatch}
-          isRegenerating={item.id === regeneratingRowId}
-        />
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+    render: (item) => (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 4,
+        }}>
+        {onOpenAiMatch ? (
+          <AiMatchCell
+            item={item}
+            onOpen={onOpenAiMatch}
+            onRegenerateMatch={onRegenerateMatch}
+            isRegenerating={item.id === regeneratingRowId}
+          />
+        ) : (
           <AiMatchDisplay
             item={item}
             onRegenerateMatch={onRegenerateMatch}
             isRegenerating={item.id === regeneratingRowId}
           />
-        </div>
-      ),
+        )}
+        {onRetryCvScore && item.cvSimilarityScore == null ? (
+          <CvScoreRetry
+            item={item}
+            onRetry={onRetryCvScore}
+            isRetrying={item.id === retryingCvScoreRowId}
+          />
+        ) : null}
+      </div>
+    ),
     sortAccessor: (item) => verdictRank(item.matchVerdict, item.currentStage),
   },
   {
@@ -407,6 +462,8 @@ export const SingleJobTable = ({
   onOpenDossier,
   onRegenerateMatch,
   regeneratingRowId,
+  onRetryCvScore,
+  retryingCvScoreRowId,
 }: SingleJobTableProps) => {
   const allColumns = buildColumns({
     onShortlist,
@@ -416,6 +473,8 @@ export const SingleJobTable = ({
     onOpenAiMatch: onOpenDossier,
     onRegenerateMatch,
     regeneratingRowId,
+    onRetryCvScore,
+    retryingCvScoreRowId,
   })
   const columns = visibleColumnKeys
     ? allColumns.filter(

@@ -1,0 +1,9 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}

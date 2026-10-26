@@ -23,6 +23,7 @@ import { useJobApplications } from '@/features/applications/hooks/useJobApplicat
 import {
   downloadBulkFitReport,
   downloadCandidateFitReport,
+  retryCvSimilarityScore,
   retryMissingVerdicts,
 } from '@/features/applications/services/applicationService'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -196,6 +197,9 @@ export const SingleJobPost = () => {
   const [regeneratingRowId, setRegeneratingRowId] = useState<string | null>(
     null,
   )
+  const [retryingCvScoreRowId, setRetryingCvScoreRowId] = useState<
+    string | null
+  >(null)
 
   // Column defs with no-op action callbacks — only used here to derive
   // toolbar metadata (toggleable/sortable keys, labels) from the same
@@ -289,6 +293,24 @@ export const SingleJobPost = () => {
     } finally {
       setIsRetryingVerdicts(false)
       setIsMissingVerdictModalOpen(false)
+    }
+  }
+
+  const handleRetryCvScore = async (applicationId: string) => {
+    if (!jobId) return
+    setRetryingCvScoreRowId(applicationId)
+    try {
+      await retryCvSimilarityScore(jobId, applicationId)
+      notify('success', 'CV match score calculated', { autoClose: 2000 })
+      await mutate()
+    } catch (err) {
+      notify(
+        'error',
+        getErrorMessage(err, 'Failed to calculate CV match score'),
+        { autoClose: 2500 },
+      )
+    } finally {
+      setRetryingCvScoreRowId(null)
     }
   }
 
@@ -673,6 +695,10 @@ export const SingleJobPost = () => {
           onOpenDossier={openDossier}
           onRegenerateMatch={handleRegenerateMatch}
           regeneratingRowId={regeneratingRowId}
+          onRetryCvScore={
+            jobAiConfig?.cvSimilarity ? handleRetryCvScore : undefined
+          }
+          retryingCvScoreRowId={retryingCvScoreRowId}
           loadingRowId={loadingRowId}
           visibleColumnKeys={visibleColumnKeys}
           sortKey={sortKey}

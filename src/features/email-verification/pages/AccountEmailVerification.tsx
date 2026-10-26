@@ -19,7 +19,7 @@ import styles from './AccountEmailVerification.module.scss'
 type TokenStatus = 'verifying' | 'success' | 'already-verified' | 'error'
 
 const SAFE_REDIRECT_PATTERN =
-  /^\/apply\/[A-Za-z0-9-]+$|^\/join-company\/[a-f0-9]+$/
+  /^\/apply\/[A-Za-z0-9-]+$|^\/join-company\/[a-f0-9]+$|^\/join-staff\/[a-f0-9]+$/
 
 const verifyToastMessage = (joinedCompanyName?: string) =>
   joinedCompanyName

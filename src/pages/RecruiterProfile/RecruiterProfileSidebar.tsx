@@ -40,7 +40,7 @@ const RecruiterProfileSidebar = () => {
           <SideBar
             sideBarData={sidebarData}
             handleClick={() => setIsOpen(false)}
-            topSlot={<CompanyBanner />}
+            topSlot={<CompanyBanner onNavigate={() => setIsOpen(false)} />}
             footerItems={sidebarFooterData}
           />
           <button className="close" onClick={() => setIsOpen(!isOpen)}>

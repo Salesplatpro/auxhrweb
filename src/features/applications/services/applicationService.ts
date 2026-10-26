@@ -32,6 +32,7 @@ export const jobApplicationsKey = (jobId: string) =>
   `/jobs/applications/${jobId}`
 
 export interface JobAiConfigThresholds {
+  cvSimilarity: boolean
   minCvSimilarityScore: number | null
   minPrescreeningScore: number | null
 }
@@ -62,6 +63,11 @@ export const retryMissingVerdicts = (
       applicationIds ? { applicationIds } : undefined,
     )
     .then((response) => response.data.data)
+
+export const retryCvSimilarityScore = (jobId: string, applicationId: string) =>
+  httpClient
+    .post(`/jobs/${jobId}/applications/${applicationId}/cv-score`)
+    .then((response) => response.data)
 
 /** Downloads an evidence-based AI fit report PDF for one candidate. */
 export const downloadCandidateFitReport = async (

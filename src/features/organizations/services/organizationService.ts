@@ -11,6 +11,7 @@ import {
   JoinRequestsApiResponse,
   MembersApiResponse,
   OrganizationApiResponse,
+  OrganizationMember,
   OrganizationsApiResponse,
   OrganizationUsageApiResponse,
   SendOrganizationInvitePayload,
@@ -123,6 +124,18 @@ export const fetchOrganizationMembers = (organizationId: string) =>
   httpClient
     .get<MembersApiResponse>(`/organizations/${organizationId}/members`)
     .then((response) => response.data)
+
+export const updateMemberCanManagePeople = (
+  organizationId: string,
+  memberId: string,
+  canManagePeople: boolean,
+) =>
+  httpClient
+    .patch<{ data: { member: OrganizationMember } }>(
+      `/organizations/${organizationId}/members/${memberId}`,
+      { canManagePeople },
+    )
+    .then((response) => response.data.data.member)
 
 export const fetchOrganizationUsage = (organizationId: string) =>
   httpClient

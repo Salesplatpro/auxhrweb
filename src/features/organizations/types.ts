@@ -148,6 +148,7 @@ export interface OrganizationMember {
   organizationId: string
   workEmail: string
   role: string
+  canManagePeople: boolean
   createdAt: string
   user: {
     id: string

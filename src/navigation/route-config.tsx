@@ -16,6 +16,7 @@ import Solutions from '@/components/features/landing/Solutions'
 import ProtectedRoute from '@/components/routing/ProtectedRoute'
 import RequireActiveCompany from '@/components/routing/RequireActiveCompany'
 import RequireEmailVerified from '@/components/routing/RequireEmailVerified'
+import RequirePeopleAccess from '@/components/routing/RequirePeopleAccess'
 import ApplyWizardEntry from '@/features/apply-wizard/ApplyWizardEntry'
 import ApplyWizardLayout from '@/features/apply-wizard/ApplyWizardLayout'
 import ApplyStep from '@/features/apply-wizard/steps/ApplyStep'
@@ -32,6 +33,12 @@ import {
   SignupPage,
 } from '@/features/auth/pages'
 import AccountEmailVerification from '@/features/email-verification/pages/AccountEmailVerification'
+import JoinStaffEntry from '@/features/join-staff/JoinStaffEntry'
+import JoinStaffLayout from '@/features/join-staff/JoinStaffLayout'
+import JoinStaffAccountStep from '@/features/join-staff/steps/AccountStep'
+import JoinStaffJoinStep from '@/features/join-staff/steps/JoinStep'
+import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
+import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { LandingPage } from '@/LandingPage'
 import { MainLayout, Resources } from '@/pages'
@@ -65,6 +72,9 @@ import { EditJobTab } from '@/pages/RecruiterProfile/EditJob'
 import RecruiterGuide from '@/pages/RecruiterProfile/Guide/Guide'
 import JobDetail from '@/pages/RecruiterProfile/JobDetail'
 import { SingleJobPost } from '@/pages/RecruiterProfile/MyJobPosts/SingleJobPost'
+import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
+import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
+import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
 import PostJobTab from '@/pages/RecruiterProfile/PostJobs/PostJobTab'
 import RecruiterProfileSidebar from '@/pages/RecruiterProfile/RecruiterProfileSidebar'
@@ -184,6 +194,22 @@ export const routeConfig: RouteObject[] = [
       {
         path: `/${paths.verifyEmail}`,
         element: <AccountEmailVerification />,
+      },
+      {
+        path: '/join-staff/:token',
+        element: <JoinStaffLayout />,
+        children: [
+          { index: true, element: <JoinStaffEntry /> },
+          { path: 'account', element: <JoinStaffAccountStep /> },
+          {
+            element: <ProtectedRoute allowedRoles={['talent']} />,
+            children: [
+              { path: 'verify', element: <JoinStaffVerifyStep /> },
+              { path: 'profile', element: <JoinStaffProfileStep /> },
+              { path: 'join', element: <JoinStaffJoinStep /> },
+            ],
+          },
+        ],
       },
       {
         path: '/apply/:jobId',
@@ -427,6 +453,27 @@ export const routeConfig: RouteObject[] = [
                       {
                         path: 'chat',
                         element: <Chat />,
+                      },
+                      {
+                        path: 'people',
+                        element: <RequirePeopleAccess />,
+                        children: [
+                          {
+                            index: true,
+                            element: <Navigate to="employees" replace />,
+                          },
+                          { path: 'employees', element: <Employees /> },
+                          {
+                            path: 'employees/:staffId',
+                            element: <EmployeeDetail />,
+                          },
+                          {
+                            element: <RequirePeopleAccess ownerOnly />,
+                            children: [
+                              { path: 'access-log', element: <AccessLog /> },
+                            ],
+                          },
+                        ],
                       },
                     ],
                   },

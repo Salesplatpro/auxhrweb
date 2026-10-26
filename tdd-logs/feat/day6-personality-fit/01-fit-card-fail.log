@@ -1,0 +1,48 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "store-dir". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "auto-install-peers". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "strict-peer-dependencies". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+(node:2195254) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2195267) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ RUN  v3.2.6 /home/user/tab/work/supportpro/wt/fe-day5
+
+(node:2195312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2195313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2195319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/pages/RecruiterProfile/MyJobPosts/PersonalityFit.test.tsx [ src/pages/RecruiterProfile/MyJobPosts/PersonalityFit.test.tsx ]
+Error: Failed to resolve import "./PersonalityFit" from "src/pages/RecruiterProfile/MyJobPosts/PersonalityFit.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /home/user/tab/work/supportpro/wt/fe-day5/src/pages/RecruiterProfile/MyJobPosts/PersonalityFit.test.tsx:5:31
+  2  |  import { render, screen } from "@testing-library/react";
+  3  |  import { describe, expect, it } from "vitest";
+  4  |  import { PersonalityFit } from "./PersonalityFit";
+     |                                  ^
+  5  |  describe("PersonalityFit (recruiter candidate panel, Day 6)", () => {
+  6  |    it("shows the AI's personality fit score and its reason", () => {
+ ❯ TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42517:41
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42514:16
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40493:23
+ ❯ node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40612:37
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:40539:7
+ ❯ EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:42312:18
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:35738:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:54:46
+   Duration  821ms (transform 31ms, setup 120ms, collect 0ms, tests 0ms, environment 325ms, prepare 163ms)
+
+(node:2195388) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

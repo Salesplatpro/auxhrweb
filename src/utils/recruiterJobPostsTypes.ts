@@ -119,6 +119,9 @@ export type SingleJobDetails = {
   // Day 5: problem-solving / culture-fit results (company only)
   problemSolvingScore?: number | null
   cultureFitScore?: number | null
+  /** Day 6: the AI's 0-100 view of how the personality type fits the job. */
+  personalityFitScore?: number | null
+  personalityFitReason?: string | null
   problemSolvingAnswers?: GradedAnswer[] | null
   cultureFitAnswers?: GradedAnswer[] | null
 }

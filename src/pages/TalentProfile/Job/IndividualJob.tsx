@@ -9,6 +9,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import CompanyAssessments from '@/pages/TalentProfile/TalentAssessment/CompanyAssessments'
 import PersonalityTest from '@/pages/TalentProfile/TalentAssessment/PersonalityTest'
 import PersonalizedTest from '@/pages/TalentProfile/TalentAssessment/PersonalizedTest'
 import {
@@ -42,6 +43,8 @@ type ApplicationRecord = {
   talent?: { prescreeningScore?: number | null }
   personalityAnswers?: Array<{ question: string; answer: string }>
   personalizedAnswers?: Array<{ question: string; answer: string }>
+  problemSolvingSubmitted?: boolean
+  cultureFitSubmitted?: boolean
 }
 
 type SavedQuestion = {
@@ -367,6 +370,8 @@ const IndividualJob = () => {
             onComplete={() => void handleStageComplete()}
           />
         ))}
+
+      <CompanyAssessments jobId={jobId} application={application} />
 
       <ApplicationSuccessModal
         open={showSuccess}

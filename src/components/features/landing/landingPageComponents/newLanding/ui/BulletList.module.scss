@@ -1,0 +1,35 @@
+@use '../styles/tokens' as t;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: relative;
+  padding-left: 20px;
+  font-family: t.$nl-font-general-sans;
+  font-size: 15px;
+  line-height: 1.7;
+  color: t.$nl-color-text-body;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0.65em;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: t.$nl-radius-pill;
+    background: t.$nl-color-accent;
+  }
+}
+
+.lead {
+  font-weight: 600;
+  color: t.$nl-color-text-heading;
+}

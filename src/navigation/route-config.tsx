@@ -8,7 +8,7 @@ import {
   ContactPage,
   Features,
   PrivacyPolicy,
-  TermsAndCondition,
+  TermsPage,
   Testimonials,
 } from '@/components/features/landing/landingPageComponents'
 import Faq from '@/components/features/landing/landingPageComponents/FAQ/Faq'
@@ -188,7 +188,7 @@ export const routeConfig: RouteObject[] = [
           },
           {
             path: paths.termsConditions,
-            element: <TermsAndCondition />,
+            element: <TermsPage />,
           },
         ],
       },

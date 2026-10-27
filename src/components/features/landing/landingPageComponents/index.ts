@@ -1,6 +1,7 @@
 export * from './AboutUs'
 export * from './Features'
 export * from './newLanding/CandidateExperience'
+export * from './newLanding/contact/ContactPage'
 export * from './newLanding/CtaBanner'
 export * from './newLanding/Faq'
 export * from './newLanding/Footer'

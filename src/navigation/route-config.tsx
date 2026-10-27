@@ -5,6 +5,7 @@ import CustomerStories from '@/components/features/landing/customerStories'
 import Explore from '@/components/features/landing/Explore'
 import {
   AboutUs,
+  ContactPage,
   Features,
   PrivacyPolicy,
   TermsAndCondition,
@@ -144,6 +145,10 @@ export const routeConfig: RouteObject[] = [
           {
             path: 'about-us',
             element: <AboutUs />,
+          },
+          {
+            path: paths.contact,
+            element: <ContactPage />,
           },
           {
             path: paths.login,

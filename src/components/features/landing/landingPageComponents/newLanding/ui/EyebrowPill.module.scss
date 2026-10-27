@@ -1,0 +1,22 @@
+@use '../styles/tokens' as t;
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid t.$nl-color-accent-soft-border;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-color-accent-soft-bg;
+  font-family: t.$nl-font-general-sans;
+  font-size: 13px;
+  font-weight: 500;
+  color: t.$nl-color-accent;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-color-accent;
+}

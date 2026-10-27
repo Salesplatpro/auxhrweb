@@ -1,0 +1,35 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.56px;
+  color: t.$nl-color-text-heading;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 40px;
+    letter-spacing: -0.8px;
+  }
+}
+
+.subtitle {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-size: 16px;
+  color: t.$nl-color-text-heading;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 18px;
+  }
+}

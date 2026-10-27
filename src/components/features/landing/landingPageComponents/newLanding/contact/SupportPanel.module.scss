@@ -6,14 +6,19 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 40px;
-  min-height: 560px;
-  padding: 40px 24px 32px;
+  gap: 28px;
+  padding: 28px 16px 32px;
   overflow: hidden;
   border-radius: t.$nl-radius-card;
   background: t.$nl-gradient-support-panel;
 
+  @include bp.below(bp.$bp-lg) {
+    order: -1;
+  }
+
   @include bp.from(bp.$bp-md) {
+    gap: 40px;
+    min-height: 560px;
     padding: 56px 40px 40px;
   }
 }
@@ -22,11 +27,16 @@
   position: relative;
   display: flex;
   justify-content: center;
-  padding: 48px 0 24px;
+  padding: 16px 8px 20px;
+
+  @include bp.from(bp.$bp-md) {
+    padding: 48px 0 24px;
+  }
 }
 
 .ring {
   position: absolute;
+  display: none;
   top: 0;
   left: 50%;
   width: 420px;
@@ -34,10 +44,15 @@
   border: 1px solid t.$nl-color-overlay-line;
   border-radius: t.$nl-radius-pill;
   transform: translateX(-50%);
+
+  @include bp.from(bp.$bp-md) {
+    display: block;
+  }
 }
 
 .dots {
   position: absolute;
+  display: none;
   top: -16px;
   right: 0;
   width: 72px;
@@ -47,6 +62,10 @@
     transparent 1.5px
   );
   background-size: 14px 14px;
+
+  @include bp.from(bp.$bp-md) {
+    display: block;
+  }
 }
 
 .sparkle {
@@ -94,22 +113,26 @@
 
 .mailTile {
   position: absolute;
-  top: 48px;
-  left: -48px;
-  display: none;
+  top: -36px;
+  left: -32px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 18px;
   background: t.$nl-color-bg-surface;
   box-shadow: t.$nl-shadow-float;
   color: t.$nl-color-accent;
-  font-size: 30px;
+  font-size: 26px;
   transform: rotate(-12deg);
 
-  @include bp.from(bp.$bp-sm) {
-    display: inline-flex;
+  @include bp.from(bp.$bp-md) {
+    top: 48px;
+    left: -48px;
+    width: 64px;
+    height: 64px;
+    font-size: 30px;
   }
 }
 
@@ -236,8 +259,8 @@
 
 .ticket {
   position: absolute;
-  right: -16px;
-  bottom: -28px;
+  right: -8px;
+  bottom: -24px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -250,8 +273,9 @@
     margin: 0;
   }
 
-  @include bp.from(bp.$bp-sm) {
+  @include bp.from(bp.$bp-md) {
     right: -40px;
+    bottom: -28px;
   }
 }
 
@@ -291,9 +315,14 @@
 .heading {
   margin: 0;
   font-family: t.$nl-font-general-sans;
-  font-weight: 400;
-  font-size: 24px;
+  font-weight: 600;
+  font-size: 20px;
   color: t.$nl-color-on-accent;
+
+  @include bp.from(bp.$bp-md) {
+    font-weight: 400;
+    font-size: 24px;
+  }
 }
 
 .subcopy {

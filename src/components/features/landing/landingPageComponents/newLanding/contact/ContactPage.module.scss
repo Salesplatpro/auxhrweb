@@ -2,7 +2,7 @@
 @use '../styles/tokens' as t;
 
 .main {
-  padding: 0 t.$nl-page-padding 64px;
+  padding: 0 t.$nl-page-padding 48px;
   @include t.nl-mobile-page-padding-x;
 
   @include bp.from(bp.$bp-md) {
@@ -25,12 +25,13 @@
 .channels {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  padding: 56px t.$nl-page-padding 72px;
+  gap: 28px;
+  padding: 48px t.$nl-page-padding 56px;
   background: t.$nl-gradient-section-soft;
   @include t.nl-mobile-page-padding-x;
 
   @include bp.from(bp.$bp-md) {
+    gap: 40px;
     padding-block: 56px 96px;
   }
 }

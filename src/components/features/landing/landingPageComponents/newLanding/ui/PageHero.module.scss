@@ -5,8 +5,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 56px t.$nl-page-padding 64px;
+  gap: 16px;
+  padding: 40px t.$nl-page-padding 32px;
   text-align: center;
   background: t.$nl-gradient-page-hero;
   @include t.nl-mobile-page-padding-x;
@@ -22,8 +22,8 @@
   margin: 0;
   font-family: t.$nl-font-general-sans;
   font-weight: 500;
-  font-size: 40px;
-  letter-spacing: -0.8px;
+  font-size: 32px;
+  letter-spacing: -0.64px;
   color: t.$nl-color-text-heading;
 
   @include bp.from(bp.$bp-md) {

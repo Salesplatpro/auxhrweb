@@ -68,12 +68,6 @@ export const talentApi = createApi({
       }),
       providesTags: ['Applications'],
     }),
-    cvMatch: builder.query({
-      query: (jobId) => ({
-        url: `/jobs/cv-similarity/${jobId}`,
-        method: 'PATCH',
-      }),
-    }),
     checkPrescreeningStage: builder.query({
       query: (jobId) => ({
         url: `/jobs/prescreening-check/${jobId}`,
@@ -157,7 +151,6 @@ export const {
   useIndividualJobQuery,
   useApplyToJobMutation,
   useJobApplicationQuery,
-  useLazyCvMatchQuery,
   useLazyCheckPrescreeningStageQuery,
   useGeneratePersonalizedTestQuery,
   usePostPersonalizedTestMutation,

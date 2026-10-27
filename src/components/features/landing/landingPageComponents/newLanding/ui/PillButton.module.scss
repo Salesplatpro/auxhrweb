@@ -1,0 +1,45 @@
+@use '../styles/tokens' as t;
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border: 1px solid transparent;
+  border-radius: t.$nl-radius-pill;
+  font-family: t.$nl-font-raleway;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.solid {
+  background: t.$nl-color-cta-solid-bg;
+  color: t.$nl-color-cta-solid-text;
+}
+
+.outline {
+  background: t.$nl-color-bg-surface;
+  border-color: t.$nl-color-cta-outline-border;
+  color: t.$nl-color-cta-outline-text;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.icon {
+  display: inline-flex;
+}

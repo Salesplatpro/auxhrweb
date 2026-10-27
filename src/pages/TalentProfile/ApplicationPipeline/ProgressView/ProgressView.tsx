@@ -16,7 +16,6 @@ import {
   useAllJobApplicationsQuery,
   useJobApplicationQuery,
   useLazyCheckPrescreeningStageQuery,
-  useLazyCvMatchQuery,
 } from '../../../../redux/api/talent'
 import { notify } from '../../../../utils/toastNotifications'
 import { ErrorResponse } from '../../utils/type'
@@ -111,7 +110,6 @@ const ProgressView: React.FC = () => {
   const [jobProgress, setJobProgress] = useState<Application | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const cvMatchTriggeredFor = useRef<string | null>(null)
   const prescreeningTriggeredFor = useRef<string | null>(null)
 
   const {
@@ -135,11 +133,6 @@ const ProgressView: React.FC = () => {
   })
 
   const [
-    triggerCvMatch,
-    { data: cvMatchData, error: cvMatchError, isLoading: cvMatchLoading },
-  ] = useLazyCvMatchQuery()
-
-  const [
     triggerPrescreeningCheck,
     {
       data: prescreeningCheckData,
@@ -153,15 +146,6 @@ const ProgressView: React.FC = () => {
       const applicationData = applicationResp.data?.application || null
       setJobProgress(applicationData)
 
-      if (
-        applicationData?.currentStage === 'cv_similarity' &&
-        applicationData.cvSimilarityScore == null &&
-        applicationId &&
-        cvMatchTriggeredFor.current !== applicationId
-      ) {
-        cvMatchTriggeredFor.current = applicationId
-        triggerCvMatch(jobId)
-      }
       if (
         applicationData?.currentStage === 'prescreening' &&
         applicationId &&
@@ -179,22 +163,8 @@ const ProgressView: React.FC = () => {
     applicationError,
     applicationId,
     jobId,
-    triggerCvMatch,
     triggerPrescreeningCheck,
   ])
-
-  useEffect(() => {
-    if (cvMatchData) {
-      notify('success', 'CV Match completed.', {
-        autoClose: 2000,
-      })
-      void refetch()
-    }
-
-    if (cvMatchError) {
-      handleError(cvMatchError, 'Failed to load CV Match data')
-    }
-  }, [cvMatchData, cvMatchError, refetch])
 
   useEffect(() => {
     if (prescreeningCheckData) {
@@ -249,9 +219,7 @@ const ProgressView: React.FC = () => {
 
   const progresses = getProgresses(jobProgress)
   const isAdvancingStage =
-    cvMatchLoading ||
-    prescreeningCheckLoading ||
-    (applicationFetching && !applicationLoading)
+    prescreeningCheckLoading || (applicationFetching && !applicationLoading)
 
   const homePage = () => {
     if (location.key !== 'default') {

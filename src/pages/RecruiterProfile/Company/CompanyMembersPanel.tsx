@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Spinner } from '@/components/ui/Spinner'
+import { Switch } from '@/components/ui/Switch'
 import { MAX_COMPANY_TEAMMATES } from '@/features/organizations/constants/team'
 import { useOrganizationMembers } from '@/features/organizations/hooks/useOrganizationMembers'
-import { Organization } from '@/features/organizations/types'
+import { useSetMemberCanManagePeople } from '@/features/organizations/hooks/useSetMemberCanManagePeople'
+import {
+  Organization,
+  OrganizationMember,
+} from '@/features/organizations/types'
 
 import styles from './CompanyMembersPanel.module.scss'
 
@@ -18,6 +24,24 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
   organization,
 }) => {
   const { members, isLoading } = useOrganizationMembers(organization.id)
+  const { setCanManagePeople, pendingMemberId } = useSetMemberCanManagePeople(
+    organization.id,
+  )
+  const [toEnable, setToEnable] = useState<OrganizationMember | null>(null)
+
+  const handleToggle = (member: OrganizationMember, next: boolean) => {
+    if (next) {
+      setToEnable(member)
+      return
+    }
+    void setCanManagePeople(member, false)
+  }
+
+  const confirmEnable = async () => {
+    if (!toEnable) return
+    await setCanManagePeople(toEnable, true)
+    setToEnable(null)
+  }
 
   if (isLoading) {
     return (
@@ -63,11 +87,30 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
                       : ''}
                   </p>
                 </div>
+                {member.role === 'owner' ? (
+                  <span className={styles.alwaysOn}>Can manage people</span>
+                ) : (
+                  <Switch
+                    label="Can manage people"
+                    checked={member.canManagePeople}
+                    disabled={pendingMemberId === member.id}
+                    onChange={(next) => handleToggle(member, next)}
+                  />
+                )}
               </article>
             )
           })}
         </div>
       )}
+      <ConfirmDialog
+        open={!!toEnable}
+        title="Let this person manage people?"
+        message="This person will see everyone's pay, contracts and performance."
+        confirmLabel="Allow access"
+        isConfirming={!!toEnable && pendingMemberId === toEnable.id}
+        onConfirm={() => void confirmEnable()}
+        onCancel={() => setToEnable(null)}
+      />
     </PagePanel>
   )
 }

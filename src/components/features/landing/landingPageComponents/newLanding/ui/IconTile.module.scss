@@ -1,0 +1,13 @@
+@use '../styles/tokens' as t;
+
+.tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: t.$nl-radius-tile;
+  background: t.$nl-gradient-icon-tile;
+  color: t.$nl-color-on-accent;
+  font-size: 20px;
+}

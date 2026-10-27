@@ -1,0 +1,10 @@
+.back {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.85;
+
+  &:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+}

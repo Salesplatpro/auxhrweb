@@ -16,7 +16,6 @@ import {
   useIndividualJobQuery,
   useJobApplicationQuery,
   useLazyCheckPrescreeningStageQuery,
-  useLazyCvMatchQuery,
   usePersonalityTestQuery,
   usePersonalizedTestQuery,
 } from '@/redux/api/talent'
@@ -38,7 +37,6 @@ type ApplicationRecord = {
   id?: string
   currentStage?: string
   stages?: Record<string, string> | null
-  cvSimilarityScore?: number | null
   personalizedScore?: number | null
   mbtiType?: string | null
   talent?: { prescreeningScore?: number | null }
@@ -150,9 +148,7 @@ const IndividualJob = () => {
   })()
 
   const [applyToJob, { isLoading: applying }] = useApplyToJobMutation()
-  const [triggerCvMatch] = useLazyCvMatchQuery()
   const [triggerPrescreeningCheck] = useLazyCheckPrescreeningStageQuery()
-  const cvMatchTriggeredFor = useRef<string | null>(null)
   const prescreeningTriggeredFor = useRef<string | null>(null)
 
   const personalityDone = isStageComplete('personality', currentStage, stages)
@@ -200,28 +196,13 @@ const IndividualJob = () => {
   useEffect(() => {
     if (!applicationId || !jobId) return
     if (
-      currentStage === 'cv_similarity' &&
-      application?.cvSimilarityScore == null &&
-      cvMatchTriggeredFor.current !== applicationId
-    ) {
-      cvMatchTriggeredFor.current = applicationId
-      triggerCvMatch(jobId)
-    }
-    if (
       currentStage === 'prescreening' &&
       prescreeningTriggeredFor.current !== applicationId
     ) {
       prescreeningTriggeredFor.current = applicationId
       triggerPrescreeningCheck(jobId)
     }
-  }, [
-    application?.cvSimilarityScore,
-    applicationId,
-    currentStage,
-    jobId,
-    triggerCvMatch,
-    triggerPrescreeningCheck,
-  ])
+  }, [applicationId, currentStage, jobId, triggerPrescreeningCheck])
 
   const setStep = (step: PipelineStepId) => {
     setSearchParams(step === 'details' ? {} : { step }, { replace: true })

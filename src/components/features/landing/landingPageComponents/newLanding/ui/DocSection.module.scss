@@ -1,0 +1,64 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.section {
+  scroll-margin-top: 96px;
+  padding-block: 40px;
+
+  & + & {
+    border-top: 1px solid t.$nl-color-border;
+  }
+
+  &:first-child {
+    padding-top: 0;
+  }
+
+  @include bp.from(bp.$bp-md) {
+    padding-block: 48px;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-family: t.$nl-font-geist;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: t.$nl-color-accent;
+}
+
+.title {
+  margin: 0 0 20px;
+  font-family: t.$nl-font-general-sans;
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.4px;
+  color: t.$nl-color-text-heading;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 32px;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  p {
+    margin: 0;
+    font-family: t.$nl-font-general-sans;
+    font-size: 15px;
+    line-height: 1.7;
+    color: t.$nl-color-text-body;
+  }
+
+  h3 {
+    margin: 8px 0 0;
+    font-family: t.$nl-font-raleway;
+    font-weight: 700;
+    font-size: 18px;
+    color: t.$nl-color-text-heading;
+  }
+}

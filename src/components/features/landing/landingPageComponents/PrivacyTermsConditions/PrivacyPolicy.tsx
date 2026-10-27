@@ -9,7 +9,7 @@ type PolicyItemProps = {
   children: React.ReactNode
 }
 
-export const PolicyItem = ({ title, children }: PolicyItemProps) => (
+const PolicyItem = ({ title, children }: PolicyItemProps) => (
   <div className={styles.policyItem}>
     <Text size="fs-2xl" weight="bold">
       {title}

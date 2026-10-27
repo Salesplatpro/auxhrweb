@@ -29,7 +29,11 @@ const isAllowedResumePath = (
   path: string,
 ): boolean => {
   if (userRole === 'talent') {
-    return path.startsWith('/apply/') || path.startsWith('/talentDashboard')
+    return (
+      path.startsWith('/apply/') ||
+      path.startsWith('/join-staff/') ||
+      path.startsWith('/talentDashboard')
+    )
   }
   if (userRole === 'recruiter') {
     return (

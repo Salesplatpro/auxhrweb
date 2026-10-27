@@ -8,6 +8,7 @@ export const paths = {
   verifyEmail: 'verify-email',
   solution: 'solution',
   aboutUs: 'about-us',
+  contact: 'contact',
   faq: 'faq',
   testimonials: 'testimonials',
   pricing: 'pricing',

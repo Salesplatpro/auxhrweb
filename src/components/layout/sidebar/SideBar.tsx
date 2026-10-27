@@ -52,20 +52,18 @@ export const SideBar: React.FC<sideBarProps> = ({
         {topSlot}
 
         <div className={styles.sidebarList}>
-          {sideBarData.map((data, index) => {
-            return (
-              <SidebarList
-                key={index}
-                icon={data.icon}
-                name={data.name}
-                count={data.count}
-                link={data.link}
-                end={data.end}
-                tourId={data.tourId}
-                onClick={handleClick}
-              />
-            )
-          })}
+          {sideBarData.map((data, index) => (
+            <SidebarList
+              key={index}
+              icon={data.icon}
+              name={data.name}
+              count={data.count}
+              link={data.link}
+              end={data.end}
+              tourId={data.tourId}
+              onClick={handleClick}
+            />
+          ))}
         </div>
       </div>
       <div>

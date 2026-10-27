@@ -27,6 +27,14 @@ describe('destinationAfterAuth', () => {
     ).toBe('/apply/11111111-1111-1111-1111-111111111111/profile')
   })
 
+  it('resumes a staff invite path for talent but not for recruiters', () => {
+    const path = `/join-staff/${'a'.repeat(64)}`
+    expect(destinationAfterAuth('talent', path)).toBe(path)
+    expect(destinationAfterAuth('recruiter', path)).toBe(
+      '/recruiterDashboard/dashboard',
+    )
+  })
+
   it('does not send talent to a recruiter next path', () => {
     expect(
       destinationAfterAuth('talent', '/recruiterDashboard/plan?checkout=paid'),

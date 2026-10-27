@@ -1,0 +1,62 @@
+@use '../../../styles/form-field' as *;
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  @extend %form-field-group;
+  gap: var(--space-1);
+}
+
+.label {
+  @extend %form-label;
+}
+
+.input {
+  @extend %form-input;
+}
+
+.readOnly {
+  @extend %form-readonly;
+}
+
+.hint {
+  display: block;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+  line-height: 1.45;
+}
+
+.error {
+  @extend %form-error;
+}
+
+.inviteBox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  font-size: var(--text-sm);
+  color: var(--color-text-heading);
+
+  input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: var(--color-primary);
+  }
+}
+
+.inviteLabel {
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}

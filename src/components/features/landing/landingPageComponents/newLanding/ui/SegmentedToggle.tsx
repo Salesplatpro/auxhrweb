@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import styles from './SegmentedToggle.module.scss'
 
-export type SegmentedOption<T extends string> = { value: T; label: string }
+export type SegmentedOption<T extends string> = { value: T; label: ReactNode }
 
 type SegmentedToggleProps<T extends string> = {
   label: string
   options: SegmentedOption<T>[]
   value: T
   onChange: (value: T) => void
+  className?: string
 }
 
 export const SegmentedToggle = <T extends string>({
@@ -16,8 +17,12 @@ export const SegmentedToggle = <T extends string>({
   options,
   value,
   onChange,
+  className,
 }: SegmentedToggleProps<T>) => (
-  <div className={styles.toggle} role="tablist" aria-label={label}>
+  <div
+    className={[styles.toggle, className ?? ''].join(' ')}
+    role="tablist"
+    aria-label={label}>
     {options.map((option) => {
       const isActive = option.value === value
       return (

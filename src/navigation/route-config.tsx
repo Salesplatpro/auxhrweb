@@ -7,12 +7,12 @@ import {
   AboutUs,
   ContactPage,
   Features,
+  PricingPage,
   PrivacyPage,
   TermsPage,
   Testimonials,
 } from '@/components/features/landing/landingPageComponents'
 import Faq from '@/components/features/landing/landingPageComponents/FAQ/Faq'
-import Pricing from '@/components/features/landing/Pricing'
 import Solutions from '@/components/features/landing/Solutions'
 import ProtectedRoute from '@/components/routing/ProtectedRoute'
 import RequireActiveCompany from '@/components/routing/RequireActiveCompany'
@@ -140,7 +140,7 @@ export const routeConfig: RouteObject[] = [
           },
           {
             path: 'pricing',
-            element: <Pricing />,
+            element: <PricingPage />,
           },
           {
             path: 'about-us',

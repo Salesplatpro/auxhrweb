@@ -7,7 +7,7 @@ import {
   AboutUs,
   ContactPage,
   Features,
-  PrivacyPolicy,
+  PrivacyPage,
   TermsPage,
   Testimonials,
 } from '@/components/features/landing/landingPageComponents'
@@ -184,7 +184,7 @@ export const routeConfig: RouteObject[] = [
           },
           {
             path: paths.privacyPolicy,
-            element: <PrivacyPolicy />,
+            element: <PrivacyPage />,
           },
           {
             path: paths.termsConditions,

@@ -1,0 +1,50 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 64px t.$nl-page-padding;
+  @include t.nl-mobile-page-padding-x;
+
+  @include bp.from(bp.$bp-md) {
+    gap: 48px;
+    padding-block: 96px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+  max-width: 1200px;
+
+  @include bp.from(bp.$bp-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.item {
+  padding: 24px;
+  border-radius: t.$nl-radius-card;
+  background: t.$nl-color-hero-bg;
+}
+
+.question {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-weight: 600;
+  font-size: 18px;
+  color: t.$nl-color-text-heading;
+}
+
+.answer {
+  margin: 10px 0 0;
+  font-family: t.$nl-font-general-sans;
+  font-size: 14px;
+  line-height: 1.6;
+  color: t.$nl-color-text-body;
+}

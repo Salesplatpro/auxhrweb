@@ -19,7 +19,7 @@ export const CtaBanner = () => (
         <a href={`/${paths.register}`} className={styles.ctaSolid}>
           Get Started <img src={arrowUpRight} alt="" aria-hidden />
         </a>
-        <a href="#how-it-works" className={styles.ctaOutline}>
+        <a href="/#how-it-works" className={styles.ctaOutline}>
           <img src={circlePlay} alt="" aria-hidden /> See how it works
         </a>
       </div>

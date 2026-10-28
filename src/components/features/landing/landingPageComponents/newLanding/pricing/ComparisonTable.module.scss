@@ -1,0 +1,114 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 64px t.$nl-page-padding;
+  background: t.$nl-color-hero-bg;
+  @include t.nl-mobile-page-padding-x;
+
+  @include bp.from(bp.$bp-md) {
+    gap: 48px;
+    padding-block: 96px;
+  }
+}
+
+.card {
+  width: 100%;
+  max-width: 1200px;
+  overflow-x: auto;
+  border: 1px solid t.$nl-color-border;
+  border-radius: t.$nl-radius-card;
+  background: t.$nl-color-bg-surface;
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-family: t.$nl-font-general-sans;
+  font-size: 14px;
+  color: t.$nl-color-text-heading;
+}
+
+.corner,
+.planHead {
+  padding: 24px 16px;
+  font-weight: 600;
+  font-size: 15px;
+  vertical-align: bottom;
+}
+
+.corner {
+  padding-left: 24px;
+  text-align: left;
+}
+
+.planHead {
+  text-align: center;
+}
+
+.planHeadHighlighted {
+  color: t.$nl-color-accent;
+}
+
+.planBadge {
+  display: block;
+  width: fit-content;
+  margin: 6px auto 0;
+  padding: 2px 8px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-violet-50;
+  font-family: t.$nl-font-geist;
+  font-size: 11px;
+  font-weight: 600;
+  color: t.$nl-color-accent;
+}
+
+.sectionRow {
+  padding: 12px 24px;
+  border-top: 1px solid t.$nl-color-border;
+  background: t.$nl-taupe-50;
+  font-family: t.$nl-font-geist;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-align: left;
+  text-transform: uppercase;
+  color: t.$nl-color-accent;
+}
+
+.row {
+  border-top: 1px solid t.$nl-color-border;
+}
+
+.rowLabel {
+  padding: 16px 24px;
+  font-weight: 400;
+  text-align: left;
+  color: t.$nl-color-text-body;
+}
+
+.cell {
+  padding: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-violet-50;
+  color: t.$nl-color-accent;
+}
+
+.none {
+  color: t.$nl-color-text-muted;
+}

@@ -69,6 +69,12 @@ export const retryCvSimilarityScore = (jobId: string, applicationId: string) =>
     .post(`/jobs/${jobId}/applications/${applicationId}/cv-score`)
     .then((response) => response.data)
 
+/** Asks the AI again for a personality fit that is missing on an application. */
+export const retryPersonalityFit = (applicationId: string) =>
+  httpClient
+    .post(`${applicationKey(applicationId)}/personality-fit`)
+    .then((response) => response.data)
+
 /** Downloads an evidence-based AI fit report PDF for one candidate. */
 export const downloadCandidateFitReport = async (
   jobId: string,

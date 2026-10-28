@@ -122,6 +122,7 @@ export type SingleJobDetails = {
   /** Day 6: the AI's 0-100 view of how the personality type fits the job. */
   personalityFitScore?: number | null
   personalityFitReason?: string | null
+  personalityFitPending?: boolean
   problemSolvingAnswers?: GradedAnswer[] | null
   cultureFitAnswers?: GradedAnswer[] | null
 }

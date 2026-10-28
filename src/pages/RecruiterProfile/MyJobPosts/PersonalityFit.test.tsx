@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { PersonalityFit } from './PersonalityFit'
 
@@ -37,5 +37,58 @@ describe('PersonalityFit (recruiter candidate panel, Day 6)', () => {
       />,
     )
     expect(container.innerHTML).toBe('')
+  })
+
+  it('offers a retry when the type is saved but the fit is missing', async () => {
+    let finish!: () => void
+    const onRetry = vi.fn(
+      () => new Promise<void>((resolve) => (finish = resolve)),
+    )
+    render(
+      <PersonalityFit
+        application={{ mbtiType: 'INTJ', personalityFitScore: null }}
+        onRetry={onRetry}
+      />,
+    )
+    expect(screen.getByText("The fit hasn't been worked out yet.")).toBeTruthy()
+
+    const button = screen.getByRole('button', { name: /retry/i })
+    fireEvent.click(button)
+    expect(onRetry).toHaveBeenCalledTimes(1)
+    await waitFor(() =>
+      expect((button as HTMLButtonElement).disabled).toBe(true),
+    )
+    fireEvent.click(button)
+    expect(onRetry).toHaveBeenCalledTimes(1)
+
+    finish()
+    await waitFor(() =>
+      expect((button as HTMLButtonElement).disabled).toBe(false),
+    )
+  })
+
+  it('says the fit is being worked out instead of offering a retry', () => {
+    render(
+      <PersonalityFit
+        application={{
+          mbtiType: 'INTJ',
+          personalityFitScore: null,
+          personalityFitPending: true,
+        }}
+        onRetry={vi.fn()}
+      />,
+    )
+    expect(screen.getByText('Working out the fit…')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /retry/i })).toBeNull()
+  })
+
+  it('shows no retry button on a read-only view', () => {
+    render(
+      <PersonalityFit
+        application={{ mbtiType: 'INTJ', personalityFitScore: null }}
+      />,
+    )
+    expect(screen.getByText("The fit hasn't been worked out yet.")).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /retry/i })).toBeNull()
   })
 })

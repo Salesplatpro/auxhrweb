@@ -1,0 +1,13 @@
+
+ RUN  v3.2.6 /Users/mac/Documents/salesplat/frontend
+
+Browserslist: browsers data (caniuse-lite) is 17 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ src/pages/RecruiterProfile/MyJobPosts/PersonalityFit.test.tsx (6 tests) 57ms
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  01:28:15
+   Duration  1.30s (transform 360ms, setup 100ms, collect 406ms, tests 57ms, environment 224ms, prepare 51ms)
+

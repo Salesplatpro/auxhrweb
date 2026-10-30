@@ -1,35 +1,49 @@
 import { useState } from 'react'
 import { useSWRConfig } from 'swr'
 
+import { downloadBlobResponse } from '@/utils/downloadBlob'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import {
   addShareGrant,
   createBenefit,
+  createCommissionPlan,
   createStaff,
   deleteBenefit,
+  deleteCommissionPlan,
   deleteShareGrant,
+  downloadStaffDocument,
   endStaff,
   inviteStaff,
+  resendStaffDocument,
   savePay,
+  sendStaffDocument,
   staffBase,
   updateBenefit,
+  updateCommissionPlan,
   updateStaff,
 } from '../services/peopleService'
 import {
   Benefit,
   BenefitPayload,
+  CommissionPlan,
+  CommissionPlanPayload,
   CreateStaffPayload,
+  DocumentTemplate,
   PayData,
   PayPackagePayload,
+  SendDocumentResult,
   ShareGrantPayload,
+  StaffDocument,
   StaffMember,
   UpdateStaffPayload,
 } from '../types'
 import {
   benefitsKey,
+  commissionPlansKey,
   staffActivityKey,
+  staffDocumentsKey,
   staffMemberKey,
   staffOptionsKeyPrefix,
   staffPayKey,
@@ -217,6 +231,105 @@ export const useStaffActions = (organizationId: string | null) => {
     return removed
   }
 
+  const saveCommissionPlan = async (
+    payload: CommissionPlanPayload,
+    planId?: string,
+  ) => {
+    const plan = await run(async (orgId) => {
+      const saved = planId
+        ? await updateCommissionPlan(orgId, planId, payload)
+        : await createCommissionPlan(orgId, payload)
+      await mutate<CommissionPlan[]>(
+        commissionPlansKey(orgId),
+        (plans = []) =>
+          [...plans.filter((item) => item.id !== saved.id), saved].sort(
+            (a, b) => a.name.localeCompare(b.name),
+          ),
+        { revalidate: false },
+      )
+      return saved
+    }, 'Could not save this plan')
+    if (plan) notify('success', 'Commission plan saved')
+    return plan
+  }
+
+  const removeCommissionPlan = async (plan: CommissionPlan) => {
+    const removed = await run(async (orgId) => {
+      await deleteCommissionPlan(orgId, plan.id)
+      await mutate<CommissionPlan[]>(
+        commissionPlansKey(orgId),
+        (plans = []) => plans.filter((item) => item.id !== plan.id),
+        { revalidate: false },
+      )
+      return true
+    }, 'Could not delete this plan')
+    if (removed) notify('success', `${plan.name} deleted`)
+    return removed
+  }
+
+  const cacheDocument = async (
+    orgId: string,
+    staffId: string,
+    document: StaffDocument,
+  ) => {
+    await mutate<StaffDocument[]>(
+      staffDocumentsKey(orgId, staffId),
+      (documents = []) => [
+        document,
+        ...documents.filter((item) => item.id !== document.id),
+      ],
+      { revalidate: false },
+    )
+    await mutate(staffActivityKey(orgId, staffId))
+  }
+
+  const notifySent = (result: SendDocumentResult | null, email: string) => {
+    if (!result) return
+    if (result.emailSent) {
+      notify('success', `Sent to ${email} for signing`)
+    } else {
+      notify(
+        'warning',
+        "Saved, but the email didn't go out. Use Send again to retry.",
+        { autoClose: 6000 },
+      )
+    }
+  }
+
+  const sendDocument = async (
+    staff: StaffMember,
+    template: DocumentTemplate,
+  ) => {
+    const result = await run(async (orgId) => {
+      const sent = await sendStaffDocument(orgId, staff.id, template)
+      await cacheDocument(orgId, staff.id, sent.document)
+      return sent
+    }, 'Could not send this document')
+    notifySent(result, staff.email)
+    return result
+  }
+
+  const resendDocument = async (staff: StaffMember, documentId: string) => {
+    const result = await run(async (orgId) => {
+      const sent = await resendStaffDocument(orgId, staff.id, documentId)
+      await cacheDocument(orgId, staff.id, sent.document)
+      return sent
+    }, 'Could not send this document again')
+    notifySent(result, staff.email)
+    return result
+  }
+
+  const downloadDocument = (staffId: string, document: StaffDocument) =>
+    run(async (orgId) => {
+      const response = await downloadStaffDocument(orgId, staffId, document.id)
+      downloadBlobResponse(
+        response.data,
+        response.headers['content-disposition'],
+        `${document.title}.pdf`,
+      )
+      return true
+    }, 'Could not download this document')
+
   return {
     addStaff,
     saveStaff,
@@ -227,6 +340,11 @@ export const useStaffActions = (organizationId: string | null) => {
     removeGrant,
     saveBenefit,
     removeBenefit,
+    saveCommissionPlan,
+    removeCommissionPlan,
+    sendDocument,
+    resendDocument,
+    downloadDocument,
     isSaving,
   }
 }

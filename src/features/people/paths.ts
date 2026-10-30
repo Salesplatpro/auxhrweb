@@ -4,6 +4,8 @@ export const peoplePaths = {
     `/recruiterDashboard/people/employees/${staffId}`,
   accessLog: '/recruiterDashboard/people/access-log',
   benefits: '/recruiterDashboard/people/benefits',
+  commissionPlans: '/recruiterDashboard/people/commission-plans',
+  headcountCost: '/recruiterDashboard/people/headcount-cost',
 }
 
 export const joinStaffPath = (token: string) => `/join-staff/${token}`

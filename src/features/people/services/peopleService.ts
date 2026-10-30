@@ -5,17 +5,26 @@ import {
   AccessLogQuery,
   Benefit,
   BenefitPayload,
+  CommissionPlan,
+  CommissionPlanPayload,
   CreateStaffPayload,
   CreateStaffResult,
+  DocumentPreview,
+  DocumentTemplate,
   Envelope,
+  HeadcountCost,
   InviteStaffResult,
   JoinedStaff,
   PayData,
   PayPackagePayload,
   PeopleAccess,
+  SendDocumentResult,
   ShareGrant,
   ShareGrantPayload,
+  SignedCopy,
+  SigningDocument,
   StaffActivity,
+  StaffDocument,
   StaffInvitePreview,
   StaffListData,
   StaffListQuery,
@@ -188,3 +197,100 @@ export const updateBenefit = (
 
 export const deleteBenefit = (organizationId: string, benefitId: string) =>
   httpClient.delete(`${staffBase(organizationId)}/benefits/${benefitId}`)
+
+export const fetchCommissionPlans = (organizationId: string) =>
+  unwrap<{ plans: CommissionPlan[] }>(
+    httpClient.get(`${staffBase(organizationId)}/commission-plans`),
+  ).then((data) => data.plans)
+
+export const createCommissionPlan = (
+  organizationId: string,
+  payload: CommissionPlanPayload,
+) =>
+  unwrap<{ plan: CommissionPlan }>(
+    httpClient.post(`${staffBase(organizationId)}/commission-plans`, payload),
+  ).then((data) => data.plan)
+
+export const updateCommissionPlan = (
+  organizationId: string,
+  planId: string,
+  payload: CommissionPlanPayload,
+) =>
+  unwrap<{ plan: CommissionPlan }>(
+    httpClient.put(
+      `${staffBase(organizationId)}/commission-plans/${planId}`,
+      payload,
+    ),
+  ).then((data) => data.plan)
+
+export const deleteCommissionPlan = (organizationId: string, planId: string) =>
+  httpClient.delete(`${staffBase(organizationId)}/commission-plans/${planId}`)
+
+export const fetchHeadcountCost = (organizationId: string) =>
+  unwrap<HeadcountCost>(
+    httpClient.get(`${staffBase(organizationId)}/headcount-cost`),
+  )
+
+export const fetchStaffDocuments = (organizationId: string, staffId: string) =>
+  unwrap<{ documents: StaffDocument[] }>(
+    httpClient.get(`${staffBase(organizationId)}/${staffId}/documents`),
+  ).then((data) => data.documents)
+
+export const previewStaffDocument = (
+  organizationId: string,
+  staffId: string,
+  template: DocumentTemplate,
+) =>
+  unwrap<{ preview: DocumentPreview }>(
+    httpClient.get(
+      `${staffBase(organizationId)}/${staffId}/documents/preview`,
+      {
+        params: { template },
+      },
+    ),
+  ).then((data) => data.preview)
+
+export const sendStaffDocument = (
+  organizationId: string,
+  staffId: string,
+  template: DocumentTemplate,
+) =>
+  unwrap<SendDocumentResult>(
+    httpClient.post(`${staffBase(organizationId)}/${staffId}/documents`, {
+      template,
+    }),
+  )
+
+export const resendStaffDocument = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  unwrap<SendDocumentResult>(
+    httpClient.post(
+      `${staffBase(organizationId)}/${staffId}/documents/${documentId}/resend`,
+    ),
+  )
+
+export const downloadStaffDocument = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  httpClient.get<Blob>(
+    `${staffBase(organizationId)}/${staffId}/documents/${documentId}/pdf`,
+    { responseType: 'blob' },
+  )
+
+export const fetchSigningDocument = (token: string) =>
+  unwrap<{ document: SigningDocument }>(
+    httpClient.get(`/staff-documents/${token}`),
+  ).then((data) => data.document)
+
+export const signDocumentWithLink = (token: string, fullName: string) =>
+  unwrap<{ signed: SignedCopy }>(
+    httpClient.post(`/staff-documents/${token}/sign`, {
+      fullName,
+      agree: true,
+    }),
+  ).then((data) => data.signed)

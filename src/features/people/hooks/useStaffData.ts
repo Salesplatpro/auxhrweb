@@ -3,8 +3,11 @@ import useSWR from 'swr'
 import {
   fetchAccessLog,
   fetchBenefits,
+  fetchCommissionPlans,
+  fetchHeadcountCost,
   fetchPay,
   fetchStaffActivity,
+  fetchStaffDocuments,
   fetchStaffList,
   fetchStaffMember,
   fetchStaffOptions,
@@ -31,6 +34,12 @@ export const staffPayKey = (organizationId: string, staffId: string) =>
 
 export const benefitsKey = (organizationId: string) =>
   `${staffBase(organizationId)}/benefits`
+
+export const commissionPlansKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/commission-plans`
+
+export const staffDocumentsKey = (organizationId: string, staffId: string) =>
+  `${staffBase(organizationId)}/${staffId}/documents`
 
 const accessLogKey = (organizationId: string, query: AccessLogQuery) =>
   `${staffBase(organizationId)}/access-log?${toQueryString({ ...query })}`
@@ -160,4 +169,37 @@ export const useBenefits = (organizationId: string | null) => {
     hasError: !!error,
     isForbidden: isForbidden(error),
   }
+}
+
+export const useCommissionPlans = (organizationId: string | null) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? commissionPlansKey(organizationId) : null,
+    () => (organizationId ? fetchCommissionPlans(organizationId) : null),
+  )
+
+  return { plans: data ?? [], isLoading, hasError: !!error }
+}
+
+export const useHeadcountCost = (organizationId: string | null) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? `${staffBase(organizationId)}/headcount-cost` : null,
+    () => (organizationId ? fetchHeadcountCost(organizationId) : null),
+    VIEW_LOGGED_OPTIONS,
+  )
+
+  return { cost: data ?? null, isLoading, hasError: !!error }
+}
+
+export const useStaffDocuments = (
+  organizationId: string | null,
+  staffId: string,
+) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? staffDocumentsKey(organizationId, staffId) : null,
+    () =>
+      organizationId ? fetchStaffDocuments(organizationId, staffId) : null,
+    VIEW_LOGGED_OPTIONS,
+  )
+
+  return { documents: data ?? [], isLoading, hasError: !!error }
 }

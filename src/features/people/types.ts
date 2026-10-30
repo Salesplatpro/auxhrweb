@@ -65,6 +65,10 @@ export type StaffActivityType =
   | 'pay_set'
   | 'share_grant_added'
   | 'share_grant_removed'
+  | 'document_sent'
+  | 'document_email_failed'
+  | 'document_viewed'
+  | 'document_signed'
 
 export interface StaffActivity {
   id: string
@@ -76,6 +80,8 @@ export interface StaffActivity {
     endDate?: string
     startsOn?: string
     shares?: number
+    title?: string
+    resent?: boolean
   } | null
   createdAt: string
 }
@@ -198,10 +204,12 @@ export interface PayTerms {
 
 export interface PayPackagePayload extends PayTerms {
   benefitIds: string[]
+  commissionPlanId: string | null
 }
 
 export interface PayPackage extends PayTerms {
   id: string
+  commissionPlanId: string | null
   benefits: { id: string; name: string }[]
   paragraph: string
   createdAt: string
@@ -224,4 +232,77 @@ export interface PayData {
   currentPackageId: string | null
   packages: PayPackage[]
   grants: ShareGrant[]
+}
+
+export interface CommissionTier {
+  fromPercent: number
+  toPercent: number | null
+  ratePercent: number
+  boost: number | null
+}
+
+export interface CommissionPlanPayload {
+  name: string
+  tiers: CommissionTier[]
+}
+
+export interface CommissionPlan extends CommissionPlanPayload {
+  id: string
+}
+
+export interface HeadcountCostRow {
+  currency: PayCurrency
+  department: string | null
+  staffCount: number
+  baseSalary: number
+  bonus: number
+  commissionTarget: number
+  total: number
+}
+
+export interface HeadcountCost {
+  totals: HeadcountCostRow[]
+  departments: HeadcountCostRow[]
+}
+
+export type DocumentTemplate =
+  | 'offer_letter'
+  | 'nda'
+  | 'work_ownership'
+  | 'pay_agreement'
+
+export interface StaffDocument {
+  id: string
+  template: DocumentTemplate
+  title: string
+  status: 'sent' | 'signed'
+  sentAt: string
+  openedAt: string | null
+  signedAt: string | null
+  signerName: string | null
+  linkExpiresAt: string | null
+}
+
+export interface DocumentPreview {
+  title: string
+  body: string
+  missing: string[]
+}
+
+export interface SendDocumentResult {
+  document: StaffDocument
+  emailSent: boolean
+}
+
+export interface SigningDocument {
+  companyName: string
+  companyLogoUrl: string | null
+  employeeName: string
+  title: string
+  body: string
+}
+
+export interface SignedCopy {
+  fileName: string
+  pdfBase64: string
 }

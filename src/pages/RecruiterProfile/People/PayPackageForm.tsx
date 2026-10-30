@@ -10,6 +10,7 @@ import TextField from '@/components/forms/TextField'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
 import { useStaffActions } from '@/features/people/hooks/useStaffActions'
+import { useCommissionPlans } from '@/features/people/hooks/useStaffData'
 import { peoplePaths } from '@/features/people/paths'
 import { previewPayParagraph } from '@/features/people/services/peopleService'
 import {
@@ -32,6 +33,7 @@ interface PayFormValues {
   commissionTarget: number | ''
   startsOn: string
   benefitIds: string[]
+  commissionPlanId: string
 }
 
 const PERIOD_OPTIONS = [
@@ -67,6 +69,7 @@ const toPayload = (values: PayFormValues): PayPackagePayload => ({
   commissionTarget: Number(values.commissionTarget || 0),
   startsOn: values.startsOn,
   benefitIds: values.benefitIds,
+  commissionPlanId: values.commissionPlanId || null,
 })
 
 const initialValuesFrom = (current: PayPackage | null): PayFormValues =>
@@ -79,6 +82,7 @@ const initialValuesFrom = (current: PayPackage | null): PayFormValues =>
         commissionTarget: current.commissionTarget || '',
         startsOn: current.startsOn,
         benefitIds: current.benefits.map((benefit) => benefit.id),
+        commissionPlanId: current.commissionPlanId ?? '',
       }
     : {
         currency: 'NGN',
@@ -88,6 +92,7 @@ const initialValuesFrom = (current: PayPackage | null): PayFormValues =>
         commissionTarget: '',
         startsOn: todayDateOnly(),
         benefitIds: [],
+        commissionPlanId: '',
       }
 
 const ParagraphPreview: React.FC<{ organizationId: string }> = ({
@@ -183,6 +188,11 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
   onDone,
 }) => {
   const { savePayPackage } = useStaffActions(organizationId)
+  const { plans } = useCommissionPlans(organizationId)
+  const planOptions = [
+    { value: '', label: 'No commission plan' },
+    ...plans.map((plan) => ({ value: plan.id, label: plan.name })),
+  ]
 
   const handleSubmit = async (values: PayFormValues) => {
     if (await savePayPackage(staffId, toPayload(values))) onDone()
@@ -233,6 +243,13 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
                 placeholder="0"
               />
             </div>
+            <Select
+              name="commissionPlanId"
+              label="Commission plan"
+              options={planOptions}
+              value={values.commissionPlanId}
+              onChange={(value) => setFieldValue('commissionPlanId', value)}
+            />
             <TextField
               name="startsOn"
               label="Package starts on"

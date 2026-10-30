@@ -15,6 +15,7 @@ const { usePayMock, previewMock, savePayPackageMock } = vi.hoisted(() => ({
 
 vi.mock('@/features/people/hooks/useStaffData', () => ({
   usePay: usePayMock,
+  useCommissionPlans: () => ({ plans: [], isLoading: false }),
   useBenefits: () => ({
     benefits: [{ id: 'b-1', name: 'Health cover', description: null }],
     isLoading: false,
@@ -88,6 +89,7 @@ describe('PayTab', () => {
             baseSalary: 400000,
             bonus: 50000,
             commissionTarget: 0,
+            commissionPlanId: null,
             startsOn: '2026-01-05',
             benefits: [{ id: 'b-1', name: 'Health cover' }],
             paragraph: 'Your base salary is NGN 400,000 per month.',

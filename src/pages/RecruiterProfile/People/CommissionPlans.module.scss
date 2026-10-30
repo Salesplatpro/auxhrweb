@@ -1,0 +1,134 @@
+@use '../../../styles/form-field' as *;
+@use '../../../styles/breakpoints' as *;
+
+.tiers {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  legend {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-heading);
+  }
+}
+
+.tier {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  align-items: start;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cellLabel {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.fixed {
+  padding: var(--space-2) 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.input {
+  @extend %form-input;
+  min-width: 0;
+}
+
+.remove {
+  align-self: center;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--color-danger);
+    background: var(--color-danger-tint);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.tierHint {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.error {
+  @extend %form-error;
+}
+
+.tierList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-body);
+}
+
+.tryInputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  input {
+    @extend %form-input;
+  }
+}
+
+.tryResult {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-body);
+
+  strong {
+    font-size: var(--text-lg);
+    color: var(--color-text-heading);
+  }
+}

@@ -41,6 +41,7 @@ import JoinStaffJoinStep from '@/features/join-staff/steps/JoinStep'
 import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
 import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import PreAssessmentPage from '@/features/pre-assessment/page'
+import { SignDocument } from '@/features/sign-document/SignDocument'
 import { LandingPage } from '@/LandingPage'
 import { MainLayout, Resources } from '@/pages'
 import AdminProfileSidebar from '@/pages/AdminProfile/AdminProfileSidebar'
@@ -75,8 +76,10 @@ import JobDetail from '@/pages/RecruiterProfile/JobDetail'
 import { SingleJobPost } from '@/pages/RecruiterProfile/MyJobPosts/SingleJobPost'
 import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
 import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
+import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
+import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
 import PostJobTab from '@/pages/RecruiterProfile/PostJobs/PostJobTab'
 import RecruiterProfileSidebar from '@/pages/RecruiterProfile/RecruiterProfileSidebar'
@@ -200,6 +203,10 @@ export const routeConfig: RouteObject[] = [
       {
         path: `/${paths.verifyEmail}`,
         element: <AccountEmailVerification />,
+      },
+      {
+        path: '/sign/:token',
+        element: <SignDocument />,
       },
       {
         path: '/join-staff/:token',
@@ -474,6 +481,14 @@ export const routeConfig: RouteObject[] = [
                             element: <EmployeeDetail />,
                           },
                           { path: 'benefits', element: <Benefits /> },
+                          {
+                            path: 'commission-plans',
+                            element: <CommissionPlans />,
+                          },
+                          {
+                            path: 'headcount-cost',
+                            element: <HeadcountCost />,
+                          },
                           {
                             element: <RequirePeopleAccess ownerOnly />,
                             children: [

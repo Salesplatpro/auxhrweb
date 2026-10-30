@@ -4,6 +4,7 @@ import type { StaffMember } from '@/features/people/types'
 
 import { ActivityTab } from './ActivityTab'
 import { DetailsTab } from './DetailsTab'
+import { DocumentsTab } from './DocumentsTab'
 import { PayTab } from './PayTab'
 
 export interface EmployeeTabProps {
@@ -20,5 +21,6 @@ interface EmployeeTab {
 export const EMPLOYEE_TABS: EmployeeTab[] = [
   { key: 'details', label: 'Details', Component: DetailsTab },
   { key: 'pay', label: 'Pay', Component: PayTab },
+  { key: 'documents', label: 'Documents', Component: DocumentsTab },
   { key: 'activity', label: 'Activity', Component: ActivityTab },
 ]

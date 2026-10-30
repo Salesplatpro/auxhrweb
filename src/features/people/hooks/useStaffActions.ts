@@ -2,35 +2,51 @@ import { useState } from 'react'
 import { useSWRConfig } from 'swr'
 
 import { downloadBlobResponse } from '@/utils/downloadBlob'
+import { exportRowsToCsv } from '@/utils/exportRowsToCsv'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import {
+  addChecklistTask,
   addShareGrant,
+  checkStaffImport,
+  commitStaffImport,
   createBenefit,
   createCommissionPlan,
   createStaff,
   deleteBenefit,
+  deleteChecklistTask,
   deleteCommissionPlan,
   deleteShareGrant,
+  downloadNotarizedScan,
   downloadStaffDocument,
   endStaff,
+  fetchStaffExport,
+  fillCompanyProfileFromFile,
   inviteStaff,
   resendStaffDocument,
+  saveChecklistDefaults,
+  saveCompanyProfile,
   savePay,
   sendStaffDocument,
+  setDocumentNotarization,
   staffBase,
   updateBenefit,
   updateCommissionPlan,
   updateStaff,
+  uploadNotarizedScan,
 } from '../services/peopleService'
 import {
   Benefit,
   BenefitPayload,
+  ChecklistItem,
+  ChecklistTask,
   CommissionPlan,
   CommissionPlanPayload,
+  CompanyProfile,
   CreateStaffPayload,
   DocumentTemplate,
+  ImportStaffRow,
   PayData,
   PayPackagePayload,
   SendDocumentResult,
@@ -41,7 +57,10 @@ import {
 } from '../types'
 import {
   benefitsKey,
+  checklistDefaultsKey,
+  checklistKey,
   commissionPlansKey,
+  companyProfileKey,
   staffActivityKey,
   staffDocumentsKey,
   staffMemberKey,
@@ -330,6 +349,141 @@ export const useStaffActions = (organizationId: string | null) => {
       return true
     }, 'Could not download this document')
 
+  const addTask = async (
+    staffId: string,
+    task: { title: string; dueOn: string | null },
+  ) => {
+    const created = await run(async (orgId) => {
+      const saved = await addChecklistTask(orgId, staffId, task)
+      await mutate<ChecklistTask[]>(checklistKey(orgId, staffId))
+      return saved
+    }, 'Could not add this task')
+    if (created) notify('success', 'Task added')
+    return created
+  }
+
+  const removeTask = (staffId: string, taskId: string) =>
+    run(async (orgId) => {
+      await deleteChecklistTask(orgId, staffId, taskId)
+      await mutate<ChecklistTask[]>(
+        checklistKey(orgId, staffId),
+        (tasks = []) => tasks.filter((task) => task.id !== taskId),
+        { revalidate: false },
+      )
+      return true
+    }, 'Could not remove this task')
+
+  const saveDefaultChecklist = async (items: ChecklistItem[]) => {
+    const saved = await run(async (orgId) => {
+      const result = await saveChecklistDefaults(orgId, items)
+      await mutate(checklistDefaultsKey(orgId), result, { revalidate: false })
+      return result
+    }, 'Could not save the default checklist')
+    if (saved) notify('success', 'Default checklist saved')
+    return saved
+  }
+
+  const setNotarization = (
+    staffId: string,
+    documentId: string,
+    needsNotarization: boolean,
+  ) =>
+    run(async (orgId) => {
+      const document = await setDocumentNotarization(
+        orgId,
+        staffId,
+        documentId,
+        needsNotarization,
+      )
+      await cacheDocument(orgId, staffId, document)
+      return document
+    }, 'Could not update this document')
+
+  const attachNotarizedScan = async (
+    staffId: string,
+    documentId: string,
+    file: File,
+  ) => {
+    const document = await run(async (orgId) => {
+      const updated = await uploadNotarizedScan(
+        orgId,
+        staffId,
+        documentId,
+        file,
+      )
+      await cacheDocument(orgId, staffId, updated)
+      return updated
+    }, 'Could not upload the notarized copy')
+    if (document) notify('success', 'Notarized copy attached')
+    return document
+  }
+
+  const downloadScan = (staffId: string, document: StaffDocument) =>
+    run(async (orgId) => {
+      const response = await downloadNotarizedScan(orgId, staffId, document.id)
+      downloadBlobResponse(
+        response.data,
+        response.headers['content-disposition'],
+        `${document.title} notarized`,
+      )
+      return true
+    }, 'Could not download the notarized copy')
+
+  const checkImport = (rows: ImportStaffRow[]) =>
+    run((orgId) => checkStaffImport(orgId, rows), 'Could not check this file')
+
+  const importStaff = (rows: ImportStaffRow[]) =>
+    run(async (orgId) => {
+      const result = await commitStaffImport(orgId, rows)
+      await refreshLists(orgId)
+      return result
+    }, 'Could not import these staff')
+
+  const exportStaffCsv = () =>
+    run(async (orgId) => {
+      const staff = await fetchStaffExport(orgId)
+      exportRowsToCsv(
+        [
+          'Email',
+          'Full name',
+          'Job title',
+          'Department',
+          'Manager email',
+          'Start date',
+          'Status',
+          'Hired through',
+        ],
+        staff.map((person) => [
+          person.email,
+          person.fullName,
+          person.jobTitle,
+          person.department ?? '',
+          person.managerEmail ?? '',
+          person.startDate,
+          person.status,
+          person.hiredThroughAuxhr ? 'AuxHR' : 'Outside',
+        ]),
+        'staff.csv',
+      )
+      return true
+    }, 'Could not export your staff')
+
+  const saveProfile = async (profile: CompanyProfile) => {
+    const saved = await run(async (orgId) => {
+      const result = await saveCompanyProfile(orgId, profile)
+      await mutate(companyProfileKey(orgId), result, { revalidate: false })
+      return result
+    }, 'Could not save the company profile')
+    if (saved) notify('success', 'Company profile saved')
+    return saved
+  }
+
+  const fillProfileFromFile = (file: File) =>
+    run(
+      (orgId) => fillCompanyProfileFromFile(orgId, file),
+      'Could not read this document',
+    )
+
   return {
     addStaff,
     saveStaff,
@@ -345,6 +499,17 @@ export const useStaffActions = (organizationId: string | null) => {
     sendDocument,
     resendDocument,
     downloadDocument,
+    addTask,
+    removeTask,
+    saveDefaultChecklist,
+    setNotarization,
+    attachNotarizedScan,
+    downloadScan,
+    checkImport,
+    importStaff,
+    exportStaffCsv,
+    saveProfile,
+    fillProfileFromFile,
     isSaving,
   }
 }

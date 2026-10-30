@@ -124,23 +124,31 @@ const SigningForm: React.FC<SigningFormProps> = ({ document, onSign }) => {
   )
 }
 
-export const SignDocument = () => {
-  const { token = '' } = useParams<{ token: string }>()
+interface SigningPageProps {
+  cacheKey: string
+  loadDocument: () => Promise<SigningDocument>
+  submitSignature: (fullName: string) => Promise<SignedCopy>
+  onSigned?: () => void
+}
+
+export const SigningPage: React.FC<SigningPageProps> = ({
+  cacheKey,
+  loadDocument,
+  submitSignature,
+  onSigned,
+}) => {
   const [copy, setCopy] = useState<SignedCopy | null>(null)
   const [isGone, setIsGone] = useState(false)
-  const { data, error, isLoading } = useSWR(
-    token ? `/staff-documents/${token}` : null,
-    () => fetchSigningDocument(token),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      shouldRetryOnError: false,
-    },
-  )
+  const { data, error, isLoading } = useSWR(cacheKey, loadDocument, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    shouldRetryOnError: false,
+  })
 
   const handleSign = async (fullName: string) => {
     try {
-      setCopy(await signDocumentWithLink(token, fullName))
+      setCopy(await submitSignature(fullName))
+      onSigned?.()
     } catch (signError) {
       if (isLinkGone(signError)) {
         setIsGone(true)
@@ -157,4 +165,15 @@ export const SignDocument = () => {
   if (isLoading) return <Spinner fullPage />
   if (isGone || error || !data) return <LinkGone />
   return <SigningForm document={data} onSign={handleSign} />
+}
+
+export const SignDocument = () => {
+  const { token = '' } = useParams<{ token: string }>()
+  return (
+    <SigningPage
+      cacheKey={`/staff-documents/${token}`}
+      loadDocument={() => fetchSigningDocument(token)}
+      submitSignature={(fullName) => signDocumentWithLink(token, fullName)}
+    />
+  )
 }

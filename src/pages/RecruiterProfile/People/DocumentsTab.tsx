@@ -23,6 +23,7 @@ import {
 import { formatDateTime } from '@/features/people/utils/formatDate'
 import { nameParts } from '@/features/people/utils/nameParts'
 import { getErrorMessage } from '@/utils/getErrorMessage'
+import { notify } from '@/utils/toastNotifications'
 
 import styles from './DocumentsTab.module.scss'
 import type { EmployeeTabProps } from './employeeTabs'
@@ -62,6 +63,80 @@ const STATUS_STYLE = {
     color: 'var(--color-success)',
   },
 } as const
+
+const SCAN_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
+const MAX_SCAN_BYTES = 10 * 1024 * 1024
+
+const NotarizationCell: React.FC<{
+  document: StaffDocument
+  staffId: string
+  organizationId: string
+  readOnly: boolean
+}> = ({ document, staffId, organizationId, readOnly }) => {
+  const { setNotarization, attachNotarizedScan, downloadScan, isSaving } =
+    useStaffActions(organizationId)
+  if (document.status !== 'signed')
+    return <span className={styles.muted}>—</span>
+
+  const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (!SCAN_TYPES.includes(file.type)) {
+      notify('error', 'Upload the scan as a PDF, JPG or PNG file')
+      return
+    }
+    if (file.size > MAX_SCAN_BYTES) {
+      notify('error', 'The scan must be 10 MB or smaller')
+      return
+    }
+    void attachNotarizedScan(staffId, document.id, file)
+  }
+
+  return (
+    <div className={styles.notarization}>
+      {document.notarizedAt ? (
+        <>
+          <StatusBadge
+            status="Notarized"
+            backgroundColor="var(--color-success-tint)"
+            color="var(--color-success)"
+          />
+          <button
+            type="button"
+            className={styles.linkButton}
+            onClick={() => downloadScan(staffId, document)}>
+            View scan
+          </button>
+        </>
+      ) : (
+        <label className={styles.flag}>
+          <input
+            type="checkbox"
+            checked={document.needsNotarization}
+            disabled={readOnly || isSaving}
+            onChange={(event) =>
+              setNotarization(staffId, document.id, event.target.checked)
+            }
+          />
+          Needs notarization
+        </label>
+      )}
+      {document.needsNotarization && !readOnly && (
+        <label className={styles.linkButton}>
+          {document.notarizedAt ? 'Replace scan' : 'Upload notarized copy'}
+          <input
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            className={styles.fileInput}
+            disabled={isSaving}
+            onChange={handleFile}
+          />
+        </label>
+      )}
+    </div>
+  )
+}
 
 const NewDocumentDrawer: React.FC<
   EmployeeTabProps & { open: boolean; onClose: () => void }
@@ -234,6 +309,19 @@ export const DocumentsTab: React.FC<EmployeeTabProps> = ({
       header: 'Signed',
       hideBelow: 640,
       render: (document) => formatDateTime(document.signedAt),
+    },
+    {
+      key: 'notarization',
+      header: 'Notarization',
+      hideBelow: 768,
+      render: (document) => (
+        <NotarizationCell
+          document={document}
+          staffId={staff.id}
+          organizationId={organizationId}
+          readOnly={isEnded}
+        />
+      ),
     },
     {
       key: 'actions',

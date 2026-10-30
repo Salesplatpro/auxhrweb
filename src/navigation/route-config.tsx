@@ -40,6 +40,8 @@ import JoinStaffAccountStep from '@/features/join-staff/steps/AccountStep'
 import JoinStaffJoinStep from '@/features/join-staff/steps/JoinStep'
 import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
 import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
+import { MyWork } from '@/features/my-work/MyWork'
+import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { LandingPage } from '@/LandingPage'
@@ -77,6 +79,7 @@ import { SingleJobPost } from '@/pages/RecruiterProfile/MyJobPosts/SingleJobPost
 import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
 import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
 import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
+import { CompanyProfile } from '@/pages/RecruiterProfile/People/CompanyProfile'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
@@ -291,6 +294,14 @@ export const routeConfig: RouteObject[] = [
                     element: <PreAssessmentPage />,
                   },
                   {
+                    path: 'my-work',
+                    element: <MyWork />,
+                  },
+                  {
+                    path: 'my-work/documents/:documentId',
+                    element: <MyWorkDocument />,
+                  },
+                  {
                     path: 'job',
                     element: <Job />,
                   },
@@ -488,6 +499,10 @@ export const routeConfig: RouteObject[] = [
                           {
                             path: 'headcount-cost',
                             element: <HeadcountCost />,
+                          },
+                          {
+                            path: 'company-profile',
+                            element: <CompanyProfile />,
                           },
                           {
                             element: <RequirePeopleAccess ownerOnly />,

@@ -5,16 +5,23 @@ import {
   AccessLogQuery,
   Benefit,
   BenefitPayload,
+  ChecklistItem,
+  ChecklistTask,
   CommissionPlan,
   CommissionPlanPayload,
+  CompanyProfile,
   CreateStaffPayload,
   CreateStaffResult,
   DocumentPreview,
   DocumentTemplate,
   Envelope,
   HeadcountCost,
+  ImportCommitResult,
+  ImportRowResult,
+  ImportStaffRow,
   InviteStaffResult,
   JoinedStaff,
+  MyWorkRecord,
   PayData,
   PayPackagePayload,
   PeopleAccess,
@@ -25,6 +32,7 @@ import {
   SigningDocument,
   StaffActivity,
   StaffDocument,
+  StaffExportRow,
   StaffInvitePreview,
   StaffListData,
   StaffListQuery,
@@ -290,6 +298,170 @@ export const fetchSigningDocument = (token: string) =>
 export const signDocumentWithLink = (token: string, fullName: string) =>
   unwrap<{ signed: SignedCopy }>(
     httpClient.post(`/staff-documents/${token}/sign`, {
+      fullName,
+      agree: true,
+    }),
+  ).then((data) => data.signed)
+
+export const fetchChecklistDefaults = (organizationId: string) =>
+  unwrap<{ items: ChecklistItem[] }>(
+    httpClient.get(`${staffBase(organizationId)}/checklist-defaults`),
+  ).then((data) => data.items)
+
+export const saveChecklistDefaults = (
+  organizationId: string,
+  items: ChecklistItem[],
+) =>
+  unwrap<{ items: ChecklistItem[] }>(
+    httpClient.put(`${staffBase(organizationId)}/checklist-defaults`, {
+      items,
+    }),
+  ).then((data) => data.items)
+
+export const fetchChecklist = (organizationId: string, staffId: string) =>
+  unwrap<{ tasks: ChecklistTask[] }>(
+    httpClient.get(`${staffBase(organizationId)}/${staffId}/checklist`),
+  ).then((data) => data.tasks)
+
+export const addChecklistTask = (
+  organizationId: string,
+  staffId: string,
+  task: { title: string; dueOn: string | null },
+) =>
+  unwrap<{ task: ChecklistTask }>(
+    httpClient.post(`${staffBase(organizationId)}/${staffId}/checklist`, task),
+  ).then((data) => data.task)
+
+export const deleteChecklistTask = (
+  organizationId: string,
+  staffId: string,
+  taskId: string,
+) =>
+  httpClient.delete(
+    `${staffBase(organizationId)}/${staffId}/checklist/${taskId}`,
+  )
+
+const documentPath = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) => `${staffBase(organizationId)}/${staffId}/documents/${documentId}`
+
+export const setDocumentNotarization = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+  needsNotarization: boolean,
+) =>
+  unwrap<{ document: StaffDocument }>(
+    httpClient.patch(documentPath(organizationId, staffId, documentId), {
+      needsNotarization,
+    }),
+  ).then((data) => data.document)
+
+export const uploadNotarizedScan = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+  file: File,
+) => {
+  const form = new FormData()
+  form.append('file', file)
+  return unwrap<{ document: StaffDocument }>(
+    httpClient.post(
+      `${documentPath(organizationId, staffId, documentId)}/notarized-scan`,
+      form,
+    ),
+  ).then((data) => data.document)
+}
+
+export const downloadNotarizedScan = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  httpClient.get<Blob>(
+    `${documentPath(organizationId, staffId, documentId)}/notarized-scan`,
+    { responseType: 'blob' },
+  )
+
+export const checkStaffImport = (
+  organizationId: string,
+  rows: ImportStaffRow[],
+) =>
+  unwrap<{ rows: ImportRowResult[] }>(
+    httpClient.post(`${staffBase(organizationId)}/import`, {
+      rows,
+      commit: false,
+    }),
+  ).then((data) => data.rows)
+
+export const commitStaffImport = (
+  organizationId: string,
+  rows: ImportStaffRow[],
+) =>
+  unwrap<ImportCommitResult>(
+    httpClient.post(`${staffBase(organizationId)}/import`, {
+      rows,
+      commit: true,
+    }),
+  )
+
+export const fetchStaffExport = (organizationId: string) =>
+  unwrap<{ staff: StaffExportRow[] }>(
+    httpClient.get(`${staffBase(organizationId)}/export`),
+  ).then((data) => data.staff)
+
+export const fetchCompanyProfile = (organizationId: string) =>
+  unwrap<{ profile: CompanyProfile }>(
+    httpClient.get(`${staffBase(organizationId)}/company-profile`),
+  ).then((data) => data.profile)
+
+export const saveCompanyProfile = (
+  organizationId: string,
+  profile: CompanyProfile,
+) =>
+  unwrap<{ profile: CompanyProfile }>(
+    httpClient.put(`${staffBase(organizationId)}/company-profile`, profile),
+  ).then((data) => data.profile)
+
+export const fillCompanyProfileFromFile = (
+  organizationId: string,
+  file: File,
+) => {
+  const form = new FormData()
+  form.append('file', file)
+  return unwrap<{ profile: CompanyProfile }>(
+    httpClient.post(
+      `${staffBase(organizationId)}/company-profile/extract`,
+      form,
+    ),
+  ).then((data) => data.profile)
+}
+
+export const MY_WORK_KEY = '/my-work'
+
+export const fetchMyWork = () =>
+  unwrap<{ records: MyWorkRecord[] }>(httpClient.get(MY_WORK_KEY)).then(
+    (data) => data.records,
+  )
+
+export const fetchMyPay = (staffId: string) =>
+  unwrap<PayData>(httpClient.get(`${MY_WORK_KEY}/${staffId}/pay`))
+
+export const setMyTaskDone = (taskId: string, done: boolean) =>
+  unwrap<{ task: ChecklistTask }>(
+    httpClient.patch(`${MY_WORK_KEY}/tasks/${taskId}`, { done }),
+  ).then((data) => data.task)
+
+export const fetchMyDocument = (documentId: string) =>
+  unwrap<{ document: SigningDocument }>(
+    httpClient.get(`${MY_WORK_KEY}/documents/${documentId}`),
+  ).then((data) => data.document)
+
+export const signMyDocument = (documentId: string, fullName: string) =>
+  unwrap<{ signed: SignedCopy }>(
+    httpClient.post(`${MY_WORK_KEY}/documents/${documentId}/sign`, {
       fullName,
       agree: true,
     }),

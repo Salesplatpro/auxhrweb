@@ -3,14 +3,20 @@ import useSWR from 'swr'
 import {
   fetchAccessLog,
   fetchBenefits,
+  fetchChecklist,
+  fetchChecklistDefaults,
   fetchCommissionPlans,
+  fetchCompanyProfile,
   fetchHeadcountCost,
+  fetchMyPay,
+  fetchMyWork,
   fetchPay,
   fetchStaffActivity,
   fetchStaffDocuments,
   fetchStaffList,
   fetchStaffMember,
   fetchStaffOptions,
+  MY_WORK_KEY,
   staffBase,
   toQueryString,
 } from '../services/peopleService'
@@ -40,6 +46,15 @@ export const commissionPlansKey = (organizationId: string) =>
 
 export const staffDocumentsKey = (organizationId: string, staffId: string) =>
   `${staffBase(organizationId)}/${staffId}/documents`
+
+export const checklistKey = (organizationId: string, staffId: string) =>
+  `${staffBase(organizationId)}/${staffId}/checklist`
+
+export const checklistDefaultsKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/checklist-defaults`
+
+export const companyProfileKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/company-profile`
 
 const accessLogKey = (organizationId: string, query: AccessLogQuery) =>
   `${staffBase(organizationId)}/access-log?${toQueryString({ ...query })}`
@@ -202,4 +217,55 @@ export const useStaffDocuments = (
   )
 
   return { documents: data ?? [], isLoading, hasError: !!error }
+}
+
+export const useChecklist = (
+  organizationId: string | null,
+  staffId: string,
+) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? checklistKey(organizationId, staffId) : null,
+    () => (organizationId ? fetchChecklist(organizationId, staffId) : null),
+  )
+
+  return { tasks: data ?? [], isLoading, hasError: !!error }
+}
+
+export const useChecklistDefaults = (
+  organizationId: string | null,
+  enabled: boolean,
+) => {
+  const { data, isLoading } = useSWR(
+    organizationId && enabled ? checklistDefaultsKey(organizationId) : null,
+    () => (organizationId ? fetchChecklistDefaults(organizationId) : null),
+  )
+
+  return { items: data ?? null, isLoading }
+}
+
+export const useCompanyProfile = (organizationId: string | null) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? companyProfileKey(organizationId) : null,
+    () => (organizationId ? fetchCompanyProfile(organizationId) : null),
+  )
+
+  return { profile: data ?? null, isLoading, hasError: !!error }
+}
+
+export const useMyWork = () => {
+  const { data, error, isLoading } = useSWR(MY_WORK_KEY, fetchMyWork, {
+    shouldRetryOnError: false,
+  })
+
+  return { records: data ?? [], isLoading, hasError: !!error }
+}
+
+export const useMyPay = (staffId: string | null) => {
+  const { data, error, isLoading } = useSWR(
+    staffId ? `${MY_WORK_KEY}/${staffId}/pay` : null,
+    () => (staffId ? fetchMyPay(staffId) : null),
+    VIEW_LOGGED_OPTIONS,
+  )
+
+  return { pay: data ?? null, isLoading, hasError: !!error }
 }

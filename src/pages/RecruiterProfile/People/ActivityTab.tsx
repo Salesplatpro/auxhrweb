@@ -187,6 +187,15 @@ const toItem = (
         tone: 'success',
         icon: <HiOutlineDocumentCheck />,
       }
+    case 'document_notarized':
+      return {
+        ...base,
+        title: `Notarized copy of ${
+          activity.meta?.title ?? 'a document'
+        } attached by ${who}`,
+        tone: 'success',
+        icon: <HiOutlineDocumentCheck />,
+      }
     default:
       return { ...base, title: `Updated by ${who}` }
   }

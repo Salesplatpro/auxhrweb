@@ -69,6 +69,7 @@ export type StaffActivityType =
   | 'document_email_failed'
   | 'document_viewed'
   | 'document_signed'
+  | 'document_notarized'
 
 export interface StaffActivity {
   id: string
@@ -281,6 +282,8 @@ export interface StaffDocument {
   signedAt: string | null
   signerName: string | null
   linkExpiresAt: string | null
+  needsNotarization: boolean
+  notarizedAt: string | null
 }
 
 export interface DocumentPreview {
@@ -305,4 +308,65 @@ export interface SigningDocument {
 export interface SignedCopy {
   fileName: string
   pdfBase64: string
+}
+
+export interface ChecklistItem {
+  title: string
+  dueInDays: number
+}
+
+export interface ChecklistTask {
+  id: string
+  title: string
+  dueOn: string | null
+  doneAt: string | null
+}
+
+export interface MyWorkRecord {
+  staffId: string
+  companyName: string
+  companyLogoUrl: string | null
+  jobTitle: string
+  managerName: string | null
+  startDate: string
+  documentsToSign: { id: string; title: string; sentAt: string }[]
+  tasks: ChecklistTask[]
+}
+
+export interface ImportStaffRow {
+  fullName: string
+  email: string
+  jobTitle: string
+  department: string
+  managerEmail: string
+  startDate: string
+}
+
+export interface ImportRowResult {
+  row: number
+  fullName: string
+  email: string
+  error: string | null
+}
+
+export interface ImportCommitResult {
+  added: number
+  skipped: ImportRowResult[]
+}
+
+export interface StaffExportRow {
+  fullName: string
+  email: string
+  jobTitle: string
+  department: string | null
+  managerEmail: string | null
+  startDate: string
+  status: StaffStatus
+  hiredThroughAuxhr: boolean
+}
+
+export interface CompanyProfile {
+  mission: string | null
+  vision: string | null
+  yearlyGoals: string[]
 }

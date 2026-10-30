@@ -40,6 +40,14 @@
   min-width: 0;
 }
 
+.wide {
+  grid-column: span 3;
+
+  @media (max-width: $bp-sm) {
+    grid-column: span 2;
+  }
+}
+
 .cellLabel {
   font-size: var(--text-xs);
   color: var(--color-text-muted);

@@ -2,11 +2,14 @@ import './TalentProfileSidebar.scss'
 
 import React, { useEffect, useState } from 'react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
+import { HiOutlineBriefcase } from 'react-icons/hi2'
 import { IoMdMenu } from 'react-icons/io'
 import { Outlet } from 'react-router-dom'
 
 import { sidebarData as originalSidebarData } from '@/components/features/talent/SideBar/SideBarData'
 import { SideBar } from '@/components/layout/sidebar/SideBar'
+import { useMyWork } from '@/features/people/hooks/useStaffData'
+import { myWorkPath } from '@/features/people/paths'
 import { NavigationLockOverlay } from '@/features/pre-assessment/components/NavigationLockOverlay'
 import { useAssessmentNavigationBlocker } from '@/features/pre-assessment/useAssessmentNavigationBlocker'
 import { ProductTourHost } from '@/features/product-tour'
@@ -25,6 +28,8 @@ const TalentProfileSidebar: React.FC = () => {
     useState(originalSidebarData)
 
   const { isLocked } = useAssessmentNavigationBlocker()
+  const { records: workRecords } = useMyWork()
+  const worksSomewhere = workRecords.length > 0
 
   useEffect(() => {
     const updatedData = originalSidebarData.map((item) => {
@@ -33,8 +38,15 @@ const TalentProfileSidebar: React.FC = () => {
       }
       return item
     })
+    if (worksSomewhere) {
+      updatedData.splice(1, 0, {
+        name: 'My work',
+        icon: <HiOutlineBriefcase size={20} />,
+        link: myWorkPath,
+      })
+    }
     setCurrentSidebarData(updatedData)
-  }, [unreadCount])
+  }, [unreadCount, worksSomewhere])
 
   return (
     <ThemeProvider>

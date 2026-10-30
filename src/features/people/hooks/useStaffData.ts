@@ -2,6 +2,8 @@ import useSWR from 'swr'
 
 import {
   fetchAccessLog,
+  fetchBenefits,
+  fetchPay,
   fetchStaffActivity,
   fetchStaffList,
   fetchStaffMember,
@@ -23,6 +25,12 @@ export const staffMemberKey = (organizationId: string, staffId: string) =>
 
 export const staffActivityKey = (organizationId: string, staffId: string) =>
   `${staffBase(organizationId)}/${staffId}/activity`
+
+export const staffPayKey = (organizationId: string, staffId: string) =>
+  `${staffBase(organizationId)}/${staffId}/pay`
+
+export const benefitsKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/benefits`
 
 const accessLogKey = (organizationId: string, query: AccessLogQuery) =>
   `${staffBase(organizationId)}/access-log?${toQueryString({ ...query })}`
@@ -127,5 +135,29 @@ export const useAccessLog = (
     total: data?.total ?? 0,
     isLoading,
     hasError: !!error,
+  }
+}
+
+export const usePay = (organizationId: string | null, staffId: string) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? staffPayKey(organizationId, staffId) : null,
+    () => (organizationId ? fetchPay(organizationId, staffId) : null),
+    VIEW_LOGGED_OPTIONS,
+  )
+
+  return { pay: data ?? null, isLoading, hasError: !!error }
+}
+
+export const useBenefits = (organizationId: string | null) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId ? benefitsKey(organizationId) : null,
+    () => (organizationId ? fetchBenefits(organizationId) : null),
+  )
+
+  return {
+    benefits: data ?? [],
+    isLoading,
+    hasError: !!error,
+    isForbidden: isForbidden(error),
   }
 }

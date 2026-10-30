@@ -62,6 +62,9 @@ export type StaffActivityType =
   | 'joined'
   | 'updated'
   | 'ended'
+  | 'pay_set'
+  | 'share_grant_added'
+  | 'share_grant_removed'
 
 export interface StaffActivity {
   id: string
@@ -71,6 +74,8 @@ export interface StaffActivity {
   meta: {
     changes?: Record<string, [unknown, unknown]>
     endDate?: string
+    startsOn?: string
+    shares?: number
   } | null
   createdAt: string
 }
@@ -165,4 +170,58 @@ export interface Envelope<T> {
   status: boolean
   message: string
   data: T
+}
+
+export type PayCurrency = 'NGN' | 'USD'
+
+export type PayPeriod = 'monthly' | 'yearly'
+
+export interface Benefit {
+  id: string
+  name: string
+  description: string | null
+}
+
+export interface BenefitPayload {
+  name: string
+  description: string | null
+}
+
+export interface PayTerms {
+  currency: PayCurrency
+  period: PayPeriod
+  baseSalary: number
+  bonus: number
+  commissionTarget: number
+  startsOn: string
+}
+
+export interface PayPackagePayload extends PayTerms {
+  benefitIds: string[]
+}
+
+export interface PayPackage extends PayTerms {
+  id: string
+  benefits: { id: string; name: string }[]
+  paragraph: string
+  createdAt: string
+}
+
+export interface ShareGrantPayload {
+  shares: number
+  grantedOn: string
+  cliffMonths: number
+  vestingMonths: number
+  strikePrice: number
+  currency: PayCurrency
+}
+
+export interface ShareGrant extends ShareGrantPayload {
+  id: string
+}
+
+export interface PayData {
+  currentPackageId: string | null
+  packages: PayPackage[]
+  grants: ShareGrant[]
 }

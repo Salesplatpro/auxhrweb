@@ -74,6 +74,7 @@ import RecruiterGuide from '@/pages/RecruiterProfile/Guide/Guide'
 import JobDetail from '@/pages/RecruiterProfile/JobDetail'
 import { SingleJobPost } from '@/pages/RecruiterProfile/MyJobPosts/SingleJobPost'
 import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
+import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
@@ -472,6 +473,7 @@ export const routeConfig: RouteObject[] = [
                             path: 'employees/:staffId',
                             element: <EmployeeDetail />,
                           },
+                          { path: 'benefits', element: <Benefits /> },
                           {
                             element: <RequirePeopleAccess ownerOnly />,
                             children: [

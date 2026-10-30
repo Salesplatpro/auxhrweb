@@ -1,5 +1,7 @@
 import React from 'react'
 import {
+  HiOutlineBanknotes,
+  HiOutlineChartBar,
   HiOutlineCheckCircle,
   HiOutlineEnvelope,
   HiOutlineEnvelopeOpen,
@@ -123,6 +125,35 @@ const toItem = (
         tone: 'danger',
         icon: <HiOutlineXCircle />,
       }
+    case 'pay_set':
+      return {
+        ...base,
+        title: `Pay saved by ${who}`,
+        detail: activity.meta?.startsOn
+          ? `Package starting ${formatDateOnly(activity.meta.startsOn)}`
+          : undefined,
+        icon: <HiOutlineBanknotes />,
+      }
+    case 'share_grant_added':
+      return {
+        ...base,
+        title: `Share options granted by ${who}`,
+        detail: activity.meta?.shares
+          ? `${activity.meta.shares.toLocaleString('en-NG')} shares`
+          : undefined,
+        icon: <HiOutlineChartBar />,
+      }
+    case 'share_grant_removed':
+      return {
+        ...base,
+        title: `Share grant removed by ${who}`,
+        detail: activity.meta?.shares
+          ? `${activity.meta.shares.toLocaleString('en-NG')} shares`
+          : undefined,
+        icon: <HiOutlineChartBar />,
+      }
+    default:
+      return { ...base, title: `Updated by ${who}` }
   }
 }
 

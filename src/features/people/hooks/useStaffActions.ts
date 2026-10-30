@@ -5,17 +5,34 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import {
+  addShareGrant,
+  createBenefit,
   createStaff,
+  deleteBenefit,
+  deleteShareGrant,
   endStaff,
   inviteStaff,
+  savePay,
   staffBase,
+  updateBenefit,
   updateStaff,
 } from '../services/peopleService'
-import { CreateStaffPayload, StaffMember, UpdateStaffPayload } from '../types'
 import {
+  Benefit,
+  BenefitPayload,
+  CreateStaffPayload,
+  PayData,
+  PayPackagePayload,
+  ShareGrantPayload,
+  StaffMember,
+  UpdateStaffPayload,
+} from '../types'
+import {
+  benefitsKey,
   staffActivityKey,
   staffMemberKey,
   staffOptionsKeyPrefix,
+  staffPayKey,
 } from './useStaffData'
 
 const EMAIL_NOT_SENT =
@@ -113,5 +130,103 @@ export const useStaffActions = (organizationId: string | null) => {
     return result
   }
 
-  return { addStaff, saveStaff, endEmployment, sendInvite, isSaving }
+  const updatePayCache = (
+    orgId: string,
+    staffId: string,
+    change: (pay: PayData) => PayData,
+  ) =>
+    mutate<PayData>(
+      staffPayKey(orgId, staffId),
+      (pay) => (pay ? change(pay) : pay),
+      { revalidate: false },
+    )
+
+  const savePayPackage = async (
+    staffId: string,
+    payload: PayPackagePayload,
+  ) => {
+    const pay = await run(async (orgId) => {
+      const saved = await savePay(orgId, staffId, payload)
+      await mutate(staffPayKey(orgId, staffId), saved, { revalidate: false })
+      await mutate(staffActivityKey(orgId, staffId))
+      return saved
+    }, 'Could not save pay')
+    if (pay) notify('success', 'Pay saved')
+    return pay
+  }
+
+  const addGrant = async (staffId: string, payload: ShareGrantPayload) => {
+    const grant = await run(async (orgId) => {
+      const created = await addShareGrant(orgId, staffId, payload)
+      await updatePayCache(orgId, staffId, (pay) => ({
+        ...pay,
+        grants: [created, ...pay.grants],
+      }))
+      await mutate(staffActivityKey(orgId, staffId))
+      return created
+    }, 'Could not add this grant')
+    if (grant) notify('success', 'Share grant added')
+    return grant
+  }
+
+  const removeGrant = async (staffId: string, grantId: string) => {
+    const removed = await run(async (orgId) => {
+      await deleteShareGrant(orgId, staffId, grantId)
+      await updatePayCache(orgId, staffId, (pay) => ({
+        ...pay,
+        grants: pay.grants.filter((grant) => grant.id !== grantId),
+      }))
+      await mutate(staffActivityKey(orgId, staffId))
+      return true
+    }, 'Could not remove this grant')
+    if (removed) notify('success', 'Share grant removed')
+    return removed
+  }
+
+  const saveBenefit = async (payload: BenefitPayload, benefitId?: string) => {
+    const benefit = await run(async (orgId) => {
+      const saved = benefitId
+        ? await updateBenefit(orgId, benefitId, payload)
+        : await createBenefit(orgId, payload)
+      await mutate<Benefit[]>(
+        benefitsKey(orgId),
+        (benefits = []) =>
+          [...benefits.filter((item) => item.id !== saved.id), saved].sort(
+            (a, b) => a.name.localeCompare(b.name),
+          ),
+        { revalidate: false },
+      )
+      return saved
+    }, 'Could not save this benefit')
+    if (benefit)
+      notify('success', benefitId ? 'Benefit saved' : 'Benefit added')
+    return benefit
+  }
+
+  const removeBenefit = async (benefit: Benefit) => {
+    const removed = await run(async (orgId) => {
+      await deleteBenefit(orgId, benefit.id)
+      await mutate<Benefit[]>(
+        benefitsKey(orgId),
+        (benefits = []) => benefits.filter((item) => item.id !== benefit.id),
+        { revalidate: false },
+      )
+      return true
+    }, 'Could not delete this benefit')
+    if (removed) notify('success', `${benefit.name} deleted`)
+    return removed
+  }
+
+  return {
+    addStaff,
+    saveStaff,
+    endEmployment,
+    sendInvite,
+    savePayPackage,
+    addGrant,
+    removeGrant,
+    saveBenefit,
+    removeBenefit,
+    isSaving,
+  }
 }

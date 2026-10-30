@@ -3,6 +3,7 @@ import { AiOutlinePlus } from 'react-icons/ai'
 import { BsBuilding } from 'react-icons/bs'
 import {
   HiOutlineCreditCard,
+  HiOutlineGift,
   HiOutlineShieldCheck,
   HiOutlineUserGroup,
   HiOutlineUsers,
@@ -49,6 +50,11 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
             label: 'Employees',
             icon: <HiOutlineUsers size={16} />,
             path: peoplePaths.employees,
+          },
+          {
+            label: 'Benefits',
+            icon: <HiOutlineGift size={16} />,
+            path: peoplePaths.benefits,
           },
         ]
       : []),

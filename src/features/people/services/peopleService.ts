@@ -3,12 +3,18 @@ import { httpClient } from '@/features/auth/services/httpClient'
 import {
   AccessLogData,
   AccessLogQuery,
+  Benefit,
+  BenefitPayload,
   CreateStaffPayload,
   CreateStaffResult,
   Envelope,
   InviteStaffResult,
   JoinedStaff,
+  PayData,
+  PayPackagePayload,
   PeopleAccess,
+  ShareGrant,
+  ShareGrantPayload,
   StaffActivity,
   StaffInvitePreview,
   StaffListData,
@@ -113,3 +119,72 @@ export const acceptStaffInvite = (token: string) =>
   unwrap<{ joined: JoinedStaff }>(
     httpClient.post(`/staff-invites/${token}/accept`),
   ).then((data) => data.joined)
+
+export const fetchPay = (organizationId: string, staffId: string) =>
+  unwrap<PayData>(httpClient.get(`${staffBase(organizationId)}/${staffId}/pay`))
+
+export const savePay = (
+  organizationId: string,
+  staffId: string,
+  payload: PayPackagePayload,
+) =>
+  unwrap<PayData>(
+    httpClient.put(`${staffBase(organizationId)}/${staffId}/pay`, payload),
+  )
+
+export const previewPayParagraph = (
+  organizationId: string,
+  payload: PayPackagePayload,
+) =>
+  unwrap<{ paragraph: string }>(
+    httpClient.post(`${staffBase(organizationId)}/pay/preview`, payload),
+  ).then((data) => data.paragraph)
+
+export const addShareGrant = (
+  organizationId: string,
+  staffId: string,
+  payload: ShareGrantPayload,
+) =>
+  unwrap<{ grant: ShareGrant }>(
+    httpClient.post(
+      `${staffBase(organizationId)}/${staffId}/share-grants`,
+      payload,
+    ),
+  ).then((data) => data.grant)
+
+export const deleteShareGrant = (
+  organizationId: string,
+  staffId: string,
+  grantId: string,
+) =>
+  httpClient.delete(
+    `${staffBase(organizationId)}/${staffId}/share-grants/${grantId}`,
+  )
+
+export const fetchBenefits = (organizationId: string) =>
+  unwrap<{ benefits: Benefit[] }>(
+    httpClient.get(`${staffBase(organizationId)}/benefits`),
+  ).then((data) => data.benefits)
+
+export const createBenefit = (
+  organizationId: string,
+  payload: BenefitPayload,
+) =>
+  unwrap<{ benefit: Benefit }>(
+    httpClient.post(`${staffBase(organizationId)}/benefits`, payload),
+  ).then((data) => data.benefit)
+
+export const updateBenefit = (
+  organizationId: string,
+  benefitId: string,
+  payload: BenefitPayload,
+) =>
+  unwrap<{ benefit: Benefit }>(
+    httpClient.patch(
+      `${staffBase(organizationId)}/benefits/${benefitId}`,
+      payload,
+    ),
+  ).then((data) => data.benefit)
+
+export const deleteBenefit = (organizationId: string, benefitId: string) =>
+  httpClient.delete(`${staffBase(organizationId)}/benefits/${benefitId}`)

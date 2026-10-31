@@ -51,6 +51,38 @@ export const aiConfigValidationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired(),
     }),
 
+  problemSolvingAssessment: Yup.string()
+    .oneOf(['true', 'false'])
+    .required('Required'),
+  noOfProblemSolvingQuestions: Yup.number()
+    .typeError('Must be a number')
+    .when('problemSolvingAssessment', {
+      is: 'true',
+      then: (schema) =>
+        schema
+          .integer('Must be a whole number')
+          .min(1, 'Ask at least 1 question')
+          .max(10, 'Ask at most 10 questions')
+          .required('Choose how many questions to ask'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
+  cultureFitAssessment: Yup.string()
+    .oneOf(['true', 'false'])
+    .required('Required'),
+  noOfCultureFitQuestions: Yup.number()
+    .typeError('Must be a number')
+    .when('cultureFitAssessment', {
+      is: 'true',
+      then: (schema) =>
+        schema
+          .integer('Must be a whole number')
+          .min(1, 'Ask at least 1 question')
+          .max(10, 'Ask at most 10 questions')
+          .required('Choose how many questions to ask'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+
   personalityEvaluation: Yup.string()
     .oneOf(['true', 'false'])
     .required('Required'),

@@ -10,3 +10,4 @@ docs
 .vercel
 /AGENTS.md
 .DS_Store
+tdd-logs/

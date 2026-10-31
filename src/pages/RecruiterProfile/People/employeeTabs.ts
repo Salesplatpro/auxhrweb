@@ -3,7 +3,10 @@ import type { ComponentType } from 'react'
 import type { StaffMember } from '@/features/people/types'
 
 import { ActivityTab } from './ActivityTab'
+import { ChecklistTab } from './ChecklistTab'
 import { DetailsTab } from './DetailsTab'
+import { DocumentsTab } from './DocumentsTab'
+import { PayTab } from './PayTab'
 
 export interface EmployeeTabProps {
   staff: StaffMember
@@ -18,5 +21,8 @@ interface EmployeeTab {
 
 export const EMPLOYEE_TABS: EmployeeTab[] = [
   { key: 'details', label: 'Details', Component: DetailsTab },
+  { key: 'pay', label: 'Pay', Component: PayTab },
+  { key: 'documents', label: 'Documents', Component: DocumentsTab },
+  { key: 'checklist', label: 'Checklist', Component: ChecklistTab },
   { key: 'activity', label: 'Activity', Component: ActivityTab },
 ]

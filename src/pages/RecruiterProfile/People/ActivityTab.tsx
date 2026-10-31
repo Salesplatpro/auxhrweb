@@ -1,6 +1,10 @@
 import React from 'react'
 import {
+  HiOutlineBanknotes,
+  HiOutlineChartBar,
   HiOutlineCheckCircle,
+  HiOutlineDocumentCheck,
+  HiOutlineDocumentText,
   HiOutlineEnvelope,
   HiOutlineEnvelopeOpen,
   HiOutlineExclamationTriangle,
@@ -123,6 +127,77 @@ const toItem = (
         tone: 'danger',
         icon: <HiOutlineXCircle />,
       }
+    case 'pay_set':
+      return {
+        ...base,
+        title: `Pay saved by ${who}`,
+        detail: activity.meta?.startsOn
+          ? `Package starting ${formatDateOnly(activity.meta.startsOn)}`
+          : undefined,
+        icon: <HiOutlineBanknotes />,
+      }
+    case 'share_grant_added':
+      return {
+        ...base,
+        title: `Share options granted by ${who}`,
+        detail: activity.meta?.shares
+          ? `${activity.meta.shares.toLocaleString('en-NG')} shares`
+          : undefined,
+        icon: <HiOutlineChartBar />,
+      }
+    case 'share_grant_removed':
+      return {
+        ...base,
+        title: `Share grant removed by ${who}`,
+        detail: activity.meta?.shares
+          ? `${activity.meta.shares.toLocaleString('en-NG')} shares`
+          : undefined,
+        icon: <HiOutlineChartBar />,
+      }
+    case 'document_sent':
+      return {
+        ...base,
+        title: `${activity.meta?.title ?? 'Document'} ${
+          activity.meta?.resent ? 'sent again' : 'sent for signing'
+        } by ${who}`,
+        detail: `Signing link emailed to ${employeeEmail}`,
+        icon: <HiOutlineDocumentText />,
+      }
+    case 'document_email_failed':
+      return {
+        ...base,
+        title: `Signing email for ${
+          activity.meta?.title ?? 'a document'
+        } could not be sent`,
+        detail: 'Use Send again on the Documents tab.',
+        tone: 'warning',
+        icon: <HiOutlineExclamationTriangle />,
+      }
+    case 'document_viewed':
+      return {
+        ...base,
+        title: `Opened ${activity.meta?.title ?? 'a document'}`,
+        icon: <HiOutlineEnvelopeOpen />,
+      }
+    case 'document_signed':
+      return {
+        ...base,
+        title: `Signed ${activity.meta?.title ?? 'a document'}`,
+        detail: `Signed as ${who}`,
+        tone: 'success',
+        icon: <HiOutlineDocumentCheck />,
+      }
+    case 'document_notarized':
+      return {
+        ...base,
+        title: `Notarized copy of ${
+          activity.meta?.title ?? 'a document'
+        } attached by ${who}`,
+        tone: 'success',
+        icon: <HiOutlineDocumentCheck />,
+      }
+    default:
+      return { ...base, title: `Updated by ${who}` }
   }
 }
 

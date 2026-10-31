@@ -1,0 +1,81 @@
+@use '../../../styles/form-field' as *;
+@use '../../../styles/breakpoints' as *;
+
+.empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: var(--text-sm);
+
+    &[data-done] {
+      .status {
+        color: var(--color-success);
+      }
+
+      .title {
+        color: var(--color-text-muted);
+        text-decoration: line-through;
+      }
+    }
+  }
+}
+
+.status {
+  width: 20px;
+  height: 20px;
+  color: var(--color-border-strong);
+}
+
+.title {
+  color: var(--color-text-heading);
+}
+
+.meta {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.remove {
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--color-danger);
+    background: var(--color-danger-tint);
+  }
+}
+
+.add {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+
+  input {
+    @extend %form-input;
+  }
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}

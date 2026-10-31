@@ -1,0 +1,61 @@
+@use '../styles/tokens' as t;
+
+.toc {
+  position: sticky;
+  top: 96px;
+  padding: 20px;
+  border-radius: t.$nl-radius-card;
+  background: t.$nl-color-hero-bg;
+}
+
+.title {
+  margin: 0 0 12px;
+  font-family: t.$nl-font-geist;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: t.$nl-color-text-muted;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: t.$nl-radius-input;
+  font-family: t.$nl-font-general-sans;
+  font-size: 14px;
+  line-height: 1.5;
+  color: t.$nl-color-input-text;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    color: t.$nl-color-accent;
+  }
+}
+
+.number {
+  flex-shrink: 0;
+  font-weight: 600;
+  color: t.$nl-color-input-placeholder;
+}
+
+.active {
+  background: t.$nl-color-bg-surface;
+  font-weight: 600;
+  color: t.$nl-color-accent;
+
+  .number {
+    color: t.$nl-color-accent;
+  }
+}

@@ -143,3 +143,54 @@ $nl-font-general-sans: 'General Sans', sans-serif;
 $nl-font-geist: 'Geist', sans-serif;
 $nl-font-hanken: 'Hanken Grotesk', sans-serif;
 $nl-font-inter: 'Inter', sans-serif;
+
+$nl-red-600: #c4320a;
+
+$nl-color-accent: $nl-violet-700;
+$nl-color-accent-soft-bg: $nl-gray-50;
+$nl-color-accent-soft-border: $nl-violet-200;
+$nl-color-link: $nl-violet-800;
+$nl-color-status-online: $nl-teal-500;
+$nl-color-danger: $nl-red-600;
+$nl-color-meta: $nl-amber-700;
+$nl-color-on-accent: $nl-gray-50;
+$nl-color-on-accent-muted: rgba(255, 255, 255, 0.8);
+$nl-color-overlay-line: rgba(255, 255, 255, 0.25);
+$nl-color-overlay-dot: rgba(255, 255, 255, 0.45);
+
+$nl-gradient-page-hero: linear-gradient(
+  180deg,
+  $nl-violet-50 0%,
+  $nl-gray-50 100%
+);
+$nl-gradient-section-soft: linear-gradient(
+  180deg,
+  $nl-blue-100 0%,
+  $nl-blue-300 100%
+);
+$nl-gradient-support-panel: linear-gradient(
+  180deg,
+  $nl-violet-500 0%,
+  $nl-blue-300 100%
+);
+$nl-gradient-icon-tile: linear-gradient(135deg, $nl-violet-500, $nl-blue-700);
+
+$nl-color-input-bg: $nl-gray-50;
+$nl-color-input-border: $nl-gray-200;
+$nl-color-input-placeholder: $nl-gray-400;
+$nl-color-input-text: $nl-slateblue-950;
+$nl-color-input-focus-ring: $nl-violet-50;
+$nl-color-segment-bg: $nl-gray-100;
+$nl-color-segment-active-bg: $nl-gray-50;
+
+$nl-color-chat-bubble-in: $nl-taupe-50;
+$nl-color-chat-bubble-out: $nl-violet-700;
+
+$nl-shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04),
+  0 12px 32px rgba(16, 24, 40, 0.06);
+$nl-shadow-float: 0 12px 32px rgba(22, 0, 64, 0.18);
+$nl-shadow-segment: 0 1px 3px rgba(16, 24, 40, 0.1);
+
+$nl-radius-input: 10px;
+$nl-radius-tile: 10px;
+$nl-radius-bubble: 12px;

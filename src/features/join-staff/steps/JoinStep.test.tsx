@@ -11,11 +11,6 @@ vi.mock('@/features/people/services/peopleService', () => ({
   acceptStaffInvite: acceptMock,
 }))
 
-vi.mock('@/features/auth/store/useAuthStore', () => ({
-  useAuthStore: (selector: (state: unknown) => unknown) =>
-    selector({ user: { userRole: 'talent' } }),
-}))
-
 const context = {
   token: 'abc',
   invite: {
@@ -38,7 +33,7 @@ const renderStep = () =>
           <Route path="join" element={<JoinStep />} />
           <Route path="profile" element={<p>Profile step</p>} />
         </Route>
-        <Route path="/talentDashboard" element={<p>Dashboard</p>} />
+        <Route path="/talentDashboard/my-work" element={<p>My work page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -48,7 +43,7 @@ beforeEach(() => {
 })
 
 describe('JoinStep', () => {
-  it('joins the company and offers the dashboard', async () => {
+  it('joins the company and opens My work', async () => {
     acceptMock.mockResolvedValue({
       organizationName: 'Acme Ltd',
       jobTitle: 'Product Designer',
@@ -60,8 +55,8 @@ describe('JoinStep', () => {
     expect(await screen.findByText("You've joined Acme Ltd")).toBeTruthy()
     expect(acceptMock).toHaveBeenCalledWith('abc')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Go to my dashboard' }))
-    expect(await screen.findByText('Dashboard')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Go to My work' }))
+    expect(await screen.findByText('My work page')).toBeTruthy()
   })
 
   it('sends the person back to finish their profile when the server says it is incomplete', async () => {

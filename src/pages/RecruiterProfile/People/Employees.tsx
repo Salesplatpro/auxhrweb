@@ -3,7 +3,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs'
 import { HiOutlineUsers } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 
-import { HeroAction, PageHero } from '@/components/layout/PageHero'
+import { HeroAction, HeroGhost, PageHero } from '@/components/layout/PageHero'
 import { StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { Avatar, Button, EmptyState } from '@/components/ui'
@@ -29,8 +29,10 @@ import { useDebouncedValue } from '@/hooks'
 
 import { Pagination } from '../MyJobPosts/Pagination'
 import { AddEmployeePanel } from './AddEmployeePanel'
+import { DefaultChecklistDrawer } from './DefaultChecklistDrawer'
 import styles from './Employees.module.scss'
 import { EndEmploymentDialog } from './EndEmploymentDialog'
+import { ImportStaffDrawer } from './ImportStaffDrawer'
 
 const ROWS_PER_PAGE = 10
 
@@ -93,7 +95,9 @@ export const Employees = () => {
       limit: ROWS_PER_PAGE,
       offset: (page - 1) * ROWS_PER_PAGE,
     })
-  const { sendInvite } = useStaffActions(organizationId)
+  const { sendInvite, exportStaffCsv } = useStaffActions(organizationId)
+  const [importOpen, setImportOpen] = useState(false)
+  const [checklistOpen, setChecklistOpen] = useState(false)
 
   const filterFields: FilterFieldConfig<Filters>[] = useMemo(
     () => [
@@ -201,7 +205,18 @@ export const Employees = () => {
         title="Employees"
         lead={`Everyone who works at ${companyName}, whether they were hired through AuxHR or not.`}
         actions={
-          <HeroAction onClick={() => setAddOpen(true)}>Add employee</HeroAction>
+          <>
+            <HeroAction onClick={() => setAddOpen(true)}>
+              Add employee
+            </HeroAction>
+            <HeroGhost onClick={() => setImportOpen(true)}>
+              Import from file
+            </HeroGhost>
+            <HeroGhost onClick={() => void exportStaffCsv()}>Export</HeroGhost>
+            <HeroGhost onClick={() => setChecklistOpen(true)}>
+              Default checklist
+            </HeroGhost>
+          </>
         }
       />
 
@@ -263,6 +278,21 @@ export const Employees = () => {
               onPageChange={setPage}
             />
           )}
+        </>
+      )}
+
+      {organizationId && (
+        <>
+          <ImportStaffDrawer
+            organizationId={organizationId}
+            open={importOpen}
+            onClose={() => setImportOpen(false)}
+          />
+          <DefaultChecklistDrawer
+            organizationId={organizationId}
+            open={checklistOpen}
+            onClose={() => setChecklistOpen(false)}
+          />
         </>
       )}
 

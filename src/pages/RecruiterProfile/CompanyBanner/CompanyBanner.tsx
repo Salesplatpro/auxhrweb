@@ -2,7 +2,11 @@ import React, { useEffect, useRef, useState } from 'react'
 import { AiOutlinePlus } from 'react-icons/ai'
 import { BsBuilding } from 'react-icons/bs'
 import {
+  HiOutlineBuildingOffice2,
+  HiOutlineCalculator,
+  HiOutlineChartBar,
   HiOutlineCreditCard,
+  HiOutlineGift,
   HiOutlineShieldCheck,
   HiOutlineUserGroup,
   HiOutlineUsers,
@@ -49,6 +53,26 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
             label: 'Employees',
             icon: <HiOutlineUsers size={16} />,
             path: peoplePaths.employees,
+          },
+          {
+            label: 'Benefits',
+            icon: <HiOutlineGift size={16} />,
+            path: peoplePaths.benefits,
+          },
+          {
+            label: 'Commission plans',
+            icon: <HiOutlineChartBar size={16} />,
+            path: peoplePaths.commissionPlans,
+          },
+          {
+            label: 'Headcount cost',
+            icon: <HiOutlineCalculator size={16} />,
+            path: peoplePaths.headcountCost,
+          },
+          {
+            label: 'Company profile',
+            icon: <HiOutlineBuildingOffice2 size={16} />,
+            path: peoplePaths.companyProfile,
           },
         ]
       : []),

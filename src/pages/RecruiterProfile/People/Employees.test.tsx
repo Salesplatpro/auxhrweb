@@ -34,6 +34,7 @@ vi.mock('@/features/people/hooks/usePeopleAccess', () => ({
 vi.mock('@/features/people/hooks/useStaffData', () => ({
   useStaffList: useStaffListMock,
   useStaffOptions: () => ({ options: [], isLoading: false }),
+  useChecklistDefaults: () => ({ items: null, isLoading: false }),
 }))
 
 vi.mock('@/features/people/hooks/useStaffActions', () => ({

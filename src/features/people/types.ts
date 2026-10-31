@@ -62,6 +62,14 @@ export type StaffActivityType =
   | 'joined'
   | 'updated'
   | 'ended'
+  | 'pay_set'
+  | 'share_grant_added'
+  | 'share_grant_removed'
+  | 'document_sent'
+  | 'document_email_failed'
+  | 'document_viewed'
+  | 'document_signed'
+  | 'document_notarized'
 
 export interface StaffActivity {
   id: string
@@ -71,6 +79,10 @@ export interface StaffActivity {
   meta: {
     changes?: Record<string, [unknown, unknown]>
     endDate?: string
+    startsOn?: string
+    shares?: number
+    title?: string
+    resent?: boolean
   } | null
   createdAt: string
 }
@@ -165,4 +177,196 @@ export interface Envelope<T> {
   status: boolean
   message: string
   data: T
+}
+
+export type PayCurrency = 'NGN' | 'USD'
+
+export type PayPeriod = 'monthly' | 'yearly'
+
+export interface Benefit {
+  id: string
+  name: string
+  description: string | null
+}
+
+export interface BenefitPayload {
+  name: string
+  description: string | null
+}
+
+export interface PayTerms {
+  currency: PayCurrency
+  period: PayPeriod
+  baseSalary: number
+  bonus: number
+  commissionTarget: number
+  startsOn: string
+}
+
+export interface PayPackagePayload extends PayTerms {
+  benefitIds: string[]
+  commissionPlanId: string | null
+}
+
+export interface PayPackage extends PayTerms {
+  id: string
+  commissionPlanId: string | null
+  benefits: { id: string; name: string }[]
+  paragraph: string
+  createdAt: string
+}
+
+export interface ShareGrantPayload {
+  shares: number
+  grantedOn: string
+  cliffMonths: number
+  vestingMonths: number
+  strikePrice: number
+  currency: PayCurrency
+}
+
+export interface ShareGrant extends ShareGrantPayload {
+  id: string
+}
+
+export interface PayData {
+  currentPackageId: string | null
+  packages: PayPackage[]
+  grants: ShareGrant[]
+}
+
+export interface CommissionTier {
+  fromPercent: number
+  toPercent: number | null
+  ratePercent: number
+  boost: number | null
+}
+
+export interface CommissionPlanPayload {
+  name: string
+  tiers: CommissionTier[]
+}
+
+export interface CommissionPlan extends CommissionPlanPayload {
+  id: string
+}
+
+export interface HeadcountCostRow {
+  currency: PayCurrency
+  department: string | null
+  staffCount: number
+  baseSalary: number
+  bonus: number
+  commissionTarget: number
+  total: number
+}
+
+export interface HeadcountCost {
+  totals: HeadcountCostRow[]
+  departments: HeadcountCostRow[]
+}
+
+export type DocumentTemplate =
+  | 'offer_letter'
+  | 'nda'
+  | 'work_ownership'
+  | 'pay_agreement'
+
+export interface StaffDocument {
+  id: string
+  template: DocumentTemplate
+  title: string
+  status: 'sent' | 'signed'
+  sentAt: string
+  openedAt: string | null
+  signedAt: string | null
+  signerName: string | null
+  linkExpiresAt: string | null
+  needsNotarization: boolean
+  notarizedAt: string | null
+}
+
+export interface DocumentPreview {
+  title: string
+  body: string
+  missing: string[]
+}
+
+export interface SendDocumentResult {
+  document: StaffDocument
+  emailSent: boolean
+}
+
+export interface SigningDocument {
+  companyName: string
+  companyLogoUrl: string | null
+  employeeName: string
+  title: string
+  body: string
+}
+
+export interface SignedCopy {
+  fileName: string
+  pdfBase64: string
+}
+
+export interface ChecklistItem {
+  title: string
+  dueInDays: number
+}
+
+export interface ChecklistTask {
+  id: string
+  title: string
+  dueOn: string | null
+  doneAt: string | null
+}
+
+export interface MyWorkRecord {
+  staffId: string
+  companyName: string
+  companyLogoUrl: string | null
+  jobTitle: string
+  managerName: string | null
+  startDate: string
+  documentsToSign: { id: string; title: string; sentAt: string }[]
+  tasks: ChecklistTask[]
+}
+
+export interface ImportStaffRow {
+  fullName: string
+  email: string
+  jobTitle: string
+  department: string
+  managerEmail: string
+  startDate: string
+}
+
+export interface ImportRowResult {
+  row: number
+  fullName: string
+  email: string
+  error: string | null
+}
+
+export interface ImportCommitResult {
+  added: number
+  skipped: ImportRowResult[]
+}
+
+export interface StaffExportRow {
+  fullName: string
+  email: string
+  jobTitle: string
+  department: string | null
+  managerEmail: string | null
+  startDate: string
+  status: StaffStatus
+  hiredThroughAuxhr: boolean
+}
+
+export interface CompanyProfile {
+  mission: string | null
+  vision: string | null
+  yearlyGoals: string[]
 }

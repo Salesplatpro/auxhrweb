@@ -1,0 +1,31 @@
+@use '../styles/tokens' as t;
+
+.toggle {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-color-segment-bg;
+}
+
+.option {
+  padding: 10px 12px;
+  border: none;
+  border-radius: t.$nl-radius-pill;
+  background: none;
+  font-family: t.$nl-font-general-sans;
+  font-size: 14px;
+  color: t.$nl-color-text-muted;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.active {
+  background: t.$nl-color-segment-active-bg;
+  box-shadow: t.$nl-shadow-segment;
+  font-family: t.$nl-font-raleway;
+  font-weight: 700;
+  color: t.$nl-color-link;
+}

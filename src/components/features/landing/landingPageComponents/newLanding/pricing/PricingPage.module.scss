@@ -1,0 +1,92 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.unavailable {
+  padding: 96px t.$nl-page-padding-mobile;
+  font-family: t.$nl-font-general-sans;
+  text-align: center;
+  color: t.$nl-color-text-muted;
+}
+
+.toggles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  @include bp.from(bp.$bp-md) {
+    flex-direction: row;
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+.audienceToggle {
+  width: 100%;
+  max-width: 420px;
+}
+
+.intervalToggle {
+  width: 100%;
+  max-width: 260px;
+}
+
+.annualLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.savePill {
+  padding: 2px 8px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-color-accent;
+  font-family: t.$nl-font-geist;
+  font-size: 11px;
+  font-weight: 600;
+  color: t.$nl-color-on-accent;
+}
+
+.plans {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 16px t.$nl-page-padding 64px;
+  @include t.nl-mobile-page-padding-x;
+
+  @include bp.from(bp.$bp-md) {
+    padding-bottom: 96px;
+  }
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+
+  > * {
+    flex: 1 1 300px;
+    max-width: 380px;
+  }
+
+  @include bp.from(bp.$bp-lg) {
+    row-gap: 48px;
+  }
+}
+
+.contact {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-size: 15px;
+  text-align: center;
+  color: t.$nl-color-text-body;
+
+  a {
+    font-weight: 600;
+    color: t.$nl-color-link;
+  }
+}

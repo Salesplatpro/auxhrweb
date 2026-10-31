@@ -5,13 +5,14 @@ import CustomerStories from '@/components/features/landing/customerStories'
 import Explore from '@/components/features/landing/Explore'
 import {
   AboutUs,
+  ContactPage,
   Features,
-  PrivacyPolicy,
-  TermsAndCondition,
+  PricingPage,
+  PrivacyPage,
+  TermsPage,
   Testimonials,
 } from '@/components/features/landing/landingPageComponents'
 import Faq from '@/components/features/landing/landingPageComponents/FAQ/Faq'
-import Pricing from '@/components/features/landing/Pricing'
 import Solutions from '@/components/features/landing/Solutions'
 import ProtectedRoute from '@/components/routing/ProtectedRoute'
 import RequireActiveCompany from '@/components/routing/RequireActiveCompany'
@@ -139,11 +140,15 @@ export const routeConfig: RouteObject[] = [
           },
           {
             path: 'pricing',
-            element: <Pricing />,
+            element: <PricingPage />,
           },
           {
             path: 'about-us',
             element: <AboutUs />,
+          },
+          {
+            path: paths.contact,
+            element: <ContactPage />,
           },
           {
             path: paths.login,
@@ -179,11 +184,11 @@ export const routeConfig: RouteObject[] = [
           },
           {
             path: paths.privacyPolicy,
-            element: <PrivacyPolicy />,
+            element: <PrivacyPage />,
           },
           {
             path: paths.termsConditions,
-            element: <TermsAndCondition />,
+            element: <TermsPage />,
           },
         ],
       },

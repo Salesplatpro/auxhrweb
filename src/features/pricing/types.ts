@@ -37,6 +37,7 @@ export interface PricingPlan {
   yearlyAmountUsd: number | null
   featuresIntro?: string | null
   features: PricingFeature[]
+  inherits?: PricingPlanKey
 }
 
 export interface ComparisonRow {

@@ -1,0 +1,84 @@
+@use '../styles/tokens' as t;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.label {
+  font-family: t.$nl-font-general-sans;
+  font-size: 13px;
+  font-weight: 500;
+  color: t.$nl-color-text-heading;
+}
+
+.control {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid t.$nl-color-input-border;
+  border-radius: t.$nl-radius-input;
+  background: t.$nl-color-input-bg;
+  font-family: t.$nl-font-general-sans;
+  font-size: 15px;
+  color: t.$nl-color-input-text;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &::placeholder {
+    color: t.$nl-color-input-placeholder;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: t.$nl-color-accent;
+    box-shadow: 0 0 0 4px t.$nl-color-input-focus-ring;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: t.$nl-color-danger;
+  }
+}
+
+.textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  padding-right: 40px;
+  appearance: none;
+  cursor: pointer;
+
+  &[data-empty='true'] {
+    color: t.$nl-color-input-placeholder;
+  }
+
+  option {
+    color: t.$nl-color-input-text;
+  }
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: t.$nl-color-text-heading;
+  pointer-events: none;
+}
+
+.error {
+  font-family: t.$nl-font-general-sans;
+  font-size: 12px;
+  color: t.$nl-color-danger;
+}

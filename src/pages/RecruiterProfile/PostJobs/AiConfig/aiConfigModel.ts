@@ -6,6 +6,10 @@ export interface AiConfigFieldValues {
   minCvSimilarityScore: string | number
   personalizedAssessment: string
   noPersonalizedQuestions: string | number
+  problemSolvingAssessment: string
+  noOfProblemSolvingQuestions: string | number
+  cultureFitAssessment: string
+  noOfCultureFitQuestions: string | number
   personalityEvaluation: string
   noOfEIQuestions: string | number
   noOfSNQuestions: string | number
@@ -23,6 +27,10 @@ export const AI_CONFIG_DEFAULT_VALUES: AiConfigFieldValues = {
   minCvSimilarityScore: '',
   personalizedAssessment: 'false',
   noPersonalizedQuestions: '',
+  problemSolvingAssessment: 'false',
+  noOfProblemSolvingQuestions: '',
+  cultureFitAssessment: 'false',
+  noOfCultureFitQuestions: '',
   personalityEvaluation: 'false',
   noOfEIQuestions: '',
   noOfSNQuestions: '',

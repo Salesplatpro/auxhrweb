@@ -11,6 +11,7 @@ type ApplicationEnvelope = {
       currentStage?: string
       matchVerdict?: string | null
       matchVerdictStatus?: string | null
+      personalityFitPending?: boolean
     }
   }
 }
@@ -22,6 +23,7 @@ export const useApplication = (applicationId?: string) => {
     {
       refreshInterval: (latest: ApplicationEnvelope | undefined) => {
         const application = latest?.data?.application
+        if (application?.personalityFitPending) return 3000
         if (
           application?.currentStage === 'completed' &&
           !application.matchVerdict &&

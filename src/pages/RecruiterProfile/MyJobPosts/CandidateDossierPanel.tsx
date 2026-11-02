@@ -15,6 +15,7 @@ import { useUpdateApplicationStatus } from '@/features/applications/hooks/useUpd
 import {
   type JobAiConfigThresholds,
   downloadCandidateFitReport,
+  retryPersonalityFit,
 } from '@/features/applications/services/applicationService'
 import { ApplicationFollowUpDrawer } from '@/pages/AdminProfile/Applications/ApplicationFollowUpDrawer'
 import { humanStage } from '@/pages/TalentProfile/Job/jobPipeline'
@@ -25,8 +26,10 @@ import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { AssessmentChat } from './AssessmentChat'
 import styles from './CandidateDossierPanel.module.scss'
+import { CompanyTestResults } from './CompanyTestResults'
 import { MBTI_TYPES } from './mbtiLegend'
 import { Messaging } from './Messaging/Messaging'
+import { PersonalityFit } from './PersonalityFit'
 
 const HERO: Record<
   string,
@@ -107,7 +110,7 @@ export const CandidateDossierPanel = ({
   onChanged,
   readOnly = false,
 }: CandidateDossierPanelProps) => {
-  const { data, isLoading } = useApplication(row.id)
+  const { data, isLoading, mutate } = useApplication(row.id)
   const application = (data?.data?.application ?? row) as SingleJobDetails & {
     talent: SingleJobDetails['talent']
   }
@@ -165,6 +168,21 @@ export const CandidateDossierPanel = ({
       })
     } finally {
       setIsDownloadingReport(false)
+    }
+  }
+
+  const handleRetryPersonalityFit = async () => {
+    try {
+      await retryPersonalityFit(application.id)
+      notify('success', 'Personality fit worked out', { autoClose: 2000 })
+    } catch (err) {
+      notify(
+        'error',
+        getErrorMessage(err, "Couldn't work out the personality fit"),
+        { autoClose: 3000 },
+      )
+    } finally {
+      await mutate()
     }
   }
 
@@ -330,6 +348,11 @@ export const CandidateDossierPanel = ({
             />
           </StatGrid>
 
+          <PersonalityFit
+            application={application}
+            onRetry={readOnly ? undefined : handleRetryPersonalityFit}
+          />
+
           <ReactTooltip
             id="mbti-legend"
             place="bottom"
@@ -360,6 +383,8 @@ export const CandidateDossierPanel = ({
               feedback={analysis?.questionFeedback}
             />
           </PagePanel>
+
+          <CompanyTestResults application={application} />
 
           <PagePanel title="Why they fit">
             {analysis?.whyFit ? (

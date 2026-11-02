@@ -2,6 +2,8 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 
 import { customBaseQuery } from '../../../utils/customBaseQuery'
 
+export type CompanyAssessmentKind = 'problem-solving' | 'culture-fit'
+
 export const talentApi = createApi({
   reducerPath: 'talentApi',
   baseQuery: customBaseQuery,
@@ -114,6 +116,36 @@ export const talentApi = createApi({
         body: { jobId },
       }),
     }),
+    // Problem-solving / culture-fit tests (plan Day 4-5). The candidate gets the
+    // same set of questions every time; no criteria and no score come back.
+    companyAssessmentQuestions: builder.query({
+      query: ({
+        jobId,
+        type,
+      }: {
+        jobId: string
+        type: CompanyAssessmentKind
+      }) => ({
+        url: `/questions/candidate/${type}?jobId=${jobId}`,
+        method: 'GET',
+      }),
+    }),
+    submitCompanyAssessmentAnswers: builder.mutation({
+      query: ({
+        jobId,
+        type,
+        answers,
+      }: {
+        jobId: string
+        type: CompanyAssessmentKind
+        answers: Record<string, string>
+      }) => ({
+        url: `/questions/answer/${type}`,
+        method: 'POST',
+        body: { jobId, answers },
+      }),
+      invalidatesTags: ['Applications'],
+    }),
     postPersonalityTest: builder.mutation({
       query: (testAnswer) => ({
         url: `/questions/answer/personality`,
@@ -160,4 +192,6 @@ export const {
   useEnsurePersonalityQuestionsMutation,
   useAllJobApplicationsQuery,
   useGetRoleQuery,
+  useCompanyAssessmentQuestionsQuery,
+  useSubmitCompanyAssessmentAnswersMutation,
 } = talentApi

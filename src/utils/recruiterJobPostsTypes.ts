@@ -1,3 +1,4 @@
+import type { GradedAnswer } from '@/pages/RecruiterProfile/MyJobPosts/CompanyTestResults'
 type JobLocation = {
   city: string
   state: string
@@ -115,6 +116,15 @@ export type SingleJobDetails = {
     question: string
     answer: string
   }> | null
+  // Day 5: problem-solving / culture-fit results (company only)
+  problemSolvingScore?: number | null
+  cultureFitScore?: number | null
+  /** Day 6: the AI's 0-100 view of how the personality type fits the job. */
+  personalityFitScore?: number | null
+  personalityFitReason?: string | null
+  personalityFitPending?: boolean
+  problemSolvingAnswers?: GradedAnswer[] | null
+  cultureFitAnswers?: GradedAnswer[] | null
 }
 
 export interface JobProfileProps {

@@ -26,6 +26,11 @@ import {
   retryCvSimilarityScore,
   retryMissingVerdicts,
 } from '@/features/applications/services/applicationService'
+import {
+  APPLICANT_SOURCE_FILTER_OPTIONS,
+  ApplicantSourceFilter,
+  matchesApplicantSource,
+} from '@/utils/applicantSource'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
@@ -53,6 +58,7 @@ export interface ApplicantFiltersValues {
   search: string
   cvRankingTier: CvRankingTier
   aiMatchLevel: AiMatchLevel
+  source: ApplicantSourceFilter
   dateRange?: DateRange
 }
 
@@ -60,6 +66,7 @@ const defaultApplicantFilters: ApplicantFiltersValues = {
   search: '',
   cvRankingTier: 'all',
   aiMatchLevel: 'all',
+  source: 'all',
   dateRange: undefined,
 }
 
@@ -99,6 +106,13 @@ const APPLICANT_FILTER_FIELDS: FilterFieldConfig<ApplicantFiltersValues>[] = [
       { label: 'With AI Match', value: 'any' },
       { label: 'No AI Match', value: 'unavailable' },
     ],
+  },
+  {
+    type: 'select',
+    key: 'source',
+    label: 'Source',
+    offValue: 'all',
+    options: APPLICANT_SOURCE_FILTER_OPTIONS,
   },
   {
     type: 'dateRange',
@@ -162,6 +176,7 @@ const matchesFilters = (
     return false
   }
 
+  if (!matchesApplicantSource(item.source, filters.source)) return false
   if (filters.dateRange?.from) {
     const appliedAt = new Date(item.createdAt).getTime()
     if (appliedAt < filters.dateRange.from.getTime()) return false

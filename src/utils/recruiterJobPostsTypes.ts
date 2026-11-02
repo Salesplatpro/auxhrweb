@@ -53,6 +53,7 @@ export type recruiterJobPostsTypes = {
 export type SingleJobDetails = {
   id: string
   jobId: string
+  source?: string | null
   talent: {
     id: string
     email: string

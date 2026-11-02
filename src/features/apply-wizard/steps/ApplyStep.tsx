@@ -12,6 +12,7 @@ import {
   useApplyToJobMutation,
   useIndividualJobQuery,
 } from '@/redux/api/talent'
+import { recallApplicantSource } from '@/utils/applicantSource'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
@@ -26,7 +27,10 @@ const ApplyStep: React.FC = () => {
   const handleApply = async () => {
     if (!jobId) return
     try {
-      const result = await applyToJob(jobId).unwrap()
+      const result = await applyToJob({
+        jobId,
+        source: recallApplicantSource(jobId),
+      }).unwrap()
       const application = result?.data?.application as
         | { currentStage?: string; stages?: Record<string, string> }
         | undefined

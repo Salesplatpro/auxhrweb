@@ -20,6 +20,7 @@ import {
   usePersonalityTestQuery,
   usePersonalizedTestQuery,
 } from '@/redux/api/talent'
+import { recallApplicantSource } from '@/utils/applicantSource'
 import { notify } from '@/utils/toastNotifications'
 
 import { ApplicationSuccessModal } from './ApplicationSuccessModal'
@@ -237,7 +238,10 @@ const IndividualJob = () => {
   const handleApply = async () => {
     if (isComplete || applying || !jobId) return
     try {
-      const result = await applyToJob(jobId).unwrap()
+      const result = await applyToJob({
+        jobId,
+        source: recallApplicantSource(jobId),
+      }).unwrap()
       const nextApplication = result?.data?.application as
         | ApplicationRecord
         | undefined

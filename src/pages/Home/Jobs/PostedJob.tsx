@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import {
   JobDetailsJob,
@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { dashboardPathForRole } from '@/features/auth/utils/dashboardPath'
 import { useIndividualJobQuery } from '@/redux/api/talent'
+import { rememberApplicantSource } from '@/utils/applicantSource'
 import { notify } from '@/utils/toastNotifications'
 
 import styles from './PostedJob.module.scss'
@@ -19,6 +20,12 @@ const PostedJob = () => {
   const { jobId } = useParams<{ jobId: string }>()
   const navigate = useNavigate()
   const userRole = useAuthStore((state) => state.user?.userRole)
+  const { search } = useLocation()
+
+  React.useEffect(() => {
+    if (jobId) rememberApplicantSource(jobId, search)
+  }, [jobId, search])
+
   const { data, error, isLoading, refetch } = useIndividualJobQuery(jobId)
   const job: JobDetailsJob | undefined = data?.data?.job
   const errorStatus = (error as { status?: number } | undefined)?.status

@@ -2,25 +2,34 @@ import { Alert } from '@mui/material'
 import React from 'react'
 
 import RichTextDisplay from '@/components/features/shared/global/RichTextDisplay'
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
+import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useMarkNotificationRead } from '@/features/notifications/hooks/useMarkNotificationRead'
-import { useNotifications } from '@/features/notifications/hooks/useNotifications'
+import { useNotificationPages } from '@/features/notifications/hooks/useNotificationPages'
+import { useOpenNotification } from '@/features/notifications/hooks/useOpenNotification'
+import { AppNotification } from '@/features/notifications/types'
 import { stripHtml } from '@/utils/truncateTexts'
 
 import { formatTimeAgo } from '../../../utils'
 import styles from './NotificationsList.module.scss'
 
 const NotificationsList: React.FC = () => {
-  const { notifications, isLoading, mutate } = useNotifications()
+  const { notifications, isLoading, isLoadingMore, hasMore, loadMore, mutate } =
+    useNotificationPages()
   const { markAsRead } = useMarkNotificationRead()
+  const { follow, needsSwitch, isSwitching, confirmSwitch, cancelSwitch } =
+    useOpenNotification()
 
-  const handleOpen = async (notificationId: string, isRead: boolean) => {
-    if (isRead) return
-    await markAsRead(notificationId)
-    await mutate()
+  const handleOpen = async (notification: AppNotification) => {
+    if (!notification.isRead) {
+      await markAsRead(notification.id)
+      await mutate()
+    }
+    follow(notification)
   }
 
   if (isLoading) return <Spinner fullPage />
@@ -59,7 +68,7 @@ const NotificationsList: React.FC = () => {
               className={`${styles.card} ${
                 notification.isRead ? '' : styles.unread
               }`}
-              onClick={() => handleOpen(notification.id, notification.isRead)}>
+              onClick={() => void handleOpen(notification)}>
               {titleText ? <p className={styles.title}>{titleText}</p> : null}
               {showBody ? (
                 <RichTextDisplay
@@ -75,7 +84,25 @@ const NotificationsList: React.FC = () => {
             </button>
           )
         })}
+        {hasMore && (
+          <Button
+            type="button"
+            variant="outline"
+            loading={isLoadingMore}
+            onClick={() => void loadMore()}>
+            Load more
+          </Button>
+        )}
       </PagePanel>
+      <ConfirmDialog
+        open={needsSwitch}
+        title="Switch company to open this?"
+        message="This notification belongs to another company you work with. Switching clears any unsaved job drafts."
+        confirmLabel="Switch company"
+        isConfirming={isSwitching}
+        onConfirm={() => void confirmSwitch()}
+        onCancel={cancelSwitch}
+      />
     </PageShell>
   )
 }

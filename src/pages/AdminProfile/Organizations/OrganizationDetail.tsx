@@ -21,6 +21,7 @@ import { getStatusBadge } from '@/pages/RecruiterProfile/getJobStatus'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
+import { ChangeCreatorDrawer } from './ChangeCreatorDrawer'
 import styles from './OrganizationDetail.module.scss'
 
 const Field = ({ label, value }: { label: string; value: string }) => (
@@ -42,6 +43,7 @@ const OrganizationDetail = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [isChangingCreator, setIsChangingCreator] = useState(false)
   const [jobs, setJobs] = useState<AdminJob[]>([])
   const [isJobsLoading, setIsJobsLoading] = useState(true)
 
@@ -156,6 +158,12 @@ const OrganizationDetail = () => {
             <Button
               variant="secondary"
               size="sm"
+              onClick={() => setIsChangingCreator(true)}>
+              Change creator
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
               disabled={isUpdating || isDeleting}
               onClick={() => setConfirmDelete(true)}>
               Delete
@@ -165,7 +173,7 @@ const OrganizationDetail = () => {
 
         <div className={styles.infoGrid}>
           <Field
-            label="Owner"
+            label="Creator"
             value={
               organization.owner
                 ? `${organization.owner.firstName} ${organization.owner.lastName} (${organization.owner.email})`
@@ -248,6 +256,19 @@ const OrganizationDetail = () => {
             })}
           </div>
         )}
+        {(organization.ownershipTransfers ?? []).length > 0 && (
+          <div className={styles.list}>
+            <Text size="fs-sm" weight="bold">
+              Creator changes
+            </Text>
+            {(organization.ownershipTransfers ?? []).map((transfer) => (
+              <p key={transfer.id} className={styles.memberEmail}>
+                {new Date(transfer.createdAt).toLocaleDateString()}:{' '}
+                {transfer.fromName} to {transfer.toName}. {transfer.reason}
+              </p>
+            ))}
+          </div>
+        )}
       </Card>
 
       <Card className={styles.card}>
@@ -296,6 +317,14 @@ const OrganizationDetail = () => {
           </div>
         )}
       </Card>
+
+      {isChangingCreator && (
+        <ChangeCreatorDrawer
+          organization={organization}
+          onClose={() => setIsChangingCreator(false)}
+          onChanged={() => void load()}
+        />
+      )}
 
       <ConfirmDialog
         open={confirmDelete}

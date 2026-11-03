@@ -44,9 +44,12 @@ import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
+import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
+import { VerifyDocument } from '@/features/verify-document/VerifyDocument'
 import { LandingPage } from '@/LandingPage'
 import { MainLayout, Resources } from '@/pages'
 import AdminProfileSidebar from '@/pages/AdminProfile/AdminProfileSidebar'
+import AiModels from '@/pages/AdminProfile/AiModels/AiModels'
 import Applications from '@/pages/AdminProfile/Applications/Applications'
 import Feedback from '@/pages/AdminProfile/Feedback/Feedback'
 import AdminJobDetail from '@/pages/AdminProfile/JobDetail/AdminJobDetail'
@@ -83,6 +86,8 @@ import { CompanyProfile } from '@/pages/RecruiterProfile/People/CompanyProfile'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
+import { OrgChart } from '@/pages/RecruiterProfile/People/OrgChart'
+import { QuarterlyReview } from '@/pages/RecruiterProfile/People/QuarterlyReview'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
 import PostJobTab from '@/pages/RecruiterProfile/PostJobs/PostJobTab'
 import RecruiterProfileSidebar from '@/pages/RecruiterProfile/RecruiterProfileSidebar'
@@ -210,6 +215,14 @@ export const routeConfig: RouteObject[] = [
       {
         path: '/sign/:token',
         element: <SignDocument />,
+      },
+      {
+        path: '/verify-document',
+        element: <VerifyDocument />,
+      },
+      {
+        path: '/unsubscribe',
+        element: <Unsubscribe />,
       },
       {
         path: '/join-staff/:token',
@@ -491,22 +504,32 @@ export const routeConfig: RouteObject[] = [
                             path: 'employees/:staffId',
                             element: <EmployeeDetail />,
                           },
-                          { path: 'benefits', element: <Benefits /> },
                           {
-                            path: 'commission-plans',
-                            element: <CommissionPlans />,
-                          },
-                          {
-                            path: 'headcount-cost',
-                            element: <HeadcountCost />,
-                          },
-                          {
-                            path: 'company-profile',
-                            element: <CompanyProfile />,
-                          },
-                          {
-                            element: <RequirePeopleAccess ownerOnly />,
+                            element: <RequirePeopleAccess level="manage" />,
                             children: [
+                              {
+                                path: 'company-profile',
+                                element: <CompanyProfile />,
+                              },
+                              { path: 'org-chart', element: <OrgChart /> },
+                              {
+                                path: 'quarterly-review',
+                                element: <QuarterlyReview />,
+                              },
+                            ],
+                          },
+                          {
+                            element: <RequirePeopleAccess level="creator" />,
+                            children: [
+                              { path: 'benefits', element: <Benefits /> },
+                              {
+                                path: 'commission-plans',
+                                element: <CommissionPlans />,
+                              },
+                              {
+                                path: 'headcount-cost',
+                                element: <HeadcountCost />,
+                              },
                               { path: 'access-log', element: <AccessLog /> },
                             ],
                           },
@@ -579,6 +602,10 @@ export const routeConfig: RouteObject[] = [
               {
                 path: 'roles',
                 element: <AdminRoles />,
+              },
+              {
+                path: 'ai-models',
+                element: <AiModels />,
               },
               {
                 path: 'feedback',

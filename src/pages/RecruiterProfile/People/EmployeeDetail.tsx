@@ -16,14 +16,19 @@ import { formatDateOnly } from '@/features/people/utils/formatDate'
 import { nameParts } from '@/features/people/utils/nameParts'
 
 import styles from './EmployeeDetail.module.scss'
-import { EMPLOYEE_TABS } from './employeeTabs'
+import { employeeTabsFor } from './employeeTabs'
 import { EndEmploymentDialog } from './EndEmploymentDialog'
 import { InviteBanner } from './InviteBanner'
 
 export const EmployeeDetail = () => {
   const { staffId } = useParams<{ staffId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { organizationId } = usePeopleAccess()
+  const {
+    organizationId,
+    isOwner,
+    canManagePeople: canEdit,
+    isLoading: isLoadingAccess,
+  } = usePeopleAccess()
   const { staff, isLoading, hasError, isForbidden } = useStaffMember(
     organizationId,
     staffId,
@@ -32,7 +37,7 @@ export const EmployeeDetail = () => {
   const [endOpen, setEndOpen] = useState(false)
 
   if (isForbidden) return <NoPeopleAccess />
-  if (isLoading) return <Spinner fullPage />
+  if (isLoading || isLoadingAccess) return <Spinner fullPage />
   if (hasError || !staff || !organizationId) {
     return (
       <PageShell>
@@ -49,9 +54,9 @@ export const EmployeeDetail = () => {
     )
   }
 
+  const tabs = employeeTabsFor(isOwner)
   const activeTab =
-    EMPLOYEE_TABS.find((tab) => tab.key === searchParams.get('tab')) ??
-    EMPLOYEE_TABS[0]!
+    tabs.find((tab) => tab.key === searchParams.get('tab')) ?? tabs[0]!
   const isEnded = staff.status === 'ended'
 
   const meta = [
@@ -84,7 +89,8 @@ export const EmployeeDetail = () => {
         pills={<StaffStatusBadge status={staff.status} />}
         meta={meta}
         actions={
-          !isEnded && (
+          !isEnded &&
+          canEdit && (
             <HeroGhost onClick={() => setEndOpen(true)}>
               <HiOutlineUserMinus aria-hidden /> End employment
             </HeroGhost>
@@ -92,19 +98,26 @@ export const EmployeeDetail = () => {
         }
       />
 
-      <InviteBanner
-        staff={staff}
-        isSaving={isSaving}
-        onInvite={() => void sendInvite(staff.id)}
-      />
+      {canEdit && (
+        <InviteBanner
+          staff={staff}
+          isSaving={isSaving}
+          onInvite={() => void sendInvite(staff.id)}
+        />
+      )}
 
       <Tabs
-        tabs={EMPLOYEE_TABS.map(({ key, label }) => ({ key, label }))}
+        tabs={tabs.map(({ key, label }) => ({ key, label }))}
         activeKey={activeTab.key}
         onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
       />
 
-      <activeTab.Component staff={staff} organizationId={organizationId} />
+      <activeTab.Component
+        staff={staff}
+        organizationId={organizationId}
+        canEdit={canEdit}
+        isOwner={isOwner}
+      />
 
       <EndEmploymentDialog
         staff={endOpen ? staff : null}

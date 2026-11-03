@@ -96,6 +96,10 @@ export const LoggedInUserBadge: React.FC = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // A dialog opened from the panel renders outside it, so a click on one isn't "outside".
+      if ((event.target as Element).closest?.('.react-responsive-modal-root')) {
+        return
+      }
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -147,7 +151,10 @@ export const LoggedInUserBadge: React.FC = () => {
       </div>
 
       {isNotificationsOpen && notificationRoute ? (
-        <NotificationPanel viewAllTo={notificationRoute} />
+        <NotificationPanel
+          viewAllTo={notificationRoute}
+          onNavigate={() => setIsNotificationsOpen(false)}
+        />
       ) : null}
 
       {isLoading ? (

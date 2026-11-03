@@ -40,6 +40,16 @@ vi.mock('@/features/notifications/hooks/useMarkAllNotificationsRead', () => ({
   }),
 }))
 
+vi.mock('@/features/notifications/hooks/useOpenNotification', () => ({
+  useOpenNotification: () => ({
+    follow: vi.fn(),
+    needsSwitch: false,
+    isSwitching: false,
+    confirmSwitch: vi.fn(),
+    cancelSwitch: vi.fn(),
+  }),
+}))
+
 describe('NotificationPanel', () => {
   it('lists notifications and marks all as read', () => {
     render(

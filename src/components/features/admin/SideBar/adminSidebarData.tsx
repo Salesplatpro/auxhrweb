@@ -6,7 +6,11 @@ import {
   HiOutlineClipboardList,
   HiOutlineOfficeBuilding,
 } from 'react-icons/hi'
-import { HiOutlineUserCircle, HiOutlineUsers } from 'react-icons/hi2'
+import {
+  HiOutlineCpuChip,
+  HiOutlineUserCircle,
+  HiOutlineUsers,
+} from 'react-icons/hi2'
 import { MdOutlineAdminPanelSettings } from 'react-icons/md'
 
 const ICON_SIZE = 20
@@ -48,6 +52,11 @@ export const adminSidebarData = [
     name: 'Roles',
     icon: <MdOutlineAdminPanelSettings size={ICON_SIZE} />,
     link: '/adminDashboard/roles',
+  },
+  {
+    name: 'AI Models',
+    icon: <HiOutlineCpuChip size={ICON_SIZE} />,
+    link: '/adminDashboard/ai-models',
   },
   {
     name: 'Feedback',

@@ -109,3 +109,13 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.copyStatus {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+
+  &[data-failed] {
+    color: var(--color-danger, #b42318);
+  }
+}

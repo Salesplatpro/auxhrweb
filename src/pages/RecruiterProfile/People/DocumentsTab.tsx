@@ -252,15 +252,38 @@ export const DocumentsTab: React.FC<EmployeeTabProps> = ({
     organizationId,
     staff.id,
   )
-  const { resendDocument, downloadDocument } = useStaffActions(organizationId)
+  const { resendDocument, downloadDocument, retryCopy } =
+    useStaffActions(organizationId)
   const [isCreating, setIsCreating] = useState(false)
   const isEnded = staff.status === 'ended'
+
+  const copyCheckCode = (checkCode: string) =>
+    navigator.clipboard.writeText(checkCode).then(
+      () => notify('success', 'Check code copied'),
+      () => notify('error', 'Could not copy the check code'),
+    )
 
   const actionsFor = (document: StaffDocument): DropdownItem[] => [
     {
       label: document.status === 'signed' ? 'Download signed copy' : 'Download',
       onClick: () => downloadDocument(staff.id, document),
     },
+    ...(document.copyStatus === 'failed'
+      ? [
+          {
+            label: 'Try the signed copy again',
+            onClick: () => retryCopy(staff.id, document.id),
+          },
+        ]
+      : []),
+    ...(document.checkCode
+      ? [
+          {
+            label: 'Copy check code',
+            onClick: () => copyCheckCode(document.checkCode!),
+          },
+        ]
+      : []),
     ...(document.status === 'sent' && !isEnded
       ? [
           {
@@ -308,7 +331,19 @@ export const DocumentsTab: React.FC<EmployeeTabProps> = ({
       key: 'signed',
       header: 'Signed',
       hideBelow: 640,
-      render: (document) => formatDateTime(document.signedAt),
+      render: (document) => (
+        <>
+          {formatDateTime(document.signedAt)}
+          {document.copyStatus === 'pending' && (
+            <span className={styles.copyStatus}>Copy on its way</span>
+          )}
+          {document.copyStatus === 'failed' && (
+            <span className={styles.copyStatus} data-failed>
+              Copy failed
+            </span>
+          )}
+        </>
+      ),
     },
     {
       key: 'notarization',

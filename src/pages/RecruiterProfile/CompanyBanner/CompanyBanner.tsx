@@ -5,8 +5,10 @@ import {
   HiOutlineBuildingOffice2,
   HiOutlineCalculator,
   HiOutlineChartBar,
+  HiOutlineChartBarSquare,
   HiOutlineCreditCard,
   HiOutlineGift,
+  HiOutlineRectangleGroup,
   HiOutlineShieldCheck,
   HiOutlineUserGroup,
   HiOutlineUsers,
@@ -32,7 +34,7 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
   const navigate = useNavigate()
 
   const { profile } = useProfile()
-  const { isOwner, canManagePeople } = usePeopleAccess()
+  const { isOwner, canManagePeople, hasPeopleAccess } = usePeopleAccess()
   const activeOrganization = profile?.activeOrganization
   const { billingPlan } = getActiveOrganizationBilling(profile)
 
@@ -47,13 +49,36 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
       icon: <AiOutlinePlus size={16} />,
       path: '/recruiterDashboard/company/new',
     },
-    ...(canManagePeople
+    ...(hasPeopleAccess
       ? [
           {
             label: 'Employees',
             icon: <HiOutlineUsers size={16} />,
             path: peoplePaths.employees,
           },
+        ]
+      : []),
+    ...(canManagePeople
+      ? [
+          {
+            label: 'Org chart',
+            icon: <HiOutlineRectangleGroup size={16} />,
+            path: peoplePaths.orgChart,
+          },
+          {
+            label: 'Quarterly review',
+            icon: <HiOutlineChartBarSquare size={16} />,
+            path: peoplePaths.quarterlyReview,
+          },
+          {
+            label: 'Company profile',
+            icon: <HiOutlineBuildingOffice2 size={16} />,
+            path: peoplePaths.companyProfile,
+          },
+        ]
+      : []),
+    ...(isOwner
+      ? [
           {
             label: 'Benefits',
             icon: <HiOutlineGift size={16} />,
@@ -69,15 +94,6 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
             icon: <HiOutlineCalculator size={16} />,
             path: peoplePaths.headcountCost,
           },
-          {
-            label: 'Company profile',
-            icon: <HiOutlineBuildingOffice2 size={16} />,
-            path: peoplePaths.companyProfile,
-          },
-        ]
-      : []),
-    ...(isOwner
-      ? [
           {
             label: 'Access log',
             icon: <HiOutlineShieldCheck size={16} />,

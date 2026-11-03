@@ -8,8 +8,8 @@ export const NoPeopleAccess = () => (
   <PageShell>
     <EmptyState
       icon={<HiOutlineLockClosed />}
-      title="You don't have access to People"
-      description="Ask your company owner."
+      title="You don't have access to this"
+      description="Ask your company's creator."
     />
   </PageShell>
 )

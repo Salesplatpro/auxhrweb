@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { SWRConfig } from 'swr'
@@ -6,9 +6,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MyWork } from './MyWork'
 
-const { useMyWorkMock, setMyTaskDoneMock } = vi.hoisted(() => ({
+const { useMyWorkMock, downloadMock, notifyMock } = vi.hoisted(() => ({
+  notifyMock: vi.fn(),
   useMyWorkMock: vi.fn(),
-  setMyTaskDoneMock: vi.fn(),
+  downloadMock: vi.fn(),
 }))
 
 vi.mock('@/features/people/hooks/useStaffData', () => ({
@@ -21,8 +22,22 @@ vi.mock('@/features/people/hooks/useStaffData', () => ({
 
 vi.mock('@/features/people/services/peopleService', () => ({
   MY_WORK_KEY: '/my-work',
-  setMyTaskDone: setMyTaskDoneMock,
+  downloadMySignedDocument: downloadMock,
 }))
+
+vi.mock('./CompletionAction', () => ({
+  CompletionAction: () => <button type="button">Request completion</button>,
+}))
+
+vi.mock('./MyPerformance', () => ({
+  MyPerformance: () => <div>My performance cards</div>,
+}))
+
+vi.mock('./MyTeam', () => ({
+  MyTeam: () => <div>My team list</div>,
+}))
+
+vi.mock('@/utils/toastNotifications', () => ({ notify: notifyMock }))
 
 vi.mock('@/features/profile/hooks/useProfile', () => ({
   useProfile: () => ({ profile: { firstName: 'Ada' } }),
@@ -38,6 +53,13 @@ const record = {
   documentsToSign: [
     { id: 'd-1', title: 'Offer letter', sentAt: '2026-01-02T00:00:00Z' },
   ],
+  hasTeam: false,
+  signedDocuments: [] as {
+    id: string
+    title: string
+    signedAt: string | null
+  }[],
+  completionRequests: [],
   tasks: [
     {
       id: 't-1',
@@ -64,7 +86,6 @@ describe('MyWork', () => {
 
   it('shows the welcome card, documents to sign and first-week tasks', () => {
     useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
-    setMyTaskDoneMock.mockResolvedValue({ ...record.tasks[0], doneAt: 'now' })
     renderPage()
 
     expect(screen.getByText('Welcome to Acme Ltd')).toBeTruthy()
@@ -72,8 +93,53 @@ describe('MyWork', () => {
     expect(
       screen.getByRole('link', { name: 'Sign' }).getAttribute('href'),
     ).toBe('/talentDashboard/my-work/documents/d-1')
-    fireEvent.click(screen.getByLabelText('Collect your laptop'))
-    expect(setMyTaskDoneMock).toHaveBeenCalledWith('t-1', true)
+    expect(screen.getByText('Collect your laptop')).toBeTruthy()
+    expect(screen.queryByRole('checkbox')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'Request completion' }),
+    ).toBeTruthy()
+  })
+
+  it('lists signed documents and shows why a download failed', async () => {
+    useMyWorkMock.mockReturnValue({
+      records: [
+        {
+          ...record,
+          signedDocuments: [
+            { id: 'd-2', title: 'NDA', signedAt: '2026-01-03T00:00:00Z' },
+          ],
+        },
+      ],
+      isLoading: false,
+    })
+    downloadMock.mockRejectedValue({
+      response: { data: { error: { message: 'Still being prepared' } } },
+    })
+    renderPage()
+
+    expect(screen.getByText('NDA')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Download' }))
+    expect(downloadMock).toHaveBeenCalledWith('d-2')
+    await waitFor(() =>
+      expect(notifyMock).toHaveBeenCalledWith('error', 'Still being prepared'),
+    )
+  })
+
+  it('offers My team only to someone with people reporting to them', () => {
+    useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
+    const first = renderPage()
+    expect(screen.queryByRole('tab', { name: 'My team' })).toBeNull()
+    expect(screen.queryByText('My team')).toBeNull()
+    first.unmount()
+
+    useMyWorkMock.mockReturnValue({
+      records: [{ ...record, hasTeam: true }],
+      isLoading: false,
+    })
+    renderPage()
+    fireEvent.click(screen.getByText('My team'))
+    expect(screen.getByText('My team list')).toBeTruthy()
+    expect(screen.queryByText('My performance cards')).toBeNull()
   })
 
   it('explains the page to someone who is not on a staff yet', () => {

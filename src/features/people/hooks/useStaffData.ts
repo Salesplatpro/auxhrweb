@@ -223,12 +223,12 @@ export const useChecklist = (
   organizationId: string | null,
   staffId: string,
 ) => {
-  const { data, error, isLoading } = useSWR(
+  const { data, error, isLoading, mutate } = useSWR(
     organizationId ? checklistKey(organizationId, staffId) : null,
     () => (organizationId ? fetchChecklist(organizationId, staffId) : null),
   )
 
-  return { tasks: data ?? [], isLoading, hasError: !!error }
+  return { tasks: data ?? [], isLoading, hasError: !!error, reload: mutate }
 }
 
 export const useChecklistDefaults = (

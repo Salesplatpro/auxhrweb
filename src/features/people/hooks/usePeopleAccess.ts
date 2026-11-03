@@ -16,10 +16,15 @@ export const usePeopleAccess = () => {
     () => (organizationId ? fetchPeopleAccess(organizationId) : null),
   )
 
+  const canManagePeople = data?.canManagePeople ?? false
+  const assignedCount = data?.assignedCount ?? 0
+
   return {
     organizationId,
     isLoading: isProfileLoading || isLoading,
     isOwner: data?.isOwner ?? false,
-    canManagePeople: data?.canManagePeople ?? false,
+    canManagePeople,
+    assignedCount,
+    hasPeopleAccess: canManagePeople || assignedCount > 0,
   }
 }

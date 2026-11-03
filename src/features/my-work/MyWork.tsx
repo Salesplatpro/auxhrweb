@@ -6,22 +6,26 @@ import { useSWRConfig } from 'swr'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
-import { EmptyState, Tabs } from '@/components/ui'
+import { Button, EmptyState, Tabs } from '@/components/ui'
 import { Spinner } from '@/components/ui/Spinner'
 import { VestingTimeline } from '@/features/people/components/VestingTimeline'
 import { useMyPay, useMyWork } from '@/features/people/hooks/useStaffData'
 import { myWorkDocumentPath } from '@/features/people/paths'
 import {
+  downloadMySignedDocument,
   MY_WORK_KEY,
-  setMyTaskDone,
 } from '@/features/people/services/peopleService'
-import { MyWorkRecord } from '@/features/people/types'
+import { CompletionRequest, MyWorkRecord } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
 import { formatMoney } from '@/features/people/utils/formatMoney'
 import { useProfile } from '@/features/profile/hooks/useProfile'
+import { downloadBlobResponse } from '@/utils/downloadBlob'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
+import { CompletionAction } from './CompletionAction'
+import { MyPerformance } from './MyPerformance'
+import { MyTeam } from './MyTeam'
 import styles from './MyWork.module.scss'
 
 const PER_PERIOD = { monthly: 'per month', yearly: 'per year' } as const
@@ -83,38 +87,87 @@ const MyPay: React.FC<{ staffId: string; firstName: string }> = ({
   )
 }
 
+const MyDocuments: React.FC<{ documents: MyWorkRecord['signedDocuments'] }> = ({
+  documents,
+}) => {
+  const [pendingId, setPendingId] = useState<string | null>(null)
+
+  const download = async (document: { id: string; title: string }) => {
+    setPendingId(document.id)
+    try {
+      const response = await downloadMySignedDocument(document.id)
+      downloadBlobResponse(
+        response.data,
+        response.headers['content-disposition'],
+        `${document.title}.pdf`,
+      )
+    } catch (error) {
+      notify(
+        'error',
+        getErrorMessage(error, 'Could not download this document'),
+      )
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  return (
+    <PagePanel title="My documents">
+      {documents.length === 0 ? (
+        <p className={styles.muted}>Documents you sign will appear here.</p>
+      ) : (
+        <ul className={styles.list}>
+          {documents.map((document) => (
+            <li key={document.id}>
+              <span>
+                <strong>{document.title}</strong>
+                <span className={styles.muted}>
+                  Signed {formatDateOnly(document.signedAt)}
+                </span>
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                loading={pendingId === document.id}
+                onClick={() => void download(document)}>
+                Download
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </PagePanel>
+  )
+}
+
 const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
   record,
   firstName,
 }) => {
   const { mutate } = useSWRConfig()
-  const [pendingTaskId, setPendingTaskId] = useState<string | null>(null)
 
-  const toggleTask = async (taskId: string, done: boolean) => {
-    setPendingTaskId(taskId)
-    try {
-      const task = await setMyTaskDone(taskId, done)
-      await mutate<MyWorkRecord[]>(
-        MY_WORK_KEY,
-        (records = []) =>
-          records.map((item) =>
-            item.staffId === record.staffId
-              ? {
-                  ...item,
-                  tasks: item.tasks.map((existing) =>
-                    existing.id === task.id ? task : existing,
+  const updateTaskRequest = (
+    taskId: string,
+    request: CompletionRequest | null,
+  ) =>
+    mutate<MyWorkRecord[]>(
+      MY_WORK_KEY,
+      (records = []) =>
+        records.map((item) =>
+          item.staffId === record.staffId
+            ? {
+                ...item,
+                completionRequests: [
+                  ...(request ? [request] : []),
+                  ...item.completionRequests.filter(
+                    (existing) => existing.itemId !== taskId,
                   ),
-                }
-              : item,
-          ),
-        { revalidate: false },
-      )
-    } catch (error) {
-      notify('error', getErrorMessage(error, 'Could not update this task'))
-    } finally {
-      setPendingTaskId(null)
-    }
-  }
+                ],
+              }
+            : item,
+        ),
+      { revalidate: false },
+    )
 
   return (
     <div className={styles.stack}>
@@ -166,6 +219,8 @@ const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
         )}
       </PagePanel>
 
+      <MyDocuments documents={record.signedDocuments} />
+
       <PagePanel title="First week">
         {record.tasks.length === 0 ? (
           <p className={styles.muted}>No tasks yet.</p>
@@ -173,29 +228,62 @@ const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
           <ul className={styles.list}>
             {record.tasks.map((task) => (
               <li key={task.id} data-done={!!task.doneAt || undefined}>
-                <label className={styles.task}>
-                  <input
-                    type="checkbox"
-                    checked={!!task.doneAt}
-                    disabled={pendingTaskId === task.id}
-                    onChange={(event) =>
-                      void toggleTask(task.id, event.target.checked)
-                    }
-                  />
-                  {task.title}
-                </label>
-                {task.dueOn && (
-                  <span className={styles.muted}>
-                    Due {formatDateOnly(task.dueOn)}
-                  </span>
-                )}
+                <span className={styles.goalText}>
+                  <strong>{task.title}</strong>
+                  {task.dueOn && !task.doneAt && (
+                    <span className={styles.muted}>
+                      Due {formatDateOnly(task.dueOn)}
+                    </span>
+                  )}
+                </span>
+                <CompletionAction
+                  staffId={record.staffId}
+                  itemType="task"
+                  itemId={task.id}
+                  title={task.title}
+                  request={record.completionRequests.find(
+                    (request) => request.itemId === task.id,
+                  )}
+                  isComplete={!!task.doneAt}
+                  completedByName={task.completedByName ?? null}
+                  onChanged={(request) =>
+                    void updateTaskRequest(task.id, request)
+                  }
+                />
               </li>
             ))}
           </ul>
         )}
       </PagePanel>
 
+      <MyPerformance staffId={record.staffId} />
+
       <MyPay staffId={record.staffId} firstName={firstName} />
+    </div>
+  )
+}
+
+const VIEWS = [
+  { key: 'mine', label: 'My work' },
+  { key: 'team', label: 'My team' },
+]
+
+const RecordViews: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
+  record,
+  firstName,
+}) => {
+  const [view, setView] = useState('mine')
+  const showTeam = record.hasTeam && view === 'team'
+  return (
+    <div className={styles.stack}>
+      {record.hasTeam && (
+        <Tabs tabs={VIEWS} activeKey={view} onChange={setView} />
+      )}
+      {showTeam ? (
+        <MyTeam managerStaffId={record.staffId} />
+      ) : (
+        <WorkRecord record={record} firstName={firstName} />
+      )}
     </div>
   )
 }
@@ -241,7 +329,7 @@ export const MyWork = () => {
               onChange={setActiveStaffId}
             />
           )}
-          <WorkRecord
+          <RecordViews
             key={active.staffId}
             record={active}
             firstName={firstName}

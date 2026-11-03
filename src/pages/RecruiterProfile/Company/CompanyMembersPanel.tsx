@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
 import { PagePanel } from '@/components/layout/PagePanel'
+import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { Switch } from '@/components/ui/Switch'
 import { MAX_COMPANY_TEAMMATES } from '@/features/organizations/constants/team'
@@ -12,6 +13,7 @@ import {
   OrganizationMember,
 } from '@/features/organizations/types'
 
+import { AssignableTeammate, AssignPeopleDrawer } from './AssignPeopleDrawer'
 import styles from './CompanyMembersPanel.module.scss'
 
 interface CompanyMembersPanelProps {
@@ -28,6 +30,7 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
     organization.id,
   )
   const [toEnable, setToEnable] = useState<OrganizationMember | null>(null)
+  const [assigning, setAssigning] = useState<AssignableTeammate | null>(null)
 
   const handleToggle = (member: OrganizationMember, next: boolean) => {
     if (next) {
@@ -87,16 +90,33 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
                       : ''}
                   </p>
                 </div>
-                {member.role === 'owner' ? (
-                  <span className={styles.alwaysOn}>Can manage people</span>
-                ) : (
-                  <Switch
-                    label="Can manage people"
-                    checked={member.canManagePeople}
-                    disabled={pendingMemberId === member.id}
-                    onChange={(next) => handleToggle(member, next)}
-                  />
-                )}
+                <div className={styles.memberActions}>
+                  <Button
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                    aria-label={`Manage people for ${
+                      fullName || 'this person'
+                    }`}
+                    onClick={() =>
+                      setAssigning({
+                        userId: member.userId,
+                        name: fullName || 'this person',
+                      })
+                    }>
+                    Manage people
+                  </Button>
+                  {member.role === 'owner' ? (
+                    <span className={styles.alwaysOn}>Can manage people</span>
+                  ) : (
+                    <Switch
+                      label="Can manage people"
+                      checked={member.canManagePeople}
+                      disabled={pendingMemberId === member.id}
+                      onChange={(next) => handleToggle(member, next)}
+                    />
+                  )}
+                </div>
               </article>
             )
           })}
@@ -105,11 +125,16 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
       <ConfirmDialog
         open={!!toEnable}
         title="Let this person manage people?"
-        message="This person will see everyone's pay, contracts and performance."
+        message="This person will be able to add, edit and end employees and see everyone's performance. They won't see pay, benefits or contracts, which stay with the company's creator."
         confirmLabel="Allow access"
         isConfirming={!!toEnable && pendingMemberId === toEnable.id}
         onConfirm={() => void confirmEnable()}
         onCancel={() => setToEnable(null)}
+      />
+      <AssignPeopleDrawer
+        organizationId={organization.id}
+        teammate={assigning}
+        onClose={() => setAssigning(null)}
       />
     </PagePanel>
   )

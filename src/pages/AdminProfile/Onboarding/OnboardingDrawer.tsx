@@ -223,6 +223,9 @@ export const OnboardingDrawer = ({
                             }`}>
                             {email.status === 'sent' ? 'Sent' : 'Failed'}
                           </span>
+                          {email.source === 'auto' && (
+                            <span className={styles.badge}>Automatic</span>
+                          )}
                         </span>
                       </summary>
                       <p className={styles.historyBody}>{email.body}</p>

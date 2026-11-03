@@ -83,11 +83,18 @@
 }
 
 .dropdown {
-  margin-top: 6px;
-  background: rgba(255, 255, 255, 0.06);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-dropdown);
+  max-height: calc(100dvh - 180px);
+  background: var(--color-bg-hero);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .dropdownRow {

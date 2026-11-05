@@ -4,10 +4,13 @@ import { AppNotification } from '../types'
 
 export const notificationsKey = '/notifications'
 
-export const fetchNotifications = () =>
+export const NOTIFICATIONS_PAGE_SIZE = 50
+
+export const fetchNotifications = (offset = 0) =>
   httpClient
     .get<{ data: { notifications: AppNotification[]; unReadCount: number } }>(
       notificationsKey,
+      { params: { limit: NOTIFICATIONS_PAGE_SIZE, offset } },
     )
     .then((response) => response.data)
 

@@ -31,11 +31,20 @@ export interface StaffMember {
 export interface PeopleAccess {
   isOwner: boolean
   canManagePeople: boolean
+  /** How many current employees this person has been assigned to track. */
+  assignedCount: number
+}
+
+export interface HrAssignee {
+  userId: string
+  fullName: string
+  email: string
 }
 
 export interface StaffListQuery {
   search: string
   status: StaffStatus | ''
+  assignedToMe?: 'true'
   limit: number
   offset: number
 }
@@ -69,7 +78,26 @@ export type StaffActivityType =
   | 'document_email_failed'
   | 'document_viewed'
   | 'document_signed'
+  | 'document_copy_failed'
   | 'document_notarized'
+  | 'job_description_saved'
+  | 'goal_added'
+  | 'goals_suggested'
+  | 'goal_changed'
+  | 'goal_approved'
+  | 'goal_removed'
+  | 'goal_progress_updated'
+  | 'weekly_report_submitted'
+  | 'report_note_added'
+  | 'development_item_added'
+  | 'development_item_removed'
+  | 'feedback_saved'
+  | 'completion_requested'
+  | 'completion_approved'
+  | 'completion_returned'
+  | 'completion_reopened'
+  | 'hr_assigned'
+  | 'hr_removed'
 
 export interface StaffActivity {
   id: string
@@ -83,6 +111,9 @@ export interface StaffActivity {
     shares?: number
     title?: string
     resent?: boolean
+    progress?: number
+    weekStart?: string
+    hrName?: string
   } | null
   createdAt: string
 }
@@ -284,6 +315,16 @@ export interface StaffDocument {
   linkExpiresAt: string | null
   needsNotarization: boolean
   notarizedAt: string | null
+  checkCode: string | null
+  copyStatus: 'none' | 'pending' | 'failed' | 'done'
+}
+
+export interface DocumentCheck {
+  result: 'verified' | 'changed' | 'limited'
+  companyName: string
+  title: string
+  signerName: string | null
+  signedAt: string | null
 }
 
 export interface DocumentPreview {
@@ -307,7 +348,8 @@ export interface SigningDocument {
 
 export interface SignedCopy {
   fileName: string
-  pdfBase64: string
+  pdfBase64: string | null
+  copyPending: boolean
 }
 
 export interface ChecklistItem {
@@ -320,6 +362,28 @@ export interface ChecklistTask {
   title: string
   dueOn: string | null
   doneAt: string | null
+  completedByName?: string | null
+}
+
+export interface CompletionRequest {
+  id: string
+  itemType: 'goal' | 'task'
+  itemId: string
+  itemTitle: string
+  summary: string
+  links: string[]
+  files: Array<{ id: string; name: string; mimeType: string; size: number }>
+  status: 'pending' | 'approved' | 'returned' | 'withdrawn'
+  reviewNote: string | null
+  reviewedByName: string | null
+  reviewedAt: string | null
+  createdAt: string
+}
+
+export interface CompletionReviewResult {
+  goal: Goal | null
+  task: ChecklistTask | null
+  request: CompletionRequest | null
 }
 
 export interface MyWorkRecord {
@@ -330,7 +394,10 @@ export interface MyWorkRecord {
   managerName: string | null
   startDate: string
   documentsToSign: { id: string; title: string; sentAt: string }[]
+  signedDocuments: { id: string; title: string; signedAt: string | null }[]
+  hasTeam: boolean
   tasks: ChecklistTask[]
+  completionRequests: CompletionRequest[]
 }
 
 export interface ImportStaffRow {
@@ -369,4 +436,176 @@ export interface CompanyProfile {
   mission: string | null
   vision: string | null
   yearlyGoals: string[]
+}
+
+export interface JobDescription {
+  body: string
+  version: number
+  updatedByName: string
+  updatedAt: string
+}
+
+export interface GoalPayload {
+  title: string
+  keyResults: string[]
+  target: string | null
+  dueOn: string
+}
+
+export interface Goal extends GoalPayload {
+  id: string
+  progress: number
+  status: 'draft' | 'approved'
+  source: 'manual' | 'ai'
+  version: number
+  approvedByName: string | null
+  approvedAt: string | null
+  completedAt: string | null
+  completedByName: string | null
+}
+
+export interface WeeklyReportText {
+  did: string
+  blocked: string
+  nextWeek: string
+}
+
+export interface WeeklyReport extends WeeklyReportText {
+  id: string
+  weekStart: string
+  textVersion: number
+  submittedAt: string
+  managerNote: string | null
+  managerNoteByName: string | null
+  managerNoteAt: string | null
+  noteVersion: number
+  advice: string[] | null
+  adviceAt: string | null
+}
+
+export interface DevelopmentPayload {
+  weakArea: string
+  action: string
+  dueOn: string | null
+}
+
+export interface DevelopmentItem extends DevelopmentPayload {
+  id: string
+  status: 'proposed' | 'open' | 'done'
+  source: 'manual' | 'ai' | 'skill_test'
+  version: number
+}
+
+export interface MonthlyFeedback {
+  id: string
+  month: string
+  rating: number
+  notes: string
+  byName: string
+  version: number
+  updatedAt: string
+}
+
+export interface Efficiency {
+  quarter: string
+  score: number | null
+  partial: boolean
+  parts: {
+    key: 'goals' | 'reports' | 'rating'
+    weight: number
+    value: number | null
+  }[]
+}
+
+export interface EfficiencyTip {
+  tip: string
+  current: boolean
+}
+
+export interface Performance {
+  staffId: string
+  isExecutive: boolean
+  jobDescription: JobDescription | null
+  goals: Goal[]
+  reports: { items: WeeklyReport[]; total: number }
+  development: DevelopmentItem[]
+  feedback: MonthlyFeedback[]
+}
+
+export interface ManagedPerformance extends Performance {
+  completionRequests: CompletionRequest[]
+  efficiency: Efficiency
+  efficiencyTip: EfficiencyTip | null
+}
+
+export interface MyPerformance extends Performance {
+  currentWeek: string
+  completionRequests: CompletionRequest[]
+}
+
+export interface TeamMember {
+  staffId: string
+  fullName: string
+  jobTitle: string
+  reportId: string | null
+  goalsWaiting: number
+}
+
+export interface MyTeamData {
+  weekStart: string
+  members: TeamMember[]
+}
+
+export interface OrgChartPerson {
+  id: string
+  fullName: string
+  jobTitle: string
+  department: string | null
+  managerId: string | null
+  managerLeft: boolean
+}
+
+export interface OrgChartData {
+  people: OrgChartPerson[]
+  truncated: boolean
+}
+
+export type Capacity = 'not_enough_data' | 'low' | 'medium' | 'high'
+
+export interface QuarterGoal {
+  quarter: string
+  currency: string
+  revenueGoal: number
+  revenueSoFar: number
+  version: number
+  updatedByName: string
+  updatedAt: string
+}
+
+export interface QuarterGoalPayload {
+  quarter: string
+  currency: string
+  revenueGoal: number
+  revenueSoFar: number
+  version: number | null
+}
+
+export interface QuarterlyReviewPerson {
+  staffId: string
+  fullName: string
+  jobTitle: string
+  department: string | null
+  goalProgress: number | null
+  score: number | null
+  partial: boolean
+  capacity: Capacity
+}
+
+export interface QuarterlyReviewData {
+  quarter: string
+  goal: QuarterGoal | null
+  revenuePercent: number | null
+  teamProgress: number | null
+  people: QuarterlyReviewPerson[]
+  truncated: boolean
 }

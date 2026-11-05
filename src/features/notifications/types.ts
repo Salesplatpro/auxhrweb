@@ -3,6 +3,8 @@ export interface AppNotification {
   userId: string
   title?: string | null
   message: string
+  link?: string | null
+  organizationId?: string | null
   isRead: boolean
   deleted: boolean
   createdAt: string

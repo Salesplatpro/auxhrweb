@@ -25,6 +25,7 @@ import {
   fillCompanyProfileFromFile,
   inviteStaff,
   resendStaffDocument,
+  retryDocumentCopy,
   saveChecklistDefaults,
   saveCompanyProfile,
   savePay,
@@ -349,6 +350,20 @@ export const useStaffActions = (organizationId: string | null) => {
       return true
     }, 'Could not download this document')
 
+  const retryCopy = async (staffId: string, documentId: string) => {
+    const document = await run(async (orgId) => {
+      const updated = await retryDocumentCopy(orgId, staffId, documentId)
+      await cacheDocument(orgId, staffId, updated)
+      return updated
+    }, 'Could not finish this signed copy')
+    if (document?.copyStatus === 'done') {
+      notify('success', 'The signed copy is ready and emailed')
+    } else if (document) {
+      notify('warning', 'The signed copy still could not be finished')
+    }
+    return document
+  }
+
   const addTask = async (
     staffId: string,
     task: { title: string; dueOn: string | null },
@@ -498,6 +513,7 @@ export const useStaffActions = (organizationId: string | null) => {
     removeCommissionPlan,
     sendDocument,
     resendDocument,
+    retryCopy,
     downloadDocument,
     addTask,
     removeTask,

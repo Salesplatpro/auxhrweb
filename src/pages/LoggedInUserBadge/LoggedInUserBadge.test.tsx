@@ -91,6 +91,22 @@ describe('LoggedInUserBadge', () => {
     useTourStore.getState().stop()
   })
 
+  it('keeps the notifications open when a dialog from them is clicked', () => {
+    renderBadge()
+    fireEvent.click(screen.getByRole('button', { name: 'Notifications' }))
+    expect(screen.getByRole('dialog', { name: 'Notifications' })).toBeTruthy()
+
+    const modal = document.createElement('div')
+    modal.className = 'react-responsive-modal-root'
+    document.body.appendChild(modal)
+    fireEvent.mouseDown(modal)
+    expect(screen.getByRole('dialog', { name: 'Notifications' })).toBeTruthy()
+
+    fireEvent.mouseDown(document.body)
+    expect(screen.queryByRole('dialog', { name: 'Notifications' })).toBeNull()
+    modal.remove()
+  })
+
   it('navigates to the change-password route from the account menu', () => {
     renderBadge()
 

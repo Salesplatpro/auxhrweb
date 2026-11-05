@@ -8,6 +8,7 @@ import { CompanyBanner } from './CompanyBanner'
 const peopleAccess = vi.hoisted(() => ({
   isOwner: false,
   canManagePeople: false,
+  hasPeopleAccess: false,
 }))
 
 vi.mock('@/features/profile/hooks/useProfile', () => ({
@@ -31,6 +32,7 @@ describe('CompanyBanner', () => {
   beforeEach(() => {
     peopleAccess.isOwner = false
     peopleAccess.canManagePeople = false
+    peopleAccess.hasPeopleAccess = false
   })
 
   it('hides the people links from users without access', () => {
@@ -40,23 +42,54 @@ describe('CompanyBanner', () => {
     expect(screen.queryByText('Access log')).toBeNull()
   })
 
-  it('shows Employees to people managers but not the access log', () => {
-    peopleAccess.canManagePeople = true
+  it('shows an assigned teammate only Employees', () => {
+    peopleAccess.hasPeopleAccess = true
     renderBanner()
     expect(screen.getByText('Employees')).toBeTruthy()
-    expect(screen.queryByText('Access log')).toBeNull()
+    for (const hidden of [
+      'Org chart',
+      'Quarterly review',
+      'Benefits',
+      'Access log',
+    ]) {
+      expect(screen.queryByText(hidden)).toBeNull()
+    }
   })
 
-  it('shows both people links to the owner', () => {
+  it('shows company-wide links to people managers, but no pay or access log', () => {
     peopleAccess.canManagePeople = true
-    peopleAccess.isOwner = true
+    peopleAccess.hasPeopleAccess = true
     renderBanner()
     expect(screen.getByText('Employees')).toBeTruthy()
-    expect(screen.getByText('Access log')).toBeTruthy()
+    expect(screen.getByText('Org chart')).toBeTruthy()
+    for (const hidden of [
+      'Benefits',
+      'Commission plans',
+      'Headcount cost',
+      'Access log',
+    ]) {
+      expect(screen.queryByText(hidden)).toBeNull()
+    }
+  })
+
+  it('shows everything to the creator', () => {
+    peopleAccess.canManagePeople = true
+    peopleAccess.hasPeopleAccess = true
+    peopleAccess.isOwner = true
+    renderBanner()
+    for (const link of [
+      'Employees',
+      'Org chart',
+      'Benefits',
+      'Headcount cost',
+      'Access log',
+    ]) {
+      expect(screen.getByText(link)).toBeTruthy()
+    }
   })
 
   it('closes the menu and reports navigation when a row is picked', () => {
-    peopleAccess.canManagePeople = true
+    peopleAccess.hasPeopleAccess = true
     const onNavigate = vi.fn()
     renderBanner(onNavigate)
     fireEvent.click(screen.getByText('Employees'))

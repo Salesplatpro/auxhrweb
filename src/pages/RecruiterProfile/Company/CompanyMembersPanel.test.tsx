@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -9,10 +9,47 @@ import type {
 
 import { CompanyMembersPanel } from './CompanyMembersPanel'
 
-const { setCanManagePeopleMock, membersMock } = vi.hoisted(() => ({
-  setCanManagePeopleMock: vi.fn(),
-  membersMock: vi.fn(),
+const { setCanManagePeopleMock, membersMock, saveAssignmentsMock } = vi.hoisted(
+  () => ({
+    setCanManagePeopleMock: vi.fn(),
+    membersMock: vi.fn(),
+    saveAssignmentsMock: vi.fn(),
+  }),
+)
+
+vi.mock('@/features/people/hooks/useHrAssignments', () => ({
+  useAssignedStaffIds: () => ({
+    assignedStaffIds: ['s-1'],
+    isLoading: false,
+    hasError: false,
+  }),
+  useSaveHrAssignments: () => saveAssignmentsMock,
 }))
+
+vi.mock('@/features/people/hooks/useStaffData', () => ({
+  useStaffList: () => ({
+    items: [
+      {
+        id: 's-1',
+        fullName: 'Ada Obi',
+        jobTitle: 'Designer',
+        status: 'active',
+      },
+      {
+        id: 's-2',
+        fullName: 'Bayo Ade',
+        jobTitle: 'Engineer',
+        status: 'active',
+      },
+      { id: 's-3', fullName: 'Chi Eze', jobTitle: 'Writer', status: 'ended' },
+    ],
+    total: 3,
+    isLoading: false,
+    hasError: false,
+  }),
+}))
+
+vi.mock('@/utils/toastNotifications', () => ({ notify: vi.fn() }))
 
 vi.mock('@/features/organizations/hooks/useOrganizationMembers', () => ({
   useOrganizationMembers: () => ({
@@ -86,7 +123,7 @@ describe('CompanyMembersPanel — Can manage people', () => {
     fireEvent.click(screen.getByRole('switch'))
     expect(
       screen.getByText(
-        "This person will see everyone's pay, contracts and performance.",
+        "This person will be able to add, edit and end employees and see everyone's performance. They won't see pay, benefits or contracts, which stay with the company's creator.",
       ),
     ).toBeTruthy()
     expect(setCanManagePeopleMock).not.toHaveBeenCalled()
@@ -111,5 +148,46 @@ describe('CompanyMembersPanel — Can manage people', () => {
 
     fireEvent.click(screen.getByRole('switch'))
     expect(setCanManagePeopleMock).toHaveBeenCalledWith(hr, false)
+  })
+
+  it('lets the creator assign themselves and their teammates', () => {
+    membersMock.mockReturnValue([owner, member()])
+    render(<CompanyMembersPanel organization={organization} />)
+
+    expect(
+      screen.getAllByRole('button', { name: /^Manage people for/ }),
+    ).toHaveLength(2)
+  })
+
+  it("saves only the people whose ticks changed, and can't add an ended employee", async () => {
+    saveAssignmentsMock.mockResolvedValue(undefined)
+    const teammate = member()
+    membersMock.mockReturnValue([owner, teammate])
+    render(<CompanyMembersPanel organization={organization} />)
+
+    const name = `${teammate.user.firstName} ${teammate.user.lastName}`.trim()
+    fireEvent.click(
+      screen.getByRole('button', { name: `Manage people for ${name}` }),
+    )
+
+    const save = screen.getByRole('button', {
+      name: 'Save',
+    }) as HTMLButtonElement
+    expect(save.disabled).toBe(true)
+    expect(
+      (screen.getByLabelText('Chi Eze') as HTMLInputElement).disabled,
+    ).toBe(true)
+
+    fireEvent.click(screen.getByLabelText('Ada Obi'))
+    fireEvent.click(screen.getByLabelText('Bayo Ade'))
+    fireEvent.click(save)
+
+    await waitFor(() =>
+      expect(saveAssignmentsMock).toHaveBeenCalledWith({
+        assigneeUserId: teammate.userId,
+        add: ['s-2'],
+        remove: ['s-1'],
+      }),
+    )
   })
 })

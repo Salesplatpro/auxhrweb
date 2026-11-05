@@ -1,0 +1,16 @@
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

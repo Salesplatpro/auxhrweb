@@ -1,0 +1,117 @@
+@use '../../styles/breakpoints' as *;
+
+.page {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+  background-color: var(--color-bg-page);
+}
+
+.card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-panel);
+
+  @media (max-width: $bp-sm) {
+    padding: var(--space-5);
+  }
+
+  h1 {
+    margin: 0 0 var(--space-2);
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    color: var(--color-text-heading);
+  }
+}
+
+.lead {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    width: 100%;
+    font-weight: var(--weight-medium);
+    color: var(--color-text-body);
+  }
+
+  input {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-body);
+  }
+}
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-body);
+}
+
+.problem {
+  margin: var(--space-5) 0 0;
+  color: var(--color-danger, #b42318);
+}
+
+.result {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+
+  > svg {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    color: var(--color-success, #067647);
+  }
+
+  &[data-result='changed'] > svg {
+    color: var(--color-danger, #b42318);
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-1) var(--space-3);
+    margin: var(--space-3) 0 0;
+  }
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--color-text-body);
+  }
+}
+
+.resultText {
+  margin: 0;
+  font-weight: var(--weight-medium);
+  color: var(--color-text-heading);
+}

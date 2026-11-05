@@ -5,10 +5,13 @@ import {
   notificationsKey,
 } from '../services/notificationService'
 
+const REFRESH_INTERVAL_MS = 60_000
+
 export const useNotifications = () => {
   const { data, error, isLoading, mutate } = useSWR(
     notificationsKey,
-    fetchNotifications,
+    () => fetchNotifications(),
+    { refreshInterval: REFRESH_INTERVAL_MS },
   )
 
   return {

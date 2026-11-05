@@ -19,19 +19,38 @@ const { useStaffMemberMock, useStaffActivityMock, sendInviteMock } = vi.hoisted(
   }),
 )
 
+const access = vi.hoisted(() => ({
+  organizationId: 'org-1',
+  isLoading: false,
+  isOwner: true,
+  canManagePeople: true,
+  assignedCount: 0,
+  hasPeopleAccess: true,
+}))
+
 vi.mock('@/features/people/hooks/usePeopleAccess', () => ({
-  usePeopleAccess: () => ({
-    organizationId: 'org-1',
-    isLoading: false,
-    isOwner: true,
-    canManagePeople: true,
-  }),
+  usePeopleAccess: () => access,
 }))
 
 vi.mock('@/features/people/hooks/useStaffData', () => ({
   useStaffMember: useStaffMemberMock,
   useStaffActivity: useStaffActivityMock,
   useStaffOptions: () => ({ options: [], isLoading: false }),
+}))
+
+vi.mock('@/features/people/hooks/useHrAssignments', () => ({
+  useHrAssignees: () => ({
+    assignees: [
+      { userId: 'u-2', fullName: 'Hana Assigned', email: 'hana@example.com' },
+    ],
+    isLoading: false,
+    hasError: false,
+  }),
+  useSaveHrAssignments: () => vi.fn(),
+}))
+
+vi.mock('@/features/organizations/hooks/useOrganizationMembers', () => ({
+  useOrganizationMembers: () => ({ members: [], isLoading: false }),
 }))
 
 vi.mock('@/features/people/hooks/useStaffActions', () => ({
@@ -96,6 +115,8 @@ const renderPage = (path = '/people/employees/s-1') =>
 
 beforeEach(() => {
   vi.clearAllMocks()
+  access.isOwner = true
+  access.canManagePeople = true
   useStaffActivityMock.mockReturnValue({
     activities: [],
     isLoading: false,
@@ -241,6 +262,57 @@ describe('EmployeeDetail', () => {
     mockStaff(null, { isForbidden: true })
     renderPage()
 
-    expect(screen.getByText("You don't have access to People")).toBeTruthy()
+    expect(screen.getByText("You don't have access to this")).toBeTruthy()
+  })
+
+  describe('for someone who is not the creator', () => {
+    const asAssignedHr = () => {
+      access.isOwner = false
+      access.canManagePeople = false
+      mockStaff(person({ status: 'active' }))
+    }
+
+    it('hides Pay and Documents from an assigned HR, along with every edit', () => {
+      asAssignedHr()
+      renderPage()
+
+      expect(screen.queryByRole('tab', { name: 'Pay' })).toBeNull()
+      expect(screen.queryByRole('tab', { name: 'Documents' })).toBeNull()
+      expect(screen.getByRole('tab', { name: 'Performance' })).toBeTruthy()
+      expect(screen.queryByText('End employment')).toBeNull()
+      expect(screen.queryByText('Save changes')).toBeNull()
+      expect(screen.queryByText('Assigned HR')).toBeNull()
+    })
+
+    it('hides Pay and Documents from a member who can manage people', () => {
+      asAssignedHr()
+      access.canManagePeople = true
+      renderPage()
+
+      expect(screen.queryByRole('tab', { name: 'Pay' })).toBeNull()
+      expect(screen.queryByRole('tab', { name: 'Documents' })).toBeNull()
+      expect(screen.getByText('End employment')).toBeTruthy()
+      expect(screen.getByText('Save changes')).toBeTruthy()
+    })
+
+    it('falls back to Details when a link asks for the Pay tab', () => {
+      asAssignedHr()
+      renderPage('/people/employees/s-1?tab=pay')
+
+      expect(
+        screen
+          .getByRole('tab', { name: 'Details' })
+          .getAttribute('aria-selected'),
+      ).toBe('true')
+    })
+  })
+
+  it('shows the creator who is assigned as HR', () => {
+    mockStaff(person({ status: 'active' }))
+    renderPage()
+
+    expect(screen.getByRole('tab', { name: 'Pay' })).toBeTruthy()
+    expect(screen.getByText('Assigned HR')).toBeTruthy()
+    expect(screen.getByText('Hana Assigned')).toBeTruthy()
   })
 })

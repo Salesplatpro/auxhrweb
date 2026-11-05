@@ -6,7 +6,15 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useStaffActions } from '@/features/people/hooks/useStaffActions'
 import { useChecklist } from '@/features/people/hooks/useStaffData'
+import {
+  completeTask,
+  hrPerformanceBase,
+  reopenTask,
+} from '@/features/people/services/peopleService'
+import { ChecklistTask } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
+import { getErrorMessage } from '@/utils/getErrorMessage'
+import { notify } from '@/utils/toastNotifications'
 
 import styles from './ChecklistTab.module.scss'
 import type { EmployeeTabProps } from './employeeTabs'
@@ -14,13 +22,31 @@ import type { EmployeeTabProps } from './employeeTabs'
 export const ChecklistTab: React.FC<EmployeeTabProps> = ({
   staff,
   organizationId,
+  canEdit,
 }) => {
-  const { tasks, isLoading, hasError } = useChecklist(organizationId, staff.id)
+  const { tasks, isLoading, hasError, reload } = useChecklist(
+    organizationId,
+    staff.id,
+  )
+  const [reviewingId, setReviewingId] = useState<string | null>(null)
   const { addTask, removeTask, isSaving } = useStaffActions(organizationId)
   const [title, setTitle] = useState('')
   const [dueOn, setDueOn] = useState('')
-  const isEnded = staff.status === 'ended'
+  const isReadOnly = !canEdit || staff.status === 'ended'
   const doneCount = tasks.filter((task) => task.doneAt).length
+
+  const review = async (task: ChecklistTask) => {
+    const base = hrPerformanceBase(organizationId, staff.id)
+    setReviewingId(task.id)
+    try {
+      await (task.doneAt ? reopenTask : completeTask)(base, task.id)
+      await reload()
+    } catch (err) {
+      notify('error', getErrorMessage(err, 'Could not update this task'))
+    } finally {
+      setReviewingId(null)
+    }
+  }
 
   const handleAdd = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -40,7 +66,7 @@ export const ChecklistTab: React.FC<EmployeeTabProps> = ({
         tasks.length > 0
           ? `${doneCount} of ${tasks.length} done. ${
               staff.fullName.split(' ')[0]
-            } ticks tasks off on their My work page.`
+            } asks for a task to be marked complete from their My work page.`
           : undefined
       }>
       {isLoading ? (
@@ -59,12 +85,26 @@ export const ChecklistTab: React.FC<EmployeeTabProps> = ({
                   <span className={styles.title}>{task.title}</span>
                   <span className={styles.meta}>
                     {task.doneAt
-                      ? 'Done'
+                      ? `Done${
+                          task.completedByName
+                            ? `, marked by ${task.completedByName}`
+                            : ''
+                        }`
                       : task.dueOn
                       ? `Due ${formatDateOnly(task.dueOn)}`
                       : 'To do'}
                   </span>
-                  {!isEnded && (
+                  {staff.status !== 'ended' && (
+                    <Button
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                      loading={reviewingId === task.id}
+                      onClick={() => void review(task)}>
+                      {task.doneAt ? 'Reopen' : 'Mark complete'}
+                    </Button>
+                  )}
+                  {!isReadOnly && (
                     <button
                       type="button"
                       className={styles.remove}
@@ -77,7 +117,7 @@ export const ChecklistTab: React.FC<EmployeeTabProps> = ({
               ))}
             </ul>
           )}
-          {!isEnded && (
+          {!isReadOnly && (
             <form className={styles.add} onSubmit={handleAdd}>
               <input
                 aria-label="New task"

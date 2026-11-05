@@ -15,6 +15,10 @@ import {
   AdminTalent,
   AdminTalentFilters,
   AdminTalentProfile,
+  AiChoice,
+  AiFeature,
+  AiModelsOverview,
+  AiPromptPart,
   ApplicationFollowUp,
   ApplicationFollowUpEmailRecord,
   OnboardingEmailRecord,
@@ -233,6 +237,14 @@ export const rejectAdminOrganization = (id: string) =>
     )
     .then((response) => response.data)
 
+export const changeAdminOrganizationOwner = (
+  id: string,
+  input: { newOwnerUserId: string; reason: string },
+) =>
+  httpClient
+    .patch<ApiEnvelope<unknown>>(`/admin/organizations/${id}/owner`, input)
+    .then((response) => response.data)
+
 export const deleteAdminOrganization = (id: string) =>
   httpClient
     .delete<ApiEnvelope<null>>(`/admin/organizations/${id}`)
@@ -261,3 +273,34 @@ export const markFeedbackUnread = (id: string) =>
   httpClient
     .patch<ApiEnvelope<{ feedback: AdminFeedback }>>(`/feedback/${id}/unread`)
     .then((response) => response.data)
+
+export const fetchAiModels = () =>
+  httpClient
+    .get<ApiEnvelope<AiModelsOverview>>('/admin/ai-models')
+    .then((response) => response.data.data)
+
+export const saveAiFeatureModel = (key: string, choice: AiChoice) =>
+  httpClient
+    .patch<ApiEnvelope<{ feature: AiFeature }>>(
+      `/admin/ai-models/features/${key}`,
+      choice,
+    )
+    .then((response) => response.data.data.feature)
+
+export const fetchAiFeaturePrompts = (key: string) =>
+  httpClient
+    .get<ApiEnvelope<{ prompts: AiPromptPart[] }>>(
+      `/admin/ai-models/features/${key}/prompts`,
+    )
+    .then((response) => response.data.data.prompts)
+
+export const saveAiFeaturePrompts = (
+  key: string,
+  prompts: Record<string, string>,
+) =>
+  httpClient
+    .put<ApiEnvelope<{ prompts: AiPromptPart[] }>>(
+      `/admin/ai-models/features/${key}/prompts`,
+      { prompts },
+    )
+    .then((response) => response.data.data.prompts)

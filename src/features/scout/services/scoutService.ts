@@ -1,4 +1,5 @@
 import { httpClient } from '@/features/auth/services/httpClient'
+import { withBlobError } from '@/utils/blobError'
 import { downloadBlobResponse } from '@/utils/downloadBlob'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
@@ -37,9 +38,10 @@ export const openScoutCandidateCv = async (
 ): Promise<void> => {
   const cvWindow = window.open('', '_blank')
   try {
-    const response = await httpClient.get(
-      `/scout/candidates/${candidateId}/cv`,
-      { responseType: 'blob' },
+    const response = await withBlobError(
+      httpClient.get(`/scout/candidates/${candidateId}/cv`, {
+        responseType: 'blob',
+      }),
     )
     const blobUrl = URL.createObjectURL(response.data as Blob)
     if (cvWindow) {

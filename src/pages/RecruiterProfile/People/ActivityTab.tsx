@@ -187,6 +187,94 @@ const toItem = (
         tone: 'success',
         icon: <HiOutlineDocumentCheck />,
       }
+    case 'job_description_saved':
+      return { ...base, title: `Job description saved by ${who}` }
+    case 'goal_added':
+      return {
+        ...base,
+        title: `Goal added by ${who}: ${activity.meta?.title ?? ''}`,
+      }
+    case 'goals_suggested':
+      return { ...base, title: `AI goals suggested by ${who}` }
+    case 'goal_changed':
+      return {
+        ...base,
+        title: `Goal changed by ${who}: ${activity.meta?.title ?? ''}`,
+      }
+    case 'goal_approved':
+      return {
+        ...base,
+        title: `Goal approved by ${who}: ${activity.meta?.title ?? ''}`,
+        tone: 'success',
+      }
+    case 'goal_removed':
+      return {
+        ...base,
+        title: `Goal removed by ${who}: ${activity.meta?.title ?? ''}`,
+      }
+    case 'goal_progress_updated':
+      return {
+        ...base,
+        title: `${who} moved ${activity.meta?.title ?? 'a goal'} to ${
+          activity.meta?.progress ?? 0
+        }%`,
+      }
+    case 'weekly_report_submitted':
+      return { ...base, title: `Weekly report sent by ${who}` }
+    case 'completion_requested':
+      return {
+        ...base,
+        title: `${who} asked for ${
+          activity.meta?.title ?? 'an item'
+        } to be marked complete`,
+      }
+    case 'completion_approved':
+      return {
+        ...base,
+        title: `${activity.meta?.title ?? 'An item'} marked complete by ${who}`,
+        tone: 'success',
+        icon: <HiOutlineCheckCircle />,
+      }
+    case 'completion_returned':
+      return {
+        ...base,
+        title: `${activity.meta?.title ?? 'An item'} sent back by ${who}`,
+      }
+    case 'completion_reopened':
+      return {
+        ...base,
+        title: `${activity.meta?.title ?? 'An item'} reopened by ${who}`,
+      }
+    case 'hr_assigned':
+      return {
+        ...base,
+        title: `${
+          activity.meta?.hrName ?? 'A teammate'
+        } assigned as HR by ${who}`,
+      }
+    case 'hr_removed':
+      return {
+        ...base,
+        title: `${
+          activity.meta?.hrName ?? 'A teammate'
+        } removed as HR by ${who}`,
+      }
+    case 'report_note_added':
+      return { ...base, title: `Note added to a weekly report by ${who}` }
+    case 'development_item_added':
+      return { ...base, title: `Development item added by ${who}` }
+    case 'development_item_removed':
+      return { ...base, title: `Development item removed by ${who}` }
+    case 'feedback_saved':
+      return { ...base, title: `Monthly feedback saved by ${who}` }
+    case 'document_copy_failed':
+      return {
+        ...base,
+        title: `Signed copy of ${String(
+          activity.meta?.title ?? 'a document',
+        )} could not be finished`,
+        icon: <HiOutlineExclamationTriangle />,
+      }
     case 'document_notarized':
       return {
         ...base,

@@ -22,13 +22,17 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => navigateMock }
 })
 
+const access = vi.hoisted(() => ({
+  organizationId: 'org-1',
+  isLoading: false,
+  isOwner: true,
+  canManagePeople: true,
+  assignedCount: 0,
+  hasPeopleAccess: true,
+}))
+
 vi.mock('@/features/people/hooks/usePeopleAccess', () => ({
-  usePeopleAccess: () => ({
-    organizationId: 'org-1',
-    isLoading: false,
-    isOwner: true,
-    canManagePeople: true,
-  }),
+  usePeopleAccess: () => access,
 }))
 
 vi.mock('@/features/people/hooks/useStaffData', () => ({
@@ -105,6 +109,9 @@ const renderPage = () =>
 
 beforeEach(() => {
   vi.clearAllMocks()
+  access.isOwner = true
+  access.canManagePeople = true
+  access.assignedCount = 0
 })
 
 describe('Employees', () => {
@@ -199,6 +206,28 @@ describe('Employees', () => {
     mockList([], { isForbidden: true })
     renderPage()
 
-    expect(screen.getByText("You don't have access to People")).toBeTruthy()
+    expect(screen.getByText("You don't have access to this")).toBeTruthy()
+  })
+
+  it('offers an assigned HR nothing but opening their people', () => {
+    access.isOwner = false
+    access.canManagePeople = false
+    access.assignedCount = 1
+    mockList([person()])
+    renderPage()
+
+    expect(screen.getByText(/assigned to you to track/)).toBeTruthy()
+    for (const hidden of [
+      'Add employee',
+      'Import from file',
+      'Export',
+      'Default checklist',
+    ]) {
+      expect(screen.queryByText(hidden)).toBeNull()
+    }
+
+    fireEvent.click(screen.getByLabelText('Row actions'))
+    expect(screen.getByText('Open')).toBeTruthy()
+    expect(screen.queryByText('End employment')).toBeNull()
   })
 })

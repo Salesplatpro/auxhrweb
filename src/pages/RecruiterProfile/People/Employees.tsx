@@ -36,9 +36,9 @@ import { ImportStaffDrawer } from './ImportStaffDrawer'
 
 const ROWS_PER_PAGE = 10
 
-type Filters = { search: string; status: string }
+type Filters = { search: string; status: string; assigned: string }
 
-const DEFAULT_FILTERS: Filters = { search: '', status: '' }
+const DEFAULT_FILTERS: Filters = { search: '', status: '', assigned: '' }
 
 const STATUS_OPTIONS = [
   { label: 'Active', value: 'active' },
@@ -48,23 +48,24 @@ const STATUS_OPTIONS = [
 
 interface ActionsCellProps {
   staff: StaffMember
+  canEdit: boolean
   onInvite: (staff: StaffMember) => void
   onEnd: (staff: StaffMember) => void
 }
 
-const ActionsCell = ({ staff, onInvite, onEnd }: ActionsCellProps) => {
+const ActionsCell = ({ staff, canEdit, onInvite, onEnd }: ActionsCellProps) => {
   const navigate = useNavigate()
 
   const items: DropdownItem[] = [
     { label: 'Open', onClick: () => navigate(peoplePaths.employee(staff.id)) },
   ]
-  if (canSendInvite(staff)) {
+  if (canEdit && canSendInvite(staff)) {
     items.push({
       label: inviteActionLabel(staff),
       onClick: () => onInvite(staff),
     })
   }
-  if (staff.status !== 'ended') {
+  if (canEdit && staff.status !== 'ended') {
     items.push({ label: 'End employment', onClick: () => onEnd(staff) })
   }
 
@@ -81,7 +82,11 @@ const ActionsCell = ({ staff, onInvite, onEnd }: ActionsCellProps) => {
 export const Employees = () => {
   const navigate = useNavigate()
   const { profile } = useProfile()
-  const { organizationId } = usePeopleAccess()
+  const {
+    organizationId,
+    canManagePeople: canEdit,
+    assignedCount,
+  } = usePeopleAccess()
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [addOpen, setAddOpen] = useState(false)
@@ -92,6 +97,7 @@ export const Employees = () => {
     useStaffList(organizationId, {
       search,
       status: filters.status as StaffStatus | '',
+      ...(filters.assigned === 'me' ? { assignedToMe: 'true' } : {}),
       limit: ROWS_PER_PAGE,
       offset: (page - 1) * ROWS_PER_PAGE,
     })
@@ -114,8 +120,19 @@ export const Employees = () => {
         offValue: '',
         options: STATUS_OPTIONS,
       },
+      ...(canEdit && assignedCount > 0
+        ? [
+            {
+              type: 'select' as const,
+              key: 'assigned' as const,
+              label: 'Assigned',
+              offValue: '',
+              options: [{ label: 'Assigned to me', value: 'me' }],
+            },
+          ]
+        : []),
     ],
-    [],
+    [canEdit, assignedCount],
   )
 
   const columns: ColumnDef<StaffMember>[] = [
@@ -183,6 +200,7 @@ export const Employees = () => {
       render: (staff) => (
         <ActionsCell
           staff={staff}
+          canEdit={canEdit}
           onInvite={(target) => void sendInvite(target.id)}
           onEnd={setToEnd}
         />
@@ -193,7 +211,10 @@ export const Employees = () => {
   if (isForbidden) return <NoPeopleAccess />
 
   const companyName = profile?.activeOrganization?.name ?? 'your company'
-  const hasFilters = filters.search.trim() !== '' || filters.status !== ''
+  const hasFilters =
+    filters.search.trim() !== '' ||
+    filters.status !== '' ||
+    filters.assigned !== ''
   const everyone = counts.active + counts.invited + counts.ended
   const showFirstRun = !isLoading && !hasError && everyone === 0 && !hasFilters
 
@@ -203,20 +224,28 @@ export const Employees = () => {
         compact
         kicker="People"
         title="Employees"
-        lead={`Everyone who works at ${companyName}, whether they were hired through AuxHR or not.`}
+        lead={
+          canEdit
+            ? `Everyone who works at ${companyName}, whether they were hired through AuxHR or not.`
+            : `The people at ${companyName} assigned to you to track.`
+        }
         actions={
-          <>
-            <HeroAction onClick={() => setAddOpen(true)}>
-              Add employee
-            </HeroAction>
-            <HeroGhost onClick={() => setImportOpen(true)}>
-              Import from file
-            </HeroGhost>
-            <HeroGhost onClick={() => void exportStaffCsv()}>Export</HeroGhost>
-            <HeroGhost onClick={() => setChecklistOpen(true)}>
-              Default checklist
-            </HeroGhost>
-          </>
+          canEdit && (
+            <>
+              <HeroAction onClick={() => setAddOpen(true)}>
+                Add employee
+              </HeroAction>
+              <HeroGhost onClick={() => setImportOpen(true)}>
+                Import from file
+              </HeroGhost>
+              <HeroGhost onClick={() => void exportStaffCsv()}>
+                Export
+              </HeroGhost>
+              <HeroGhost onClick={() => setChecklistOpen(true)}>
+                Default checklist
+              </HeroGhost>
+            </>
+          )
         }
       />
 
@@ -281,7 +310,7 @@ export const Employees = () => {
         </>
       )}
 
-      {organizationId && (
+      {organizationId && canEdit && (
         <>
           <ImportStaffDrawer
             organizationId={organizationId}
@@ -296,7 +325,7 @@ export const Employees = () => {
         </>
       )}
 
-      {organizationId && (
+      {organizationId && canEdit && (
         <AddEmployeePanel
           open={addOpen}
           organizationId={organizationId}

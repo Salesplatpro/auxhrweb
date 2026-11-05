@@ -45,6 +45,7 @@ export interface OnboardingEmailRecord {
   body: string
   status: 'sent' | 'failed'
   error: string | null
+  source?: 'admin' | 'auto'
   createdAt: string
 }
 
@@ -164,6 +165,17 @@ export interface AdminOrganization {
     lastName: string
     email: string
   } | null
+  ownershipTransfers?: {
+    id: string
+    fromName: string
+    toName: string
+    reason: string
+    createdAt: string
+  }[]
+  activeSubscription?: {
+    planName: string | null
+    nextPaymentDate: string | null
+  } | null
   members?: {
     id: string
     userId: string
@@ -219,6 +231,7 @@ export interface ApplicationFollowUpEmailRecord {
   body: string
   status: 'sent' | 'failed'
   error: string | null
+  source?: 'admin' | 'auto'
   createdAt: string
 }
 
@@ -320,4 +333,57 @@ export interface AdminOverview {
     stuckByStage: OverviewBucket[]
     scoutRunsByStatus: OverviewBucket[]
   }
+}
+
+export interface AiChoice {
+  provider: string
+  model: string
+}
+
+export interface AiModelOption {
+  provider: string
+  model: string
+  label: string
+  retiresOn: string | null
+  replacement: string | null
+}
+
+export interface AiFeature {
+  key: string
+  name: string
+  description: string
+  group: string
+  lockedReason: string | null
+  current: AiChoice
+  usingDefault: boolean
+  notice: string | null
+  updatedAt: string | null
+  updatedByName: string | null
+  options: AiModelOption[]
+  promptParts: number
+  editedPromptParts: number
+}
+
+export interface AiProviderSummary {
+  key: string
+  name: string
+  envKey: string
+  configured: boolean
+  docsUrl: string
+}
+
+export interface AiModelsOverview {
+  verifiedOn: string
+  providers: AiProviderSummary[]
+  features: AiFeature[]
+}
+
+export interface AiPromptPart {
+  key: string
+  label: string
+  text: string
+  defaultText: string
+  edited: boolean
+  problem: string | null
+  variables: Array<{ name: string; description: string }>
 }

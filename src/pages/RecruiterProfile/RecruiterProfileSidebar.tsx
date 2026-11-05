@@ -21,11 +21,11 @@ import { CompanyBanner } from './CompanyBanner/CompanyBanner'
 
 const RecruiterProfileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { canManagePeople } = usePeopleAccess()
+  const { hasPeopleAccess } = usePeopleAccess()
 
   const navItems = useMemo(
     () =>
-      canManagePeople
+      hasPeopleAccess
         ? [
             ...sidebarData,
             {
@@ -36,7 +36,7 @@ const RecruiterProfileSidebar = () => {
             },
           ]
         : sidebarData,
-    [canManagePeople],
+    [hasPeopleAccess],
   )
 
   return (

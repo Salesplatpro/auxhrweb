@@ -115,3 +115,112 @@
     color: var(--color-text-heading);
   }
 }
+
+.goalText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 180px;
+}
+
+.bar {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-bg-subtle, rgba(127, 127, 127, 0.14));
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--color-brand-500);
+  }
+}
+
+.progressEdit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  input {
+    width: 76px;
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-body);
+  }
+}
+
+.reportForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.reportList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
+
+.note {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  color: var(--color-text-body);
+}
+
+.completion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.completionState {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-body);
+}
+
+.completionProblem {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.completionForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.completionField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-body);
+
+  textarea {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-body);
+  }
+}

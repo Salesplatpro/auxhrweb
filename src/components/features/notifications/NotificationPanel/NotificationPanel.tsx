@@ -2,10 +2,12 @@ import React, { useState } from 'react'
 import { HiOutlineBell } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
 
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
 import { Spinner } from '@/components/ui/Spinner'
 import { useMarkAllNotificationsRead } from '@/features/notifications/hooks/useMarkAllNotificationsRead'
 import { useMarkNotificationRead } from '@/features/notifications/hooks/useMarkNotificationRead'
 import { useNotifications } from '@/features/notifications/hooks/useNotifications'
+import { useOpenNotification } from '@/features/notifications/hooks/useOpenNotification'
 import { AppNotification } from '@/features/notifications/types'
 import { formatTimeAgo } from '@/utils'
 import { stripHtml } from '@/utils/truncateTexts'
@@ -14,6 +16,8 @@ import styles from './NotificationPanel.module.scss'
 
 type NotificationPanelProps = {
   viewAllTo: string
+  /** Called when a notification takes the user to another page. */
+  onNavigate?: () => void
 }
 
 const previewOf = (notification: AppNotification) => {
@@ -26,11 +30,16 @@ const previewOf = (notification: AppNotification) => {
   }
 }
 
-export const NotificationPanel = ({ viewAllTo }: NotificationPanelProps) => {
+export const NotificationPanel = ({
+  viewAllTo,
+  onNavigate,
+}: NotificationPanelProps) => {
   const [tab, setTab] = useState<'all' | 'unread'>('all')
   const { notifications, unReadCount, isLoading, mutate } = useNotifications()
   const { markAsRead } = useMarkNotificationRead()
   const { markAllAsRead, isMarkingAll } = useMarkAllNotificationsRead()
+  const { follow, needsSwitch, isSwitching, confirmSwitch, cancelSwitch } =
+    useOpenNotification(onNavigate)
 
   const visible =
     tab === 'unread'
@@ -42,6 +51,7 @@ export const NotificationPanel = ({ viewAllTo }: NotificationPanelProps) => {
       await markAsRead(notification.id)
       await mutate()
     }
+    follow(notification)
   }
 
   const handleMarkAll = async () => {
@@ -127,6 +137,16 @@ export const NotificationPanel = ({ viewAllTo }: NotificationPanelProps) => {
       <Link to={viewAllTo} className={styles.viewAll}>
         View all
       </Link>
+
+      <ConfirmDialog
+        open={needsSwitch}
+        title="Switch company to open this?"
+        message="This notification belongs to another company you work with. Switching clears any unsaved job drafts."
+        confirmLabel="Switch company"
+        isConfirming={isSwitching}
+        onConfirm={() => void confirmSwitch()}
+        onCancel={cancelSwitch}
+      />
     </div>
   )
 }

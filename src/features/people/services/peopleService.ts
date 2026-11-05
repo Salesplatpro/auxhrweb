@@ -1,4 +1,6 @@
 import { httpClient } from '@/features/auth/services/httpClient'
+import { withBlobError } from '@/utils/blobError'
+import { downloadBlobResponse } from '@/utils/downloadBlob'
 
 import {
   AccessLogData,
@@ -10,21 +12,39 @@ import {
   CommissionPlan,
   CommissionPlanPayload,
   CompanyProfile,
+  CompletionRequest,
+  CompletionReviewResult,
   CreateStaffPayload,
   CreateStaffResult,
+  DevelopmentItem,
+  DevelopmentPayload,
+  DocumentCheck,
   DocumentPreview,
   DocumentTemplate,
+  EfficiencyTip,
   Envelope,
+  Goal,
+  GoalPayload,
   HeadcountCost,
+  HrAssignee,
   ImportCommitResult,
   ImportRowResult,
   ImportStaffRow,
   InviteStaffResult,
+  JobDescription,
   JoinedStaff,
+  ManagedPerformance,
+  MonthlyFeedback,
+  MyPerformance,
+  MyTeamData,
   MyWorkRecord,
+  OrgChartData,
   PayData,
   PayPackagePayload,
   PeopleAccess,
+  QuarterGoal,
+  QuarterGoalPayload,
+  QuarterlyReviewData,
   SendDocumentResult,
   ShareGrant,
   ShareGrantPayload,
@@ -39,6 +59,8 @@ import {
   StaffMember,
   StaffOption,
   UpdateStaffPayload,
+  WeeklyReport,
+  WeeklyReportText,
 } from '../types'
 
 export const staffBase = (organizationId: string) =>
@@ -61,6 +83,29 @@ export const fetchPeopleAccess = (organizationId: string) =>
   unwrap<{ access: PeopleAccess }>(
     httpClient.get(`${staffBase(organizationId)}/access`),
   ).then((data) => data.access)
+
+export const fetchHrAssignees = (organizationId: string, staffId: string) =>
+  unwrap<{ assignees: HrAssignee[] }>(
+    httpClient.get(`${staffBase(organizationId)}/${staffId}/hr`),
+  ).then((data) => data.assignees)
+
+export const fetchAssignedStaffIds = (
+  organizationId: string,
+  assigneeUserId: string,
+) =>
+  unwrap<{ assignedStaffIds: string[] }>(
+    httpClient.get(`${staffBase(organizationId)}/hr-assignments`, {
+      params: { assigneeUserId },
+    }),
+  ).then((data) => data.assignedStaffIds)
+
+export const saveHrAssignments = (
+  organizationId: string,
+  input: { assigneeUserId: string; add: string[]; remove: string[] },
+) =>
+  unwrap<{ assignedStaffIds: string[] }>(
+    httpClient.put(`${staffBase(organizationId)}/hr-assignments`, input),
+  ).then((data) => data.assignedStaffIds)
 
 export const fetchStaffList = (organizationId: string, query: StaffListQuery) =>
   unwrap<StaffListData>(
@@ -285,10 +330,41 @@ export const downloadStaffDocument = (
   staffId: string,
   documentId: string,
 ) =>
-  httpClient.get<Blob>(
-    `${staffBase(organizationId)}/${staffId}/documents/${documentId}/pdf`,
-    { responseType: 'blob' },
+  withBlobError(
+    httpClient.get<Blob>(
+      `${staffBase(organizationId)}/${staffId}/documents/${documentId}/pdf`,
+      { responseType: 'blob' },
+    ),
   )
+
+export const retryDocumentCopy = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  unwrap<{ document: StaffDocument }>(
+    httpClient.post(
+      `${staffBase(
+        organizationId,
+      )}/${staffId}/documents/${documentId}/finalize`,
+    ),
+  ).then((data) => data.document)
+
+export const checkSignedDocumentCode = (
+  documentId: string,
+  checkCode: string,
+) =>
+  unwrap<{ check: DocumentCheck }>(
+    httpClient.post('/document-checks', { documentId, checkCode }),
+  ).then((data) => data.check)
+
+export const checkSignedDocumentFile = (file: File) => {
+  const body = new FormData()
+  body.append('file', file)
+  return unwrap<{ check: DocumentCheck }>(
+    httpClient.post('/document-checks/file', body),
+  ).then((data) => data.check)
+}
 
 export const fetchSigningDocument = (token: string) =>
   unwrap<{ document: SigningDocument }>(
@@ -380,9 +456,11 @@ export const downloadNotarizedScan = (
   staffId: string,
   documentId: string,
 ) =>
-  httpClient.get<Blob>(
-    `${documentPath(organizationId, staffId, documentId)}/notarized-scan`,
-    { responseType: 'blob' },
+  withBlobError(
+    httpClient.get<Blob>(
+      `${documentPath(organizationId, staffId, documentId)}/notarized-scan`,
+      { responseType: 'blob' },
+    ),
   )
 
 export const checkStaffImport = (
@@ -449,15 +527,102 @@ export const fetchMyWork = () =>
 export const fetchMyPay = (staffId: string) =>
   unwrap<PayData>(httpClient.get(`${MY_WORK_KEY}/${staffId}/pay`))
 
-export const setMyTaskDone = (taskId: string, done: boolean) =>
-  unwrap<{ task: ChecklistTask }>(
-    httpClient.patch(`${MY_WORK_KEY}/tasks/${taskId}`, { done }),
-  ).then((data) => data.task)
+export const submitCompletionRequest = (staffId: string, form: FormData) =>
+  unwrap<{ request: CompletionRequest }>(
+    httpClient.post(`${MY_WORK_KEY}/${staffId}/completion-requests`, form),
+  ).then((data) => data.request)
+
+export const withdrawCompletionRequest = (staffId: string, requestId: string) =>
+  httpClient.delete(
+    `${MY_WORK_KEY}/${staffId}/completion-requests/${requestId}`,
+  )
+
+const downloadEvidenceFrom = async (
+  url: string,
+  file: { name: string },
+): Promise<void> => {
+  const response = await withBlobError(
+    httpClient.get(url, { responseType: 'blob' }),
+  )
+  downloadBlobResponse(response.data as Blob, undefined, file.name)
+}
+
+export const downloadMyEvidence = (
+  staffId: string,
+  requestId: string,
+  file: { id: string; name: string },
+) =>
+  downloadEvidenceFrom(
+    `${MY_WORK_KEY}/${staffId}/completion-requests/${requestId}/files/${file.id}`,
+    file,
+  )
+
+export const downloadEvidence = (
+  base: string,
+  requestId: string,
+  file: { id: string; name: string },
+) =>
+  downloadEvidenceFrom(
+    `${base}/completion-requests/${requestId}/files/${file.id}`,
+    file,
+  )
+
+export const approveCompletion = (
+  base: string,
+  requestId: string,
+  input: { version?: number; note: string | null },
+) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/completion-requests/${requestId}/approve`, input),
+  )
+
+export const returnCompletion = (
+  base: string,
+  requestId: string,
+  note: string,
+) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/completion-requests/${requestId}/return`, {
+      note,
+    }),
+  )
+
+export const completeGoal = (base: string, goalId: string, version: number) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/goals/${goalId}/complete`, { version }),
+  )
+
+export const reopenGoal = (base: string, goalId: string) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/goals/${goalId}/reopen`),
+  )
+
+export const fetchScopedTasks = (base: string) =>
+  unwrap<{ tasks: ChecklistTask[] }>(httpClient.get(`${base}/tasks`)).then(
+    (data) => data.tasks,
+  )
+
+export const completeTask = (base: string, taskId: string) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/tasks/${taskId}/complete`),
+  )
+
+export const reopenTask = (base: string, taskId: string) =>
+  unwrap<CompletionReviewResult>(
+    httpClient.post(`${base}/tasks/${taskId}/reopen`),
+  )
 
 export const fetchMyDocument = (documentId: string) =>
   unwrap<{ document: SigningDocument }>(
     httpClient.get(`${MY_WORK_KEY}/documents/${documentId}`),
   ).then((data) => data.document)
+
+export const downloadMySignedDocument = (documentId: string) =>
+  withBlobError(
+    httpClient.get<Blob>(`${MY_WORK_KEY}/documents/${documentId}/pdf`, {
+      responseType: 'blob',
+    }),
+  )
 
 export const signMyDocument = (documentId: string, fullName: string) =>
   unwrap<{ signed: SignedCopy }>(
@@ -466,3 +631,208 @@ export const signMyDocument = (documentId: string, fullName: string) =>
       agree: true,
     }),
   ).then((data) => data.signed)
+
+/** Longer than the server's own limit, so a slow AI call is reported instead of waiting forever. */
+const AI_TIMEOUT = { timeout: 90_000 }
+
+export const hrPerformanceBase = (organizationId: string, staffId: string) =>
+  `${staffBase(organizationId)}/${staffId}/performance`
+
+export const teamPerformanceBase = (managerStaffId: string, staffId: string) =>
+  `${MY_WORK_KEY}/${managerStaffId}/team/${staffId}`
+
+export const myPerformanceKey = (staffId: string) =>
+  `${MY_WORK_KEY}/${staffId}/performance`
+
+export const fetchPerformance = (base: string) =>
+  unwrap<{ performance: ManagedPerformance }>(httpClient.get(base)).then(
+    (data) => data.performance,
+  )
+
+export const fetchMyPerformance = (staffId: string) =>
+  unwrap<{ performance: MyPerformance }>(
+    httpClient.get(myPerformanceKey(staffId)),
+  ).then((data) => data.performance)
+
+export const fetchMyTeam = (managerStaffId: string) =>
+  unwrap<MyTeamData>(httpClient.get(`${MY_WORK_KEY}/${managerStaffId}/team`))
+
+export const writeJobDescription = (organizationId: string, staffId: string) =>
+  unwrap<{ draft: { body: string } }>(
+    httpClient.post(
+      `${staffBase(organizationId)}/${staffId}/job-description/write`,
+      undefined,
+      AI_TIMEOUT,
+    ),
+  ).then((data) => data.draft)
+
+export const saveJobDescription = (
+  organizationId: string,
+  staffId: string,
+  body: string,
+  version: number | null,
+) =>
+  unwrap<{ jobDescription: JobDescription }>(
+    httpClient.put(`${staffBase(organizationId)}/${staffId}/job-description`, {
+      body,
+      version,
+    }),
+  ).then((data) => data.jobDescription)
+
+export const addGoal = (base: string, goal: GoalPayload) =>
+  unwrap<{ goal: Goal }>(httpClient.post(`${base}/goals`, goal)).then(
+    (data) => data.goal,
+  )
+
+export const editGoal = (
+  base: string,
+  goalId: string,
+  goal: GoalPayload,
+  version: number,
+) =>
+  unwrap<{ goal: Goal }>(
+    httpClient.patch(`${base}/goals/${goalId}`, { ...goal, version }),
+  ).then((data) => data.goal)
+
+export const approveGoal = (base: string, goalId: string, version: number) =>
+  unwrap<{ goal: Goal }>(
+    httpClient.post(`${base}/goals/${goalId}/approve`, { version }),
+  ).then((data) => data.goal)
+
+export const removeGoal = (base: string, goalId: string) =>
+  httpClient.delete(`${base}/goals/${goalId}`)
+
+export const suggestGoals = (base: string) =>
+  unwrap<{ goals: Goal[] }>(
+    httpClient.post(`${base}/goals/suggest`, undefined, AI_TIMEOUT),
+  ).then((data) => data.goals)
+
+export const setMyGoalProgress = (
+  staffId: string,
+  goalId: string,
+  progress: number,
+) =>
+  unwrap<{ goal: Goal }>(
+    httpClient.patch(`${MY_WORK_KEY}/${staffId}/goals/${goalId}/progress`, {
+      progress,
+    }),
+  ).then((data) => data.goal)
+
+export const fetchReports = (base: string, offset: number, limit = 10) =>
+  unwrap<{ items: WeeklyReport[]; total: number }>(
+    httpClient.get(`${base}/reports?limit=${limit}&offset=${offset}`),
+  )
+
+export const fetchMyReports = (staffId: string, offset: number, limit = 10) =>
+  fetchReports(`${MY_WORK_KEY}/${staffId}`, offset, limit)
+
+export const saveReportNote = (
+  base: string,
+  reportId: string,
+  note: string,
+  textVersion: number,
+  noteVersion: number,
+) =>
+  unwrap<{ report: WeeklyReport }>(
+    httpClient.put(`${base}/reports/${reportId}/note`, {
+      note,
+      textVersion,
+      noteVersion,
+    }),
+  ).then((data) => data.report)
+
+export const submitMyReport = (
+  staffId: string,
+  weekStart: string,
+  text: WeeklyReportText,
+) =>
+  unwrap<{ report: WeeklyReport }>(
+    httpClient.put(`${MY_WORK_KEY}/${staffId}/reports/${weekStart}`, text),
+  ).then((data) => data.report)
+
+export const requestMyAdvice = (staffId: string, reportId: string) =>
+  unwrap<{ report: WeeklyReport }>(
+    httpClient.post(
+      `${MY_WORK_KEY}/${staffId}/reports/${reportId}/advice`,
+      undefined,
+      AI_TIMEOUT,
+    ),
+  ).then((data) => data.report)
+
+export const addDevelopmentItem = (base: string, item: DevelopmentPayload) =>
+  unwrap<{ item: DevelopmentItem }>(
+    httpClient.post(`${base}/development`, item),
+  ).then((data) => data.item)
+
+export const editDevelopmentItem = (
+  base: string,
+  item: DevelopmentItem,
+  status: DevelopmentItem['status'],
+) =>
+  unwrap<{ item: DevelopmentItem }>(
+    httpClient.patch(`${base}/development/${item.id}`, {
+      weakArea: item.weakArea,
+      action: item.action,
+      dueOn: item.dueOn,
+      status,
+      version: item.version,
+    }),
+  ).then((data) => data.item)
+
+export const removeDevelopmentItem = (base: string, itemId: string) =>
+  httpClient.delete(`${base}/development/${itemId}`)
+
+export const suggestDevelopmentItems = (base: string) =>
+  unwrap<{ items: DevelopmentItem[] }>(
+    httpClient.post(`${base}/development/suggest`, undefined, AI_TIMEOUT),
+  ).then((data) => data.items)
+
+export const setMyDevelopmentDone = (
+  staffId: string,
+  itemId: string,
+  done: boolean,
+) =>
+  unwrap<{ item: DevelopmentItem }>(
+    httpClient.patch(`${MY_WORK_KEY}/${staffId}/development/${itemId}`, {
+      done,
+    }),
+  ).then((data) => data.item)
+
+export const saveFeedback = (
+  base: string,
+  month: string,
+  feedback: { rating: number; notes: string; version: number | null },
+) =>
+  unwrap<{ feedback: MonthlyFeedback }>(
+    httpClient.put(`${base}/feedback/${month}`, feedback),
+  ).then((data) => data.feedback)
+
+export const requestEfficiencyTip = (base: string) =>
+  unwrap<{ tip: EfficiencyTip }>(
+    httpClient.post(`${base}/efficiency-tip`, undefined, AI_TIMEOUT),
+  ).then((data) => data.tip)
+
+export const orgChartKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/org-chart`
+
+export const fetchOrgChart = (organizationId: string) =>
+  unwrap<OrgChartData>(httpClient.get(orgChartKey(organizationId)))
+
+export const quarterlyReviewKey = (organizationId: string, quarter: string) =>
+  `${staffBase(organizationId)}/quarterly-review?quarter=${quarter}`
+
+export const fetchQuarterlyReview = (organizationId: string, quarter: string) =>
+  unwrap<QuarterlyReviewData>(
+    httpClient.get(quarterlyReviewKey(organizationId, quarter)),
+  )
+
+export const saveQuarterGoal = (
+  organizationId: string,
+  payload: QuarterGoalPayload,
+) =>
+  unwrap<{ goal: QuarterGoal }>(
+    httpClient.put(
+      `${staffBase(organizationId)}/quarterly-review/goal`,
+      payload,
+    ),
+  ).then((data) => data.goal)

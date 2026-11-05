@@ -8,6 +8,8 @@ export const peoplePaths = {
   commissionPlans: '/recruiterDashboard/people/commission-plans',
   headcountCost: '/recruiterDashboard/people/headcount-cost',
   companyProfile: '/recruiterDashboard/people/company-profile',
+  orgChart: '/recruiterDashboard/people/org-chart',
+  quarterlyReview: '/recruiterDashboard/people/quarterly-review',
 }
 
 export const myWorkPath = '/talentDashboard/my-work'

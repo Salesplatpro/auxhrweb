@@ -40,6 +40,25 @@ describe('SignDocument', () => {
     vi.clearAllMocks()
   })
 
+  it('says the copy is on its way and hides Download when it is not stored yet', async () => {
+    fetchMock.mockResolvedValue(document)
+    signMock.mockResolvedValue({
+      fileName: 'offer.pdf',
+      pdfBase64: null,
+      copyPending: true,
+    })
+    renderPage()
+
+    fireEvent.change(await screen.findByLabelText('Type your full name'), {
+      target: { value: 'Ada Obi' },
+    })
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: 'Sign' }))
+
+    expect(await screen.findByText(/on its way by email/)).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Download' })).toBeNull()
+  })
+
   it('keeps Sign off until the name is typed and the box is ticked, then confirms', async () => {
     fetchMock.mockResolvedValue(document)
     signMock.mockResolvedValue({ fileName: 'offer.pdf', pdfBase64: 'JVBERg==' })

@@ -22,7 +22,7 @@ const isLinkGone = (error: unknown) =>
     (error as { response?: { status?: number } })?.response?.status ?? 0,
   )
 
-const downloadSignedCopy = ({ fileName, pdfBase64 }: SignedCopy) => {
+const downloadSignedCopy = (fileName: string, pdfBase64: string) => {
   const bytes = Uint8Array.from(atob(pdfBase64), (char) => char.charCodeAt(0))
   const url = URL.createObjectURL(
     new Blob([bytes], { type: 'application/pdf' }),
@@ -51,8 +51,17 @@ const Signed: React.FC<{ copy: SignedCopy }> = ({ copy }) => (
     <div className={styles.message}>
       <HiOutlineCheckCircle className={styles.doneIcon} aria-hidden />
       <h1>Signed</h1>
-      <p>A copy has been emailed to you.</p>
-      <Button onClick={() => downloadSignedCopy(copy)}>Download</Button>
+      <p>
+        {copy.copyPending
+          ? 'Your signature is saved. Your copy is on its way by email and may take a few minutes.'
+          : 'A copy has been emailed to you.'}
+      </p>
+      {copy.pdfBase64 && (
+        <Button
+          onClick={() => downloadSignedCopy(copy.fileName, copy.pdfBase64!)}>
+          Download
+        </Button>
+      )}
     </div>
   </div>
 )

@@ -13,11 +13,11 @@ vi.mock('@/features/people/hooks/usePeopleAccess', () => ({
   usePeopleAccess: usePeopleAccessMock,
 }))
 
-const renderGuard = (ownerOnly = false) =>
+const renderGuard = (level?: 'any' | 'manage' | 'creator') =>
   render(
     <MemoryRouter>
       <Routes>
-        <Route element={<RequirePeopleAccess ownerOnly={ownerOnly} />}>
+        <Route element={<RequirePeopleAccess level={level} />}>
           <Route index element={<p>People content</p>} />
         </Route>
       </Routes>
@@ -29,6 +29,7 @@ const access = (overrides: Record<string, unknown>) =>
     isLoading: false,
     isOwner: false,
     canManagePeople: false,
+    hasPeopleAccess: false,
     organizationId: 'org-1',
     ...overrides,
   })
@@ -42,13 +43,13 @@ describe('RequirePeopleAccess', () => {
     access({})
     renderGuard()
 
-    expect(screen.getByText("You don't have access to People")).toBeTruthy()
-    expect(screen.getByText('Ask your company owner.')).toBeTruthy()
+    expect(screen.getByText("You don't have access to this")).toBeTruthy()
+    expect(screen.getByText("Ask your company's creator.")).toBeTruthy()
     expect(screen.queryByText('People content')).toBeNull()
   })
 
   it('lets through someone who can manage people', () => {
-    access({ canManagePeople: true })
+    access({ canManagePeople: true, hasPeopleAccess: true })
     renderGuard()
 
     expect(screen.getByText('People content')).toBeTruthy()
@@ -59,22 +60,37 @@ describe('RequirePeopleAccess', () => {
     renderGuard()
 
     expect(screen.queryByText('People content')).toBeNull()
-    expect(screen.queryByText("You don't have access to People")).toBeNull()
+    expect(screen.queryByText("You don't have access to this")).toBeNull()
   })
 })
 
-describe('RequirePeopleAccess ownerOnly', () => {
-  it('refuses a member who can manage people but is not the owner', () => {
-    access({ canManagePeople: true })
-    renderGuard(true)
+describe('RequirePeopleAccess levels', () => {
+  it('lets an assigned teammate reach the employee pages only', () => {
+    access({ hasPeopleAccess: true, assignedCount: 1 })
 
-    expect(screen.getByText("You don't have access to People")).toBeTruthy()
+    const { unmount } = renderGuard('any')
+    expect(screen.getByText('People content')).toBeTruthy()
+    unmount()
+
+    renderGuard('manage')
     expect(screen.queryByText('People content')).toBeNull()
   })
 
-  it('lets the owner through', () => {
-    access({ isOwner: true, canManagePeople: true })
-    renderGuard(true)
+  it('keeps creator pages from a member who can manage people', () => {
+    access({ canManagePeople: true, hasPeopleAccess: true })
+
+    const { unmount } = renderGuard('manage')
+    expect(screen.getByText('People content')).toBeTruthy()
+    unmount()
+
+    renderGuard('creator')
+    expect(screen.getByText("You don't have access to this")).toBeTruthy()
+    expect(screen.queryByText('People content')).toBeNull()
+  })
+
+  it('lets the creator through', () => {
+    access({ isOwner: true, canManagePeople: true, hasPeopleAccess: true })
+    renderGuard('creator')
 
     expect(screen.getByText('People content')).toBeTruthy()
   })

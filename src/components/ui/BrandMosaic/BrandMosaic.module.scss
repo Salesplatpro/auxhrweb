@@ -1,0 +1,126 @@
+.mosaic {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  aspect-ratio: 6 / 8;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--mosaic-white);
+}
+
+.tile {
+  position: relative;
+  overflow: hidden;
+}
+
+.shape {
+  position: absolute;
+  background: var(--shape);
+}
+
+.circle {
+  inset: 0;
+  border-radius: var(--radius-full);
+}
+
+.dot {
+  inset: 32%;
+  border-radius: var(--radius-full);
+}
+
+.leaf {
+  inset: 0;
+  border-radius: 100% 0;
+}
+
+.quarter-tl,
+.quarter-tr,
+.quarter-bl,
+.quarter-br {
+  inset: 0;
+}
+
+.quarter-tl {
+  border-bottom-right-radius: 100%;
+}
+
+.quarter-tr {
+  border-bottom-left-radius: 100%;
+}
+
+.quarter-bl {
+  border-top-right-radius: 100%;
+}
+
+.quarter-br {
+  border-top-left-radius: 100%;
+}
+
+.half-bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50%;
+  border-radius: 999px 999px 0 0;
+}
+
+.half-top {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50%;
+  border-radius: 0 0 999px 999px;
+}
+
+.half-left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  border-radius: 0 999px 999px 0;
+}
+
+.half-right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 50%;
+  border-radius: 999px 0 0 999px;
+}
+
+.lineWrap {
+  position: absolute;
+  inset: 0;
+  color: var(--shape);
+}
+
+.lines {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+
+.brand {
+  background: var(--mosaic-blue);
+}
+
+.violet {
+  background: var(--mosaic-violet);
+}
+
+.logo {
+  width: 52%;
+  height: auto;
+}

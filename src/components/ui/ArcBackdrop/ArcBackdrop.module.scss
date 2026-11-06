@@ -1,0 +1,11 @@
+.backdrop {
+  position: absolute;
+  right: -40px;
+  bottom: 0;
+  width: min(420px, 40%);
+  height: auto;
+  fill: none;
+  stroke: var(--color-arc);
+  stroke-width: 14;
+  pointer-events: none;
+}

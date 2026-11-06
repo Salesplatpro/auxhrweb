@@ -1,0 +1,29 @@
+.track {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.segment {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  transition: background var(--duration-base) var(--ease-standard);
+}
+
+.brand {
+  background: var(--color-brand-vivid);
+}
+
+.success {
+  background: var(--color-positive-strong);
+}
+
+.warning {
+  background: var(--color-caution);
+}
+
+.danger {
+  background: var(--color-danger);
+}

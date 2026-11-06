@@ -120,3 +120,36 @@
   width: 24px;
   height: 24px;
 }
+
+.ink {
+  background: var(--color-ink);
+  color: var(--color-text-inverse);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-ink-button);
+
+  &:hover:not(:disabled) {
+    background: var(--color-ink-hover);
+    transform: translateY(-1px);
+  }
+}
+
+.xl {
+  min-height: 56px;
+  padding: var(--space-3) var(--space-6);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.pill {
+  border-radius: var(--radius-full);
+}
+
+.stretch {
+  width: 100%;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}

@@ -1,0 +1,21 @@
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.piece,
+.small {
+  position: absolute;
+  border-radius: 2px;
+}
+
+.piece {
+  width: 8px;
+  height: 14px;
+}
+
+.small {
+  width: 10px;
+  height: 4px;
+}

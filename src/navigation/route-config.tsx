@@ -51,7 +51,6 @@ import { MainLayout, Resources } from '@/pages'
 import AdminProfileSidebar from '@/pages/AdminProfile/AdminProfileSidebar'
 import AiModels from '@/pages/AdminProfile/AiModels/AiModels'
 import Applications from '@/pages/AdminProfile/Applications/Applications'
-import Feedback from '@/pages/AdminProfile/Feedback/Feedback'
 import AdminJobDetail from '@/pages/AdminProfile/JobDetail/AdminJobDetail'
 import Jobs from '@/pages/AdminProfile/Jobs/Jobs'
 import OrganizationDetail from '@/pages/AdminProfile/Organizations/OrganizationDetail'
@@ -59,9 +58,10 @@ import Organizations from '@/pages/AdminProfile/Organizations/Organizations'
 import Overview from '@/pages/AdminProfile/Overview/Overview'
 import Recruiters from '@/pages/AdminProfile/Recruiters/Recruiters'
 import AdminRoles from '@/pages/AdminProfile/Roles/Roles'
+import SupportInbox from '@/pages/AdminProfile/Support/SupportInbox'
+import SupportRequestPage from '@/pages/AdminProfile/Support/SupportRequest'
 import AdminTalentDetail from '@/pages/AdminProfile/Talents/TalentDetail'
 import Talents from '@/pages/AdminProfile/Talents/Talents'
-import { FeedbackPage } from '@/pages/Feedback'
 import PostedJob from '@/pages/Home/Jobs/PostedJob'
 import VerifyPaymentPage from '@/pages/Pricing/Verify'
 import {
@@ -97,6 +97,7 @@ import { RunResults } from '@/pages/RecruiterProfile/Scout/RunResults'
 import { ScoutCampaigns } from '@/pages/RecruiterProfile/Scout/ScoutCampaigns'
 import { UploadStep } from '@/pages/RecruiterProfile/Scout/UploadStep'
 import { TalentSearch } from '@/pages/RecruiterProfile/TalentSearch/TalentSearch'
+import { SupportPage } from '@/pages/Support'
 import { ApplicationPipeline } from '@/pages/TalentProfile/ApplicationPipeline'
 import TalentDashboardHome from '@/pages/TalentProfile/Dashboard/TalentDashboardHome'
 import Inbox from '@/pages/TalentProfile/Inbox/InboxList'
@@ -109,7 +110,6 @@ import {
 } from '@/pages/TalentProfile/Job/PipelineRedirects'
 import Notifications from '@/pages/TalentProfile/Notifications/NotificationsList'
 import TalentProfile from '@/pages/TalentProfile/Profile'
-import { Support } from '@/pages/TalentProfile/Support'
 import TalentProfileSidebar from '@/pages/TalentProfile/TalentProfileSidebar'
 import { paths } from '@/paths'
 
@@ -292,10 +292,6 @@ export const routeConfig: RouteObject[] = [
                 element: <ChangePasswordPage />,
               },
               {
-                path: 'feedback',
-                element: <FeedbackPage />,
-              },
-              {
                 element: <RequireEmailVerified redirectTo="/talentDashboard" />,
                 children: [
                   {
@@ -319,8 +315,8 @@ export const routeConfig: RouteObject[] = [
                     element: <Job />,
                   },
                   {
-                    path: '/talentDashboard/support',
-                    element: <Support />,
+                    path: 'support',
+                    element: <SupportPage />,
                   },
                   {
                     path: 'chat',
@@ -383,10 +379,6 @@ export const routeConfig: RouteObject[] = [
                 element: <Dashboard />,
               },
               {
-                path: 'feedback',
-                element: <FeedbackPage />,
-              },
-              {
                 path: 'guide',
                 element: <RecruiterGuide />,
               },
@@ -405,6 +397,10 @@ export const routeConfig: RouteObject[] = [
                   <RequireEmailVerified redirectTo="/recruiterDashboard/dashboard" />
                 ),
                 children: [
+                  {
+                    path: 'support',
+                    element: <SupportPage />,
+                  },
                   {
                     path: 'company',
                     element: <Company />,
@@ -608,12 +604,12 @@ export const routeConfig: RouteObject[] = [
                 element: <AiModels />,
               },
               {
-                path: 'feedback',
-                element: <Feedback />,
+                path: 'support',
+                element: <SupportInbox />,
               },
               {
-                path: 'leave-feedback',
-                element: <FeedbackPage />,
+                path: 'support/:requestId',
+                element: <SupportRequestPage />,
               },
               {
                 path: 'notifications',

@@ -5,10 +5,13 @@ export const dashboardPathForRole = (userRole?: string | null): string => {
   return '/'
 }
 
-export const feedbackPathForRole = (userRole?: string | null): string => {
-  if (userRole === 'recruiter') return '/recruiterDashboard/feedback'
-  if (userRole === 'admin') return '/adminDashboard/leave-feedback'
-  return '/talentDashboard/feedback'
+/** Talents and recruiters write to support; the admin answers it, so has no page here. */
+export const supportPathForRole = (
+  userRole?: string | null,
+): string | undefined => {
+  if (userRole === 'recruiter') return '/recruiterDashboard/support'
+  if (userRole === 'talent') return '/talentDashboard/support'
+  return undefined
 }
 
 export const changePasswordPathForRole = (

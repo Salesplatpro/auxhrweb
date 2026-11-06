@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { api } from '../api/apiSlice'
 import { recruiterApi } from '../api/recruiter'
 import { talentApi } from '../api/talent'
 import rootReducer from '../features/reducer'
@@ -11,7 +10,6 @@ export const store = configureStore({
   // `File` objects and has moved to Zustand, where they stay out of persistence.
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
-      api.middleware,
       talentApi.middleware,
       recruiterApi.middleware,
     ),

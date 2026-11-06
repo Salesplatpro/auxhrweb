@@ -4,8 +4,8 @@ import {
   changePasswordPathForRole,
   dashboardPathForRole,
   destinationAfterAuth,
-  feedbackPathForRole,
   loginPathWithNext,
+  supportPathForRole,
 } from './dashboardPath'
 
 describe('destinationAfterAuth', () => {
@@ -103,13 +103,15 @@ describe('loginPathWithNext', () => {
   })
 })
 
-describe('feedbackPathForRole', () => {
-  it('returns the leave-feedback page for each dashboard role', () => {
-    expect(feedbackPathForRole('talent')).toBe('/talentDashboard/feedback')
-    expect(feedbackPathForRole('recruiter')).toBe(
-      '/recruiterDashboard/feedback',
-    )
-    expect(feedbackPathForRole('admin')).toBe('/adminDashboard/leave-feedback')
+describe('supportPathForRole', () => {
+  it('returns the support page for talents and recruiters', () => {
+    expect(supportPathForRole('talent')).toBe('/talentDashboard/support')
+    expect(supportPathForRole('recruiter')).toBe('/recruiterDashboard/support')
+  })
+
+  it('gives the admin no support page to write to', () => {
+    expect(supportPathForRole('admin')).toBeUndefined()
+    expect(supportPathForRole(undefined)).toBeUndefined()
   })
 })
 

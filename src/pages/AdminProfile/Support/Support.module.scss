@@ -1,0 +1,443 @@
+@use '../../../styles/form-field' as *;
+@use '../../../styles/breakpoints' as bp;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.loadError {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+// ---- Inbox ---------------------------------------------------------------
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.personText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.personName {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.personMeta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.requestCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  max-width: 420px;
+}
+
+.topicChip {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.preview {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-body);
+}
+
+.unreadRow {
+  .personName,
+  .preview {
+    font-weight: var(--weight-bold);
+    color: var(--color-text-heading);
+  }
+}
+
+.aiChip {
+  display: inline-flex;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+.aiWorking {
+  background: var(--color-info-tint);
+  color: var(--color-info);
+}
+
+.aiReady {
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.aiComplex {
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+}
+
+.aiFailed {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.replied {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.emailFailed {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-danger);
+}
+
+// ---- One request -----------------------------------------------------------
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.requestHeader {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.requestHeading {
+  flex: 1;
+  min-width: 200px;
+}
+
+.requestName {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+}
+
+.requestMeta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: var(--space-5);
+  align-items: start;
+
+  @include bp.below(bp.$bp-xl) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.conversation {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.threadScroll {
+  max-height: 520px;
+  overflow-y: auto;
+  padding: var(--space-5);
+  background: var(--color-bg-page);
+}
+
+.replyLink {
+  align-self: flex-start;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+}
+
+.replyBox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.aiStrip {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid currentColor;
+}
+
+.aiStripWorking {
+  background: var(--color-info-tint);
+  color: var(--color-info);
+}
+
+.aiStripReady {
+  background: var(--color-success-tint);
+  color: var(--color-success);
+}
+
+.aiStripComplex {
+  background: var(--color-warning-tint);
+  color: var(--color-warning);
+}
+
+.aiStripFailed {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.aiTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.aiNote {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-body);
+}
+
+.aiNoteLabel {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.replyLabel {
+  @extend %form-label;
+}
+
+.replyInput {
+  @extend %form-textarea;
+  min-height: 160px;
+}
+
+.replyFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.replyActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.saveState {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.saveError {
+  color: var(--color-danger);
+}
+
+.sentFooter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.sentLine {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-body);
+}
+
+.emailAlert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+// ---- About this user -------------------------------------------------------
+
+.context {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+}
+
+.contextHeading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-heading);
+}
+
+.contextSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.contextTitle {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.contextMissing,
+.muted {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+
+  dt {
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--color-text-body);
+    overflow-wrap: anywhere;
+  }
+}
+
+.countChips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.countChip {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  font-size: var(--text-xs);
+  color: var(--color-text-body);
+}
+
+.stage {
+  margin: 0;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.steps,
+.meters,
+.errors,
+.stuckList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-body);
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+
+  &.stepDone {
+    color: var(--color-success);
+  }
+}
+
+.meters li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.meterFull {
+  font-weight: var(--weight-semibold);
+  color: var(--color-danger);
+}
+
+.errors li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+
+.errorMeta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.contextLink {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+}

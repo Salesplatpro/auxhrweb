@@ -172,14 +172,14 @@ const Overview = () => {
           to="/adminDashboard/applications"
         />
         <MetricCard
-          label="Unread feedback"
+          label="Support awaiting reply"
           loading={loading}
-          value={kpis && formatCount(kpis.unreadFeedback)}
+          value={kpis && formatCount(kpis.supportAwaitingReply)}
           hint={
             kpis && `${formatCount(kpis.unresolvedErrors)} unresolved errors`
           }
-          attention={(kpis?.unreadFeedback ?? 0) > 0}
-          to="/adminDashboard/feedback"
+          attention={(kpis?.supportAwaitingReply ?? 0) > 0}
+          to="/adminDashboard/support"
         />
       </section>
 

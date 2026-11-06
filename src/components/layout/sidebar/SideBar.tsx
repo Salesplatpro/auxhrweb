@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react'
-import { CgProfile } from 'react-icons/cg'
+import { HiOutlineLifebuoy } from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 
 import auxHrLogo from '@/assets/aux_logo.png'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import {
   dashboardPathForRole,
-  feedbackPathForRole,
+  supportPathForRole,
 } from '@/features/auth/utils/dashboardPath'
 
 import { SidebarList } from '../lists'
@@ -26,7 +26,7 @@ interface sideBarProps {
   handleClick?: () => void
   /** Optional content rendered between the logo and the nav list (e.g. a company switcher). */
   topSlot?: ReactNode
-  /** Extra links pinned to the bottom of the sidebar, above "Leave us feedback". */
+  /** Extra links pinned to the bottom of the sidebar, above "Help & support". */
   footerItems?: SideBarItem[]
 }
 
@@ -38,7 +38,7 @@ export const SideBar: React.FC<sideBarProps> = ({
 }) => {
   const userRole = useAuthStore((state) => state.user?.userRole)
   const homePath = dashboardPathForRole(userRole)
-  const feedbackPath = feedbackPathForRole(userRole)
+  const supportPath = supportPathForRole(userRole)
 
   return (
     <div className={styles.sideBarContainer}>
@@ -78,12 +78,14 @@ export const SideBar: React.FC<sideBarProps> = ({
             onClick={handleClick}
           />
         ))}
-        <SidebarList
-          icon={<CgProfile size={20} />}
-          name="Leave us feedback"
-          link={feedbackPath}
-          onClick={handleClick}
-        />
+        {supportPath && (
+          <SidebarList
+            icon={<HiOutlineLifebuoy size={20} />}
+            name="Help & support"
+            link={supportPath}
+            onClick={handleClick}
+          />
+        )}
       </div>
     </div>
   )

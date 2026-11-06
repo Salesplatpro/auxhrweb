@@ -15,19 +15,23 @@ export const useUpdateProfile = () => {
     (_key, { arg }: { arg: Partial<ProfilePatchPayload> }) => patchProfile(arg),
   )
 
+  const saveProfile = async (payload: Partial<ProfilePatchPayload>) => {
+    await trigger(payload)
+    const fresh = await mutate()
+    if (payload.roleIds !== undefined) {
+      // A role change is the only edit that regenerates the assessment
+      // server-side, so it's the only case where the cached assessment
+      // (see usePreAssessment) needs to be invalidated.
+      void import('@/features/pre-assessment/store').then(
+        ({ usePreAssessmentStore }) => usePreAssessmentStore.getState().reset(),
+      )
+    }
+    return fresh?.data?.user
+  }
+
   const updateProfile = async (payload: Partial<ProfilePatchPayload>) => {
     try {
-      await trigger(payload)
-      await mutate()
-      if (payload.roleIds !== undefined) {
-        // A role change is the only edit that regenerates the assessment
-        // server-side, so it's the only case where the cached assessment
-        // (see usePreAssessment) needs to be invalidated.
-        void import('@/features/pre-assessment/store').then(
-          ({ usePreAssessmentStore }) =>
-            usePreAssessmentStore.getState().reset(),
-        )
-      }
+      await saveProfile(payload)
       notify('success', 'Profile updated successfully', { autoClose: 2000 })
       return true
     } catch (error) {
@@ -37,5 +41,5 @@ export const useUpdateProfile = () => {
     }
   }
 
-  return { updateProfile, isUpdating: isMutating }
+  return { updateProfile, saveProfile, isUpdating: isMutating }
 }

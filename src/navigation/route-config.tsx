@@ -45,6 +45,8 @@ import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
 import CompanyDonePage from '@/features/onboarding/company/CompanyDonePage'
 import CompanySetupPage from '@/features/onboarding/company/CompanySetupPage'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
+import ProfileBuilderPage from '@/features/onboarding/profile/ProfileBuilderPage'
+import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
@@ -360,6 +362,19 @@ export const routeConfig: RouteObject[] = [
                   },
                 ],
               },
+            ],
+          },
+        ],
+      },
+      {
+        path: ONBOARDING_PATHS.profile,
+        element: <ProtectedRoute allowedRoles={['talent']} />,
+        children: [
+          {
+            element: <RequireEmailVerified redirectTo="/talentDashboard" />,
+            children: [
+              { index: true, element: <ProfileBuilderPage /> },
+              { path: 'done', element: <ProfileDonePage /> },
             ],
           },
         ],

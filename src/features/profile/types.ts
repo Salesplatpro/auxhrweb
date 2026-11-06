@@ -71,6 +71,8 @@ export interface ProfileApiResponse {
 }
 
 export interface ProfilePatchPayload {
+  firstName?: string
+  lastName?: string
   bio?: string
   roleIds?: string[]
   locationCity?: string

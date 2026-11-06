@@ -1,0 +1,121 @@
+@use '../../../styles/form-field' as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  @extend %form-label;
+  margin-bottom: 0;
+}
+
+.required {
+  @extend %form-required;
+}
+
+.file {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.active {
+  border: 2px solid var(--color-brand-vivid);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.fileBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fileTop {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.fileName {
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.percent {
+  font-size: var(--text-sm);
+  color: var(--color-positive);
+}
+
+.track {
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-brand-vivid);
+    transition: width var(--duration-base) var(--ease-standard);
+  }
+}
+
+.drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+
+  strong {
+    color: var(--color-ink);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+  }
+}
+
+.input {
+  display: none;
+}
+
+.error {
+  @extend %form-error;
+  margin: 0;
+}

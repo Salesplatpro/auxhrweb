@@ -104,9 +104,30 @@ describe('SignupPage', () => {
       token: 'jwt',
       user: { userRole: 'recruiter' },
     })
-    profileRef.current = { emailVerifiedAt: '2026-11-06T10:00:00.000Z' }
+    profileRef.current = {
+      userRole: 'recruiter',
+      activeOrganizationId: 'org-1',
+      emailVerifiedAt: '2026-11-06T10:00:00.000Z',
+    }
     renderAt('/register')
 
     expect(screen.getByText('Dashboard')).toBeTruthy()
+  })
+
+  it('sends a verified recruiter without a company to company setup', () => {
+    useAuthStore.setState({
+      isLoggedIn: true,
+      token: 'jwt',
+      user: { userRole: 'recruiter' },
+    })
+    profileRef.current = {
+      userRole: 'recruiter',
+      emailVerifiedAt: '2026-11-06T10:00:00.000Z',
+    }
+    renderAt('/register')
+
+    expect(screen.getByTestId('location').textContent).toBe(
+      '/onboarding/company',
+    )
   })
 })

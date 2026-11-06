@@ -10,7 +10,9 @@ import {
   dashboardPathForRole,
   loginPathWithNext,
 } from '@/features/auth/utils/dashboardPath'
+import { onboardingDestination } from '@/features/onboarding/destination'
 import { useProfile } from '@/features/profile/hooks/useProfile'
+import { ProfileUser } from '@/features/profile/types'
 
 import { EmailVerificationPanel } from '../components/EmailVerificationPanel'
 import { useEmailVerification } from '../hooks/useEmailVerification'
@@ -37,6 +39,10 @@ const AccountEmailVerification: React.FC = () => {
   const safeRedirect =
     redirect && SAFE_REDIRECT_PATTERN.test(redirect) ? redirect : null
   const continueTarget = safeRedirect ?? dashboardPathForRole(userRole)
+  const targetFor = (user?: ProfileUser | null) =>
+    safeRedirect ??
+    onboardingDestination(user) ??
+    dashboardPathForRole(userRole)
 
   const { submitVerifyToken } = useEmailVerification()
   const { mutate } = useProfile()
@@ -54,13 +60,16 @@ const AccountEmailVerification: React.FC = () => {
     setTokenStatus('verifying')
 
     submitVerifyToken(token)
-      .then((result) => {
+      .then(async (result) => {
         setTokenStatus('success')
         setJoinedCompanyName(result?.joinedCompanyName)
         if (isLoggedIn) {
+          const refreshed = result?.joinedCompanyName
+            ? undefined
+            : await mutate()
           const destination = result?.joinedCompanyName
             ? dashboardPathForRole(userRole)
-            : continueTarget
+            : targetFor(refreshed?.data?.user)
           navigate(destination, {
             replace: true,
             state: {
@@ -77,7 +86,7 @@ const AccountEmailVerification: React.FC = () => {
           const refreshed = await mutate()
           if (refreshed?.data?.user?.emailVerifiedAt) {
             setTokenStatus('already-verified')
-            navigate(continueTarget, { replace: true })
+            navigate(targetFor(refreshed.data.user), { replace: true })
             return
           }
         }

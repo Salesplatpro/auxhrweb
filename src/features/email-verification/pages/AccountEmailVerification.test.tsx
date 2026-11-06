@@ -101,6 +101,75 @@ describe('AccountEmailVerification — post-verification redirect', () => {
     )
   })
 
+  it('sends a new recruiter without a company to company setup', async () => {
+    authState.user = { userRole: 'recruiter' }
+    submitVerifyTokenMock.mockResolvedValue(undefined)
+    mutateMock.mockResolvedValue({
+      data: { user: { userRole: 'recruiter', activeOrganizationId: null } },
+    })
+
+    renderAt('?token=abc123')
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith(
+        '/onboarding/company',
+        expect.objectContaining({ replace: true }),
+      ),
+    )
+  })
+
+  it('sends a talent with an incomplete profile to the profile builder', async () => {
+    submitVerifyTokenMock.mockResolvedValue(undefined)
+    mutateMock.mockResolvedValue({
+      data: {
+        user: {
+          userRole: 'talent',
+          profileCompletion: {
+            percentage: 10,
+            isProfileComplete: false,
+            canProceedToPlatform: false,
+          },
+        },
+      },
+    })
+
+    renderAt('?token=abc123')
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith(
+        '/onboarding/profile',
+        expect.objectContaining({ replace: true }),
+      ),
+    )
+  })
+
+  it('keeps an apply redirect ahead of onboarding', async () => {
+    submitVerifyTokenMock.mockResolvedValue(undefined)
+    mutateMock.mockResolvedValue({
+      data: {
+        user: {
+          userRole: 'talent',
+          profileCompletion: {
+            percentage: 10,
+            isProfileComplete: false,
+            canProceedToPlatform: false,
+          },
+        },
+      },
+    })
+
+    renderAt(
+      '?token=abc123&redirect=%2Fapply%2F11111111-1111-1111-1111-111111111111',
+    )
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith(
+        '/apply/11111111-1111-1111-1111-111111111111',
+        expect.anything(),
+      ),
+    )
+  })
+
   it('includes joined company in the toast when verify returns a company name', async () => {
     submitVerifyTokenMock.mockResolvedValue({
       joinedCompanyName: 'Invite Corp',

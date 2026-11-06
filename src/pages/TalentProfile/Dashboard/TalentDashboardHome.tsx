@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { Chart, ColumnDef, DataTable } from '@/components'
-import { PageHero } from '@/components/layout/PageHero'
+import { HeroAction, PageHero } from '@/components/layout/PageHero'
 import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { ActivityHeatmap, bucketDates } from '@/components/ui/ActivityHeatmap'
@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { useRouteToast } from '@/hooks/useRouteToast'
 import { getStatusBadge } from '@/pages/RecruiterProfile/getJobStatus'
@@ -136,6 +137,14 @@ const TalentDashboardHome = () => {
         kicker="Talent dashboard"
         title={`Welcome back, ${user?.firstName ?? ''}`.trim()}
         lead="Here's what's happening with your job search today."
+        actions={
+          profile?.profileCompletion &&
+          !profile.profileCompletion.isProfileComplete ? (
+            <HeroAction onClick={() => navigate(ONBOARDING_PATHS.profile)}>
+              Finish your profile
+            </HeroAction>
+          ) : undefined
+        }
         meta={[
           {
             label: 'Applications',

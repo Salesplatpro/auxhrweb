@@ -7,6 +7,7 @@ import { ChoiceCard } from '@/components/ui/ChoiceCard'
 import { Pill } from '@/components/ui/Pill'
 import { TextLink } from '@/components/ui/TextLink'
 import { useEmailVerification } from '@/features/email-verification/hooks/useEmailVerification'
+import { onboardingDestination } from '@/features/onboarding/destination'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { paths } from '@/paths'
 
@@ -113,7 +114,14 @@ const VerifyStep = () => {
   const email = profile?.email ?? user?.email
 
   if (verified) {
-    return <Navigate to={dashboardPathForRole(user?.userRole)} replace />
+    return (
+      <Navigate
+        to={
+          onboardingDestination(profile) ?? dashboardPathForRole(user?.userRole)
+        }
+        replace
+      />
+    )
   }
 
   return (

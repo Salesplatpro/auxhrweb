@@ -91,6 +91,26 @@ describe('destinationAfterAuth', () => {
   })
 })
 
+describe('destinationAfterAuth onboarding paths', () => {
+  it('resumes company setup for recruiters only', () => {
+    expect(destinationAfterAuth('recruiter', '/onboarding/company')).toBe(
+      '/onboarding/company',
+    )
+    expect(destinationAfterAuth('talent', '/onboarding/company')).toBe(
+      '/talentDashboard',
+    )
+  })
+
+  it('resumes the profile builder for talent only', () => {
+    expect(destinationAfterAuth('talent', '/onboarding/profile')).toBe(
+      '/onboarding/profile',
+    )
+    expect(destinationAfterAuth('recruiter', '/onboarding/profile')).toBe(
+      '/recruiterDashboard/dashboard',
+    )
+  })
+})
+
 describe('loginPathWithNext', () => {
   it('encodes an apply path as the login next param', () => {
     expect(loginPathWithNext('/apply/abc-123')).toBe(

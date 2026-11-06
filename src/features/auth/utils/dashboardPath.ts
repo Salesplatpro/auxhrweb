@@ -35,14 +35,16 @@ const isAllowedResumePath = (
     return (
       path.startsWith('/apply/') ||
       path.startsWith('/join-staff/') ||
-      path.startsWith('/talentDashboard')
+      path.startsWith('/talentDashboard') ||
+      path.startsWith('/onboarding/profile')
     )
   }
   if (userRole === 'recruiter') {
     return (
       path.startsWith('/recruiterDashboard') ||
       path.startsWith('/payment/') ||
-      path.startsWith('/join-company/')
+      path.startsWith('/join-company/') ||
+      path.startsWith('/onboarding/company')
     )
   }
   if (userRole === 'admin') {

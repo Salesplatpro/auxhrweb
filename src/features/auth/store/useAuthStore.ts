@@ -49,7 +49,6 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
     void Promise.all([
       import('@/redux/store/store'),
-      import('@/redux/api/apiSlice'),
       import('@/redux/api/talent'),
       import('@/redux/api/recruiter'),
       import('@/features/scout/store/useScoutStore'),
@@ -64,7 +63,6 @@ export const useAuthStore = create<AuthState>()((set) => ({
       .then(
         ([
           { store },
-          { api },
           { talentApi },
           { recruiterApi },
           { useScoutStore },
@@ -76,7 +74,6 @@ export const useAuthStore = create<AuthState>()((set) => ({
           { usePreAssessmentStore },
           { useAssessmentLockStore },
         ]) => {
-          store.dispatch(api.util.resetApiState())
           store.dispatch(talentApi.util.resetApiState())
           store.dispatch(recruiterApi.util.resetApiState())
           useScoutStore.getState().resetScout()

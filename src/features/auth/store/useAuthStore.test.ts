@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AUTH_TOKEN_KEY, AUTH_USER_KEY } from '../utils/authPersistence'
 import { useAuthStore } from './useAuthStore'
@@ -51,5 +51,25 @@ describe('useAuthStore session persistence', () => {
     expect(useAuthStore.getState().isLoggedIn).toBe(false)
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
     expect(sessionStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
+  })
+})
+
+describe('useAuthStore logout', () => {
+  it('still resets the talent and recruiter caches', async () => {
+    const { store } = await import('@/redux/store/store')
+    const { talentApi } = await import('@/redux/api/talent')
+    const { recruiterApi } = await import('@/redux/api/recruiter')
+    const dispatch = vi.spyOn(store, 'dispatch')
+
+    useAuthStore.getState().logout()
+
+    await vi.waitFor(() => expect(dispatch).toHaveBeenCalledTimes(2))
+    expect(
+      dispatch.mock.calls.map(([action]) => (action as { type: string }).type),
+    ).toEqual([
+      talentApi.util.resetApiState().type,
+      recruiterApi.util.resetApiState().type,
+    ])
+    dispatch.mockRestore()
   })
 })

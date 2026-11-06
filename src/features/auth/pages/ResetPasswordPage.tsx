@@ -1,25 +1,47 @@
 import { FormikProvider, useFormik } from 'formik'
-import React, { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  LuArrowLeft,
+  LuArrowRight,
+  LuCheck,
+  LuClock3,
+  LuLock,
+  LuShieldCheck,
+  LuWifiOff,
+} from 'react-icons/lu'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Alert } from '@/components/feedback'
 import {
   FormikFocusOnError,
   PasswordInput,
+  PasswordStrength,
   useFocusFieldOnMount,
 } from '@/components/forms'
 import { ValidationSchemaProvider } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
+import { CheckList } from '@/components/ui/CheckList'
+import { Pill } from '@/components/ui/Pill'
 import { Spinner } from '@/components/ui/Spinner'
+import { TextLink } from '@/components/ui/TextLink'
 import { paths } from '@/paths'
+import { getErrorMessage, getErrorStatus } from '@/utils/getErrorMessage'
+import { passwordRuleItems } from '@/utils/passwordRules'
 
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthScreen } from '../components/AuthScreen'
+import { AuthShell } from '../components/AuthShell'
 import { useResetPassword } from '../hooks/useResetPassword'
 import { destinationAfterAuth } from '../utils/dashboardPath'
 import { resetPasswordSchema } from '../validation/AuthValidationSchema'
 import styles from './ResetPasswordPage.module.scss'
 
-type TokenStatus = 'missing' | 'validating' | 'valid' | 'invalid'
+type ScreenState =
+  | 'missing'
+  | 'validating'
+  | 'valid'
+  | 'invalid'
+  | 'unreachable'
+  | 'done'
 
 type ResetPasswordValues = {
   password: string
@@ -31,6 +53,8 @@ const initialValues: ResetPasswordValues = {
   confirmPassword: '',
 }
 
+const REJECTED_LINK_STATUSES = [400, 401, 404]
+
 export const ResetPasswordPage = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -39,25 +63,44 @@ export const ResetPasswordPage = () => {
   const { submitValidateToken, submitResetPassword, isResetting } =
     useResetPassword()
 
-  const [tokenStatus, setTokenStatus] = useState<TokenStatus>(
+  const [screen, setScreen] = useState<ScreenState>(
     token ? 'validating' : 'missing',
   )
+  const [checkError, setCheckError] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [resetRole, setResetRole] = useState<string | undefined>()
   const processedTokenRef = useRef<string | null>(null)
+
+  const checkToken = useCallback(
+    (value: string) => {
+      setScreen('validating')
+      setCheckError(null)
+      submitValidateToken(value)
+        .then(() => setScreen('valid'))
+        .catch((err) => {
+          const status = getErrorStatus(err)
+          if (status && REJECTED_LINK_STATUSES.includes(status)) {
+            setScreen('invalid')
+            return
+          }
+          setCheckError(
+            getErrorMessage(err, 'Check your connection and try again.'),
+          )
+          setScreen('unreachable')
+        })
+    },
+    [submitValidateToken],
+  )
 
   useEffect(() => {
     if (!token) {
-      setTokenStatus('missing')
+      setScreen('missing')
       return
     }
     if (processedTokenRef.current === token) return
     processedTokenRef.current = token
-    setTokenStatus('validating')
-
-    submitValidateToken(token)
-      .then(() => setTokenStatus('valid'))
-      .catch(() => setTokenStatus('invalid'))
-  }, [token])
+    checkToken(token)
+  }, [token, checkToken])
 
   const formik = useFormik<ResetPasswordValues>({
     initialValues,
@@ -71,12 +114,13 @@ export const ResetPasswordPage = () => {
           token,
           password: values.password,
         })
-        const destination = destinationAfterAuth(
-          data.data?.user.userRole,
-          nextPath,
-        )
-        navigate(destination, { replace: true })
+        setResetRole(data.data?.user.userRole)
+        setScreen('done')
       } catch (err) {
+        if (getErrorStatus(err) === 401) {
+          setScreen('invalid')
+          return
+        }
         setSubmitError(
           err instanceof Error
             ? err.message
@@ -88,95 +132,169 @@ export const ResetPasswordPage = () => {
 
   useFocusFieldOnMount('password')
 
-  if (tokenStatus === 'validating') {
+  if (screen === 'validating') {
     return <Spinner fullPage />
   }
 
-  if (tokenStatus === 'missing' || tokenStatus === 'invalid') {
+  if (screen === 'done') {
     return (
-      <AuthLayout
-        title="Reset link expired"
-        subtitle="This password reset link is invalid or has expired.">
-        <div>
-          <Alert variant="error" className={styles.alert}>
-            Request a new password reset to continue.
-          </Alert>
+      <AuthShell>
+        <AuthScreen
+          icon={{ icon: <LuCheck />, tone: 'success' }}
+          eyebrow={<Pill icon={<LuShieldCheck />}>All done</Pill>}
+          title="Password updated"
+          subtitle="Your password has been reset. For your security, we logged you out of other devices.">
+          <Button
+            type="button"
+            variant="ink"
+            size="xl"
+            pill
+            stretch
+            iconEnd={<LuArrowRight />}
+            onClick={() =>
+              navigate(destinationAfterAuth(resetRole, nextPath), {
+                replace: true,
+              })
+            }>
+            Log in
+          </Button>
+        </AuthScreen>
+      </AuthShell>
+    )
+  }
+
+  if (screen === 'unreachable') {
+    return (
+      <AuthShell>
+        <AuthScreen
+          icon={{ icon: <LuWifiOff />, tone: 'warning' }}
+          title="We couldn't check your link"
+          subtitle={checkError}>
+          <Button
+            type="button"
+            variant="ink"
+            size="xl"
+            pill
+            stretch
+            onClick={() => checkToken(token)}>
+            Try again
+          </Button>
+        </AuthScreen>
+      </AuthShell>
+    )
+  }
+
+  if (screen === 'missing' || screen === 'invalid') {
+    return (
+      <AuthShell>
+        <AuthScreen
+          icon={{ icon: <LuClock3 />, tone: 'warning' }}
+          title="Reset link expired"
+          subtitle="This password reset link is invalid or has expired. Request a new one to continue.">
           <div className={styles.actions}>
-            <Link to={`/${paths.forgotPassword}`}>
-              <Button type="button" fullWidth>
-                Request a new reset
-              </Button>
-            </Link>
+            <Button
+              type="button"
+              variant="ink"
+              size="xl"
+              pill
+              stretch
+              iconEnd={<LuArrowRight />}
+              onClick={() => navigate(`/${paths.forgotPassword}`)}>
+              Request a new reset link
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="xl"
+              pill
+              stretch
+              icon={<LuArrowLeft />}
+              onClick={() => navigate(`/${paths.login}`)}>
+              Back to log in
+            </Button>
           </div>
-          <div className={styles.already}>
-            <Link to={`/${paths.login}`}>Back to log in</Link>
-          </div>
-        </div>
-      </AuthLayout>
+        </AuthScreen>
+      </AuthShell>
     )
   }
 
   return (
-    <AuthLayout title="Reset password" subtitle="Choose a new password">
-      <FormikProvider value={formik}>
-        <ValidationSchemaProvider schema={resetPasswordSchema}>
-          <form onSubmit={formik.handleSubmit} noValidate>
-            <FormikFocusOnError />
-            {submitError && (
-              <Alert variant="error" className={styles.alert}>
-                {submitError}
-              </Alert>
-            )}
+    <AuthShell>
+      <AuthScreen
+        icon={{ icon: <LuLock /> }}
+        title="Set a new password"
+        subtitle="Choose a strong password you don't use anywhere else.">
+        <FormikProvider value={formik}>
+          <ValidationSchemaProvider schema={resetPasswordSchema}>
+            <form
+              onSubmit={formik.handleSubmit}
+              noValidate
+              className={styles.form}>
+              <FormikFocusOnError />
+              {submitError && <Alert variant="error">{submitError}</Alert>}
 
-            <p className={styles.hint}>
-              Use 8–72 characters with a letter, a number, and a special
-              character (@ $ ! % * # . ? &).
-            </p>
+              <div className={styles.field}>
+                <PasswordInput
+                  title="New password"
+                  label="password"
+                  name="password"
+                  autoComplete="new-password"
+                  icon={<LuLock />}
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="Enter a new password"
+                  error={
+                    formik.touched.password && formik.errors.password
+                      ? formik.errors.password
+                      : ''
+                  }
+                />
+                <PasswordStrength value={formik.values.password} />
+              </div>
 
-            <PasswordInput
-              title="New password"
-              label="password"
-              name="password"
-              autoComplete="new-password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Enter a new password"
-              error={
-                formik.touched.password && formik.errors.password
-                  ? formik.errors.password
-                  : ''
-              }
-            />
+              <PasswordInput
+                title="Confirm new password"
+                label="confirmPassword"
+                name="confirmPassword"
+                autoComplete="new-password"
+                icon={<LuLock />}
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                placeholder="Type it again"
+                error={
+                  formik.touched.confirmPassword &&
+                  formik.errors.confirmPassword
+                    ? formik.errors.confirmPassword
+                    : ''
+                }
+              />
 
-            <PasswordInput
-              title="Confirm password"
-              label="confirmPassword"
-              name="confirmPassword"
-              autoComplete="new-password"
-              value={formik.values.confirmPassword}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Confirm your new password"
-              error={
-                formik.touched.confirmPassword && formik.errors.confirmPassword
-                  ? formik.errors.confirmPassword
-                  : ''
-              }
-            />
+              <CheckList items={passwordRuleItems(formik.values.password)} />
 
-            <div className={styles.actions}>
               <Button
                 type="submit"
-                fullWidth
+                variant="ink"
+                size="xl"
+                pill
+                stretch
                 loading={isResetting}
-                disabled={!formik.isValid || isResetting}>
-                Change password
+                disabled={!formik.isValid || isResetting}
+                iconEnd={<LuArrowRight />}>
+                Reset password
               </Button>
-            </div>
-          </form>
-        </ValidationSchemaProvider>
-      </FormikProvider>
-    </AuthLayout>
+
+              <TextLink
+                to={`/${paths.login}`}
+                tone="muted"
+                icon={<LuArrowLeft />}>
+                Back to log in
+              </TextLink>
+            </form>
+          </ValidationSchemaProvider>
+        </FormikProvider>
+      </AuthScreen>
+    </AuthShell>
   )
 }

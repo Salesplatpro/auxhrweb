@@ -80,7 +80,12 @@ describe('useLogin', () => {
     const error = new AxiosError('Unauthorized')
     error.response = {
       status: 403,
-      data: { error: { message: 'Invalid email or password' } },
+      data: {
+        error: {
+          code: 'AUTHORIZATION_ERROR',
+          message: 'Invalid email or password',
+        },
+      },
       statusText: 'Forbidden',
       headers: {},
       config: { headers: {} as never },
@@ -100,10 +105,76 @@ describe('useLogin', () => {
 
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
     expect(sessionStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
-    expect(notifyMock).toHaveBeenCalledWith(
+    expect(notifyMock).not.toHaveBeenCalledWith(
       'error',
-      'Invalid email or password',
-      expect.any(Object),
+      expect.anything(),
+      expect.anything(),
     )
+    expect(result.current.invalidCredentials).toBe(true)
+  })
+
+  it('does not treat a deactivated account as wrong credentials', async () => {
+    const error = new AxiosError('Forbidden')
+    error.response = {
+      status: 403,
+      data: {
+        error: {
+          code: 'AUTHORIZATION_ERROR',
+          message: 'This account has been deactivated',
+        },
+      },
+      statusText: 'Forbidden',
+      headers: {},
+      config: { headers: {} as never },
+    }
+    loginRequestMock.mockRejectedValue(error)
+    const { result } = renderHook(() => useLogin())
+
+    await act(async () => {
+      await expect(
+        result.current.submitLogin({
+          email: 'talent@example.com',
+          password: 'Password1!',
+          remember: false,
+        }),
+      ).rejects.toBeTruthy()
+    })
+
+    expect(result.current.invalidCredentials).toBe(false)
+    expect(useAuthStore.getState().error).toBe(
+      'This account has been deactivated',
+    )
+  })
+
+  it('clears the error and the field highlight together', async () => {
+    const error = new AxiosError('Forbidden')
+    error.response = {
+      status: 403,
+      data: {
+        error: {
+          code: 'AUTHORIZATION_ERROR',
+          message: 'Invalid email or password',
+        },
+      },
+      statusText: 'Forbidden',
+      headers: {},
+      config: { headers: {} as never },
+    }
+    loginRequestMock.mockRejectedValue(error)
+    const { result } = renderHook(() => useLogin())
+
+    await act(async () => {
+      await result.current
+        .submitLogin({
+          email: 'talent@example.com',
+          password: 'wrong',
+          remember: false,
+        })
+        .catch(() => undefined)
+    })
+    act(() => result.current.clearError())
+
+    expect(result.current.invalidCredentials).toBe(false)
+    expect(useAuthStore.getState().error).toBeNull()
   })
 })

@@ -28,6 +28,7 @@ export type TextInputProps = {
   endAdornmentSize?: 'sm' | 'md'
   hint?: ReactNode
   labelAside?: ReactNode
+  invalid?: boolean
 }
 
 export const useFieldError = (
@@ -66,6 +67,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       endAdornmentSize = 'sm',
       hint,
       labelAside,
+      invalid = false,
     },
     ref,
   ) => {
@@ -115,10 +117,13 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
             onBlur={onBlur}
             disabled={disabled}
             required={required}
-            aria-invalid={fieldError ? true : undefined}
+            aria-invalid={fieldError || invalid ? true : undefined}
             aria-describedby={describedBy}
             aria-required={isRequired || undefined}
-            className={cn(styles.input, fieldError && styles.invalid)}
+            className={cn(
+              styles.input,
+              (!!fieldError || invalid) && styles.invalid,
+            )}
           />
           {endAdornment && (
             <span className={styles.endAdornment}>{endAdornment}</span>

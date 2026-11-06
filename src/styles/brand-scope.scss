@@ -1,0 +1,10 @@
+// Points the shared semantic tokens at the vivid brand blue for screens built
+// from the new design, so shared form controls pick it up without new props.
+@mixin brand-scope {
+  --color-primary: var(--color-brand-vivid);
+  --color-primary-hover: var(--color-brand-vivid-hover);
+  --color-primary-strong: var(--color-brand-vivid);
+  --color-primary-tint: var(--color-brand-vivid-ring);
+  --color-focus-ring: var(--color-brand-vivid);
+  --color-text-heading: var(--color-ink);
+}

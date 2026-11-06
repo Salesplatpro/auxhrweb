@@ -4,7 +4,8 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { dashboardPathForRole } from '@/features/auth/utils/dashboardPath'
 
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthScreen } from '../components/AuthScreen'
+import { AuthShell } from '../components/AuthShell'
 import { SignupForm } from '../components/SignupForm'
 
 export const SignupPage = () => {
@@ -30,8 +31,10 @@ export const SignupPage = () => {
   }
 
   return (
-    <AuthLayout title="Create account" subtitle="Please enter your details.">
-      <SignupForm onSuccess={handleSuccess} />
-    </AuthLayout>
+    <AuthShell>
+      <AuthScreen title="Create your account">
+        <SignupForm onSuccess={handleSuccess} />
+      </AuthScreen>
+    </AuthShell>
   )
 }

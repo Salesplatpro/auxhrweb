@@ -1,10 +1,13 @@
 import React from 'react'
+import { LuShieldCheck } from 'react-icons/lu'
 import { Navigate, useSearchParams } from 'react-router-dom'
 
+import { Pill } from '@/components/ui/Pill'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { destinationAfterAuth } from '@/features/auth/utils/dashboardPath'
 
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthScreen } from '../components/AuthScreen'
+import { AuthShell } from '../components/AuthShell'
 import { LoginForm } from '../components/LoginForm'
 
 export const LoginPage = () => {
@@ -19,8 +22,13 @@ export const LoginPage = () => {
   }
 
   return (
-    <AuthLayout title="Login your account" subtitle="Please enter your details">
-      <LoginForm />
-    </AuthLayout>
+    <AuthShell>
+      <AuthScreen
+        eyebrow={<Pill icon={<LuShieldCheck />}>Secure login</Pill>}
+        title="Welcome back"
+        subtitle="Log in to your AuxHR account. One login for recruiters and talent.">
+        <LoginForm />
+      </AuthScreen>
+    </AuthShell>
   )
 }

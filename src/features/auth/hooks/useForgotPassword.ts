@@ -1,8 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 
 import { AUTH_ENDPOINTS } from '@/services/api/endpoints'
-import { getErrorMessage } from '@/utils/getErrorMessage'
-import { notify } from '@/utils/toastNotifications'
+import { getErrorMessage, getErrorStatus } from '@/utils/getErrorMessage'
 
 import { requestPasswordReset } from '../services/authService'
 import { ForgotPasswordRequest } from '../types'
@@ -17,14 +16,12 @@ export const useForgotPassword = () => {
   const submitForgotPassword = async (payload: ForgotPasswordRequest) => {
     try {
       const { data } = await requestReset.trigger(payload)
-      notify(
-        'success',
-        'Password reset email sent. Check your mailbox for the link.',
-        { autoClose: 4000 },
-      )
       return data
     } catch (err) {
-      throw new Error(getErrorMessage(err, 'Something went wrong.'))
+      throw Object.assign(
+        new Error(getErrorMessage(err, 'Something went wrong.')),
+        { status: getErrorStatus(err) },
+      )
     }
   }
 

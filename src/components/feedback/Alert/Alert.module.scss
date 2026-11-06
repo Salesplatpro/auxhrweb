@@ -48,3 +48,21 @@
   border-color: var(--color-warning);
   color: var(--color-warning);
 }
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: var(--text-xl);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  margin: 0;
+  font-weight: var(--weight-bold);
+}

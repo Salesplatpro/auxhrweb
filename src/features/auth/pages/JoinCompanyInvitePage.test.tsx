@@ -68,24 +68,6 @@ vi.mock('@/features/organizations/services/organizationService', () => ({
   acceptOrganizationInvite: (...args: unknown[]) => acceptInviteMock(...args),
 }))
 
-vi.mock('../components/AuthLayout', () => ({
-  AuthLayout: ({
-    title,
-    subtitle,
-    children,
-  }: {
-    title: string
-    subtitle: string
-    children: React.ReactNode
-  }) => (
-    <div>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-      {children}
-    </div>
-  ),
-}))
-
 vi.mock('../components/LoginForm', () => ({
   LoginForm: ({ lockedEmail }: { lockedEmail?: string }) => (
     <div>Login form {lockedEmail}</div>

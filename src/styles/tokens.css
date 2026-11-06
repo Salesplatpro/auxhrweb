@@ -197,6 +197,7 @@
   --color-text-heading: var(--color-grey-900);
   --color-text-body: var(--color-charcoal);
   --color-text-muted: var(--color-grey-500);
+  --color-text-disabled: var(--color-grey-400);
   --color-text-inverse: var(--color-white);
   --color-text-on-dark: var(--color-white);
   --color-text-on-dark-muted: rgba(255, 255, 255, 0.78);

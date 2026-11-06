@@ -1,8 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 
 import { AUTH_ENDPOINTS } from '@/services/api/endpoints'
-import { getErrorMessage } from '@/utils/getErrorMessage'
-import { notify } from '@/utils/toastNotifications'
+import { getErrorMessage, getErrorStatus } from '@/utils/getErrorMessage'
 
 import {
   resetPasswordRequest,
@@ -37,11 +36,13 @@ export const useResetPassword = () => {
         throw new Error('Password reset succeeded but no session was returned.')
       }
       setSession(data.data, { persist: true })
-      notify('success', 'Password reset successfully', { autoClose: 2000 })
       return data
     } catch (err) {
-      throw new Error(
-        getErrorMessage(err, 'Failed to update password. Please try again.'),
+      throw Object.assign(
+        new Error(
+          getErrorMessage(err, 'Failed to update password. Please try again.'),
+        ),
+        { status: getErrorStatus(err) },
       )
     }
   }

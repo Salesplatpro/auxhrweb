@@ -69,4 +69,26 @@ describe('useResetPassword', () => {
     expect(JSON.stringify(localStorage)).not.toContain('NewPassword1!')
     expect(JSON.stringify(localStorage)).not.toContain('reset-token')
   })
+
+  it('keeps the status when the link was rejected on submit', async () => {
+    resetPasswordRequestMock.mockRejectedValue({
+      response: {
+        status: 401,
+        data: {
+          error: { message: 'Password reset link is invalid or has expired' },
+        },
+      },
+    })
+    const { result } = renderHook(() => useResetPassword())
+
+    await act(async () => {
+      await expect(
+        result.current.submitResetPassword({
+          token: 'reset-token',
+          password: 'NewPassword1!',
+        }),
+      ).rejects.toMatchObject({ status: 401 })
+    })
+    expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull()
+  })
 })

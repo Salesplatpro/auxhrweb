@@ -17,24 +17,6 @@ vi.mock('../hooks/useForgotPassword', () => ({
   }),
 }))
 
-vi.mock('../components/AuthLayout', () => ({
-  AuthLayout: ({
-    title,
-    subtitle,
-    children,
-  }: {
-    title: string
-    subtitle: string
-    children: React.ReactNode
-  }) => (
-    <div>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-      {children}
-    </div>
-  ),
-}))
-
 const renderPage = () =>
   render(
     <MemoryRouter>
@@ -49,11 +31,11 @@ describe('ForgotPasswordPage', () => {
     flowState.isRequesting = false
   })
 
-  it('sends a reset request for a valid email and shows the success modal', async () => {
+  it('sends a reset request and switches to the check email screen', async () => {
     renderPage()
 
     fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'talent@example.com' },
+      target: { value: ' talent@example.com ' },
     })
 
     await waitFor(() =>
@@ -70,16 +52,18 @@ describe('ForgotPasswordPage', () => {
       }),
     )
 
-    await waitFor(() => {
-      expect(screen.getByText('Check your mailbox')).toBeTruthy()
+    await waitFor(() =>
       expect(
-        screen.getByText(
-          'A password reset email was sent. Check your mailbox for a link to continue.',
-        ),
-      ).toBeTruthy()
-      expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy()
-      expect(screen.getByTestId('close-button')).toBeTruthy()
-    })
+        screen.getByRole('heading', { name: 'Check your email' }),
+      ).toBeTruthy(),
+    )
+    expect(screen.getByText(/talent@example.com/).textContent).toContain(
+      'It expires in 2 hours',
+    )
+    expect(screen.getByRole('button', { name: /Resend in/ })).toHaveProperty(
+      'disabled',
+      true,
+    )
   })
 
   it('rejects an invalid email format without calling the API', async () => {
@@ -112,9 +96,11 @@ describe('ForgotPasswordPage', () => {
 
   it('disables submit while a request is in flight', () => {
     flowState.isRequesting = true
-    renderPage()
+    const { container } = renderPage()
 
-    const submit = screen.getByRole('button')
+    const submit = container.querySelector(
+      'button[type="submit"]',
+    ) as HTMLButtonElement
     expect(submit).toHaveProperty('disabled', true)
     fireEvent.submit(submit.closest('form')!)
     expect(submitForgotPasswordMock).not.toHaveBeenCalled()
@@ -134,6 +120,6 @@ describe('ForgotPasswordPage', () => {
     await waitFor(() =>
       expect(screen.getByText('Something went wrong.')).toBeTruthy(),
     )
-    expect(screen.queryByText('Check your mailbox')).toBeNull()
+    expect(screen.queryByText('Check your email')).toBeNull()
   })
 })

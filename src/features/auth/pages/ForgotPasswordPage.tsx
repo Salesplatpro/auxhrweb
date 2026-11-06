@@ -1,11 +1,7 @@
-import 'react-responsive-modal/styles.css'
-
 import { FormikProvider, useFormik } from 'formik'
 import React, { useState } from 'react'
-import { Modal } from 'react-responsive-modal'
-import { Link } from 'react-router-dom'
+import { LuArrowRight, LuKeyRound, LuMail } from 'react-icons/lu'
 
-import CheckMark from '@/assets/CheckMark.png'
 import { Alert } from '@/components/feedback'
 import {
   FormikFocusOnError,
@@ -14,13 +10,16 @@ import {
 } from '@/components/forms'
 import { ValidationSchemaProvider } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
-import { Heading, Text } from '@/components/ui/Typography'
 import { paths } from '@/paths'
 
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthPrompt, AuthScreen } from '../components/AuthScreen'
+import { AuthShell } from '../components/AuthShell'
+import { CheckEmailScreen } from '../components/CheckEmailScreen'
 import { useForgotPassword } from '../hooks/useForgotPassword'
 import { forgotPasswordSchema } from '../validation/AuthValidationSchema'
 import styles from './ForgotPasswordPage.module.scss'
+
+export const RESET_LINK_LIFETIME = '2 hours'
 
 type ForgotPasswordValues = {
   email: string
@@ -31,7 +30,7 @@ const initialValues: ForgotPasswordValues = { email: '' }
 export const ForgotPasswordPage = () => {
   const { submitForgotPassword, isRequesting } = useForgotPassword()
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [isSuccessOpen, setIsSuccessOpen] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
 
   const formik = useFormik<ForgotPasswordValues>({
     initialValues,
@@ -40,9 +39,10 @@ export const ForgotPasswordPage = () => {
     onSubmit: async (values) => {
       if (isRequesting) return
       setSubmitError(null)
+      const email = values.email.trim()
       try {
-        await submitForgotPassword({ email: values.email.trim() })
-        setIsSuccessOpen(true)
+        await submitForgotPassword({ email })
+        setSentTo(email)
       } catch (err) {
         setSubmitError(
           err instanceof Error ? err.message : 'Something went wrong.',
@@ -53,20 +53,37 @@ export const ForgotPasswordPage = () => {
 
   useFocusFieldOnMount('email')
 
+  if (sentTo) {
+    return (
+      <AuthShell>
+        <CheckEmailScreen
+          message={
+            <>
+              We sent a password reset link to {sentTo}. It expires in{' '}
+              {RESET_LINK_LIFETIME}, so use it soon.
+            </>
+          }
+          onResend={() => submitForgotPassword({ email: sentTo })}
+        />
+      </AuthShell>
+    )
+  }
+
   return (
-    <>
-      <AuthLayout
-        title="Forgot password"
-        subtitle="Enter your email and we'll send a reset link">
+    <AuthShell accent="violet">
+      <AuthScreen
+        back={{ to: `/${paths.login}`, label: 'Back to log in' }}
+        icon={{ icon: <LuKeyRound /> }}
+        title="Forgot your password?"
+        subtitle="No worries. Enter the email you signed up with and we'll send you a reset link.">
         <FormikProvider value={formik}>
           <ValidationSchemaProvider schema={forgotPasswordSchema}>
-            <form onSubmit={formik.handleSubmit} noValidate>
+            <form
+              onSubmit={formik.handleSubmit}
+              noValidate
+              className={styles.form}>
               <FormikFocusOnError />
-              {submitError && (
-                <Alert variant="error" className={styles.alert}>
-                  {submitError}
-                </Alert>
-              )}
+              {submitError && <Alert variant="error">{submitError}</Alert>}
 
               <TextInput
                 title="Email"
@@ -74,10 +91,11 @@ export const ForgotPasswordPage = () => {
                 name="email"
                 type="email"
                 autoComplete="email"
+                icon={<LuMail />}
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder="Email"
+                placeholder="you@company.com"
                 error={
                   formik.touched.email && formik.errors.email
                     ? formik.errors.email
@@ -85,45 +103,27 @@ export const ForgotPasswordPage = () => {
                 }
               />
 
-              <div className={styles.actions}>
-                <Button
-                  type="submit"
-                  fullWidth
-                  loading={isRequesting}
-                  disabled={!formik.isValid || isRequesting}>
-                  Send reset link
-                </Button>
-              </div>
+              <Button
+                type="submit"
+                variant="ink"
+                size="xl"
+                pill
+                stretch
+                loading={isRequesting}
+                disabled={!formik.isValid || isRequesting}
+                iconEnd={<LuArrowRight />}>
+                Send reset link
+              </Button>
 
-              <div className={styles.already}>
-                Remember your password?{' '}
-                <Link to={`/${paths.login}`}>Log in</Link>
-              </div>
+              <AuthPrompt
+                text="Remember your password?"
+                linkLabel="Log in"
+                to={`/${paths.login}`}
+              />
             </form>
           </ValidationSchemaProvider>
         </FormikProvider>
-      </AuthLayout>
-
-      <Modal
-        open={isSuccessOpen}
-        onClose={() => setIsSuccessOpen(false)}
-        center
-        animationDuration={0}>
-        <div
-          className={styles.modalContent}
-          role="alertdialog"
-          aria-modal="true">
-          <img src={CheckMark} alt="" className={styles.checkmark} />
-          <Heading level={2}>Check your mailbox</Heading>
-          <Text as="p" color="primary" className={styles.description}>
-            A password reset email was sent. Check your mailbox for a link to
-            continue.
-          </Text>
-          <Button type="button" onClick={() => setIsSuccessOpen(false)}>
-            Close
-          </Button>
-        </div>
-      </Modal>
-    </>
+      </AuthScreen>
+    </AuthShell>
   )
 }

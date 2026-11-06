@@ -197,3 +197,17 @@
     color: var(--color-white);
   }
 }
+
+.withIcon {
+  padding-left: calc(var(--space-4) + var(--space-8));
+}
+
+.leadingIcon {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  font-size: var(--text-xl);
+  color: var(--color-text-muted);
+}

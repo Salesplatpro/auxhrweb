@@ -9,7 +9,6 @@ import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Chart } from '@/components/ui/Chart'
 import { Spinner } from '@/components/ui/Spinner'
-import { WelcomeModal } from '@/features/auth/components/WelcomeModal'
 import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { PlanUsage } from '@/features/pricing/components/PlanUsage'
@@ -42,7 +41,6 @@ const Dashboard = () => {
     return (
       <PageShell wide centered>
         <EmailVerificationPanel />
-        <WelcomeModal />
       </PageShell>
     )
   }
@@ -51,7 +49,6 @@ const Dashboard = () => {
     return (
       <PageShell wide>
         <Spinner fullPage />
-        <WelcomeModal />
       </PageShell>
     )
 
@@ -59,7 +56,6 @@ const Dashboard = () => {
     return (
       <>
         <Alert severity="error">Error Fetching Data</Alert>
-        <WelcomeModal />
       </>
     )
 
@@ -142,7 +138,6 @@ const Dashboard = () => {
       </PagePanel>
 
       <RecentCompilation />
-      <WelcomeModal />
     </PageShell>
   )
 }

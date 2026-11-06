@@ -1,5 +1,6 @@
-import { Field, Form } from 'formik'
-import React from 'react'
+import { Form, useFormikContext } from 'formik'
+import React, { useEffect } from 'react'
+import { LuArrowRight, LuCircleAlert, LuLock, LuMail } from 'react-icons/lu'
 import { Link, useLocation } from 'react-router-dom'
 
 import { Alert } from '@/components/feedback'
@@ -7,76 +8,177 @@ import {
   CheckBox,
   FormikFocusOnError,
   PasswordInput,
+  PasswordStrength,
   TextInput,
   useFocusFieldOnMount,
 } from '@/components/forms'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
 import { loginPathWithNext } from '@/features/auth/utils/dashboardPath'
 import { paths } from '@/paths'
 
-import { useSignup } from '../../hooks/useSignup'
+import { SignupRole, useSignup } from '../../hooks/useSignup'
 import { useAuthStore } from '../../store/useAuthStore'
 import { SignUpSchema } from '../../validation/AuthValidationSchema'
-import { UserTypeSelect } from '../UserTypeSelect'
+import { AuthPrompt } from '../AuthScreen'
 import styles from './SignupForm.module.scss'
 
 type SignupFormValues = {
+  firstName: string
+  lastName: string
   email: string
   password: string
   confirmPassword: string
-  firstName: string
-  lastName: string
-  userType: 'talent' | 'recruiter' | ''
+  remember: boolean
 }
 
-const userTypeOptions = [
-  { value: 'talent', label: 'Talent' },
-  { value: 'recruiter', label: 'Recruiter' },
-]
-
 type SignupFormProps = {
-  onSuccess: (lastName: string, userType: 'talent' | 'recruiter') => void
-  forceTalent?: boolean
-  forceRecruiter?: boolean
+  accountType: SignupRole
+  onSuccess?: (lastName: string, role: SignupRole) => void
   lockedEmail?: string
   redirectPath?: string
+  showLoginLink?: boolean
+}
+
+const ROLE_LABEL: Record<SignupRole, string> = {
+  recruiter: 'Recruiter',
+  talent: 'Talent',
+}
+
+const Fields = ({
+  accountType,
+  lockedEmail,
+}: {
+  accountType: SignupRole
+  lockedEmail?: string
+}) => {
+  const { values, handleChange, handleBlur } =
+    useFormikContext<SignupFormValues>()
+
+  return (
+    <>
+      <div className={styles.names}>
+        <TextInput
+          title="First name"
+          label="firstName"
+          name="firstName"
+          autoComplete="given-name"
+          value={values.firstName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Ada"
+        />
+        <TextInput
+          title="Last name"
+          label="lastName"
+          name="lastName"
+          autoComplete="family-name"
+          value={values.lastName}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Obi"
+        />
+      </div>
+
+      <TextInput
+        title={accountType === 'recruiter' ? 'Work email' : 'Email'}
+        label="email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        icon={<LuMail />}
+        endAdornment={
+          <Pill size="sm" tone="brand">
+            {ROLE_LABEL[accountType]}
+          </Pill>
+        }
+        endAdornmentSize="md"
+        value={values.email}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder={
+          accountType === 'recruiter' ? 'you@company.com' : 'you@example.com'
+        }
+        disabled={!!lockedEmail}
+      />
+
+      <div className={styles.passwordField}>
+        <PasswordInput
+          title="Password"
+          label="password"
+          name="password"
+          autoComplete="new-password"
+          icon={<LuLock />}
+          value={values.password}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Create a password"
+        />
+        <PasswordStrength value={values.password} />
+      </div>
+
+      <PasswordInput
+        title="Confirm password"
+        label="confirmPassword"
+        name="confirmPassword"
+        autoComplete="new-password"
+        icon={<LuLock />}
+        value={values.confirmPassword}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        placeholder="Type it again"
+      />
+
+      <CheckBox
+        name="remember"
+        label="Keep me signed in"
+        checked={values.remember}
+        onChange={handleChange}
+      />
+    </>
+  )
 }
 
 export const SignupForm = ({
+  accountType,
   onSuccess,
-  forceTalent = false,
-  forceRecruiter = false,
   lockedEmail,
   redirectPath,
+  showLoginLink = true,
 }: SignupFormProps) => {
-  const { submitSignup, isLoading } = useSignup()
+  const { submitSignup, clearError, isLoading } = useSignup()
   const error = useAuthStore((state) => state.error)
   const location = useLocation()
   useFocusFieldOnMount('firstName')
 
+  useEffect(() => {
+    clearError()
+  }, [])
+
   const initialValues: SignupFormValues = {
+    firstName: '',
+    lastName: '',
     email: lockedEmail ?? '',
     password: '',
     confirmPassword: '',
-    firstName: '',
-    lastName: '',
-    userType: forceTalent ? 'talent' : forceRecruiter ? 'recruiter' : '',
+    remember: true,
   }
 
   const handleSubmit = async (values: SignupFormValues) => {
     try {
-      // eslint-disable-next-line no-unused-vars
-      const { confirmPassword, userType, ...payload } = values
-      const role = userType as 'talent' | 'recruiter'
       await submitSignup({
-        ...payload,
-        userType: role,
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        email: values.email.trim(),
+        password: values.password,
+        remember: values.remember,
+        userType: accountType,
         ...(redirectPath ? { redirectPath } : {}),
       })
-      onSuccess(values.lastName, role)
+      onSuccess?.(values.lastName.trim(), accountType)
     } catch {
-      // error is surfaced via useAuthStore().error
+      return
     }
   }
 
@@ -85,91 +187,44 @@ export const SignupForm = ({
       initialValues={initialValues}
       validationSchema={SignUpSchema}
       onSubmit={handleSubmit}>
-      <Form noValidate>
+      <Form noValidate className={styles.form}>
         <FormikFocusOnError />
         {error && (
-          <Alert variant="error" className={styles.alert}>
+          <Alert variant="error" icon={<LuCircleAlert />}>
             {error}
           </Alert>
         )}
 
-        <Field
-          title="First Name"
-          label="firstName"
-          name="firstName"
-          autoComplete="given-name"
-          as={TextInput}
-          placeholder="Enter your First Name"
-        />
+        <Fields accountType={accountType} lockedEmail={lockedEmail} />
 
-        <Field
-          title="Last Name"
-          label="lastName"
-          name="lastName"
-          autoComplete="family-name"
-          as={TextInput}
-          placeholder="Enter your Last Name"
-        />
-
-        <Field
-          title="Email"
-          label="email"
-          name="email"
-          type="email"
-          as={TextInput}
-          autoComplete="email"
-          placeholder="Email"
-          disabled={!!lockedEmail}
-        />
-
-        {!forceTalent && !forceRecruiter && (
-          <div className={styles.userType}>
-            <Field
-              name="userType"
-              label="Register as:"
-              component={UserTypeSelect}
-              options={userTypeOptions}
-            />
-          </div>
-        )}
-
-        <Field
-          title="Password"
-          label="password"
-          name="password"
-          autoComplete="new-password"
-          as={PasswordInput}
-          placeholder="Enter your password"
-        />
-
-        <Field
-          title="Confirm Password"
-          label="confirmPassword"
-          name="confirmPassword"
-          autoComplete="new-password"
-          as={PasswordInput}
-          placeholder="Confirm your password"
-        />
-
-        <div className={styles.rememberMe}>
-          <CheckBox name="remember" label="Remember me" />
-        </div>
-
-        <Button type="submit" fullWidth loading={isLoading}>
-          Sign Up
+        <Button
+          type="submit"
+          variant="ink"
+          size="xl"
+          pill
+          stretch
+          loading={isLoading}
+          iconEnd={<LuArrowRight />}>
+          Create account
         </Button>
 
-        <div className={styles.already}>
-          Already have an account?{' '}
-          <Link
+        <p className={styles.legal}>
+          By creating an account you agree to the{' '}
+          <Link to={`/${paths.termsConditions}`}>Terms</Link> and{' '}
+          <Link to={`/${paths.privacyPolicy}`}>Privacy Policy</Link>.
+        </p>
+
+        {showLoginLink && (
+          <AuthPrompt
+            text="Already have an account?"
+            linkLabel="Log in"
             to={
               redirectPath
                 ? loginPathWithNext(redirectPath)
                 : { pathname: `/${paths.login}`, search: location.search }
-            }>
-            Log In
-          </Link>
-        </div>
+            }
+          />
+        )}
       </Form>
     </ValidatedForm>
   )

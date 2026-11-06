@@ -10,7 +10,6 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
-import { WelcomeModal } from '@/features/auth/components/WelcomeModal'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
 import { useProfile } from '@/features/profile/hooks/useProfile'
@@ -127,7 +126,6 @@ const TalentDashboardHome = () => {
     return (
       <PageShell wide centered>
         <EmailVerificationPanel />
-        <WelcomeModal />
       </PageShell>
     )
   }
@@ -204,8 +202,6 @@ const TalentDashboardHome = () => {
           </PagePanel>
         </>
       )}
-
-      <WelcomeModal />
     </PageShell>
   )
 }

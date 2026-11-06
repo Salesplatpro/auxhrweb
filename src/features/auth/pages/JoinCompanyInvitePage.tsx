@@ -246,7 +246,7 @@ export const JoinCompanyInvitePage = () => {
       </p>
 
       <SignupForm
-        forceRecruiter
+        accountType="recruiter"
         lockedEmail={preview.invitedEmail}
         redirectPath={redirectPath}
         onSuccess={() => navigate(verifyEmailPath(redirectPath))}

@@ -54,9 +54,6 @@ export const ProductTourHost = ({
   const pause = useTourStore((state) => state.pause)
 
   const replaying = active?.role === role
-  const welcomeOpen = !!(
-    location.state as { showWelcomeModal?: boolean } | null
-  )?.showWelcomeModal
 
   const [seen, setSeen] = useState(readSeen)
 
@@ -72,11 +69,7 @@ export const ProductTourHost = ({
   const stageSteps = stage ? STAGE_TOURS[stage] : undefined
   const stageKey = `${role}:${stage}`
   const showStageTour =
-    !replaying &&
-    !!stageSteps &&
-    !blocked &&
-    !welcomeOpen &&
-    !paused.includes(stageKey)
+    !replaying && !!stageSteps && !blocked && !paused.includes(stageKey)
 
   const pageTour = pageTourFor(role, location.pathname)
   const showPageTour =
@@ -84,7 +77,6 @@ export const ProductTourHost = ({
     !stageSteps &&
     (!!data || !!error) &&
     !blocked &&
-    !welcomeOpen &&
     !!pageTour &&
     !seen.includes(pageTour.id)
 

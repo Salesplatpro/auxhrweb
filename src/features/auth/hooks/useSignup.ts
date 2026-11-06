@@ -2,14 +2,16 @@ import useSWRMutation from 'swr/mutation'
 
 import { AUTH_ENDPOINTS } from '@/services/api/endpoints'
 import { getErrorMessage } from '@/utils/getErrorMessage'
-import { notify } from '@/utils/toastNotifications'
 
 import { registerRecruiter, registerTalent } from '../services/authService'
 import { useAuthStore } from '../store/useAuthStore'
-import { TalentRegisterRequest, UserRole } from '../types'
+import { TalentRegisterRequest } from '../types'
+
+export type SignupRole = 'talent' | 'recruiter'
 
 export type SignupRequest = TalentRegisterRequest & {
-  userType: UserRole
+  userType: SignupRole
+  remember: boolean
 }
 
 export const useSignup = () => {
@@ -20,7 +22,10 @@ export const useSignup = () => {
 
   const { trigger, isMutating } = useSWRMutation(
     AUTH_ENDPOINTS.REGISTER_TALENT,
-    (_key, { arg }: { arg: SignupRequest }) => {
+    (
+      _key,
+      { arg }: { arg: TalentRegisterRequest & { userType: SignupRole } },
+    ) => {
       const { userType, ...payload } = arg
       return userType === 'recruiter'
         ? registerRecruiter(payload)
@@ -28,23 +33,22 @@ export const useSignup = () => {
     },
   )
 
-  const submitSignup = async (values: SignupRequest) => {
+  const submitSignup = async ({ remember, ...values }: SignupRequest) => {
     setError(null)
     setSubmitting(true)
     try {
       const { data } = await trigger(values)
-      setSession(data.data)
-      notify('success', 'Signed up successfully', { autoClose: 2000 })
+      setSession(data.data, { persist: remember })
       return data
     } catch (err) {
-      const message = getErrorMessage(err, 'An error occurred while signing up')
-      setError(message)
-      notify('error', message, { autoClose: 2000 })
+      setError(getErrorMessage(err, 'An error occurred while signing up'))
       throw err
     } finally {
       setSubmitting(false)
     }
   }
 
-  return { submitSignup, isLoading: isSubmitting || isMutating }
+  const clearError = () => setError(null)
+
+  return { submitSignup, clearError, isLoading: isSubmitting || isMutating }
 }

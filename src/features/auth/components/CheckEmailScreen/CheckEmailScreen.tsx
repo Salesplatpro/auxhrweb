@@ -22,7 +22,7 @@ type CheckEmailScreenProps = {
   title?: string
   message: React.ReactNode
   onResend: () => Promise<unknown>
-  showBackToLogin?: boolean
+  footer?: React.ReactNode
   progress?: { step: number; total: number }
 }
 
@@ -30,7 +30,7 @@ export const CheckEmailScreen = ({
   title = 'Check your email',
   message,
   onResend,
-  showBackToLogin = true,
+  footer,
   progress,
 }: CheckEmailScreenProps) => {
   const { remaining, isCoolingDown, start } = useCooldown(
@@ -105,7 +105,7 @@ export const CheckEmailScreen = ({
             : 'Resend'}
         </button>
       </p>
-      {showBackToLogin && (
+      {footer ?? (
         <TextLink to={`/${paths.login}`} tone="muted" icon={<LuArrowLeft />}>
           Back to log in
         </TextLink>

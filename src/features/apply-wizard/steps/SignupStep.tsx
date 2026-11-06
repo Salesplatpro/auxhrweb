@@ -24,7 +24,7 @@ const SignupStep: React.FC = () => {
     <div className={styles.page}>
       <Card className={styles.card}>
         <SignupForm
-          forceTalent
+          accountType="talent"
           redirectPath={`/apply/${jobId}`}
           onSuccess={() => navigate(`/apply/${jobId}`, { replace: true })}
         />

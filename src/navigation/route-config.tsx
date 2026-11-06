@@ -42,6 +42,7 @@ import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
 import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
+import CompanyDonePage from '@/features/onboarding/company/CompanyDonePage'
 import CompanySetupPage from '@/features/onboarding/company/CompanySetupPage'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import PreAssessmentPage from '@/features/pre-assessment/page'
@@ -371,7 +372,10 @@ export const routeConfig: RouteObject[] = [
             element: (
               <RequireEmailVerified redirectTo="/recruiterDashboard/dashboard" />
             ),
-            children: [{ index: true, element: <CompanySetupPage /> }],
+            children: [
+              { index: true, element: <CompanySetupPage /> },
+              { path: 'done', element: <CompanyDonePage /> },
+            ],
           },
         ],
       },

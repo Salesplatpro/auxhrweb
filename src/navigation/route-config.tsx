@@ -42,6 +42,8 @@ import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
 import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
+import CompanySetupPage from '@/features/onboarding/company/CompanySetupPage'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
@@ -71,7 +73,6 @@ import {
   Shortlist,
 } from '@/pages/RecruiterProfile'
 import Company from '@/pages/RecruiterProfile/Company/Company'
-import CreateCompany from '@/pages/RecruiterProfile/Company/CreateCompany'
 import EditCompany from '@/pages/RecruiterProfile/Company/EditCompany'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
 import Dashboard from '@/pages/RecruiterProfile/Dashboard/Dashboard'
@@ -363,6 +364,18 @@ export const routeConfig: RouteObject[] = [
         ],
       },
       {
+        path: ONBOARDING_PATHS.company,
+        element: <ProtectedRoute allowedRoles={['recruiter']} />,
+        children: [
+          {
+            element: (
+              <RequireEmailVerified redirectTo="/recruiterDashboard/dashboard" />
+            ),
+            children: [{ index: true, element: <CompanySetupPage /> }],
+          },
+        ],
+      },
+      {
         path: '/recruiterDashboard',
         element: <ProtectedRoute allowedRoles={['recruiter']} />,
         children: [
@@ -407,7 +420,7 @@ export const routeConfig: RouteObject[] = [
                   },
                   {
                     path: 'company/new',
-                    element: <CreateCompany />,
+                    element: <Navigate to={ONBOARDING_PATHS.company} replace />,
                   },
                   {
                     path: 'company/:id/edit',

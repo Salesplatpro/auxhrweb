@@ -29,11 +29,20 @@ type HeroButtonProps = {
   onClick?: () => void
   type?: 'button' | 'submit'
   className?: string
+  tourId?: string
 }
 
 const HeroButton: React.FC<
   HeroButtonProps & { variant: 'solid' | 'ghost' }
-> = ({ children, to, onClick, type = 'button', className, variant }) => {
+> = ({
+  children,
+  to,
+  onClick,
+  type = 'button',
+  className,
+  variant,
+  tourId,
+}) => {
   const cls = [
     variant === 'solid' ? styles.actionBtn : styles.ghostBtn,
     className,
@@ -43,14 +52,14 @@ const HeroButton: React.FC<
 
   if (to) {
     return (
-      <Link className={cls} to={to}>
+      <Link className={cls} to={to} data-tour={tourId}>
         {children}
       </Link>
     )
   }
 
   return (
-    <button type={type} className={cls} onClick={onClick}>
+    <button type={type} className={cls} onClick={onClick} data-tour={tourId}>
       {children}
     </button>
   )

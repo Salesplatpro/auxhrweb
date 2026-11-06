@@ -7,16 +7,16 @@ import { PageShell } from '@/components/layout/PageShell'
 import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
-import { useMyOrganizations } from '@/features/organizations/hooks/useMyOrganizations'
-import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization'
-import { UpdateOrganizationPayload } from '@/features/organizations/types'
-
-import listStyles from './Company.module.scss'
 import {
-  CompanyForm,
   CompanyFormValues,
   EMPTY_COMPANY_FORM,
-} from './CompanyForm'
+  toUpdatePayload,
+} from '@/features/organizations/companyForm'
+import { useMyOrganizations } from '@/features/organizations/hooks/useMyOrganizations'
+import { useUpdateOrganization } from '@/features/organizations/hooks/useUpdateOrganization'
+
+import listStyles from './Company.module.scss'
+import { CompanyForm } from './CompanyForm'
 
 const EditCompany = () => {
   const navigate = useNavigate()
@@ -30,16 +30,10 @@ const EditCompany = () => {
 
   const handleSubmit = async (values: CompanyFormValues) => {
     if (!organization) return
-    const payload: UpdateOrganizationPayload = {
-      name: values.name,
-      phone: values.phone,
-      address: values.address,
-      industry: values.industry,
-      linkedin: values.linkedin,
-      facebook: values.facebook,
-      twitter: values.twitter,
-    }
-    const updated = await updateOrganization(organization.id, payload)
+    const updated = await updateOrganization(
+      organization.id,
+      toUpdatePayload(values),
+    )
     if (updated) {
       navigate('/recruiterDashboard/company')
     }
@@ -96,14 +90,13 @@ const EditCompany = () => {
           />
 
           <CompanyForm
-            mode="edit"
             initialValues={initialValues}
             isSubmitting={isUpdating}
-            submitLabel="Save changes"
             onSubmit={handleSubmit}
             onCancel={goBack}
             organizationId={organization.id}
             logoUrl={organization.logoUrl}
+            status={organization.status}
           />
         </>
       )}

@@ -16,6 +16,7 @@ import {
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
 
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import { peoplePaths } from '@/features/people/paths'
 import { getActiveOrganizationBilling } from '@/features/pricing/utils/getActiveOrganizationBilling'
@@ -47,7 +48,7 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
     {
       label: 'Create company',
       icon: <AiOutlinePlus size={16} />,
-      path: '/recruiterDashboard/company/new',
+      path: ONBOARDING_PATHS.company,
     },
     ...(hasPeopleAccess
       ? [

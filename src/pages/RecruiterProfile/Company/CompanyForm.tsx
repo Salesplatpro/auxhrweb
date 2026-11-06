@@ -1,463 +1,107 @@
-import { ErrorMessage, Field, FieldProps, Form, useFormikContext } from 'formik'
-import React, { useState } from 'react'
-import { BsBuilding } from 'react-icons/bs'
-import * as Yup from 'yup'
+import { Form, useFormikContext } from 'formik'
+import React from 'react'
 
-import { FieldLabel } from '@/components/forms/FieldLabel'
 import { FormikFocusOnError } from '@/components/forms/FormikFocusOnError'
-import { Select } from '@/components/forms/Select'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Button } from '@/components/ui/Button'
-import { INDUSTRY_OPTIONS } from '@/features/organizations/constants/industries'
 import {
-  emailDomainMatchesWebsite,
-  emailMatchesCompanyDomain,
-  extractWebsiteDomain,
-  isPublicEmailDomain,
-  isValidCompanyDomainInput,
-  isValidLinkedinUrl,
-} from '@/features/organizations/utils/emailDomain'
+  CompanyFormValues,
+  CompanyPreviewCard,
+  ContactFields,
+  editCompanySchema,
+  IdentityFields,
+  PresenceFields,
+} from '@/features/organizations/companyForm'
+import { OrganizationStatus } from '@/features/organizations/types'
 
 import styles from './CompanyForm.module.scss'
 import { CompanyLogoUpload } from './CompanyLogoUpload'
 
-export interface CompanyFormValues {
-  name: string
-  domain: string
-  email: string
-  phone: string
-  address: string
-  industry: string
-  website: string
-  linkedin: string
-  facebook: string
-  twitter: string
-}
-
-export const EMPTY_COMPANY_FORM: CompanyFormValues = {
-  name: '',
-  domain: '',
-  email: '',
-  phone: '',
-  address: '',
-  industry: '',
-  website: '',
-  linkedin: '',
-  facebook: '',
-  twitter: '',
-}
-
-const baseShape = {
-  name: Yup.string().required('Company name is required'),
-  address: Yup.string().required('Address is required'),
-  phone: Yup.string(),
-  industry: Yup.string(),
-  facebook: Yup.string(),
-  twitter: Yup.string(),
-}
-
-const createValidationSchema = Yup.object({
-  ...baseShape,
-  industry: Yup.string().required('Industry is required'),
-  domain: Yup.string()
-    .test(
-      'domain-format',
-      'Domain must include a dot (e.g. acme.com)',
-      (value) => !value || isValidCompanyDomainInput(value),
-    )
-    .test(
-      'domain-not-public',
-      'Use a corporate domain, not a personal email provider',
-      (value) =>
-        !value || !isPublicEmailDomain(`name@${value.replace(/^@/, '')}`),
-    ),
-  email: Yup.string()
-    .email('Must be a valid email')
-    .required('Email is required')
-    .test(
-      'corporate-email',
-      'Use a corporate work email, not a personal address (Gmail, Yahoo, etc.)',
-      function (value) {
-        if (!this.parent.domain?.trim()) return true
-        return !!value && !isPublicEmailDomain(value)
-      },
-    )
-    .test(
-      'email-matches-domain',
-      'Contact email must use the company domain',
-      function (value) {
-        const domain = this.parent.domain?.trim()
-        if (!value || !domain) return true
-        if (emailMatchesCompanyDomain(value, domain)) return true
-        return this.createError({
-          message: `Contact email must use ${domain}`,
-        })
-      },
-    )
-    .test(
-      'email-matches-website',
-      'Contact email domain must match your website domain',
-      function (value) {
-        const domain = this.parent.domain?.trim()
-        const website = this.parent.website?.trim()
-        if (!value || !website || !domain) return true
-        if (emailDomainMatchesWebsite(value, website)) return true
-        const websiteDomain = extractWebsiteDomain(website)
-        return this.createError({
-          message: `Contact email must use @${
-            websiteDomain || 'your website domain'
-          }`,
-        })
-      },
-    ),
-  website: Yup.string(),
-  linkedin: Yup.string()
-    .test(
-      'linkedin-format',
-      'Enter a valid LinkedIn URL (e.g. https://linkedin.com/company/acme)',
-      (value) => !value || isValidLinkedinUrl(value),
-    )
-    .when('domain', {
-      is: (domain: string) => !domain?.trim(),
-      then: (schema) =>
-        schema.required(
-          'LinkedIn URL is required when you have no company domain',
-        ),
-    }),
-})
-
-const editValidationSchema = Yup.object({
-  ...baseShape,
-  linkedin: Yup.string(),
-})
-
-interface FormFieldProps {
-  label: string
-  name: keyof CompanyFormValues
-  required?: boolean
-  disabled?: boolean
-  locked?: boolean
-  hint?: string
-  placeholder?: string
-  type?: string
-}
-
-const FormField: React.FC<FormFieldProps> = ({
-  label,
-  name,
-  required,
-  disabled,
-  locked,
-  hint,
-  placeholder,
-  type = 'text',
-}) => (
-  <div className={styles.field} data-field={name}>
-    <FieldLabel htmlFor={name} required={required} className={styles.label}>
-      {label}
-      {locked && <span className={styles.lock}>Locked</span>}
-    </FieldLabel>
-    <Field name={name}>
-      {({ field, meta }: FieldProps<string>) => (
-        <input
-          {...field}
-          id={name}
-          type={type}
-          disabled={disabled}
-          placeholder={placeholder}
-          aria-invalid={meta.touched && meta.error ? true : undefined}
-          aria-describedby={
-            meta.touched && meta.error
-              ? `${name}-error`
-              : hint
-              ? `${name}-hint`
-              : undefined
-          }
-          className={`${styles.input} ${
-            meta.touched && meta.error ? styles.inputError : ''
-          }`}
-        />
-      )}
-    </Field>
-    {hint && (
-      <p id={`${name}-hint`} className={styles.hint}>
-        {hint}
-      </p>
-    )}
-    <ErrorMessage name={name}>
-      {(message) => (
-        <p id={`${name}-error`} className={styles.error} role="alert">
-          {message}
-        </p>
-      )}
-    </ErrorMessage>
-  </div>
-)
-
-const LogoPreview: React.FC<{ logoUrl?: string | null }> = ({ logoUrl }) => {
-  const [failed, setFailed] = useState(false)
-
-  if (!logoUrl || failed) {
-    return (
-      <div className={styles.logoFallbackOnDark} aria-hidden>
-        <BsBuilding size={22} />
-      </div>
-    )
-  }
-
-  return (
-    <img
-      key={logoUrl}
-      src={logoUrl}
-      alt=""
-      className={styles.logoOnDark}
-      onError={() => setFailed(true)}
-    />
-  )
-}
-
-const OnlinePresenceCallout: React.FC = () => {
+const LivePreview = ({
+  logoUrl,
+  status,
+}: {
+  logoUrl?: string | null
+  status: OrganizationStatus
+}) => {
   const { values } = useFormikContext<CompanyFormValues>()
-  if (values.domain.trim()) return null
   return (
-    <p className={styles.callout}>
-      LinkedIn is required since you haven&apos;t provided a company domain.
-    </p>
-  )
-}
-
-const CompanyPreview: React.FC<{ logoUrl?: string | null }> = ({ logoUrl }) => {
-  const { values } = useFormikContext<CompanyFormValues>()
-  const displayName = values.name.trim() || 'Your company'
-  const presence = values.website.trim() || values.linkedin.trim()
-
-  return (
-    <aside className={styles.preview} aria-live="polite">
-      <PagePanel>
-        <p className={styles.previewLabel}>How it will look</p>
-        <div className={styles.previewCard}>
-          <LogoPreview logoUrl={logoUrl} />
-          <div>
-            <p className={styles.previewName}>{displayName}</p>
-            <p className={styles.previewMeta}>
-              {values.industry.trim() || 'Industry not set'}
-              {values.address.trim() ? ` · ${values.address.trim()}` : ''}
-            </p>
-            {presence ? (
-              <a
-                className={styles.previewLink}
-                href={presence}
-                target="_blank"
-                rel="noreferrer">
-                {presence}
-              </a>
-            ) : (
-              <p className={styles.previewEmpty}>
-                Add a website or LinkedIn so candidates can find you.
-              </p>
-            )}
-          </div>
-        </div>
-      </PagePanel>
+    <aside className={styles.preview}>
+      <p className={styles.previewLabel}>How it will look</p>
+      <CompanyPreviewCard values={values} logoUrl={logoUrl} status={status} />
     </aside>
   )
 }
 
 interface CompanyFormProps {
-  mode: 'create' | 'edit'
   initialValues: CompanyFormValues
   isSubmitting: boolean
-  submitLabel: string
-  onSubmit: (
-    values: CompanyFormValues,
-    helpers: { resetForm: () => void },
-  ) => void | Promise<void>
-  onCancel?: () => void
-  /** Only present in edit mode — a company can't have a logo before it exists. */
-  organizationId?: string
+  onSubmit: (values: CompanyFormValues) => void | Promise<void>
+  onCancel: () => void
+  organizationId: string
   logoUrl?: string | null
+  status: OrganizationStatus
 }
 
 export const CompanyForm: React.FC<CompanyFormProps> = ({
-  mode,
   initialValues,
   isSubmitting,
-  submitLabel,
   onSubmit,
   onCancel,
   organizationId,
   logoUrl,
-}) => {
-  const isEdit = mode === 'edit'
-
-  return (
-    <ValidatedForm
-      initialValues={initialValues}
-      enableReinitialize
-      validationSchema={isEdit ? editValidationSchema : createValidationSchema}
-      onSubmit={onSubmit}>
-      <div className={styles.layout}>
-        <Form className={styles.form} noValidate data-tour="company-form">
-          <FormikFocusOnError />
-          <PagePanel>
-            <div className={styles.sectionHead}>
-              <span className={styles.step}>1</span>
-              <div>
-                <h2 className={styles.sectionTitle}>Company identity</h2>
-                <p className={styles.sectionHint}>
-                  This is the name and location candidates see on your jobs.
-                </p>
-              </div>
-            </div>
-            <div className={styles.grid}>
-              <FormField
-                label="Company name"
-                name="name"
-                placeholder="Acme Inc."
-              />
-              {!isEdit && (
-                <FormField
-                  label="Company domain"
-                  name="domain"
-                  placeholder="acme.com"
-                  hint="Optional. If provided, your contact email must use this domain and LinkedIn becomes optional."
-                />
-              )}
-              <Field name="industry">
-                {({ field, form, meta }: FieldProps<string>) => (
-                  <div className={styles.field} data-field="industry">
-                    <Select
-                      name="industry"
-                      label="Industry"
-                      placeholder="Select an industry"
-                      options={INDUSTRY_OPTIONS}
-                      value={field.value}
-                      onChange={(value) =>
-                        form.setFieldValue('industry', value)
-                      }
-                      error={
-                        meta.touched && meta.error ? meta.error : undefined
-                      }
-                    />
-                  </div>
-                )}
-              </Field>
-              <div className={styles.span2}>
-                <FormField
-                  label="Address"
-                  name="address"
-                  placeholder="123 Main Street, Lagos"
-                />
-              </div>
-            </div>
-          </PagePanel>
-
-          <PagePanel>
-            <div className={styles.sectionHead}>
-              <span className={styles.step}>2</span>
-              <div>
-                <h2 className={styles.sectionTitle}>Contact</h2>
-                <p className={styles.sectionHint}>
-                  Used for verification and so the team can reach you.
-                </p>
-              </div>
-            </div>
-            <div className={styles.grid}>
-              <FormField
-                label="Email"
-                name="email"
-                type="email"
-                disabled={isEdit}
-                locked={isEdit}
-                placeholder="contact@acme.com"
-                hint={
-                  isEdit
-                    ? 'Email cannot be changed after the company is created.'
-                    : 'If you have a company domain, use a matching work email; otherwise any valid email works.'
-                }
-              />
-              <FormField
-                label="Phone"
-                name="phone"
-                type="tel"
-                placeholder="+234..."
-              />
-            </div>
-          </PagePanel>
-
-          <PagePanel>
-            <div className={styles.sectionHead}>
-              <span className={styles.step}>3</span>
-              <div>
-                <h2 className={styles.sectionTitle}>Online presence</h2>
-                <p className={styles.sectionHint}>
-                  Help candidates recognise your brand and confirm you are real.
-                </p>
-              </div>
-            </div>
-            {!isEdit && <OnlinePresenceCallout />}
-            <div className={styles.grid}>
-              <FormField
-                label="Website"
-                name="website"
-                disabled={isEdit}
-                locked={isEdit}
-                placeholder="https://acme.com"
-                hint={
-                  isEdit
-                    ? 'Website cannot be changed after the company is created.'
-                    : undefined
-                }
-              />
-              <FormField
-                label="LinkedIn"
-                name="linkedin"
-                placeholder="https://linkedin.com/company/acme"
-              />
-              <div className={styles.span2}>
-                {isEdit && organizationId ? (
-                  <CompanyLogoUpload
-                    organizationId={organizationId}
-                    companyName={initialValues.name}
-                    logoUrl={logoUrl}
-                  />
-                ) : (
-                  <p className={styles.hint}>
-                    You can add a company logo after creating the company.
-                  </p>
-                )}
-              </div>
-              <FormField
-                label="X (Twitter)"
-                name="twitter"
-                placeholder="https://x.com/acme"
-              />
-              <FormField
-                label="Facebook"
-                name="facebook"
-                placeholder="https://facebook.com/acme"
-              />
-            </div>
-          </PagePanel>
-
-          <div className={styles.actions}>
-            <Button type="submit" loading={isSubmitting}>
-              {submitLabel}
-            </Button>
-            {onCancel && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                disabled={isSubmitting}>
-                Cancel
-              </Button>
-            )}
+  status,
+}) => (
+  <ValidatedForm
+    initialValues={initialValues}
+    enableReinitialize
+    validationSchema={editCompanySchema}
+    onSubmit={onSubmit}>
+    <div className={styles.layout}>
+      <Form className={styles.form} noValidate>
+        <FormikFocusOnError />
+        <PagePanel
+          title="Company identity"
+          hint="This is the name and location candidates see on your jobs.">
+          <div className={styles.fields}>
+            <IdentityFields mode="edit" />
           </div>
-        </Form>
-        <CompanyPreview logoUrl={logoUrl} />
-      </div>
-    </ValidatedForm>
-  )
-}
+        </PagePanel>
+        <PagePanel
+          title="Contact"
+          hint="Used for verification and so the team can reach you.">
+          <div className={styles.fields}>
+            <ContactFields mode="edit" />
+          </div>
+        </PagePanel>
+        <PagePanel
+          title="Online presence"
+          hint="Help candidates recognise your brand and confirm you are real.">
+          <div className={styles.fields}>
+            <PresenceFields mode="edit" />
+            <CompanyLogoUpload
+              organizationId={organizationId}
+              companyName={initialValues.name}
+              logoUrl={logoUrl}
+            />
+          </div>
+        </PagePanel>
+
+        <div className={styles.actions}>
+          <Button type="submit" loading={isSubmitting}>
+            Save changes
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}>
+            Cancel
+          </Button>
+        </div>
+      </Form>
+      <LivePreview logoUrl={logoUrl} status={status} />
+    </div>
+  </ValidatedForm>
+)

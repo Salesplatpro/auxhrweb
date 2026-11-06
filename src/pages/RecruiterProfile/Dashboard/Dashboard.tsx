@@ -10,6 +10,7 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { Chart } from '@/components/ui/Chart'
 import { Spinner } from '@/components/ui/Spinner'
 import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { PlanUsage } from '@/features/pricing/components/PlanUsage'
 import { useProfile } from '@/features/profile/hooks/useProfile'
@@ -105,7 +106,8 @@ const Dashboard = () => {
             </HeroGhost>
           ) : (
             <HeroAction
-              onClick={() => navigate('/recruiterDashboard/company/new')}>
+              tourId="create-company"
+              onClick={() => navigate(ONBOARDING_PATHS.company)}>
               Create company
             </HeroAction>
           )

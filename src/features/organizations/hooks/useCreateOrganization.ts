@@ -1,8 +1,6 @@
 import useSWRMutation from 'swr/mutation'
 
 import { useProfile } from '@/features/profile/hooks/useProfile'
-import { getErrorMessage } from '@/utils/getErrorMessage'
-import { notify } from '@/utils/toastNotifications'
 
 import {
   createOrganization,
@@ -22,17 +20,9 @@ export const useCreateOrganization = () => {
   )
 
   const create = async (payload: CreateOrganizationPayload) => {
-    try {
-      const response = await trigger(payload)
-      await Promise.all([mutateOrganizations(), mutateProfile()])
-      notify('success', 'Company created — you are now working on it', {
-        autoClose: 2000,
-      })
-      return response.data.organization
-    } catch (error) {
-      notify('error', getErrorMessage(error, 'Failed to create company'))
-      return null
-    }
+    const response = await trigger(payload)
+    await Promise.all([mutateOrganizations(), mutateProfile()])
+    return response.data.organization
   }
 
   return { createOrganization: create, isCreating: isMutating }

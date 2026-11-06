@@ -1,3 +1,4 @@
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { OnboardingStage } from '@/features/profile/types'
 
 export type TourRole = 'recruiter' | 'talent'
@@ -112,7 +113,7 @@ const withinPage = (page: string) => (pathname: string) => {
   return current === page || current.startsWith(`${page}/`)
 }
 
-const COMPANY_NEW_PAGE = '/recruiterDashboard/company/new'
+const RECRUITER_HOME_PAGE = '/recruiterDashboard/dashboard'
 const POST_JOB_PAGE = '/recruiterDashboard/postjob'
 const MY_JOBS_PAGE = '/recruiterDashboard/myJobPosts'
 
@@ -204,11 +205,12 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
   ],
   create_company: [
     {
-      target: 'company-form',
-      route: COMPANY_NEW_PAGE,
-      advanceOn: 'stage',
+      target: 'create-company',
+      route: RECRUITER_HOME_PAGE,
+      advanceOn: 'click',
+      to: ONBOARDING_PATHS.company,
       title: 'Set up your company',
-      body: 'Add your company name, industry and a website or LinkedIn, then press Create company.',
+      body: 'Press Create company and add your name, industry and a website or LinkedIn. It takes about 2 minutes.',
       why: 'Jobs are posted under your company, and candidates see it.',
     },
   ],

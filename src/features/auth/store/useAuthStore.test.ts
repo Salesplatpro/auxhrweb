@@ -72,4 +72,15 @@ describe('useAuthStore logout', () => {
     ])
     dispatch.mockRestore()
   })
+
+  it('removes saved company drafts so they do not stay on the device', () => {
+    localStorage.setItem(
+      'auxhr:company-draft:user-1',
+      JSON.stringify({ name: 'Acme Ltd' }),
+    )
+
+    useAuthStore.getState().logout()
+
+    expect(localStorage.getItem('auxhr:company-draft:user-1')).toBeNull()
+  })
 })

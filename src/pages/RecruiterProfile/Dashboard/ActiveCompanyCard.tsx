@@ -6,6 +6,7 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Text } from '@/components/ui/Typography'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { Organization } from '@/features/organizations/types'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 
@@ -49,7 +50,7 @@ const ActiveCompanyCard: React.FC<ActiveCompanyCardProps> = ({
         <Text size="fs-sm" color="secondary">
           You don&apos;t have an active company yet.
         </Text>
-        <Button onClick={() => navigate('/recruiterDashboard/company/new')}>
+        <Button onClick={() => navigate(ONBOARDING_PATHS.company)}>
           Create company
         </Button>
       </Card>

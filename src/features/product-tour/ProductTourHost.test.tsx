@@ -26,7 +26,7 @@ vi.mock('./tourSteps', async (importOriginal) => ({
       {
         title: 'Set up your company',
         body: 'Add your details',
-        route: '/recruiterDashboard/company/new',
+        route: '/recruiterDashboard/guide',
       },
     ],
     post_job: [{ title: 'Post a job', body: 'Describe the role' }],
@@ -83,7 +83,7 @@ describe('ProductTourHost', () => {
     await screen.findByRole('dialog')
     await waitFor(() =>
       expect(screen.getByTestId('path').textContent).toBe(
-        '/recruiterDashboard/company/new',
+        '/recruiterDashboard/guide',
       ),
     )
   })

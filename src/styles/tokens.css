@@ -45,6 +45,149 @@
   --color-info-600: #006bff;
   --color-warning-600: #b54708;
 
+  /* Brand ramps shared with the marketing site (newLanding/styles/_tokens.scss
+     reads these), so auth and onboarding screens use the same palette. */
+  --color-blue-50: #eaf2ff;
+  --color-blue-100: #d9e8ff;
+  --color-blue-200: #bad3ff;
+  --color-blue-300: #91b6ff;
+  --color-blue-400: #658dff;
+  --color-blue-500: #4266ff;
+  --color-blue-600: #213aff;
+  --color-blue-700: #162aec;
+  --color-blue-800: #1527be;
+  --color-blue-900: #1b2b94;
+  --color-blue-950: #0f1652;
+  --color-violet-50: #e4e5ff;
+  --color-violet-100: #cfd0ff;
+  --color-violet-200: #a9a8ff;
+  --color-violet-300: #7b74ff;
+  --color-violet-400: #5d3eff;
+  --color-violet-500: #4f13ff;
+  --color-violet-600: #4800ff;
+  --color-violet-700: #4800ff;
+  --color-violet-800: #4000e4;
+  --color-violet-900: #3700b0;
+  --color-violet-950: #160040;
+  --color-slateblue-50: #f3f6fc;
+  --color-slateblue-100: #e7edf7;
+  --color-slateblue-200: #cad8ed;
+  --color-slateblue-300: #9bb7de;
+  --color-slateblue-400: #6591cb;
+  --color-slateblue-500: #4173b6;
+  --color-slateblue-600: #305999;
+  --color-slateblue-700: #28487c;
+  --color-slateblue-800: #243e68;
+  --color-slateblue-900: #233657;
+  --color-slateblue-950: #101828;
+  --color-neutral-50: #ffffff;
+  --color-neutral-100: #efefef;
+  --color-neutral-200: #dcdcdc;
+  --color-neutral-300: #bdbdbd;
+  --color-neutral-400: #989898;
+  --color-neutral-500: #7c7c7c;
+  --color-neutral-600: #656565;
+  --color-neutral-700: #525252;
+  --color-neutral-800: #464646;
+  --color-neutral-900: #3d3d3d;
+  --color-neutral-950: #292929;
+  --color-taupe-50: #f5f3ee;
+  --color-taupe-100: #efede5;
+  --color-taupe-200: #dfd8c9;
+  --color-taupe-300: #9bb7de;
+  --color-taupe-400: #b4a183;
+  --color-taupe-500: #a58b6a;
+  --color-taupe-600: #987b5e;
+  --color-taupe-700: #7f654f;
+  --color-taupe-800: #685344;
+  --color-taupe-900: #554439;
+  --color-taupe-950: #2d241d;
+  --color-cyan-50: #ebfeff;
+  --color-cyan-100: #cefbff;
+  --color-cyan-200: #a2f5ff;
+  --color-cyan-300: #63eafd;
+  --color-cyan-400: #1cd6f4;
+  --color-cyan-500: #00b8d9;
+  --color-cyan-600: #0393b7;
+  --color-cyan-700: #0a7594;
+  --color-cyan-800: #125f78;
+  --color-cyan-900: #144e65;
+  --color-cyan-950: #063346;
+  --color-amber-50: #fef9ec;
+  --color-amber-100: #fdedc8;
+  --color-amber-200: #fada8d;
+  --color-amber-300: #f7c052;
+  --color-amber-400: #f5a623;
+  --color-amber-500: #ef8711;
+  --color-amber-600: #d3630c;
+  --color-amber-700: #af440e;
+  --color-amber-800: #8f3411;
+  --color-amber-900: #752c12;
+  --color-amber-950: #431505;
+  --color-teal-50: #eafff6;
+  --color-teal-100: #cdfee7;
+  --color-teal-200: #a0fad5;
+  --color-teal-300: #63f2c0;
+  --color-teal-400: #25e2a6;
+  --color-teal-500: #00c48c;
+  --color-teal-600: #00a479;
+  --color-teal-700: #008364;
+  --color-teal-800: #00674f;
+  --color-teal-900: #005542;
+  --color-teal-950: #003027;
+
+  /* ── Brand semantic colors (auth and onboarding screens) ──────────── */
+  --color-brand-vivid: var(--color-blue-700);
+  --color-brand-vivid-hover: var(--color-blue-800);
+  --color-brand-vivid-tint: var(--color-blue-50);
+  --color-brand-vivid-ring: var(--color-blue-100);
+  --color-ink: var(--color-slateblue-950);
+  --color-ink-hover: var(--color-slateblue-900);
+  --color-ink-muted: var(--color-slateblue-700);
+  --color-link: var(--color-blue-700);
+  --color-surface-warm: var(--color-taupe-50);
+  --color-arc: var(--color-taupe-100);
+  --color-violet: var(--color-violet-600);
+  --color-violet-tint: var(--color-violet-50);
+  --color-positive: var(--color-teal-700);
+  --color-positive-strong: var(--color-teal-600);
+  --color-positive-tint: var(--color-teal-50);
+  --color-caution: var(--color-amber-500);
+  --color-caution-text: var(--color-amber-700);
+  --color-caution-tint: var(--color-amber-50);
+  --color-gradient-preview: linear-gradient(
+    180deg,
+    var(--color-violet-500) 0%,
+    var(--color-blue-300) 100%
+  );
+  --color-gradient-celebrate: linear-gradient(
+    135deg,
+    var(--color-violet-500) 0%,
+    var(--color-blue-800) 100%
+  );
+
+  --mosaic-blue: var(--color-blue-700);
+  --mosaic-navy: var(--color-blue-800);
+  --mosaic-violet: var(--color-violet-600);
+  --mosaic-lavender: var(--color-violet-100);
+  --mosaic-periwinkle: var(--color-violet-300);
+  --mosaic-sky: var(--color-blue-300);
+  --mosaic-mist: var(--color-blue-100);
+  --mosaic-orange: var(--color-amber-500);
+  --mosaic-tangerine: var(--color-amber-400);
+  --mosaic-sand: var(--color-amber-200);
+  --mosaic-mint: var(--color-teal-100);
+  --mosaic-paper: var(--color-taupe-50);
+  --mosaic-ink: var(--color-slateblue-950);
+  --mosaic-line: var(--color-blue-900);
+  --mosaic-white: var(--color-white);
+
+  --color-confetti-1: var(--color-blue-300);
+  --color-confetti-2: var(--color-violet-500);
+  --color-confetti-3: var(--color-amber-500);
+  --color-confetti-4: var(--color-teal-500);
+  --color-confetti-5: var(--color-blue-800);
+
   /* ── Semantic colors ───────────────────────────────────────────────── */
   --color-primary: var(--color-brand-500);
   --color-primary-hover: var(--color-brand-600);
@@ -173,6 +316,9 @@
   --shadow-panel: 0 8px 24px rgba(16, 24, 40, 0.04);
   --shadow-hero: 0 18px 40px rgba(36, 65, 171, 0.22);
   --shadow-glow: 0 4px 200px rgba(60, 111, 212, 0.6);
+  --shadow-card-soft: 0 1px 2px rgba(16, 24, 40, 0.04),
+    0 12px 32px rgba(16, 24, 40, 0.06);
+  --shadow-ink-button: 0 12px 24px rgba(22, 42, 236, 0.14);
 
   /* ── Z-index registry ──────────────────────────────────────────────── */
   /* MUI modals sit at 1300 and sonner's <Toaster/> above everything else —

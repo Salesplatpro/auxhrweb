@@ -268,26 +268,6 @@ export interface StuckApplicationsQuery extends ApplicationFollowUpFilters {
   sort?: 'asc' | 'desc'
 }
 
-export interface AdminFeedback {
-  id: string
-  subject: string | null
-  message: string
-  isRead: boolean
-  createdAt: string
-  user?: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-  } | null
-}
-
-export interface AdminFeedbackFilters {
-  isRead?: boolean
-  limit?: number
-  skip?: number
-}
-
 export type OverviewRange = 7 | 30 | 90
 
 export interface OverviewPeriodTotals {
@@ -315,7 +295,7 @@ export interface AdminOverview {
     jobs: { total: number; active: number }
     applications: OverviewPeriodTotals
     stuckApplications: number
-    unreadFeedback: number
+    supportAwaitingReply: number
     unresolvedErrors: number
     revenue: { total: number; inRange: number; previous: number }
   }

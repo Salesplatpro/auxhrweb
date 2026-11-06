@@ -45,7 +45,7 @@ const EXACT_TITLES: Record<string, string> = {
   '/adminDashboard/jobs': 'Jobs',
   '/adminDashboard/applications': 'Applications',
   '/adminDashboard/roles': 'Roles',
-  '/adminDashboard/feedback': 'Feedback',
+  '/adminDashboard/support': 'Support',
   '/adminDashboard/notifications': 'Notifications',
 }
 

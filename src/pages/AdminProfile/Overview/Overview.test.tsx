@@ -31,7 +31,7 @@ const overview = (revenueInRange = 0): AdminOverview => ({
     jobs: { total: 40, active: 25 },
     applications: { total: 900, new: 120, previous: 100 },
     stuckApplications: 7,
-    unreadFeedback: 2,
+    supportAwaitingReply: 2,
     unresolvedErrors: 5,
     revenue: { total: 250000, inRange: revenueInRange, previous: 0 },
   },

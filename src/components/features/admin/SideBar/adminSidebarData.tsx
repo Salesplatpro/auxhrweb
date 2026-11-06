@@ -2,12 +2,12 @@ import React from 'react'
 import {
   HiOutlineBriefcase,
   HiOutlineChartBar,
-  HiOutlineChatAlt2,
   HiOutlineClipboardList,
   HiOutlineOfficeBuilding,
 } from 'react-icons/hi'
 import {
   HiOutlineCpuChip,
+  HiOutlineLifebuoy,
   HiOutlineUserCircle,
   HiOutlineUsers,
 } from 'react-icons/hi2'
@@ -59,8 +59,8 @@ export const adminSidebarData = [
     link: '/adminDashboard/ai-models',
   },
   {
-    name: 'Feedback',
-    icon: <HiOutlineChatAlt2 size={ICON_SIZE} />,
-    link: '/adminDashboard/feedback',
+    name: 'Support',
+    icon: <HiOutlineLifebuoy size={ICON_SIZE} />,
+    link: '/adminDashboard/support',
   },
 ]

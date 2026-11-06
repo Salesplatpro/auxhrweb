@@ -51,7 +51,6 @@ import { MainLayout, Resources } from '@/pages'
 import AdminProfileSidebar from '@/pages/AdminProfile/AdminProfileSidebar'
 import AiModels from '@/pages/AdminProfile/AiModels/AiModels'
 import Applications from '@/pages/AdminProfile/Applications/Applications'
-import Feedback from '@/pages/AdminProfile/Feedback/Feedback'
 import AdminJobDetail from '@/pages/AdminProfile/JobDetail/AdminJobDetail'
 import Jobs from '@/pages/AdminProfile/Jobs/Jobs'
 import OrganizationDetail from '@/pages/AdminProfile/Organizations/OrganizationDetail'
@@ -59,6 +58,8 @@ import Organizations from '@/pages/AdminProfile/Organizations/Organizations'
 import Overview from '@/pages/AdminProfile/Overview/Overview'
 import Recruiters from '@/pages/AdminProfile/Recruiters/Recruiters'
 import AdminRoles from '@/pages/AdminProfile/Roles/Roles'
+import SupportInbox from '@/pages/AdminProfile/Support/SupportInbox'
+import SupportRequestPage from '@/pages/AdminProfile/Support/SupportRequest'
 import AdminTalentDetail from '@/pages/AdminProfile/Talents/TalentDetail'
 import Talents from '@/pages/AdminProfile/Talents/Talents'
 import PostedJob from '@/pages/Home/Jobs/PostedJob'
@@ -603,8 +604,12 @@ export const routeConfig: RouteObject[] = [
                 element: <AiModels />,
               },
               {
-                path: 'feedback',
-                element: <Feedback />,
+                path: 'support',
+                element: <SupportInbox />,
+              },
+              {
+                path: 'support/:requestId',
+                element: <SupportRequestPage />,
               },
               {
                 path: 'notifications',

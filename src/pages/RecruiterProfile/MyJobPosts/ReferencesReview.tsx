@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import {
   answeredSummary,
   canResend,
+  resendMessage,
 } from '@/features/references/referenceReview'
 import { REFERENCE_STATUS_LABEL } from '@/features/references/referenceRules'
 import {
@@ -67,9 +68,12 @@ export const ReferencesReview = ({
   const handleResend = async (referee: ReviewedReferee) => {
     setResendingId(referee.id)
     try {
-      await resendReference(referee.id)
+      const resent = await resendReference(referee.id)
       await mutate()
-      notify('success', `A new link is on its way to ${referee.name}`)
+      notify(
+        resent.status === 'not_sent' ? 'error' : 'success',
+        resendMessage(resent.status, referee.name),
+      )
     } catch (resendError) {
       notify(
         'error',

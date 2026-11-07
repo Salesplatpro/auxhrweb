@@ -52,6 +52,7 @@ import ProfileBuilderPage from '@/features/onboarding/profile/ProfileBuilderPage
 import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
 import JoinWithCodePage from '@/features/organizations/pages/JoinWithCodePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
+import { RefereePage } from '@/features/references/RefereePage'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
 import { VerifyDocument } from '@/features/verify-document/VerifyDocument'
@@ -241,6 +242,10 @@ export const routeConfig: RouteObject[] = [
       {
         path: '/sign/:token',
         element: <SignDocument />,
+      },
+      {
+        path: '/reference/:token',
+        element: <RefereePage />,
       },
       {
         path: '/verify-document',

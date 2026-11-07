@@ -28,7 +28,11 @@ describe('reference rules', () => {
   it('requires a name, a valid email and a relationship', async () => {
     const message = (field: string, values: Record<string, string>) =>
       refereeSchema.validateAt(field, values).catch((e) => e.message)
-    const filled = { name: 'Ada Obi', email: 'ada@example.com', relationship: 'Manager' }
+    const filled = {
+      name: 'Ada Obi',
+      email: 'ada@example.com',
+      relationship: 'Manager',
+    }
 
     expect(await message('name', { ...filled, name: '  ' })).toBe(
       "Enter the referee's name",

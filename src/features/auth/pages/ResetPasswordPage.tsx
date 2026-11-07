@@ -31,7 +31,7 @@ import { passwordRuleItems } from '@/utils/passwordRules'
 import { AuthScreen } from '../components/AuthScreen'
 import { AuthShell } from '../components/AuthShell'
 import { useResetPassword } from '../hooks/useResetPassword'
-import { destinationAfterAuth } from '../utils/dashboardPath'
+import { destinationAfterAuth, SessionUser } from '../utils/dashboardPath'
 import { resetPasswordSchema } from '../validation/AuthValidationSchema'
 import styles from './ResetPasswordPage.module.scss'
 
@@ -68,7 +68,7 @@ export const ResetPasswordPage = () => {
   )
   const [checkError, setCheckError] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [resetRole, setResetRole] = useState<string | undefined>()
+  const [resetUser, setResetUser] = useState<SessionUser | undefined>()
   const processedTokenRef = useRef<string | null>(null)
 
   const checkToken = useCallback(
@@ -114,7 +114,7 @@ export const ResetPasswordPage = () => {
           token,
           password: values.password,
         })
-        setResetRole(data.data?.user.userRole)
+        setResetUser(data.data?.user)
         setScreen('done')
       } catch (err) {
         if (getErrorStatus(err) === 401) {
@@ -152,7 +152,7 @@ export const ResetPasswordPage = () => {
             stretch
             iconEnd={<LuArrowRight />}
             onClick={() =>
-              navigate(destinationAfterAuth(resetRole, nextPath), {
+              navigate(destinationAfterAuth(resetUser, nextPath), {
                 replace: true,
               })
             }>

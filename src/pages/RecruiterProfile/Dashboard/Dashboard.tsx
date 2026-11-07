@@ -9,7 +9,6 @@ import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Chart } from '@/components/ui/Chart'
 import { Spinner } from '@/components/ui/Spinner'
-import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { PlanUsage } from '@/features/pricing/components/PlanUsage'
@@ -26,25 +25,12 @@ import RecentCompilation from './RecentCompilation'
 const Dashboard = () => {
   const navigate = useNavigate()
   useRouteToast()
-  const { profile, isLoading: isProfileLoading } = useProfile()
-  const isVerified = !!profile?.emailVerifiedAt
+  const { profile } = useProfile()
   const {
     data: dashboardData,
     isLoading: dashboardLoading,
     error: dashboardError,
-  } = useFetchDashboardQuery({}, { skip: !isVerified })
-
-  if (isProfileLoading) {
-    return <Spinner fullPage />
-  }
-
-  if (!isVerified) {
-    return (
-      <PageShell wide centered>
-        <EmailVerificationPanel />
-      </PageShell>
-    )
-  }
+  } = useFetchDashboardQuery({})
 
   if (dashboardLoading)
     return (

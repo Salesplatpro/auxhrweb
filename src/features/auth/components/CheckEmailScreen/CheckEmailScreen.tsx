@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { LuArrowLeft, LuMail, LuMailCheck } from 'react-icons/lu'
+import { LuArrowLeft, LuInfo, LuMail, LuMailCheck } from 'react-icons/lu'
 
 import { Alert } from '@/components/feedback'
 import { Button } from '@/components/ui/Button'
@@ -22,6 +22,7 @@ type CheckEmailScreenProps = {
   title?: string
   message: React.ReactNode
   onResend: () => Promise<unknown>
+  onChangeEmail?: () => void
   footer?: React.ReactNode
   progress?: { step: number; total: number }
 }
@@ -30,6 +31,7 @@ export const CheckEmailScreen = ({
   title = 'Check your email',
   message,
   onResend,
+  onChangeEmail,
   footer,
   progress,
 }: CheckEmailScreenProps) => {
@@ -91,20 +93,35 @@ export const CheckEmailScreen = ({
           </Button>
         ))}
       </div>
-      <p className={styles.resend}>
-        Didn&apos;t get the email?{' '}
-        <button
-          type="button"
-          className={styles.resendButton}
-          onClick={resend}
-          disabled={isCoolingDown || isSending}>
-          {isSending
-            ? 'Sending…'
-            : isCoolingDown
-            ? `Resend in ${formatCountdown(remaining)}`
-            : 'Resend'}
-        </button>
-      </p>
+      <div className={styles.help}>
+        <LuInfo className={styles.helpIcon} aria-hidden />
+        <div className={styles.helpBody}>
+          <p className={styles.helpTitle}>Didn&apos;t get it?</p>
+          <p className={styles.helpText}>
+            Check spam or promotions.{' '}
+            {isCoolingDown
+              ? `You can resend in ${formatCountdown(remaining)}.`
+              : 'You can resend it now.'}
+          </p>
+          <div className={styles.helpActions}>
+            <button
+              type="button"
+              className={styles.resendButton}
+              onClick={resend}
+              disabled={isCoolingDown || isSending}>
+              {isSending ? 'Sending…' : 'Resend email'}
+            </button>
+            {onChangeEmail && (
+              <button
+                type="button"
+                className={styles.changeButton}
+                onClick={onChangeEmail}>
+                Change email address
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
       {footer ?? (
         <TextLink to={`/${paths.login}`} tone="muted" icon={<LuArrowLeft />}>
           Back to log in

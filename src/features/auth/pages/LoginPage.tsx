@@ -13,11 +13,11 @@ import { LoginForm } from '../components/LoginForm'
 export const LoginPage = () => {
   const [searchParams] = useSearchParams()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
-  const userRole = useAuthStore((state) => state.user?.userRole)
+  const user = useAuthStore((state) => state.user)
   const nextPath = searchParams.get('next')
 
   if (isLoggedIn) {
-    const destination = destinationAfterAuth(userRole, nextPath)
+    const destination = destinationAfterAuth(user, nextPath)
     return <Navigate to={destination} replace />
   }
 

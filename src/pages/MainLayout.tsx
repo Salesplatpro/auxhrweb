@@ -18,11 +18,11 @@ const AUTH_ENTRY_PATHS = new Set([
 export const MainLayout = () => {
   const location = useLocation()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
-  const userRole = useAuthStore((state) => state.user?.userRole)
+  const user = useAuthStore((state) => state.user)
 
   if (isLoggedIn && AUTH_ENTRY_PATHS.has(location.pathname)) {
     const destination = destinationAfterAuth(
-      userRole,
+      user,
       new URLSearchParams(location.search).get('next'),
     )
     return <Navigate to={destination} replace />

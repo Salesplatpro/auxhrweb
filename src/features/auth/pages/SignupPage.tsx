@@ -5,19 +5,14 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { ChoiceCard } from '@/components/ui/ChoiceCard'
 import { Pill } from '@/components/ui/Pill'
-import { TextLink } from '@/components/ui/TextLink'
-import { useEmailVerification } from '@/features/email-verification/hooks/useEmailVerification'
-import { onboardingDestination } from '@/features/onboarding/destination'
-import { useProfile } from '@/features/profile/hooks/useProfile'
 import { paths } from '@/paths'
 
 import { AuthPrompt, AuthScreen } from '../components/AuthScreen'
 import { AuthShell } from '../components/AuthShell'
-import { CheckEmailScreen } from '../components/CheckEmailScreen'
 import { SignupForm } from '../components/SignupForm'
 import { SignupRole } from '../hooks/useSignup'
 import { useAuthStore } from '../store/useAuthStore'
-import { dashboardPathForRole } from '../utils/dashboardPath'
+import { destinationAfterAuth } from '../utils/dashboardPath'
 import styles from './SignupPage.module.scss'
 
 const TOTAL_STEPS = 3
@@ -106,47 +101,10 @@ const RoleStep = ({
   )
 }
 
-const VerifyStep = () => {
-  const user = useAuthStore((state) => state.user)
-  const { profile } = useProfile()
-  const { submitResend } = useEmailVerification()
-  const verified = !!(profile?.emailVerifiedAt || user?.emailVerifiedAt)
-  const email = profile?.email ?? user?.email
-
-  if (verified) {
-    return (
-      <Navigate
-        to={
-          onboardingDestination(profile) ?? dashboardPathForRole(user?.userRole)
-        }
-        replace
-      />
-    )
-  }
-
-  return (
-    <CheckEmailScreen
-      progress={{ step: 3, total: TOTAL_STEPS }}
-      title="Verify your email"
-      message={
-        <>
-          We sent a verification link to {email ?? 'your email'}. Open it to
-          activate your account.
-        </>
-      }
-      onResend={() => submitResend()}
-      footer={
-        <TextLink to="/verify-email" tone="muted">
-          Wrong email? Change it
-        </TextLink>
-      }
-    />
-  )
-}
-
 export const SignupPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const user = useAuthStore((state) => state.user)
   const role = parseRole(searchParams.get('role'))
 
   const chooseRole = (next: SignupRole) => {
@@ -155,11 +113,13 @@ export const SignupPage = () => {
     setSearchParams(params)
   }
 
+  if (isLoggedIn) {
+    return <Navigate to={destinationAfterAuth(user, null)} replace />
+  }
+
   return (
     <AuthShell>
-      {isLoggedIn ? (
-        <VerifyStep />
-      ) : role ? (
+      {role ? (
         <AuthScreen
           progress={{ step: 2, total: TOTAL_STEPS }}
           title="Create your account"

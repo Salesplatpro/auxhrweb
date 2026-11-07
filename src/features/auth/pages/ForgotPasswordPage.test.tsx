@@ -60,7 +60,7 @@ describe('ForgotPasswordPage', () => {
     expect(screen.getByText(/talent@example.com/).textContent).toContain(
       'It expires in 2 hours',
     )
-    expect(screen.getByRole('button', { name: /Resend in/ })).toHaveProperty(
+    expect(screen.getByRole('button', { name: 'Resend email' })).toHaveProperty(
       'disabled',
       true,
     )

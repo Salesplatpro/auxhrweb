@@ -6,19 +6,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '../store/useAuthStore'
 import { SignupPage } from './SignupPage'
 
-const { profileRef, submitResendMock } = vi.hoisted(() => ({
-  profileRef: { current: null as Record<string, unknown> | null },
-  submitResendMock: vi.fn(),
-}))
-
-vi.mock('@/features/profile/hooks/useProfile', () => ({
-  useProfile: () => ({ profile: profileRef.current, isLoading: false }),
-}))
-
-vi.mock('@/features/email-verification/hooks/useEmailVerification', () => ({
-  useEmailVerification: () => ({ submitResend: submitResendMock }),
-}))
-
 vi.mock('../components/SignupForm', () => ({
   SignupForm: ({ accountType }: { accountType: string }) => (
     <p>Signup form for {accountType}</p>
@@ -41,6 +28,7 @@ const renderAt = (url: string) =>
           path="/recruiterDashboard/dashboard"
           element={<p>Dashboard</p>}
         />
+        <Route path="/verify-email" element={<p>Check your inbox</p>} />
       </Routes>
       <LocationProbe />
     </MemoryRouter>,
@@ -48,8 +36,6 @@ const renderAt = (url: string) =>
 
 describe('SignupPage', () => {
   beforeEach(() => {
-    profileRef.current = null
-    submitResendMock.mockReset()
     useAuthStore.setState({ isLoggedIn: false, user: null, token: null })
   })
 
@@ -85,49 +71,32 @@ describe('SignupPage', () => {
     expect(screen.getByText('How will you use AuxHR?')).toBeTruthy()
   })
 
-  it('shows the verify step for a logged-in unverified user', () => {
+  it('sends a logged-in unverified user to the inbox screen', () => {
     useAuthStore.setState({
       isLoggedIn: true,
       token: 'jwt',
-      user: { userRole: 'recruiter', email: 'ada@acmeltd.com' },
+      user: {
+        userRole: 'recruiter',
+        email: 'ada@acmeltd.com',
+        emailVerifiedAt: null,
+      },
     })
     renderAt('/register?role=recruiter')
 
-    expect(screen.getByText('Verify your email')).toBeTruthy()
-    expect(screen.getByText(/ada@acmeltd.com/)).toBeTruthy()
-    expect(screen.getByText('Step 3 of 3')).toBeTruthy()
+    expect(screen.getByText('Check your inbox')).toBeTruthy()
   })
 
   it('moves a verified user on instead of showing signup', () => {
     useAuthStore.setState({
       isLoggedIn: true,
       token: 'jwt',
-      user: { userRole: 'recruiter' },
+      user: {
+        userRole: 'recruiter',
+        emailVerifiedAt: '2026-11-06T10:00:00.000Z',
+      },
     })
-    profileRef.current = {
-      userRole: 'recruiter',
-      activeOrganizationId: 'org-1',
-      emailVerifiedAt: '2026-11-06T10:00:00.000Z',
-    }
     renderAt('/register')
 
     expect(screen.getByText('Dashboard')).toBeTruthy()
-  })
-
-  it('sends a verified recruiter without a company to company setup', () => {
-    useAuthStore.setState({
-      isLoggedIn: true,
-      token: 'jwt',
-      user: { userRole: 'recruiter' },
-    })
-    profileRef.current = {
-      userRole: 'recruiter',
-      emailVerifiedAt: '2026-11-06T10:00:00.000Z',
-    }
-    renderAt('/register')
-
-    expect(screen.getByTestId('location').textContent).toBe(
-      '/onboarding/company',
-    )
   })
 })

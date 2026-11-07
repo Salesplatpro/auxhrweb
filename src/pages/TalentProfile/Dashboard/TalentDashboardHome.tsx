@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
-import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { useRouteToast } from '@/hooks/useRouteToast'
@@ -72,12 +71,8 @@ const TalentDashboardHome = () => {
   const navigate = useNavigate()
   useRouteToast()
   const user = useAuthStore((state) => state.user)
-  const { profile, isLoading: isProfileLoading } = useProfile()
-  const isVerified = !!profile?.emailVerifiedAt
-  const { data, isLoading } = useAllJobApplicationsQuery(
-    {},
-    { skip: !isVerified },
-  )
+  const { profile } = useProfile()
+  const { data, isLoading } = useAllJobApplicationsQuery({})
 
   const applications: AllJobTypes[] = data?.data?.applications ?? []
 
@@ -118,18 +113,6 @@ const TalentDashboardHome = () => {
     },
     { label: 'Shortlisted', value: shortlisted },
   ]
-
-  if (isProfileLoading) {
-    return <Spinner fullPage />
-  }
-
-  if (!isVerified) {
-    return (
-      <PageShell wide centered>
-        <EmailVerificationPanel />
-      </PageShell>
-    )
-  }
 
   return (
     <PageShell wide>

@@ -20,14 +20,16 @@ describe('CheckEmailScreen', () => {
     const onResend = vi.fn().mockResolvedValue(undefined)
     renderScreen(onResend)
 
-    const resend = screen.getByRole('button', { name: 'Resend in 1:00' })
+    const resend = screen.getByRole('button', { name: 'Resend email' })
     expect(resend).toHaveProperty('disabled', true)
+    expect(screen.getByText(/You can resend in 1:00/)).toBeTruthy()
 
     act(() => vi.advanceTimersByTime(60_000))
-    expect(screen.getByRole('button', { name: 'Resend' })).toHaveProperty(
+    expect(screen.getByRole('button', { name: 'Resend email' })).toHaveProperty(
       'disabled',
       false,
     )
+    expect(screen.getByText(/You can resend it now/)).toBeTruthy()
   })
 
   it('sends once when resend is clicked twice quickly', async () => {
@@ -36,14 +38,14 @@ describe('CheckEmailScreen', () => {
     renderScreen(onResend)
     act(() => vi.advanceTimersByTime(60_000))
 
-    const resend = screen.getByRole('button', { name: 'Resend' })
+    const resend = screen.getByRole('button', { name: 'Resend email' })
     fireEvent.click(resend)
     fireEvent.click(resend)
     expect(onResend).toHaveBeenCalledTimes(1)
 
     await act(async () => resolve())
     expect(screen.getByText(/Only the newest link will work/)).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Resend in 1:00' })).toBeTruthy()
+    expect(screen.getByText(/You can resend in 1:00/)).toBeTruthy()
   })
 
   it('shows the server message when resending fails', async () => {
@@ -57,11 +59,36 @@ describe('CheckEmailScreen', () => {
     act(() => vi.advanceTimersByTime(60_000))
 
     await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Resend' }))
+      fireEvent.click(screen.getByRole('button', { name: 'Resend email' }))
     })
     expect(
       screen.getByText('Too many attempts, please try again later.'),
     ).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Resend' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Resend email' })).toHaveProperty(
+      'disabled',
+      false,
+    )
+  })
+
+  it('offers to change the email only when asked to', () => {
+    const onChangeEmail = vi.fn()
+    const { rerender } = renderScreen(vi.fn())
+    expect(
+      screen.queryByRole('button', { name: 'Change email address' }),
+    ).toBeNull()
+
+    rerender(
+      <MemoryRouter>
+        <CheckEmailScreen
+          message="We sent a link."
+          onResend={vi.fn()}
+          onChangeEmail={onChangeEmail}
+        />
+      </MemoryRouter>,
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Change email address' }),
+    )
+    expect(onChangeEmail).toHaveBeenCalledTimes(1)
   })
 })

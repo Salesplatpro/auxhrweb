@@ -46,7 +46,7 @@ describe('ResetPasswordPage', () => {
     submitValidateTokenMock.mockResolvedValue({ data: { valid: true } })
     submitResetPasswordMock.mockResolvedValue({
       data: {
-        user: { userRole: 'talent' },
+        user: { userRole: 'talent', emailVerifiedAt: '2026-11-01T00:00:00Z' },
         token: 'new-jwt',
       },
     })
@@ -216,6 +216,33 @@ describe('ResetPasswordPage', () => {
       replace: true,
     })
     expect(submitValidateTokenMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('sends an unverified user to the inbox screen after a reset', async () => {
+    submitResetPasswordMock.mockResolvedValue({
+      data: { user: { userRole: 'talent', emailVerifiedAt: null }, token: 't' },
+    })
+    renderAt('?token=valid-token')
+    await waitFor(() =>
+      expect(screen.getByLabelText('New password')).toBeTruthy(),
+    )
+    fireEvent.change(screen.getByLabelText('New password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Reset password' }).closest('form')!,
+    )
+    await waitFor(() =>
+      expect(screen.getByText('Password updated')).toBeTruthy(),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    expect(navigateMock).toHaveBeenCalledWith('/verify-email', {
+      replace: true,
+    })
   })
 
   it('shows an API error when password reset fails', async () => {

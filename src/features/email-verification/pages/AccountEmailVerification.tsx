@@ -1,24 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { HiOutlineMail } from 'react-icons/hi'
-import { HiArrowRightOnRectangle } from 'react-icons/hi2'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { LuArrowLeft, LuCheck, LuLogOut, LuMailWarning } from 'react-icons/lu'
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { AuthScreen } from '@/features/auth/components/AuthScreen'
+import { AuthShell } from '@/features/auth/components/AuthShell'
+import { CheckEmailScreen } from '@/features/auth/components/CheckEmailScreen'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import {
   dashboardPathForRole,
   loginPathWithNext,
 } from '@/features/auth/utils/dashboardPath'
 import { onboardingDestination } from '@/features/onboarding/destination'
+import { OnboardingDoneState } from '@/features/onboarding/done/OnboardingDoneState'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { ProfileUser } from '@/features/profile/types'
+import { paths } from '@/paths'
 
-import { EmailVerificationPanel } from '../components/EmailVerificationPanel'
+import { ChangeEmailScreen } from '../components/ChangeEmailScreen'
+import { EmailVerifiedScreen } from '../components/EmailVerifiedScreen'
 import { useEmailVerification } from '../hooks/useEmailVerification'
 import styles from './AccountEmailVerification.module.scss'
-
-type TokenStatus = 'verifying' | 'success' | 'already-verified' | 'error'
 
 const SAFE_REDIRECT_PATTERN =
   /^\/apply\/[A-Za-z0-9-]+$|^\/join-company\/[a-f0-9]+$|^\/join-staff\/[a-f0-9]+$/
@@ -28,171 +31,284 @@ const verifyToastMessage = (joinedCompanyName?: string) =>
     ? `Your email is verified. You joined ${joinedCompanyName}.`
     : 'Your email has been verified.'
 
-const AccountEmailVerification: React.FC = () => {
+const nextStepFor = (user: ProfileUser, safeRedirect: string | null) =>
+  safeRedirect ??
+  onboardingDestination(user) ??
+  dashboardPathForRole(user.userRole)
+
+const useKeepSessionVerified = (profile?: ProfileUser | null) => {
+  const user = useAuthStore((state) => state.user)
+  const setUser = useAuthStore((state) => state.setUser)
+  const verifiedAt = profile?.emailVerifiedAt
+  useEffect(() => {
+    if (verifiedAt && user && !user.emailVerifiedAt) {
+      setUser({ ...user, emailVerifiedAt: verifiedAt })
+    }
+  }, [verifiedAt, user, setUser])
+}
+
+const LogOutButton = ({ label }: { label: string }) => {
   const logout = useAuthStore((state) => state.logout)
+  const navigate = useNavigate()
+  return (
+    <button
+      type="button"
+      className={styles.textButton}
+      onClick={() => {
+        logout()
+        navigate(`/${paths.login}`, { replace: true })
+      }}>
+      <LuArrowLeft aria-hidden />
+      {label}
+    </button>
+  )
+}
+
+const InboxStep = ({ safeRedirect }: { safeRedirect: string | null }) => {
+  const { profile, isLoading, error, mutate } = useProfile()
+  const { submitResend } = useEmailVerification()
+  const [changing, setChanging] = useState(false)
+  useKeepSessionVerified(profile)
+
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') void mutate()
+    }
+    window.addEventListener('focus', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      document.removeEventListener('visibilitychange', refresh)
+    }
+  }, [mutate])
+
+  if (!profile) {
+    return (
+      <OnboardingDoneState
+        isLoading={isLoading || !error}
+        error={error}
+        onRetry={() => void mutate()}
+      />
+    )
+  }
+
+  if (profile.emailVerifiedAt) {
+    return <Navigate to={nextStepFor(profile, safeRedirect)} replace />
+  }
+
+  if (changing) {
+    return (
+      <ChangeEmailScreen
+        currentEmail={profile.email}
+        redirectPath={safeRedirect ?? undefined}
+        onDone={() => setChanging(false)}
+        onCancel={() => setChanging(false)}
+      />
+    )
+  }
+
+  return (
+    <CheckEmailScreen
+      key={profile.email}
+      progress={{ step: 3, total: 3 }}
+      title="Check your inbox"
+      message={
+        <>
+          We sent a verification link to {profile.email ?? 'your email'}. Click
+          it to activate your account. The link works for 24 hours.
+        </>
+      }
+      onResend={() => submitResend(safeRedirect ?? undefined)}
+      onChangeEmail={() => setChanging(true)}
+      footer={<LogOutButton label="Back to log in" />}
+    />
+  )
+}
+
+type TokenOutcome =
+  | { kind: 'verifying' }
+  | { kind: 'verified'; profile: ProfileUser; joinedCompanyName?: string }
+  | { kind: 'verified-logged-out' }
+  | { kind: 'other-account'; email?: string }
+  | { kind: 'error' }
+
+const TokenStep = ({
+  token,
+  safeRedirect,
+}: {
+  token: string
+  safeRedirect: string | null
+}) => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const userRole = useAuthStore((state) => state.user?.userRole)
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const token = searchParams.get('token')
-  const redirect = searchParams.get('redirect')
-  const safeRedirect =
-    redirect && SAFE_REDIRECT_PATTERN.test(redirect) ? redirect : null
-  const continueTarget = safeRedirect ?? dashboardPathForRole(userRole)
-  const targetFor = (user?: ProfileUser | null) =>
-    safeRedirect ??
-    onboardingDestination(user) ??
-    dashboardPathForRole(userRole)
-
+  const [, setSearchParams] = useSearchParams()
   const { submitVerifyToken } = useEmailVerification()
   const { mutate } = useProfile()
-
-  const [tokenStatus, setTokenStatus] = useState<TokenStatus>('verifying')
-  const [joinedCompanyName, setJoinedCompanyName] = useState<string>()
+  const [outcome, setOutcome] = useState<TokenOutcome>({ kind: 'verifying' })
   const processedTokenRef = useRef<string | null>(null)
-
-  const destinationAfterVerify = (joinedName?: string) =>
-    joinedName ? dashboardPathForRole(userRole) : continueTarget
+  useKeepSessionVerified(
+    outcome.kind === 'verified' ? outcome.profile : undefined,
+  )
 
   useEffect(() => {
-    if (!token || processedTokenRef.current === token) return
+    if (processedTokenRef.current === token) return
     processedTokenRef.current = token
-    setTokenStatus('verifying')
+
+    const settle = (
+      profile: ProfileUser | undefined,
+      joinedCompanyName?: string,
+    ) => {
+      if (!isLoggedIn) {
+        setOutcome({ kind: 'verified-logged-out' })
+        return
+      }
+      if (profile && !profile.emailVerifiedAt) {
+        setOutcome({ kind: 'other-account', email: profile.email })
+        return
+      }
+      if (safeRedirect && !joinedCompanyName) {
+        navigate(safeRedirect, {
+          replace: true,
+          state: { toast: { type: 'success', message: verifyToastMessage() } },
+        })
+        return
+      }
+      if (!profile) {
+        navigate(dashboardPathForRole(userRole), { replace: true })
+        return
+      }
+      setOutcome({ kind: 'verified', profile, joinedCompanyName })
+    }
 
     submitVerifyToken(token)
-      .then(async (result) => {
-        setTokenStatus('success')
-        setJoinedCompanyName(result?.joinedCompanyName)
-        if (isLoggedIn) {
-          const refreshed = result?.joinedCompanyName
-            ? undefined
-            : await mutate()
-          const destination = result?.joinedCompanyName
-            ? dashboardPathForRole(userRole)
-            : targetFor(refreshed?.data?.user)
-          navigate(destination, {
-            replace: true,
-            state: {
-              toast: {
-                type: 'success',
-                message: verifyToastMessage(result?.joinedCompanyName),
-              },
-            },
-          })
-        }
-      })
+      .then((result) => settle(result.profile, result.joinedCompanyName))
       .catch(async () => {
         if (isLoggedIn) {
           const refreshed = await mutate()
-          if (refreshed?.data?.user?.emailVerifiedAt) {
-            setTokenStatus('already-verified')
-            navigate(targetFor(refreshed.data.user), { replace: true })
+          const profile = refreshed?.data?.user
+          if (profile?.emailVerifiedAt) {
+            settle(profile)
             return
           }
         }
-        setTokenStatus('error')
+        setOutcome({ kind: 'error' })
       })
   }, [
     token,
     isLoggedIn,
     userRole,
-    continueTarget,
+    safeRedirect,
     navigate,
     mutate,
     submitVerifyToken,
   ])
 
-  if (token) {
-    if (
-      tokenStatus === 'verifying' ||
-      (tokenStatus === 'success' && isLoggedIn)
-    ) {
-      return <Spinner fullPage />
-    }
+  if (outcome.kind === 'verifying') {
+    return <Spinner fullPage />
+  }
 
+  if (outcome.kind === 'verified') {
     return (
-      <div className={styles.page}>
-        <div className={styles.content}>
-          {tokenStatus === 'success' && !isLoggedIn && (
-            <>
-              <h1 className={styles.title}>Email verified</h1>
-              <p className={styles.subtitle}>Your email has been verified.</p>
-              <Link
-                to={loginPathWithNext(
-                  destinationAfterVerify(joinedCompanyName),
-                )}>
-                <Button>Log in</Button>
-              </Link>
-            </>
-          )}
+      <EmailVerifiedScreen
+        profile={outcome.profile}
+        joinedCompanyName={outcome.joinedCompanyName}
+      />
+    )
+  }
 
-          {tokenStatus === 'already-verified' && (
-            <>
-              <h1 className={styles.title}>Already verified</h1>
-              <p className={styles.subtitle}>
-                Your email address is already verified.
-              </p>
-              <Button onClick={() => navigate(continueTarget)}>
-                {safeRedirect ? 'Continue application' : 'Go to dashboard'}
-              </Button>
-            </>
-          )}
+  if (outcome.kind === 'verified-logged-out') {
+    return (
+      <AuthScreen
+        icon={{ icon: <LuCheck />, tone: 'success' }}
+        title="Email verified"
+        subtitle="Your account is active. Log in to pick up where you left off.">
+        <Button
+          type="button"
+          variant="ink"
+          size="xl"
+          pill
+          stretch
+          onClick={() =>
+            navigate(loginPathWithNext(safeRedirect), { replace: true })
+          }>
+          Log in to continue
+        </Button>
+      </AuthScreen>
+    )
+  }
 
-          {tokenStatus === 'error' && (
-            <>
-              <h1 className={styles.title}>Link invalid or expired</h1>
-              <p className={styles.subtitle}>
-                This verification link is invalid or has expired.
-              </p>
-              {isLoggedIn ? (
-                <Button
-                  onClick={() =>
-                    setSearchParams(
-                      safeRedirect ? { redirect: safeRedirect } : {},
-                    )
-                  }>
-                  Resend verification email
-                </Button>
-              ) : (
-                <Link to={loginPathWithNext(safeRedirect)}>
-                  <Button>Log in to resend</Button>
-                </Link>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+  if (outcome.kind === 'other-account') {
+    return (
+      <AuthScreen
+        icon={{ icon: <LuLogOut />, tone: 'warning' }}
+        title="That link was for another account"
+        subtitle={
+          <>
+            The address in that link is now verified, but you&apos;re signed in
+            as {outcome.email ?? 'a different account'}, which still needs
+            verifying. Log out, then sign in with the account you just verified.
+          </>
+        }>
+        <LogOutButton label="Log out and sign in with that account" />
+      </AuthScreen>
     )
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.topBar}>
+    <AuthScreen
+      icon={{ icon: <LuMailWarning />, tone: 'danger' }}
+      title="Link invalid or expired"
+      subtitle="This verification link is invalid or has expired. Only the newest link we sent works, and each one lasts 24 hours.">
+      {isLoggedIn ? (
         <Button
-          variant="outline"
-          size="sm"
-          icon={<HiArrowRightOnRectangle />}
-          onClick={() => logout()}>
-          Log out
+          type="button"
+          variant="ink"
+          size="xl"
+          pill
+          stretch
+          onClick={() =>
+            setSearchParams(safeRedirect ? { redirect: safeRedirect } : {}, {
+              replace: true,
+            })
+          }>
+          Send a new link
         </Button>
-      </div>
+      ) : (
+        <Button
+          type="button"
+          variant="ink"
+          size="xl"
+          pill
+          stretch
+          onClick={() => navigate(loginPathWithNext(safeRedirect))}>
+          Log in to get a new link
+        </Button>
+      )}
+    </AuthScreen>
+  )
+}
 
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <div className={styles.headerIcon}>
-            <HiOutlineMail />
-          </div>
-          <div>
-            <h1 className={styles.title}>Email & account</h1>
-            <p className={styles.subtitle}>
-              Manage your email address and ensure your account is secure.
-            </p>
-          </div>
-        </div>
+const AccountEmailVerification: React.FC = () => {
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token')
+  const redirect = searchParams.get('redirect')
+  const safeRedirect =
+    redirect && SAFE_REDIRECT_PATTERN.test(redirect) ? redirect : null
 
-        <EmailVerificationPanel redirectPath={safeRedirect ?? undefined} />
-      </div>
-    </div>
+  if (!token && !isLoggedIn) {
+    return <Navigate to={loginPathWithNext(safeRedirect)} replace />
+  }
+
+  return (
+    <AuthShell>
+      {token ? (
+        <TokenStep key={token} token={token} safeRedirect={safeRedirect} />
+      ) : (
+        <InboxStep safeRedirect={safeRedirect} />
+      )}
+    </AuthShell>
   )
 }
 

@@ -26,17 +26,26 @@ export const buildShareTargets = (
   url: string,
   title: string,
 ): Record<ShareNetwork, string> => {
-  const encodedUrl = encodeURIComponent(url)
+  const tagged = (network: ShareNetwork) =>
+    `${url}${url.includes('?') ? '&' : '?'}source=${network}`
   const encodedTitle = encodeURIComponent(title)
 
   return {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-    x: `https://x.com/intent/post?url=${encodedUrl}&text=${encodedTitle}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      tagged('facebook'),
+    )}`,
+    x: `https://x.com/intent/post?url=${encodeURIComponent(
+      tagged('x'),
+    )}&text=${encodedTitle}`,
     // share-offsite is LinkedIn's current endpoint; the older shareArticle one
     // silently fails unless it is also passed mini=true.
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      tagged('linkedin'),
+    )}`,
     // WhatsApp has no separate url param, and its linkifier only builds a
     // preview card when the URL is the last thing in the message.
-    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(
+      `${title} ${tagged('whatsapp')}`,
+    )}`,
   }
 }

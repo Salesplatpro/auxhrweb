@@ -51,7 +51,22 @@ describe('buildShareTargets', () => {
 
   it('puts the url last in the whatsapp message so it linkifies', () => {
     expect(targets.whatsapp).toBe(
-      `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}`,
+      `https://wa.me/?text=${encodeURIComponent(
+        `${title} ${url}?source=whatsapp`,
+      )}`,
+    )
+  })
+
+  it('tags each network link with its own source', () => {
+    expect(targets.facebook).toContain(
+      encodeURIComponent(`${url}?source=facebook`),
+    )
+    expect(targets.x).toContain(encodeURIComponent(`${url}?source=x`))
+    expect(targets.linkedin).toContain(
+      encodeURIComponent(`${url}?source=linkedin`),
+    )
+    expect(targets.whatsapp).toContain(
+      encodeURIComponent(`${url}?source=whatsapp`),
     )
   })
 })

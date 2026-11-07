@@ -199,6 +199,7 @@ export const EditJobTab = () => {
               touched={touched}
               setFieldValue={(key, value) => setFieldValue(key, value)}
               roleDisabled
+              jobId={jobId}
             />
 
             <h2 className={tabStyles.heading}>Screening</h2>

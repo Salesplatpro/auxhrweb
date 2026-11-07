@@ -24,6 +24,7 @@ import { AiFieldActions } from './AiAssist/AiFieldActions'
 import { SuggestionChips } from './AiAssist/SuggestionChips'
 import { JobAiContext } from './AiAssist/useJobFieldAssist'
 import styles from './PostJob.module.scss'
+import { SalaryComparison } from './SalaryComparison'
 import { htmlToPlainText } from './utils/aiText'
 import { useRoleName } from './utils/useRoleName'
 
@@ -40,6 +41,7 @@ type JobDetailsFieldsProps = {
   touched: FormikTouchedLike
   setFieldValue: (key: keyof PostJobFormValues, value: unknown) => void
   roleDisabled?: boolean
+  jobId?: string
 }
 
 export const JobDetailsFields = ({
@@ -48,6 +50,7 @@ export const JobDetailsFields = ({
   touched,
   setFieldValue,
   roleDisabled,
+  jobId,
 }: JobDetailsFieldsProps) => {
   const roleName = useRoleName(values.role)
   const aiContext: JobAiContext = {
@@ -253,6 +256,16 @@ export const JobDetailsFields = ({
             />
           </div>
         </div>
+        <SalaryComparison
+          roleId={values.role}
+          experienceLevel={values.experienceLevel}
+          currency={values.currency}
+          compensationPeriod={values.compensationPeriod}
+          locationCountry={values.location?.country?.name}
+          locationState={values.location?.state?.name}
+          locationCity={values.location?.city?.name}
+          excludeJobId={jobId}
+        />
       </section>
 
       {/* Section 5: Goals & Skills */}

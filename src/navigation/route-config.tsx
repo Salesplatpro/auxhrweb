@@ -49,6 +49,7 @@ import CompanySetupPage from '@/features/onboarding/company/CompanySetupPage'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import ProfileBuilderPage from '@/features/onboarding/profile/ProfileBuilderPage'
 import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
+import JoinWithCodePage from '@/features/organizations/pages/JoinWithCodePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
@@ -183,6 +184,19 @@ export const routeConfig: RouteObject[] = [
           {
             path: paths.verifyEmail,
             element: <AccountEmailVerification />,
+          },
+          {
+            element: <ProtectedRoute allowedRoles={['recruiter']} />,
+            children: [
+              {
+                element: (
+                  <RequireEmailVerified redirectTo={VERIFY_EMAIL_PATH} />
+                ),
+                children: [
+                  { path: 'join-team', element: <JoinWithCodePage /> },
+                ],
+              },
+            ],
           },
           {
             path: paths.forgotPassword,

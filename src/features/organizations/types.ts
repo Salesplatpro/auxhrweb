@@ -185,3 +185,15 @@ export interface InvitePreviewApiResponse {
   message: string
   data: { invite: OrganizationInvitePreview }
 }
+
+export interface AccessCodeApiResponse {
+  status: boolean
+  message: string
+  data: { code: string | null }
+}
+
+export interface JoinWithAccessCodeApiResponse {
+  status: boolean
+  message: string
+  data: { organizationId: string; organizationName: string }
+}

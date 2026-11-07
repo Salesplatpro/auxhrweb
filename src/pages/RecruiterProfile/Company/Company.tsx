@@ -20,6 +20,7 @@ import { isPublicEmailDomain } from '@/features/organizations/utils/emailDomain'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
+import { AccessCodePanel } from './AccessCodePanel'
 import styles from './Company.module.scss'
 import { CompanyLogo } from './CompanyLogo'
 import { CompanyMembersPanel } from './CompanyMembersPanel'
@@ -152,6 +153,7 @@ const Company = () => {
         <>
           <CompanyMembersPanel organization={teamOrg} />
           <InviteTeamPanel organization={teamOrg} />
+          <AccessCodePanel organization={teamOrg} />
         </>
       )}
 

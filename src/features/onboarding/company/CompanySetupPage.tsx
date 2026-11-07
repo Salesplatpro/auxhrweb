@@ -29,7 +29,6 @@ import {
   stepForField,
   toCreatePayload,
 } from '@/features/organizations/companyForm'
-import { MAX_COMPANY_TEAMMATES } from '@/features/organizations/constants/team'
 import { useCreateOrganization } from '@/features/organizations/hooks/useCreateOrganization'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { focusFieldByName } from '@/utils/focusField'
@@ -210,8 +209,8 @@ export const CompanySetupPage = () => {
                     </li>
                     <li>
                       <LuUsers aria-hidden />
-                      Invite up to {MAX_COMPANY_TEAMMATES} recruiters with an
-                      access code.
+                      Once you&apos;re verified, share an access code so your
+                      recruiters can join.
                     </li>
                     <li>
                       <LuBriefcase aria-hidden />

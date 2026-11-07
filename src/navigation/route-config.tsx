@@ -43,6 +43,7 @@ import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
 import PreAssessmentPage from '@/features/pre-assessment/page'
+import { RefereePage } from '@/features/references/RefereePage'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
 import { VerifyDocument } from '@/features/verify-document/VerifyDocument'
@@ -215,6 +216,10 @@ export const routeConfig: RouteObject[] = [
       {
         path: '/sign/:token',
         element: <SignDocument />,
+      },
+      {
+        path: '/reference/:token',
+        element: <RefereePage />,
       },
       {
         path: '/verify-document',

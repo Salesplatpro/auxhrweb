@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { answeredSummary, canResend } from './referenceReview'
+import { answeredSummary, canResend, resendMessage } from './referenceReview'
 
 describe('reference review rules', () => {
   it('lets the company resend to anyone who has not answered', () => {
@@ -19,5 +19,14 @@ describe('reference review rules', () => {
       ]),
     ).toBe('2 of 3 answered')
     expect(answeredSummary([])).toBeNull()
+  })
+
+  it('tells the company whether the new link went out', () => {
+    expect(resendMessage('sent', 'Alan Turing')).toBe(
+      'A new link is on its way to Alan Turing',
+    )
+    expect(resendMessage('not_sent', 'Alan Turing')).toBe(
+      "We couldn't email Alan Turing. Try resending in a moment.",
+    )
   })
 })

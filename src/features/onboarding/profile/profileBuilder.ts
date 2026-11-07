@@ -8,6 +8,7 @@ import {
 } from '@/features/profile/types'
 import { diffProfileValues } from '@/features/profile/utils/diffProfileValues'
 import { ProfileCompletionFieldName } from '@/utils/calculateProgress'
+import { experienceLevel } from '@/utils/experienceLevel'
 
 export const BIO_MAX_LENGTH = 1000
 export const ROLE_LIMIT = 3
@@ -165,3 +166,32 @@ export const formatSalaryRange = (
     Number(max),
   )} ${per}`
 }
+
+const LEVEL_BY_EXPERIENCE: Record<string, string> = {
+  [experienceLevel.oneToThreeYears]: 'Junior',
+  [experienceLevel.fourToSixYears]: 'Mid-level',
+  [experienceLevel.sevenToTenYears]: 'Senior',
+  [experienceLevel.elevenToFifteenYears]: 'Lead',
+  [experienceLevel.sixteenYearsAndAbove]: 'Executive',
+}
+
+export const levelForExperience = (experience?: string | null) =>
+  LEVEL_BY_EXPERIENCE[experience ?? ''] ?? ''
+
+const plural = (count: number, word: string) =>
+  `${count} ${word}${count === 1 ? '' : 's'}`
+
+export const describeCvReading = (
+  years?: number | null,
+  skills?: string[] | null,
+): string | null => {
+  const parts: string[] = []
+  if (years != null) parts.push(`${plural(years, 'year')} of experience`)
+  if (skills?.length) parts.push(plural(skills.length, 'skill'))
+  return parts.length ? `AI read ${parts.join(' and ')}` : null
+}
+
+export const formatFileSize = (bytes: number) =>
+  bytes < 1024 * 1024
+    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
+    : `${(bytes / (1024 * 1024)).toFixed(1)} MB`

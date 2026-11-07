@@ -68,6 +68,11 @@
   color: var(--color-positive);
 }
 
+.detail {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
 .track {
   height: 4px;
   border-radius: var(--radius-full);

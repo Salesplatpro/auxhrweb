@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import {
   CompanyFormValues,
@@ -7,12 +7,10 @@ import {
 
 import { COMPANY_DRAFT_PREFIX } from './draftStorage'
 
-const SAVE_DELAY_MS = 600
-
 const draftKey = (userId?: string | null) =>
   userId ? `${COMPANY_DRAFT_PREFIX}${userId}` : null
 
-const isEmpty = (values: CompanyFormValues) =>
+export const isCompanyDraftEmpty = (values: CompanyFormValues) =>
   Object.values(values).every((value) => !value.trim())
 
 export const readCompanyDraft = (
@@ -55,29 +53,4 @@ export const useCompanyDraft = (userId?: string | null) => {
   }, [key])
 
   return { key, initialValues, cleared, clear }
-}
-
-export const useDraftAutosave = (
-  key: string | null,
-  values: CompanyFormValues,
-  cleared: { current: boolean },
-) => {
-  const [saved, setSaved] = useState(false)
-  const serialized = JSON.stringify(values)
-
-  useEffect(() => {
-    if (!key || cleared.current || isEmpty(values)) return
-    const timer = window.setTimeout(() => {
-      if (cleared.current) return
-      try {
-        window.localStorage.setItem(key, serialized)
-        setSaved(true)
-      } catch {
-        setSaved(false)
-      }
-    }, SAVE_DELAY_MS)
-    return () => window.clearTimeout(timer)
-  }, [key, serialized])
-
-  return saved
 }

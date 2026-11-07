@@ -5,7 +5,10 @@ import {
   buildBuilderValues,
   buildProfilePatch,
   cvFileError,
+  describeCvReading,
+  formatFileSize,
   formatSalaryRange,
+  levelForExperience,
   profileBuilderSchema,
   roleCapFor,
   rolesLocked,
@@ -117,5 +120,46 @@ describe('profile builder helpers', () => {
       '₦6M to ₦9M a year',
     )
     expect(formatSalaryRange('NGN', '', '9000000', 'yearly')).toBeUndefined()
+  })
+})
+
+describe('levelForExperience', () => {
+  it('maps each experience band to a level', () => {
+    expect(levelForExperience('1-3 years')).toBe('Junior')
+    expect(levelForExperience('4-6 years')).toBe('Mid-level')
+    expect(levelForExperience('7-10 years')).toBe('Senior')
+    expect(levelForExperience('11-15 years')).toBe('Lead')
+    expect(levelForExperience('16 years and above')).toBe('Executive')
+  })
+
+  it('is empty until experience is chosen', () => {
+    expect(levelForExperience('')).toBe('')
+    expect(levelForExperience(undefined)).toBe('')
+  })
+})
+
+describe('describeCvReading', () => {
+  it('names years and skills the CV reader found', () => {
+    expect(describeCvReading(6, ['SQL', 'Python'])).toBe(
+      'AI read 6 years of experience and 2 skills',
+    )
+    expect(describeCvReading(1, ['SQL'])).toBe(
+      'AI read 1 year of experience and 1 skill',
+    )
+  })
+
+  it('leaves out what it could not read', () => {
+    expect(describeCvReading(null, ['SQL', 'Python'])).toBe('AI read 2 skills')
+    expect(describeCvReading(0, [])).toBe('AI read 0 years of experience')
+    expect(describeCvReading(null, [])).toBeNull()
+    expect(describeCvReading(undefined, null)).toBeNull()
+  })
+})
+
+describe('formatFileSize', () => {
+  it('shows KB under a megabyte and MB above', () => {
+    expect(formatFileSize(412 * 1024)).toBe('412 KB')
+    expect(formatFileSize(100)).toBe('1 KB')
+    expect(formatFileSize(2.5 * 1024 * 1024)).toBe('2.5 MB')
   })
 })

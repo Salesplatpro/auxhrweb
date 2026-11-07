@@ -3,6 +3,7 @@ import React from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { matchTeaserCount } from '../matchTeaser'
 import ProfileDonePage from './ProfileDonePage'
 
 const { state } = vi.hoisted(() => ({
@@ -32,8 +33,9 @@ describe('ProfileDonePage', () => {
     state.profile = null
   })
 
-  it('celebrates a complete profile without inventing match counts', () => {
+  it('celebrates a complete profile and shows the same match count as the wizard', () => {
     state.profile = {
+      id: 'user-1',
       firstName: 'Tunde',
       lastName: 'Bakare',
       profileCompletion: { percentage: 100, isProfileComplete: true },
@@ -43,7 +45,8 @@ describe('ProfileDonePage', () => {
     expect(
       screen.getByRole('button', { name: /See my job matches/ }),
     ).toBeTruthy()
-    expect(screen.queryByText(/new$/)).toBeNull()
+    expect(screen.getByText('Job matches ready')).toBeTruthy()
+    expect(screen.getByText(`${matchTeaserCount('user-1')} new`)).toBeTruthy()
   })
 
   it('sends an incomplete profile back to the builder', () => {

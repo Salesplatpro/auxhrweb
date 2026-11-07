@@ -7,6 +7,7 @@ import { CV_EXTENSIONS } from './profileBuilder'
 
 type CvFieldProps = {
   fileName?: string | null
+  detail?: string | null
   progress: number | null
   isUploading: boolean
   error?: string | null
@@ -15,6 +16,7 @@ type CvFieldProps = {
 
 export const CvField = ({
   fileName,
+  detail,
   progress,
   isUploading,
   error,
@@ -48,6 +50,9 @@ export const CvField = ({
                 {isUploading ? `${progress ?? 0}%` : 'Uploaded'}
               </span>
             </div>
+            {detail && !isUploading && (
+              <span className={styles.detail}>{detail}</span>
+            )}
             {isUploading && (
               <div
                 className={styles.track}

@@ -4,11 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { EMPTY_COMPANY_FORM } from '@/features/organizations/companyForm'
 
 import {
+  isCompanyDraftEmpty,
   readCompanyDraft,
   useCompanyDraft,
-  useDraftAutosave,
 } from './companyDraft'
-import { clearAllCompanyDrafts } from './draftStorage'
+import { clearAllOnboardingDrafts, useDraftAutosave } from './draftStorage'
 
 const KEY = 'auxhr:company-draft:user-1'
 
@@ -23,7 +23,12 @@ describe('company draft', () => {
     const { result: draft } = renderHook(() => useCompanyDraft('user-1'))
     const values = { ...EMPTY_COMPANY_FORM, name: 'Acme Ltd' }
     const { result } = renderHook(() =>
-      useDraftAutosave(draft.current.key, values, draft.current.cleared),
+      useDraftAutosave(
+        draft.current.key,
+        values,
+        draft.current.cleared,
+        isCompanyDraftEmpty,
+      ),
     )
 
     expect(result.current).toBe(false)
@@ -47,6 +52,7 @@ describe('company draft', () => {
         draft.current.key,
         { ...EMPTY_COMPANY_FORM, name: 'Acme Ltd' },
         draft.current.cleared,
+        isCompanyDraftEmpty,
       ),
     )
     act(() => draft.current.clear())
@@ -68,7 +74,7 @@ describe('company draft', () => {
     localStorage.setItem(KEY, '{}')
     localStorage.setItem('auxhr:company-draft:user-2', '{}')
     localStorage.setItem('unrelated', 'keep')
-    clearAllCompanyDrafts()
+    clearAllOnboardingDrafts()
     expect(localStorage.getItem(KEY)).toBeNull()
     expect(localStorage.getItem('auxhr:company-draft:user-2')).toBeNull()
     expect(localStorage.getItem('unrelated')).toBe('keep')
@@ -81,6 +87,7 @@ describe('company draft', () => {
         draft.current.key,
         { ...EMPTY_COMPANY_FORM, name: 'Acme Ltd' },
         draft.current.cleared,
+        isCompanyDraftEmpty,
       ),
     )
     act(() => vi.advanceTimersByTime(600))

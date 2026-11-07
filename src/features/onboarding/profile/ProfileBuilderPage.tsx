@@ -1,5 +1,5 @@
 import { FormikProvider, getIn, useFormik } from 'formik'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   LuArrowLeft,
   LuArrowRight,
@@ -7,6 +7,7 @@ import {
   LuGlobe,
   LuRefreshCw,
   LuSparkle,
+  LuSparkles,
   LuUser,
 } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
@@ -23,6 +24,7 @@ import {
 import { ValidationSchemaProvider } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { TipCard } from '@/components/ui/TipCard'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { useUpdateProfile } from '@/features/profile/hooks/useUpdateProfile'
 import { useUploadCv } from '@/features/profile/hooks/useUploadCv'
@@ -33,6 +35,7 @@ import { focusFieldByName } from '@/utils/focusField'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { Role } from '@/utils/types'
 
+import { useDraftAutosave } from '../company/draftStorage'
 import { OnboardingShell } from '../components/OnboardingShell'
 import {
   WizardCard,
@@ -40,6 +43,7 @@ import {
   WizardLayout,
 } from '../components/WizardLayout'
 import { OnboardingDoneState } from '../done/OnboardingDoneState'
+import { matchTeaserCount } from '../matchTeaser'
 import { ONBOARDING_PATHS } from '../paths'
 import { CvField } from './CvField'
 import {
@@ -48,7 +52,10 @@ import {
   buildBuilderValues,
   buildProfilePatch,
   cvFileError,
+  describeCvReading,
+  formatFileSize,
   formatSalaryRange,
+  levelForExperience,
   PROFILE_STEP_FIELDS,
   profileBuilderSchema,
   ProfileBuilderValues,
@@ -58,9 +65,16 @@ import {
   stepForCompletionField,
 } from './profileBuilder'
 import styles from './ProfileBuilderPage.module.scss'
+import {
+  isProfileDraftBlank,
+  readProfileDraft,
+  useProfileDraft,
+} from './profileDraft'
 import { TalentPreviewCard } from './TalentPreviewCard'
 
 const TALENT_HOME = '/talentDashboard'
+const CV_READ_POLL_MS = 3000
+const CV_READ_POLL_LIMIT = 10
 
 const STEPS = [
   {
@@ -114,20 +128,43 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
   const [cvName, setCvName] = useState<string | null>(
     profile.cvFileName ?? (profile.cvUrl ? 'Your CV' : null),
   )
+  const [cvSize, setCvSize] = useState<number | null>(null)
   const [cvError, setCvError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [cvPolls, setCvPolls] = useState(0)
   const saving = useRef(false)
   const baseline = useRef(buildBuilderBaseline(profile))
   const roleCap = useRef(roleCapFor(baseline.current.role.length)).current
   const locked = rolesLocked(profile)
+  const draft = useProfileDraft(profile.id)
 
   const formik = useFormik<ProfileBuilderValues>({
-    initialValues: buildBuilderValues(profile),
+    initialValues: {
+      ...buildBuilderValues(profile),
+      ...readProfileDraft(profile.id, profile.updatedAt),
+    },
     validationSchema: profileBuilderSchema,
     onSubmit: () => undefined,
   })
   const { values } = formik
   const roleNames = useRoleNames(values.role)
+  const draftSaved = useDraftAutosave(
+    draft.key,
+    { baseUpdatedAt: profile.updatedAt ?? null, values },
+    draft.cleared,
+    isProfileDraftBlank,
+  )
+
+  const cvReading = profile.cvParseStatus
+  const pollingCv = cvReading === 'pending' && cvPolls < CV_READ_POLL_LIMIT
+  useEffect(() => {
+    if (!pollingCv) return
+    const timer = window.setTimeout(() => {
+      setCvPolls((count) => count + 1)
+      void mutate()
+    }, CV_READ_POLL_MS)
+    return () => window.clearTimeout(timer)
+  }, [pollingCv, cvPolls, mutate])
 
   const fieldError = (field: string) =>
     getIn(formik.touched, field) &&
@@ -166,6 +203,7 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
     }
     const user = await saveProfile(patch)
     baseline.current = { ...values }
+    draft.clear()
     return user
   }
 
@@ -205,6 +243,8 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
       }
       const user = await save()
       if (user?.profileCompletion?.isProfileComplete) {
+        draft.cleared.current = true
+        draft.clear()
         navigate(ONBOARDING_PATHS.profileDone, { replace: true })
         return
       }
@@ -226,12 +266,16 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
       return
     }
     const previous = cvName
+    const previousSize = cvSize
     setCvError(null)
     setCvName(file.name)
+    setCvSize(file.size)
     try {
       await uploadCv(file)
+      setCvPolls(0)
     } catch {
       setCvName(previous)
+      setCvSize(previousSize)
       setCvError('We could not upload your CV. Try again.')
     }
   }
@@ -258,6 +302,19 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
   const percentage = profile.profileCompletion?.percentage ?? 0
   const period = values.compensationPeriod === 'monthly' ? 'month' : 'year'
   const busy = isSaving || isUploading
+  const canLeave = !!profile.profileCompletion?.canProceedToPlatform
+  const reading =
+    cvReading === 'done'
+      ? describeCvReading(profile.cvYearsExperience, profile.cvSkills)
+      : null
+  const cvDetail =
+    [
+      cvSize != null ? formatFileSize(cvSize) : null,
+      pollingCv ? 'Reading your CV…' : reading,
+    ]
+      .filter(Boolean)
+      .join(' · ') || null
+  const skillCount = cvReading === 'done' ? profile.cvSkills?.length ?? 0 : 0
 
   return (
     <OnboardingShell
@@ -286,22 +343,31 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
             }
             previewLabel="How recruiters see you"
             preview={
-              <TalentPreviewCard
-                fullName={values.fullName}
-                avatarUrl={profile.profileImageUrl}
-                headline={headline}
-                percentage={percentage}
-                roles={roleNames}
-                bio={values.bio}
-                location={location}
-                salary={formatSalaryRange(
-                  values.currency,
-                  values.minSalary,
-                  values.maxSalary,
-                  values.compensationPeriod,
+              <>
+                <TalentPreviewCard
+                  fullName={values.fullName}
+                  avatarUrl={profile.profileImageUrl}
+                  headline={headline}
+                  percentage={percentage}
+                  roles={roleNames}
+                  bio={values.bio}
+                  location={location}
+                  salary={formatSalaryRange(
+                    values.currency,
+                    values.minSalary,
+                    values.maxSalary,
+                    values.compensationPeriod,
+                  )}
+                  cvName={cvName}
+                  skillCount={skillCount}
+                />
+                {step === 1 && (
+                  <TipCard variant="glass" icon={<LuSparkles />}>
+                    {matchTeaserCount(profile.id)} open roles already match your
+                    profile. You&apos;ll see them on your dashboard.
+                  </TipCard>
                 )}
-                cvName={cvName}
-              />
+              </>
             }>
             <form
               noValidate
@@ -314,18 +380,21 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
                 total={STEPS.length}
                 title={STEPS[step].cardTitle}
                 subtitle={STEPS[step].cardSubtitle}
+                draftSaved={draftSaved}
                 footer={
                   step === 0 ? (
                     <>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="xl"
-                        pill
-                        disabled={busy}
-                        onClick={() => navigate(TALENT_HOME)}>
-                        Finish later
-                      </Button>
+                      {canLeave && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="xl"
+                          pill
+                          disabled={busy}
+                          onClick={() => navigate(TALENT_HOME)}>
+                          Finish later
+                        </Button>
+                      )}
                       <Button
                         type="submit"
                         variant="ink"
@@ -422,18 +491,27 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
                           : `Pick up to ${ROLE_LIMIT} roles. We match you to jobs for these.`}
                       </p>
                     </div>
-                    <Select
-                      name="experience"
-                      label="Experience"
-                      options={EXPERIENCE_LEVEL_OPTIONS}
-                      value={values.experience}
-                      onChange={(value) => {
-                        formik.setFieldValue('experience', value)
-                        formik.setFieldTouched('experience', true, false)
-                      }}
-                      placeholder="Select your experience"
-                      error={fieldError('experience')}
-                    />
+                    <div className={styles.pair}>
+                      <Select
+                        name="experience"
+                        label="Experience"
+                        options={EXPERIENCE_LEVEL_OPTIONS}
+                        value={values.experience}
+                        onChange={(value) => {
+                          formik.setFieldValue('experience', value)
+                          formik.setFieldTouched('experience', true, false)
+                        }}
+                        placeholder="Select your experience"
+                        error={fieldError('experience')}
+                      />
+                      <TextInput
+                        title="Level"
+                        name="level"
+                        label="level"
+                        value={levelForExperience(values.experience) || '—'}
+                        disabled
+                      />
+                    </div>
                     <div className={styles.group} data-field="workType">
                       <span className={styles.label}>
                         Work type
@@ -517,6 +595,7 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
                     </div>
                     <CvField
                       fileName={cvName}
+                      detail={cvDetail}
                       progress={progress}
                       isUploading={isUploading}
                       error={cvError}

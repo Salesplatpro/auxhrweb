@@ -8,6 +8,7 @@ import { useProfile } from '@/features/profile/hooks/useProfile'
 import { CelebrationCard } from '../components/CelebrationCard'
 import { OnboardingShell } from '../components/OnboardingShell'
 import { OnboardingDoneState } from '../done/OnboardingDoneState'
+import { matchTeaserCount } from '../matchTeaser'
 import { ONBOARDING_PATHS } from '../paths'
 
 const TALENT_HOME = '/talentDashboard'
@@ -49,6 +50,10 @@ export const ProfileDonePage = () => {
           {
             label: 'Profile and CV added',
             value: `${completion.percentage}%`,
+          },
+          {
+            label: 'Job matches ready',
+            value: `${matchTeaserCount(profile.id)} new`,
           },
         ]}
         actions={

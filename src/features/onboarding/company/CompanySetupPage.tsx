@@ -42,8 +42,9 @@ import {
   WizardLayout,
 } from '../components/WizardLayout'
 import { ONBOARDING_PATHS } from '../paths'
-import { useCompanyDraft, useDraftAutosave } from './companyDraft'
+import { isCompanyDraftEmpty, useCompanyDraft } from './companyDraft'
 import styles from './CompanySetupPage.module.scss'
+import { useDraftAutosave } from './draftStorage'
 
 const STEPS = [
   {
@@ -88,7 +89,12 @@ export const CompanySetupPage = () => {
     onSubmit: () => undefined,
   })
 
-  const draftSaved = useDraftAutosave(draft.key, formik.values, draft.cleared)
+  const draftSaved = useDraftAutosave(
+    draft.key,
+    formik.values,
+    draft.cleared,
+    isCompanyDraftEmpty,
+  )
 
   const showFieldError = (field: CompanyField) => {
     setStep(stepForField(field))

@@ -16,6 +16,7 @@ type TalentPreviewCardProps = {
   location?: string
   salary?: string
   cvName?: string | null
+  skillCount?: number
 }
 
 const Row = ({
@@ -43,6 +44,7 @@ export const TalentPreviewCard = ({
   location,
   salary,
   cvName,
+  skillCount = 0,
 }: TalentPreviewCardProps) => {
   const [firstName = '', ...rest] = fullName.trim().split(/\s+/)
 
@@ -85,7 +87,13 @@ export const TalentPreviewCard = ({
         />
         <Row
           icon={<LuFileText />}
-          value={cvName ? 'CV added' : undefined}
+          value={
+            cvName
+              ? skillCount > 0
+                ? `CV added · ${skillCount} skills found`
+                : 'CV added'
+              : undefined
+          }
           empty="Upload your CV"
         />
       </ul>

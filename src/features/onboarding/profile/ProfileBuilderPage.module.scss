@@ -49,6 +49,17 @@
   }
 }
 
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+
+  @include bp.below(bp.$bp-sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .missing {
   margin: 0;
   padding-left: var(--space-4);

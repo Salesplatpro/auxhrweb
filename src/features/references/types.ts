@@ -20,3 +20,18 @@ export type Envelope<T> = {
   success: boolean
   data: T
 }
+
+export type RefereeQuestion = {
+  key: string
+  question: string
+  required: boolean
+}
+
+export type RefereeRequest = {
+  refereeName: string
+  candidateName: string
+  jobTitle: string
+  companyName: string | null
+  expiresAt: string
+  questions: RefereeQuestion[]
+}

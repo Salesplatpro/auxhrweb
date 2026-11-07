@@ -167,6 +167,12 @@ export const talentApi = createApi({
       },
       providesTags: ['Applications'],
     }),
+    candidateInterview: builder.query({
+      query: (interviewId: string) => ({
+        url: `/interviews/${interviewId}`,
+        method: 'GET',
+      }),
+    }),
     getRole: builder.query({
       query: () => ({
         url: `/roles?limit=1000`,
@@ -192,6 +198,7 @@ export const {
   useEnsurePersonalityQuestionsMutation,
   useAllJobApplicationsQuery,
   useGetRoleQuery,
+  useCandidateInterviewQuery,
   useCompanyAssessmentQuestionsQuery,
   useSubmitCompanyAssessmentAnswersMutation,
 } = talentApi

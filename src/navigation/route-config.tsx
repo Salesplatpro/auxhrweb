@@ -106,6 +106,7 @@ import { ScoutCampaigns } from '@/pages/RecruiterProfile/Scout/ScoutCampaigns'
 import { UploadStep } from '@/pages/RecruiterProfile/Scout/UploadStep'
 import { TalentSearch } from '@/pages/RecruiterProfile/TalentSearch/TalentSearch'
 import { SupportPage } from '@/pages/Support'
+import AiInterviewPage from '@/pages/TalentProfile/AiInterview/AiInterviewPage'
 import { ApplicationPipeline } from '@/pages/TalentProfile/ApplicationPipeline'
 import TalentDashboardHome from '@/pages/TalentProfile/Dashboard/TalentDashboardHome'
 import Inbox from '@/pages/TalentProfile/Inbox/InboxList'
@@ -368,6 +369,10 @@ export const routeConfig: RouteObject[] = [
                   {
                     path: 'applicationPipeline',
                     element: <ApplicationPipeline />,
+                  },
+                  {
+                    path: 'interview/:interviewId',
+                    element: <AiInterviewPage />,
                   },
                   {
                     path: 'applicationPipeline/personalizedTest/:jobId/:talentId',

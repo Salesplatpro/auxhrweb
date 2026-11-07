@@ -17,6 +17,8 @@ export interface AiConfigApiRecord {
   noOfProblemSolvingQuestions?: number | null
   cultureFitAssessment?: boolean
   noOfCultureFitQuestions?: number | null
+  aiInterview?: boolean
+  aiInterviewMode?: string | null
   personalityEvaluation?: boolean
   noOfEIQuestions?: number | null
   noOfSNQuestions?: number | null
@@ -40,6 +42,8 @@ export const aiConfigFromApi = (
   noOfProblemSolvingQuestions: config.noOfProblemSolvingQuestions ?? '',
   cultureFitAssessment: config.cultureFitAssessment ? 'true' : 'false',
   noOfCultureFitQuestions: config.noOfCultureFitQuestions ?? '',
+  aiInterview: config.aiInterview ? 'true' : 'false',
+  aiInterviewMode: config.aiInterviewMode ?? '',
   personalityEvaluation: config.personalityEvaluation ? 'true' : 'false',
   noOfEIQuestions: config.noOfEIQuestions ?? '',
   noOfSNQuestions: config.noOfSNQuestions ?? '',
@@ -56,6 +60,7 @@ const SWITCH_FIELDS = [
   'personalizedAssessment',
   'problemSolvingAssessment',
   'cultureFitAssessment',
+  'aiInterview',
   'personalityEvaluation',
 ] as const
 
@@ -88,6 +93,9 @@ export const aiConfigToPayload = (values: AiConfigFieldValues) => {
   if (values.cultureFitAssessment !== 'true') {
     delete cleaned.noOfCultureFitQuestions
   }
+  if (values.aiInterview !== 'true') {
+    delete cleaned.aiInterviewMode
+  }
   if (values.personalityEvaluation !== 'true') {
     delete cleaned.uploadedQuestions
     DICHOTOMY_COUNT_FIELDS.forEach((field) => delete cleaned[field])
@@ -114,6 +122,7 @@ export const aiConfigToPayload = (values: AiConfigFieldValues) => {
     personalizedAssessment: values.personalizedAssessment === 'true',
     problemSolvingAssessment: values.problemSolvingAssessment === 'true',
     cultureFitAssessment: values.cultureFitAssessment === 'true',
+    aiInterview: values.aiInterview === 'true',
     personalityEvaluation: values.personalityEvaluation === 'true',
   }
 }

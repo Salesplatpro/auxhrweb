@@ -37,6 +37,37 @@ export const SwitchField = ({ name, label }: SwitchFieldProps) => {
   )
 }
 
+interface RadioFieldProps {
+  name: string
+  legend: string
+  options: { value: string; label: string }[]
+}
+
+export const RadioField = ({ name, legend, options }: RadioFieldProps) => {
+  const [field, meta, helpers] = useField<string>(name)
+
+  return (
+    <fieldset className={styles.switchRow} data-field={name}>
+      <legend className={styles.switchLabel}>{legend}</legend>
+      {options.map((option) => (
+        <label key={option.value}>
+          <input
+            type="radio"
+            name={name}
+            value={option.value}
+            checked={field.value === option.value}
+            onChange={() => helpers.setValue(option.value)}
+          />{' '}
+          {option.label}
+        </label>
+      ))}
+      {meta.touched && meta.error && (
+        <div className={styles.fieldError}>{meta.error}</div>
+      )}
+    </fieldset>
+  )
+}
+
 export const scoreLevel = (score: number) =>
   score <= 50 ? 'Lenient' : score < 70 ? 'Typical' : 'Strict'
 

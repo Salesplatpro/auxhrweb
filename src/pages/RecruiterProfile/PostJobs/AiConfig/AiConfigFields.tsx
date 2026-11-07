@@ -9,7 +9,12 @@ import { JobAiContext } from '../AiAssist/useJobFieldAssist'
 import styles from './AiConfig.module.scss'
 import { AiConfigFieldValues, DICHOTOMY_ERROR_KEY } from './aiConfigModel'
 import { PersonalitySection } from './PersonalitySection'
-import { NumberField, ScoreSlider, SwitchField } from './ScreeningControls'
+import {
+  NumberField,
+  RadioField,
+  ScoreSlider,
+  SwitchField,
+} from './ScreeningControls'
 
 type Section = {
   title: string
@@ -134,6 +139,24 @@ export const AiConfigFields = ({
             label="Number of culture-fit questions"
             min={1}
             max={10}
+          />
+        )}
+      </ScreeningSection>
+
+      <ScreeningSection
+        title="AI interview"
+        guideId="ai-interview"
+        what="After the other steps, AI writes 5 interview questions from this job's description and emails the candidate an invite. They record their answers."
+        tip="Choose audio only, or audio and video if seeing the candidate matters for this job.">
+        <SwitchField name={fieldName('aiInterview')} label="AI interview" />
+        {values.aiInterview === 'true' && (
+          <RadioField
+            name={fieldName('aiInterviewMode')}
+            legend="How candidates answer"
+            options={[
+              { value: 'audio', label: 'Audio only' },
+              { value: 'audio_video', label: 'Audio and video' },
+            ]}
           />
         )}
       </ScreeningSection>

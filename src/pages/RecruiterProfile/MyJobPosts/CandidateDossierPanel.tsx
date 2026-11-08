@@ -30,6 +30,7 @@ import { CompanyTestResults } from './CompanyTestResults'
 import { MBTI_TYPES } from './mbtiLegend'
 import { Messaging } from './Messaging/Messaging'
 import { PersonalityFit } from './PersonalityFit'
+import { ReferencesReview } from './ReferencesReview'
 
 const HERO: Record<
   string,
@@ -385,6 +386,11 @@ export const CandidateDossierPanel = ({
           </PagePanel>
 
           <CompanyTestResults application={application} />
+
+          <ReferencesReview
+            applicationId={application.id}
+            readOnly={readOnly}
+          />
 
           <PagePanel title="Why they fit">
             {analysis?.whyFit ? (

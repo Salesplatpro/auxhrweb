@@ -25,6 +25,7 @@ import { notify } from '@/utils/toastNotifications'
 import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { AssessmentChat } from './AssessmentChat'
+import { BackgroundChecks } from './BackgroundChecks'
 import styles from './CandidateDossierPanel.module.scss'
 import { CompanyTestResults } from './CompanyTestResults'
 import { MBTI_TYPES } from './mbtiLegend'
@@ -385,6 +386,11 @@ export const CandidateDossierPanel = ({
           </PagePanel>
 
           <CompanyTestResults application={application} />
+
+          <BackgroundChecks
+            applicationId={application.id}
+            readOnly={readOnly}
+          />
 
           <PagePanel title="Why they fit">
             {analysis?.whyFit ? (

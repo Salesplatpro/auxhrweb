@@ -2,6 +2,8 @@ import React from 'react'
 import { BsArrowRepeat, BsThreeDotsVertical } from 'react-icons/bs'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 
+import { applicantSourceLabel } from '@/utils/applicantSource'
+
 import {
   Avatar,
   Button,
@@ -62,6 +64,7 @@ const COLUMN_LABELS: Record<string, string> = {
   status: 'Job Status',
   aiMatch: 'AI Match',
   dateApplied: 'Date Applied',
+  source: 'Source',
   details: 'Details',
 }
 
@@ -421,6 +424,15 @@ export const buildColumns = ({
       </div>
     ),
     sortAccessor: (item) => new Date(item.createdAt).getTime(),
+  },
+  {
+    key: 'source',
+    header: COLUMN_LABELS.source,
+    align: 'center',
+    hideBelow: 768,
+    toggleable: true,
+    render: (item) => applicantSourceLabel(item.source),
+    sortAccessor: (item) => item.source ?? '',
   },
   {
     key: 'details',

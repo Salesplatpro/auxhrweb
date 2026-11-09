@@ -57,9 +57,16 @@ export const talentApi = createApi({
       providesTags: ['Jobs'],
     }),
     applyToJob: builder.mutation({
-      query: (jobId: string) => ({
+      query: ({
+        jobId,
+        source,
+      }: {
+        jobId: string
+        source?: string | null
+      }) => ({
         url: `/jobs/applications/${jobId}`,
         method: 'PATCH',
+        body: source ? { source } : {},
       }),
       invalidatesTags: ['Applications', 'Jobs'],
     }),

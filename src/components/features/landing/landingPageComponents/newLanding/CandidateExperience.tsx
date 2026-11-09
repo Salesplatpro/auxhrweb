@@ -7,26 +7,28 @@ import searchCta from './assets/search-cta.svg'
 import styles from './CandidateExperience.module.scss'
 import { candidateSteps, journeyStages } from './candidateExperienceData'
 
-export const CandidateExperience = () => (
+export const CandidateExperience = ({ timelineOnly = false }) => (
   <section className={styles.section}>
     <div className={styles.inner}>
-      <div className={styles.header}>
-        <div className={styles.headerText}>
-          <h2 className={styles.heading}>
-            Because hiring is a two-way experience.
-          </h2>
-          <p className={styles.tagline}>
-            The best candidates are evaluating you too.
-          </p>
-          <p className={styles.subcopy}>
-            AuxHR helps create a recruitment experience that is simple,
-            professional, and transparent—from application to offer.
-          </p>
+      {!timelineOnly && (
+        <div className={styles.header}>
+          <div className={styles.headerText}>
+            <h2 className={styles.heading}>
+              Because hiring is a two-way experience.
+            </h2>
+            <p className={styles.tagline}>
+              The best candidates are evaluating you too.
+            </p>
+            <p className={styles.subcopy}>
+              AuxHR helps create a recruitment experience that is simple,
+              professional, and transparent—from application to offer.
+            </p>
+          </div>
+          <a href={`/${paths.register}`} className={styles.cta}>
+            Find your dream job <img src={searchCta} alt="" aria-hidden />
+          </a>
         </div>
-        <a href={`/${paths.register}`} className={styles.cta}>
-          Find your dream job <img src={searchCta} alt="" aria-hidden />
-        </a>
-      </div>
+      )}
 
       <div className={styles.tracker}>
         <p className={styles.trackerTitle}>CANDIDATE LIVE JOURNEY TIMELINE</p>
@@ -45,20 +47,22 @@ export const CandidateExperience = () => (
         </div>
       </div>
 
-      <div className={styles.steps}>
-        <span className={styles.connector} aria-hidden />
-        {candidateSteps.map((step) => (
-          <div key={step.id} className={styles.step}>
-            <span className={styles.stepIcon}>
-              <img src={step.icon} alt="" aria-hidden />
-            </span>
-            <div className={styles.stepText}>
-              <h3 className={styles.stepTitle}>{step.title}</h3>
-              <p className={styles.stepDescription}>{step.description}</p>
+      {!timelineOnly && (
+        <div className={styles.steps}>
+          <span className={styles.connector} aria-hidden />
+          {candidateSteps.map((step) => (
+            <div key={step.id} className={styles.step}>
+              <span className={styles.stepIcon}>
+                <img src={step.icon} alt="" aria-hidden />
+              </span>
+              <div className={styles.stepText}>
+                <h3 className={styles.stepTitle}>{step.title}</h3>
+                <p className={styles.stepDescription}>{step.description}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   </section>
 )

@@ -129,6 +129,7 @@ $gradient-violet: linear-gradient(270deg, t.$nl-blue-900, t.$nl-violet-400);
 .copyText {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 16px;
 }
 
@@ -294,6 +295,57 @@ $gradient-violet: linear-gradient(270deg, t.$nl-blue-900, t.$nl-violet-400);
   border-radius: 20px;
 }
 
+.browser {
+  position: relative;
+  padding-top: 112px;
+  padding-bottom: 40px;
+}
+
+.browserBar {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 0 32px;
+  overflow: hidden;
+  background: t.$nl-blue-300;
+  font-family: t.$nl-font-raleway;
+  font-size: 18px;
+  white-space: nowrap;
+  color: t.$nl-slateblue-950;
+}
+
+.browserDots {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  margin-right: 64px;
+  border-radius: 50%;
+  background: t.$nl-blue-500;
+  box-shadow: 22px 0 t.$nl-blue-500, 44px 0 t.$nl-blue-500;
+}
+
+.questionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: t.$nl-font-raleway;
+  font-size: 16px;
+  color: t.$nl-slateblue-950;
+}
+
+.weightPill {
+  padding: 0 10px;
+  border: 1px solid t.$nl-blue-500;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-blue-50;
+  font-weight: 600;
+  font-size: 14px;
+  color: t.$nl-blue-700;
+}
+
 // ---- Jobs ----
 
 .visualJobs {
@@ -371,6 +423,39 @@ $gradient-violet: linear-gradient(270deg, t.$nl-blue-900, t.$nl-violet-400);
 .jobApplicants {
   width: 111px;
   margin-bottom: 3.6px;
+  font-weight: 500;
+  font-size: 16px;
+  color: t.$nl-violet-900;
+}
+
+// ---- Pipeline ----
+
+.visualPipeline {
+  background: linear-gradient(180deg, t.$nl-violet-400, t.$nl-blue-300);
+
+  @include bp.from(bp.$bp-xl) {
+    padding: 48px 32px;
+  }
+}
+
+.pipelineLabel {
+  font-family: t.$nl-font-raleway;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: t.$nl-violet-50;
+}
+
+.pipelineCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 8px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-blue-50;
   font-weight: 500;
   font-size: 16px;
   color: t.$nl-violet-900;

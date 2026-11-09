@@ -12,6 +12,8 @@ import titilayoBabatunde from './assets/avatar-titilayo-babatunde.png'
 
 type ScoresVisual = {
   kind: 'scores'
+  url?: string
+  questions?: { text: string; weight: string }[]
   items: {
     label: string
     score: string
@@ -51,14 +53,22 @@ type StatsVisual = {
   bars: { height: number; highlight?: boolean }[]
 }
 
+type PipelineVisual = {
+  kind: 'pipeline'
+  label: string
+  stages: { title: string; meta: string; count: number }[]
+}
+
 export type WorkflowVisual =
   | ScoresVisual
   | JobsVisual
   | RecruitersVisual
   | StatsVisual
+  | PipelineVisual
 
 export type WorkflowFeature = {
   id: string
+  eyebrow?: string
   title: string
   description: string
   points: string[]
@@ -135,6 +145,71 @@ const recruiters = {
   },
 } satisfies Record<string, Recruiter>
 
+export const scoresVisual: ScoresVisual = {
+  kind: 'scores',
+  items: [
+    { label: 'CV Match', score: '50%', fill: 51.74, tone: 'blue' },
+    {
+      label: 'Screening Answers',
+      score: '69%',
+      fill: 70.02,
+      tone: 'orange',
+      largeScore: true,
+    },
+    {
+      label: 'Personality Fit',
+      score: '85%',
+      fill: 88.27,
+      tone: 'green',
+      largeLabel: true,
+      largeScore: true,
+    },
+  ],
+}
+
+export const jobsVisual: JobsVisual = {
+  kind: 'jobs',
+  items: [
+    {
+      title: 'Sales Representative',
+      meta: 'Marketing - Fulltime',
+      status: 'open',
+      applicants: '34 applicants',
+    },
+    {
+      title: 'Product Designer',
+      meta: 'Design - Fulltime',
+      status: 'open',
+      applicants: '21 applicants',
+    },
+    {
+      title: 'Backend Engineer',
+      meta: 'Engineering - Contract',
+      status: 'closed',
+      applicants: '58 applicants',
+    },
+  ],
+}
+
+export const statsVisual: StatsVisual = {
+  kind: 'stats',
+  stats: [
+    { value: '32', label: 'Applications this week', large: true },
+    { value: '71%', label: 'Avg. CV match score' },
+    { value: '4', label: 'Open Roles' },
+    { value: '12', label: 'Shortlisted' },
+  ],
+  bars: [
+    { height: 28 },
+    { height: 39 },
+    { height: 28 },
+    { height: 37, highlight: true },
+    { height: 28 },
+    { height: 37 },
+    { height: 46, highlight: true },
+  ],
+}
+
 export const workflowFeatures: WorkflowFeature[] = [
   {
     id: 'find-talent',
@@ -147,27 +222,7 @@ export const workflowFeatures: WorkflowFeature[] = [
       'Automate customer support and close leads faster',
     ],
     visualFirst: false,
-    visual: {
-      kind: 'scores',
-      items: [
-        { label: 'CV Match', score: '50%', fill: 51.74, tone: 'blue' },
-        {
-          label: 'Screening Answers',
-          score: '69%',
-          fill: 70.02,
-          tone: 'orange',
-          largeScore: true,
-        },
-        {
-          label: 'Personality Fit',
-          score: '85%',
-          fill: 88.27,
-          tone: 'green',
-          largeLabel: true,
-          largeScore: true,
-        },
-      ],
-    },
+    visual: scoresVisual,
   },
   {
     id: 'screen-smarter',
@@ -180,29 +235,7 @@ export const workflowFeatures: WorkflowFeature[] = [
       'Customers never have to leave the page to find an answer',
     ],
     visualFirst: true,
-    visual: {
-      kind: 'jobs',
-      items: [
-        {
-          title: 'Sales Representative',
-          meta: 'Marketing - Fulltime',
-          status: 'open',
-          applicants: '34 applicants',
-        },
-        {
-          title: 'Product Designer',
-          meta: 'Design - Fulltime',
-          status: 'open',
-          applicants: '21 applicants',
-        },
-        {
-          title: 'Backend Engineer',
-          meta: 'Engineering - Contract',
-          status: 'closed',
-          applicants: '58 applicants',
-        },
-      ],
-    },
+    visual: jobsVisual,
   },
   {
     id: 'collaborative-hiring',
@@ -246,23 +279,6 @@ export const workflowFeatures: WorkflowFeature[] = [
       'Customers never have to leave the page to find an answer',
     ],
     visualFirst: true,
-    visual: {
-      kind: 'stats',
-      stats: [
-        { value: '32', label: 'Applications this week', large: true },
-        { value: '71%', label: 'Avg. CV match score' },
-        { value: '4', label: 'Open Roles' },
-        { value: '12', label: 'Shortlisted' },
-      ],
-      bars: [
-        { height: 28 },
-        { height: 39 },
-        { height: 28 },
-        { height: 37, highlight: true },
-        { height: 28 },
-        { height: 37 },
-        { height: 46, highlight: true },
-      ],
-    },
+    visual: statsVisual,
   },
 ]

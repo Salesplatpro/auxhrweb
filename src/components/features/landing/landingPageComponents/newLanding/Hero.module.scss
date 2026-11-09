@@ -20,6 +20,27 @@
   }
 }
 
+.split {
+  display: grid;
+  gap: 40px;
+
+  @include bp.from(bp.$bp-lg) {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 48px;
+    padding: 64px 48px;
+  }
+
+  .copy {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+}
+
 .copy {
   max-width: 1024px;
   margin-inline: auto;
@@ -43,6 +64,11 @@
     font-size: 60px;
     line-height: 72px;
     letter-spacing: -1.2px;
+  }
+
+  em {
+    font-style: normal;
+    color: t.$nl-blue-500;
   }
 }
 

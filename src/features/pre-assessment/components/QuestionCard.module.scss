@@ -9,7 +9,7 @@
 .competency {
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: var(--color-primary);
+  color: var(--color-primary-on-tint);
   font-family: var(--font-heading);
   margin-bottom: var(--space-4);
 }
@@ -53,7 +53,7 @@
 .optionSelected {
   border-color: var(--color-primary);
   background: var(--color-primary-tint);
-  color: var(--color-primary-strong);
+  color: var(--color-primary-on-tint);
 }
 
 .radio {

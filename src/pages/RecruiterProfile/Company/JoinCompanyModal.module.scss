@@ -82,13 +82,17 @@
 
   &:hover {
     border-color: var(--color-brand-200);
-    background: var(--color-brand-50);
+    background: var(--color-primary-tint);
   }
 }
 
 .companyOptionSelected {
   border-color: var(--color-brand-800);
-  background: linear-gradient(180deg, #f5f8ff 0%, #ffffff 48%);
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-tint) 0%,
+    var(--color-bg-elevated) 48%
+  );
   box-shadow: 0 0 0 1px rgba(36, 65, 171, 0.12);
 }
 
@@ -123,7 +127,7 @@
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-lg);
-  background: var(--color-brand-50);
+  background: var(--color-primary-tint);
   border: 1px solid var(--color-brand-200);
 }
 
@@ -174,8 +178,8 @@
   width: 56px;
   height: 56px;
   border-radius: var(--radius-xl);
-  background: var(--color-brand-50);
-  color: var(--color-brand-800);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-on-tint);
 }
 
 .successTitle {

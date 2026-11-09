@@ -2,8 +2,8 @@
   position: relative;
   flex: 0 0 min(280px, 85vw);
   scroll-snap-align: start;
-  background: var(--color-white);
-  border: 1px solid var(--color-grey-200);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: var(--space-6);
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
@@ -51,7 +51,7 @@
   margin: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--color-grey-500);
+  color: var(--color-text-muted);
 }
 
 .price {
@@ -59,7 +59,7 @@
   font-family: var(--font-heading);
   font-weight: var(--weight-bold);
   line-height: 1.15;
-  color: var(--color-grey-900);
+  color: var(--color-text-heading);
 }
 
 .priceUsd {
@@ -70,13 +70,13 @@
   margin-left: var(--space-2);
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
-  color: var(--color-grey-500);
+  color: var(--color-text-muted);
 }
 
 .planCaption {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--color-grey-600);
+  color: var(--color-text-body);
   line-height: var(--leading-relaxed);
 }
 
@@ -120,20 +120,20 @@
   font-family: var(--font-heading);
   font-weight: var(--weight-semibold);
   font-size: var(--text-md);
-  background: var(--color-white);
-  color: var(--color-brand-700);
-  border: 1px solid var(--color-grey-300);
+  background: var(--color-bg-elevated);
+  color: var(--color-primary-strong);
+  border: 1px solid var(--color-border-strong);
   transition: background var(--duration-fast) var(--ease-standard),
     border-color var(--duration-fast) var(--ease-standard);
 
   &:hover {
-    background: var(--color-grey-50);
+    background: var(--color-bg-subtle);
     border-color: var(--color-brand-300);
   }
 }
 
 .featuresBlock {
-  border-top: 1px solid var(--color-grey-200);
+  border-top: 1px solid var(--color-border);
   padding-top: var(--space-5);
   margin-top: var(--space-1);
 }
@@ -144,13 +144,13 @@
   font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-grey-500);
+  color: var(--color-text-muted);
 }
 
 .featuresIntro {
   margin: 0 0 var(--space-4);
   font-size: var(--text-sm);
-  color: var(--color-grey-600);
+  color: var(--color-text-body);
 }
 
 .features {
@@ -167,7 +167,7 @@
   align-items: flex-start;
   gap: var(--space-3);
   font-size: var(--text-sm);
-  color: var(--color-grey-700);
+  color: var(--color-text-body);
   line-height: 1.4;
 }
 
@@ -176,8 +176,8 @@
   width: 20px;
   height: 20px;
   border-radius: var(--radius-full);
-  background: var(--color-brand-100);
-  color: var(--color-brand-600);
+  background: var(--color-primary-tint-strong);
+  color: var(--color-primary-strong);
   display: grid;
   place-items: center;
   margin-top: 1px;

@@ -64,6 +64,10 @@ $mobile-breakpoint: 480px;
 
 .tag {
   color: #4000e4;
+
+  :global(html[data-theme='dark']) & {
+    color: var(--color-violet);
+  }
 }
 
 .white {

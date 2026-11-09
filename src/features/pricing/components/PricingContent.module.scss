@@ -1,6 +1,6 @@
 .page {
-  background: var(--color-grey-50);
-  color: var(--color-grey-900);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-heading);
 }
 
 .unavailable {
@@ -51,7 +51,7 @@
 .toggle {
   display: inline-flex;
   padding: 4px;
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
 }
@@ -64,12 +64,12 @@
   font-weight: var(--weight-semibold);
   padding: 0.55rem 1.15rem;
   border-radius: var(--radius-full);
-  color: var(--color-grey-500);
+  color: var(--color-text-muted);
   cursor: pointer;
 
   &.active {
-    background: var(--color-brand-50);
-    color: var(--color-brand-700);
+    background: var(--color-primary-tint);
+    color: var(--color-primary-strong);
   }
 }
 
@@ -91,7 +91,7 @@
 .carouselLink {
   border: 0;
   background: transparent;
-  color: var(--color-brand-600);
+  color: var(--color-primary-strong);
   font-family: var(--font-body);
   font-size: var(--text-md);
   font-weight: var(--weight-semibold);
@@ -99,7 +99,7 @@
   padding: 0;
 
   &:hover {
-    color: var(--color-brand-800);
+    color: var(--color-primary-on-tint);
     text-decoration: underline;
   }
 }
@@ -169,7 +169,7 @@
 }
 
 .whyItem {
-  color: var(--color-brand-600);
+  color: var(--color-primary-strong);
 }
 
 .whyItem h3 {

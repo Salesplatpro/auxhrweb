@@ -193,6 +193,8 @@
   --color-primary-hover: var(--color-brand-600);
   --color-primary-strong: var(--color-brand-700);
   --color-primary-tint: var(--color-brand-50);
+  --color-primary-tint-strong: var(--color-brand-100);
+  --color-primary-on-tint: var(--color-brand-800);
 
   --color-text-heading: var(--color-grey-900);
   --color-text-body: var(--color-charcoal);
@@ -355,7 +357,23 @@
   --color-text-body: #e4e7ec;
   --color-text-muted: #98a2b3;
   --color-text-inverse: #101828;
+  --color-text-disabled: #667085;
   --color-icon: #ffffff;
+
+  --color-ink: #f8fafc;
+  --color-ink-hover: #e4e7ec;
+  --color-ink-muted: #98a2b3;
+  --color-link: var(--color-blue-300);
+  --color-brand-vivid: var(--color-blue-400);
+  --color-brand-vivid-hover: var(--color-blue-300);
+  --color-brand-vivid-tint: rgba(66, 102, 255, 0.18);
+  --color-violet: var(--color-violet-300);
+  --color-violet-tint: rgba(79, 19, 255, 0.22);
+  --color-positive: var(--color-teal-400);
+  --color-positive-tint: rgba(0, 196, 140, 0.16);
+  --color-caution-text: var(--color-amber-300);
+  --color-caution-tint: rgba(239, 135, 17, 0.18);
+  --color-surface-warm: #152033;
 
   --color-bg-page: #0f1728;
   --color-bg-subtle: #152033;
@@ -382,6 +400,8 @@
   --color-border: #2d3a52;
   --color-border-strong: #3d4d6b;
   --color-primary-tint: rgba(73, 133, 223, 0.18);
+  --color-primary-tint-strong: rgba(73, 133, 223, 0.28);
+  --color-primary-on-tint: #8ab4f8;
 
   --color-danger-tint: rgba(196, 50, 10, 0.18);
   --color-success-tint: rgba(27, 123, 68, 0.18);

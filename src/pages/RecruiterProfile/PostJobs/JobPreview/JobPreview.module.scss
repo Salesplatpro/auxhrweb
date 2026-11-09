@@ -30,7 +30,7 @@
 .progress {
   height: 6px;
   border-radius: var(--radius-full);
-  background-color: var(--color-grey-200);
+  background-color: var(--color-border);
   overflow: hidden;
 }
 
@@ -138,7 +138,7 @@
 }
 
 .pill {
-  background-color: var(--color-brand-50);
+  background-color: var(--color-primary-tint);
   color: var(--color-primary);
 }
 

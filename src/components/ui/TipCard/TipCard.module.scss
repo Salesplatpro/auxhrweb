@@ -10,7 +10,7 @@
 }
 
 .glass {
-  background: color-mix(in srgb, var(--color-white) 70%, transparent);
+  background: color-mix(in srgb, var(--color-bg-elevated) 70%, transparent);
   border: 1px solid var(--color-border);
   backdrop-filter: blur(6px);
 }

@@ -11,7 +11,7 @@
   padding: var(--space-6) var(--space-5);
   border-radius: var(--radius-panel);
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
   box-shadow: var(--shadow-panel);
 }
 
@@ -25,7 +25,11 @@
 }
 
 .role {
-  background: linear-gradient(180deg, #edfeee 0%, var(--color-white) 72%);
+  background: linear-gradient(
+    180deg,
+    var(--color-success-tint) 0%,
+    var(--color-bg-elevated) 72%
+  );
   border-color: #c8ebcc;
 }
 
@@ -77,7 +81,7 @@
   margin-top: var(--space-2);
   height: 8px;
   border-radius: var(--radius-full);
-  background: var(--color-grey-200);
+  background: var(--color-border);
   overflow: hidden;
 }
 
@@ -101,7 +105,7 @@
   padding: var(--space-5);
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
   box-shadow: var(--shadow-panel);
 }
 
@@ -122,7 +126,7 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--color-primary);
-  background: var(--color-brand-50);
+  background: var(--color-primary-tint);
 }
 
 .question {
@@ -140,7 +144,7 @@
   padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--color-grey-50);
+  background: var(--color-bg-subtle);
   font: inherit;
   line-height: 1.5;
   resize: vertical;
@@ -150,13 +154,13 @@
 .textarea:focus {
   outline: 2px solid var(--color-brand-200);
   outline-offset: 1px;
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
   border-color: var(--color-primary);
 }
 
 .invalid {
   border-color: var(--color-danger);
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
 }
 
 .fieldError {

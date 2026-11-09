@@ -18,8 +18,13 @@ export const StatusBadge = ({
   return (
     <div
       className={styles.statusBadge}
-      style={{ background: backgroundColor, color }}>
-      {showDot && <span className={styles.dot} style={{ background: color }} />}
+      style={
+        {
+          '--badge-bg': backgroundColor,
+          '--badge-fg': color,
+        } as React.CSSProperties
+      }>
+      {showDot && <span className={styles.dot} />}
       {status}
     </div>
   )

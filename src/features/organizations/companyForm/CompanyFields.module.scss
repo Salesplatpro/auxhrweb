@@ -1,0 +1,17 @@
+@use '../../../styles/breakpoints' as bp;
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @include bp.below(bp.$bp-sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.note {
+  border-color: transparent;
+  background: var(--color-brand-vivid-tint);
+  color: var(--color-ink-muted);
+}

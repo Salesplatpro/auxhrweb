@@ -35,3 +35,8 @@ export const getErrorCode = (err: unknown): string | undefined => {
 
   return data?.error?.code
 }
+
+export const getErrorStatus = (err: unknown): number | undefined => {
+  const err_ = err as { response?: { status?: number }; status?: number }
+  return err_?.response?.status ?? err_?.status
+}

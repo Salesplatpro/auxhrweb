@@ -1,5 +1,6 @@
+import cn from 'classnames'
 import { FormikContext, getIn } from 'formik'
-import React, { useContext } from 'react'
+import React, { ReactNode, useContext } from 'react'
 
 import styles from './TextInput.module.scss'
 import { useFieldRequired } from './useFieldRequired'
@@ -22,9 +23,18 @@ export type TextInputProps = {
   id?: string
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void
+  icon?: ReactNode
+  endAdornment?: ReactNode
+  endAdornmentSize?: 'sm' | 'md'
+  hint?: ReactNode
+  labelAside?: ReactNode
+  invalid?: boolean
 }
 
-const useFieldError = (name: string, explicit?: string): string | undefined => {
+export const useFieldError = (
+  name: string,
+  explicit?: string,
+): string | undefined => {
   const formik = useContext(FormikContext)
   if (explicit) return explicit
   if (!formik) return undefined
@@ -52,6 +62,12 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
       id,
       onChange,
       onBlur,
+      icon,
+      endAdornment,
+      endAdornmentSize = 'sm',
+      hint,
+      labelAside,
+      invalid = false,
     },
     ref,
   ) => {
@@ -59,6 +75,8 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     const isRequired = useFieldRequired(name, required)
     const inputId = id || name || label
     const errorId = `${inputId}-error`
+    const hintId = `${inputId}-hint`
+    const describedBy = fieldError ? errorId : hint ? hintId : undefined
     const inputType = isPassword ? 'password' : type || 'text'
 
     return (
@@ -70,8 +88,21 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
               *
             </span>
           )}
+          {labelAside && (
+            <span className={styles.labelAside}>{labelAside}</span>
+          )}
         </div>
-        <div>
+        <div
+          className={cn(
+            styles.control,
+            !!icon && styles.withIcon,
+            !!endAdornment && styles[`withEnd-${endAdornmentSize}`],
+          )}>
+          {icon && (
+            <span className={styles.icon} aria-hidden>
+              {icon}
+            </span>
+          )}
           <input
             ref={ref}
             type={inputType}
@@ -86,18 +117,28 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
             onBlur={onBlur}
             disabled={disabled}
             required={required}
-            aria-invalid={fieldError ? true : undefined}
-            aria-describedby={fieldError ? errorId : undefined}
+            aria-invalid={fieldError || invalid ? true : undefined}
+            aria-describedby={describedBy}
             aria-required={isRequired || undefined}
-            className={
-              fieldError ? `${styles.input} ${styles.invalid}` : styles.input
-            }
+            className={cn(
+              styles.input,
+              (!!fieldError || invalid) && styles.invalid,
+            )}
           />
+          {endAdornment && (
+            <span className={styles.endAdornment}>{endAdornment}</span>
+          )}
         </div>
-        {fieldError && (
+        {fieldError ? (
           <div id={errorId} className={styles.inputError} role="alert">
             {fieldError}
           </div>
+        ) : (
+          hint && (
+            <div id={hintId} className={styles.hint}>
+              {hint}
+            </div>
+          )
         )}
       </div>
     )

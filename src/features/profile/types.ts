@@ -29,6 +29,9 @@ export interface ProfileUser {
   cvFileName?: string | null
   cvUrl?: string | null
   cvUploadedAt?: string | null
+  cvSkills?: string[] | null
+  cvYearsExperience?: number | null
+  cvParseStatus?: 'pending' | 'done' | 'failed' | null
   workType?: WorkType[] | null
   locationCity?: string | null
   locationState?: string | null
@@ -71,6 +74,8 @@ export interface ProfileApiResponse {
 }
 
 export interface ProfilePatchPayload {
+  firstName?: string
+  lastName?: string
   bio?: string
   roleIds?: string[]
   locationCity?: string

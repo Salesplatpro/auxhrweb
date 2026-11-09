@@ -72,4 +72,20 @@ describe('useAuthStore logout', () => {
     ])
     dispatch.mockRestore()
   })
+
+  it('removes saved onboarding drafts so they do not stay on the device', () => {
+    localStorage.setItem(
+      'auxhr:company-draft:user-1',
+      JSON.stringify({ name: 'Acme Ltd' }),
+    )
+    localStorage.setItem(
+      'auxhr:profile-draft:user-1',
+      JSON.stringify({ values: { bio: 'Data analyst' } }),
+    )
+
+    useAuthStore.getState().logout()
+
+    expect(localStorage.getItem('auxhr:company-draft:user-1')).toBeNull()
+    expect(localStorage.getItem('auxhr:profile-draft:user-1')).toBeNull()
+  })
 })

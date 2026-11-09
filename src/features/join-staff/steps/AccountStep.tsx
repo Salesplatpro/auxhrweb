@@ -39,7 +39,7 @@ const AccountStep: React.FC = () => {
           <LoginForm lockedEmail={invite.invitedEmail} hideSignupLink />
         ) : (
           <SignupForm
-            forceTalent
+            accountType="talent"
             lockedEmail={invite.invitedEmail}
             redirectPath={base}
             onSuccess={() => navigate(base, { replace: true })}

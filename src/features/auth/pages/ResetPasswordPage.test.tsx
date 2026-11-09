@@ -28,24 +28,6 @@ vi.mock('../hooks/useResetPassword', () => ({
   }),
 }))
 
-vi.mock('../components/AuthLayout', () => ({
-  AuthLayout: ({
-    title,
-    subtitle,
-    children,
-  }: {
-    title: string
-    subtitle: string
-    children: React.ReactNode
-  }) => (
-    <div>
-      <h1>{title}</h1>
-      <p>{subtitle}</p>
-      {children}
-    </div>
-  ),
-}))
-
 const renderAt = (search: string) =>
   render(
     <MemoryRouter initialEntries={[`/reset-password${search}`]}>
@@ -64,7 +46,7 @@ describe('ResetPasswordPage', () => {
     submitValidateTokenMock.mockResolvedValue({ data: { valid: true } })
     submitResetPasswordMock.mockResolvedValue({
       data: {
-        user: { userRole: 'talent' },
+        user: { userRole: 'talent', emailVerifiedAt: '2026-11-01T00:00:00Z' },
         token: 'new-jwt',
       },
     })
@@ -76,8 +58,8 @@ describe('ResetPasswordPage', () => {
     await waitFor(() =>
       expect(screen.getByLabelText('New password')).toBeTruthy(),
     )
-    expect(screen.getByLabelText('Confirm password')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Change password' })).toBeTruthy()
+    expect(screen.getByLabelText('Confirm new password')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Reset password' })).toBeTruthy()
     expect(submitValidateTokenMock).toHaveBeenCalledWith('valid-token')
   })
 
@@ -87,13 +69,13 @@ describe('ResetPasswordPage', () => {
     expect(screen.getByText('Reset link expired')).toBeTruthy()
     expect(screen.queryByLabelText('New password')).toBeNull()
     expect(
-      screen.getByRole('link', { name: 'Request a new reset' }),
+      screen.getByRole('button', { name: 'Request a new reset link' }),
     ).toBeTruthy()
     expect(submitValidateTokenMock).not.toHaveBeenCalled()
   })
 
   it('shows the expired message when the token is rejected', async () => {
-    submitValidateTokenMock.mockRejectedValue(new Error('invalid'))
+    submitValidateTokenMock.mockRejectedValue({ response: { status: 401 } })
     renderAt('?token=expired-token')
 
     await waitFor(() =>
@@ -111,11 +93,11 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(screen.getByLabelText('New password'), {
       target: { value: 'NewPassword1!' },
     })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
       target: { value: 'Mismatch1!' },
     })
-    fireEvent.blur(screen.getByLabelText('Confirm password'))
-    fireEvent.click(screen.getByRole('button', { name: 'Change password' }))
+    fireEvent.blur(screen.getByLabelText('Confirm new password'))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset password' }))
 
     await waitFor(() =>
       expect(screen.getByText('Passwords must match')).toBeTruthy(),
@@ -132,11 +114,11 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(screen.getByLabelText('New password'), {
       target: { value: 'weak' },
     })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
       target: { value: 'weak' },
     })
     fireEvent.blur(screen.getByLabelText('New password'))
-    fireEvent.click(screen.getByRole('button', { name: 'Change password' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset password' }))
 
     await waitFor(() =>
       expect(
@@ -152,9 +134,54 @@ describe('ResetPasswordPage', () => {
       expect(screen.getByLabelText('New password')).toBeTruthy(),
     )
 
-    fireEvent.click(screen.getByRole('button', { name: 'Change password' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Reset password' }))
 
     expect(submitResetPasswordMock).not.toHaveBeenCalled()
+  })
+
+  it('shows a retry screen when the link cannot be checked', async () => {
+    submitValidateTokenMock.mockRejectedValueOnce(new Error('Network Error'))
+    renderAt('?token=valid-token')
+
+    await waitFor(() =>
+      expect(screen.getByText("We couldn't check your link")).toBeTruthy(),
+    )
+    expect(screen.queryByText('Reset link expired')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    await waitFor(() =>
+      expect(screen.getByLabelText('New password')).toBeTruthy(),
+    )
+    expect(submitValidateTokenMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('moves to the expired screen when the link dies before submit', async () => {
+    submitResetPasswordMock.mockRejectedValue(
+      Object.assign(
+        new Error('Password reset link is invalid or has expired'),
+        {
+          status: 401,
+        },
+      ),
+    )
+    renderAt('?token=valid-token')
+    await waitFor(() =>
+      expect(screen.getByLabelText('New password')).toBeTruthy(),
+    )
+
+    fireEvent.change(screen.getByLabelText('New password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Reset password' }).closest('form')!,
+    )
+
+    await waitFor(() =>
+      expect(screen.getByText('Reset link expired')).toBeTruthy(),
+    )
   })
 
   it('authenticates and redirects after a successful reset', async () => {
@@ -166,11 +193,11 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(screen.getByLabelText('New password'), {
       target: { value: 'NewPassword1!' },
     })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
       target: { value: 'NewPassword1!' },
     })
     fireEvent.submit(
-      screen.getByRole('button', { name: 'Change password' }).closest('form')!,
+      screen.getByRole('button', { name: 'Reset password' }).closest('form')!,
     )
 
     await waitFor(() =>
@@ -179,7 +206,41 @@ describe('ResetPasswordPage', () => {
         password: 'NewPassword1!',
       }),
     )
+    await waitFor(() =>
+      expect(screen.getByText('Password updated')).toBeTruthy(),
+    )
+    expect(navigateMock).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
     expect(navigateMock).toHaveBeenCalledWith('/talentDashboard', {
+      replace: true,
+    })
+    expect(submitValidateTokenMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('sends an unverified user to the inbox screen after a reset', async () => {
+    submitResetPasswordMock.mockResolvedValue({
+      data: { user: { userRole: 'talent', emailVerifiedAt: null }, token: 't' },
+    })
+    renderAt('?token=valid-token')
+    await waitFor(() =>
+      expect(screen.getByLabelText('New password')).toBeTruthy(),
+    )
+    fireEvent.change(screen.getByLabelText('New password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
+      target: { value: 'NewPassword1!' },
+    })
+    fireEvent.submit(
+      screen.getByRole('button', { name: 'Reset password' }).closest('form')!,
+    )
+    await waitFor(() =>
+      expect(screen.getByText('Password updated')).toBeTruthy(),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    expect(navigateMock).toHaveBeenCalledWith('/verify-email', {
       replace: true,
     })
   })
@@ -196,11 +257,11 @@ describe('ResetPasswordPage', () => {
     fireEvent.change(screen.getByLabelText('New password'), {
       target: { value: 'NewPassword1!' },
     })
-    fireEvent.change(screen.getByLabelText('Confirm password'), {
+    fireEvent.change(screen.getByLabelText('Confirm new password'), {
       target: { value: 'NewPassword1!' },
     })
     fireEvent.submit(
-      screen.getByRole('button', { name: 'Change password' }).closest('form')!,
+      screen.getByRole('button', { name: 'Reset password' }).closest('form')!,
     )
 
     await waitFor(() =>
@@ -209,5 +270,21 @@ describe('ResetPasswordPage', () => {
       ).toBeTruthy(),
     )
     expect(navigateMock).not.toHaveBeenCalled()
+  })
+
+  it('lists the real password rules as they are met', async () => {
+    renderAt('?token=valid-token')
+    await waitFor(() =>
+      expect(screen.getByLabelText('New password')).toBeTruthy(),
+    )
+    fireEvent.change(screen.getByLabelText('New password'), {
+      target: { value: 'abcdef12' },
+    })
+    expect(
+      screen.getByText('8 to 72 characters').parentElement?.textContent,
+    ).toContain('met')
+    expect(
+      screen.getByText(/One symbol, such as/).parentElement?.textContent,
+    ).toContain('not met')
   })
 })

@@ -1,0 +1,1 @@
+export { EmailVerifiedScreen } from './EmailVerifiedScreen'

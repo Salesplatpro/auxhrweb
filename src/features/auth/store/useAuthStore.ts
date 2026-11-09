@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import { clearAllOnboardingDrafts } from '@/features/onboarding/company/draftStorage'
+
 import { AuthResponseData, AuthUser } from '../types'
 import {
   clearPersistedSession,
@@ -45,6 +47,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   },
   logout: () => {
     clearPersistedSession()
+    clearAllOnboardingDrafts()
     set({ user: null, token: null, isLoggedIn: false, error: null })
 
     void Promise.all([

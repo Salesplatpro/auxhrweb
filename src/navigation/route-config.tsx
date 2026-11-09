@@ -17,6 +17,7 @@ import Solutions from '@/components/features/landing/Solutions'
 import ProtectedRoute from '@/components/routing/ProtectedRoute'
 import RequireActiveCompany from '@/components/routing/RequireActiveCompany'
 import RequireEmailVerified from '@/components/routing/RequireEmailVerified'
+import RequireOnboarded from '@/components/routing/RequireOnboarded'
 import RequirePeopleAccess from '@/components/routing/RequirePeopleAccess'
 import ApplyWizardEntry from '@/features/apply-wizard/ApplyWizardEntry'
 import ApplyWizardLayout from '@/features/apply-wizard/ApplyWizardLayout'
@@ -33,6 +34,7 @@ import {
   ResetPasswordPage,
   SignupPage,
 } from '@/features/auth/pages'
+import { VERIFY_EMAIL_PATH } from '@/features/auth/utils/dashboardPath'
 import AccountEmailVerification from '@/features/email-verification/pages/AccountEmailVerification'
 import JoinStaffEntry from '@/features/join-staff/JoinStaffEntry'
 import JoinStaffLayout from '@/features/join-staff/JoinStaffLayout'
@@ -42,6 +44,12 @@ import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
 import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
 import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
+import CompanyDonePage from '@/features/onboarding/company/CompanyDonePage'
+import CompanySetupPage from '@/features/onboarding/company/CompanySetupPage'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
+import ProfileBuilderPage from '@/features/onboarding/profile/ProfileBuilderPage'
+import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
+import JoinWithCodePage from '@/features/organizations/pages/JoinWithCodePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
@@ -71,7 +79,6 @@ import {
   Shortlist,
 } from '@/pages/RecruiterProfile'
 import Company from '@/pages/RecruiterProfile/Company/Company'
-import CreateCompany from '@/pages/RecruiterProfile/Company/CreateCompany'
 import EditCompany from '@/pages/RecruiterProfile/Company/EditCompany'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
 import Dashboard from '@/pages/RecruiterProfile/Dashboard/Dashboard'
@@ -175,6 +182,23 @@ export const routeConfig: RouteObject[] = [
             element: <JoinCompanyInvitePage />,
           },
           {
+            path: paths.verifyEmail,
+            element: <AccountEmailVerification />,
+          },
+          {
+            element: <ProtectedRoute allowedRoles={['recruiter']} />,
+            children: [
+              {
+                element: (
+                  <RequireEmailVerified redirectTo={VERIFY_EMAIL_PATH} />
+                ),
+                children: [
+                  { path: 'join-team', element: <JoinWithCodePage /> },
+                ],
+              },
+            ],
+          },
+          {
             path: paths.forgotPassword,
             element: <ForgotPasswordPage />,
           },
@@ -207,10 +231,6 @@ export const routeConfig: RouteObject[] = [
       {
         path: '/payment/verify',
         element: <VerifyPaymentPage />,
-      },
-      {
-        path: `/${paths.verifyEmail}`,
-        element: <AccountEmailVerification />,
       },
       {
         path: '/sign/:token',
@@ -280,20 +300,20 @@ export const routeConfig: RouteObject[] = [
         element: <ProtectedRoute allowedRoles={['talent']} />,
         children: [
           {
-            path: '',
-            element: <TalentProfileSidebar />,
+            element: <RequireOnboarded />,
             children: [
               {
-                index: true,
-                element: <TalentDashboardHome />,
-              },
-              {
-                path: paths.changePassword,
-                element: <ChangePasswordPage />,
-              },
-              {
-                element: <RequireEmailVerified redirectTo="/talentDashboard" />,
+                path: '',
+                element: <TalentProfileSidebar />,
                 children: [
+                  {
+                    index: true,
+                    element: <TalentDashboardHome />,
+                  },
+                  {
+                    path: paths.changePassword,
+                    element: <ChangePasswordPage />,
+                  },
                   {
                     path: 'talentProfile',
                     element: <TalentProfile />,
@@ -363,40 +383,58 @@ export const routeConfig: RouteObject[] = [
         ],
       },
       {
+        path: ONBOARDING_PATHS.profile,
+        element: <ProtectedRoute allowedRoles={['talent']} />,
+        children: [
+          {
+            element: <RequireEmailVerified redirectTo={VERIFY_EMAIL_PATH} />,
+            children: [
+              { index: true, element: <ProfileBuilderPage /> },
+              { path: 'done', element: <ProfileDonePage /> },
+            ],
+          },
+        ],
+      },
+      {
+        path: ONBOARDING_PATHS.company,
+        element: <ProtectedRoute allowedRoles={['recruiter']} />,
+        children: [
+          {
+            element: <RequireEmailVerified redirectTo={VERIFY_EMAIL_PATH} />,
+            children: [
+              { index: true, element: <CompanySetupPage /> },
+              { path: 'done', element: <CompanyDonePage /> },
+            ],
+          },
+        ],
+      },
+      {
         path: '/recruiterDashboard',
         element: <ProtectedRoute allowedRoles={['recruiter']} />,
         children: [
           {
-            path: '',
-            element: <RecruiterProfileSidebar />,
+            element: <RequireOnboarded />,
             children: [
               {
-                index: true,
-                element: <Navigate to="dashboard" replace />,
-              },
-              {
-                path: 'dashboard',
-                element: <Dashboard />,
-              },
-              {
-                path: 'guide',
-                element: <RecruiterGuide />,
-              },
-              {
-                path: paths.changePassword,
-                element: <ChangePasswordPage />,
-              },
-              {
-                path: 'verify-email',
-                element: (
-                  <Navigate to="/recruiterDashboard/dashboard" replace />
-                ),
-              },
-              {
-                element: (
-                  <RequireEmailVerified redirectTo="/recruiterDashboard/dashboard" />
-                ),
+                path: '',
+                element: <RecruiterProfileSidebar />,
                 children: [
+                  {
+                    index: true,
+                    element: <Navigate to="dashboard" replace />,
+                  },
+                  {
+                    path: 'dashboard',
+                    element: <Dashboard />,
+                  },
+                  {
+                    path: 'guide',
+                    element: <RecruiterGuide />,
+                  },
+                  {
+                    path: paths.changePassword,
+                    element: <ChangePasswordPage />,
+                  },
                   {
                     path: 'support',
                     element: <SupportPage />,
@@ -407,7 +445,7 @@ export const routeConfig: RouteObject[] = [
                   },
                   {
                     path: 'company/new',
-                    element: <CreateCompany />,
+                    element: <Navigate to={ONBOARDING_PATHS.company} replace />,
                   },
                   {
                     path: 'company/:id/edit',

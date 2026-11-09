@@ -21,6 +21,7 @@ export const Select: React.FC<SelectProps> = ({
   height,
   searchable,
   defaultOpen,
+  icon,
 }) => {
   const isRequired = useFieldRequired(name, required)
   const [isOpen, setIsOpen] = useState(!!defaultOpen)
@@ -98,6 +99,7 @@ export const Select: React.FC<SelectProps> = ({
           styles.trigger,
           error && styles.error,
           disabled && styles.disabled,
+          !!icon && styles.withIcon,
         )}
         style={height ? { height } : undefined}
         onClick={toggleDropdown}
@@ -105,6 +107,11 @@ export const Select: React.FC<SelectProps> = ({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-describedby={error && name ? `${name}-error` : undefined}>
+        {icon && (
+          <span className={styles.leadingIcon} aria-hidden>
+            {icon}
+          </span>
+        )}
         <span className={selectedLabel ? undefined : styles.placeholder}>
           {isLoading ? 'Loading...' : selectedLabel || placeholder}
         </span>

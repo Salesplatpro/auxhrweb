@@ -3,12 +3,14 @@ import { AxiosProgressEvent } from 'axios'
 import { httpClient } from '@/features/auth/services/httpClient'
 
 import {
+  AccessCodeApiResponse,
   CreateOrganizationPayload,
   InviteApiResponse,
   InvitePreviewApiResponse,
   InvitesApiResponse,
   JoinOrganizationRequestPayload,
   JoinRequestsApiResponse,
+  JoinWithAccessCodeApiResponse,
   MembersApiResponse,
   OrganizationApiResponse,
   OrganizationMember,
@@ -165,4 +167,29 @@ export const fetchOrganizationInvitePreview = (token: string) =>
 export const acceptOrganizationInvite = (token: string) =>
   httpClient
     .post<OrganizationApiResponse>(`/organizations/invites/${token}/accept`)
+    .then((response) => response.data)
+
+export const accessCodeEndpoint = (organizationId: string) =>
+  `/organizations/${organizationId}/access-code`
+
+export const fetchOrganizationAccessCode = (organizationId: string) =>
+  httpClient
+    .get<AccessCodeApiResponse>(accessCodeEndpoint(organizationId))
+    .then((response) => response.data)
+
+export const rotateOrganizationAccessCode = (organizationId: string) =>
+  httpClient
+    .post<AccessCodeApiResponse>(accessCodeEndpoint(organizationId))
+    .then((response) => response.data)
+
+export const disableOrganizationAccessCode = (organizationId: string) =>
+  httpClient
+    .delete(accessCodeEndpoint(organizationId))
+    .then((response) => response.data)
+
+export const joinOrganizationWithAccessCode = (code: string) =>
+  httpClient
+    .post<JoinWithAccessCodeApiResponse>('/organizations/access-code/join', {
+      code,
+    })
     .then((response) => response.data)

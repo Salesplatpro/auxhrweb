@@ -26,7 +26,7 @@ vi.mock('./tourSteps', async (importOriginal) => ({
       {
         title: 'Set up your company',
         body: 'Add your details',
-        route: '/recruiterDashboard/company/new',
+        route: '/recruiterDashboard/guide',
       },
     ],
     post_job: [{ title: 'Post a job', body: 'Describe the role' }],
@@ -37,12 +37,11 @@ const LocationProbe = () => <p data-testid="path">{useLocation().pathname}</p>
 
 const renderHost = ({
   path = '/recruiterDashboard/dashboard',
-  state,
   blocked,
-}: { path?: string; state?: unknown; blocked?: boolean } = {}) =>
+}: { path?: string; blocked?: boolean } = {}) =>
   render(
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
-      <MemoryRouter initialEntries={[{ pathname: path, state }]}>
+      <MemoryRouter initialEntries={[path]}>
         <ProductTourHost audience="recruiter" blocked={blocked} />
         <LocationProbe />
       </MemoryRouter>
@@ -84,7 +83,7 @@ describe('ProductTourHost', () => {
     await screen.findByRole('dialog')
     await waitFor(() =>
       expect(screen.getByTestId('path').textContent).toBe(
-        '/recruiterDashboard/company/new',
+        '/recruiterDashboard/guide',
       ),
     )
   })
@@ -110,12 +109,6 @@ describe('ProductTourHost', () => {
     profileRef.current = { id: 'user-1', userRole: 'talent' }
     renderHost()
     expect(fetchOnboardingMock).not.toHaveBeenCalled()
-    expect(screen.queryByRole('dialog')).toBeNull()
-  })
-
-  it('waits for the welcome modal to close', async () => {
-    renderHost({ state: { showWelcomeModal: true } })
-    await waitFor(() => expect(fetchOnboardingMock).toHaveBeenCalled())
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 

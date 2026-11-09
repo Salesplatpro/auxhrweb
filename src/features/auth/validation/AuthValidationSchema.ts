@@ -1,15 +1,22 @@
 import * as Yup from 'yup'
 
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_PATTERN,
+} from '@/utils/passwordRules'
+
 const emailValidation = () => Yup.string().required('Email is required')
 
-const passwordValidation = () =>
+const NAME_PATTERN = /^\p{L}[\p{L}' -]*$/u
+
+const nameValidation = (label: string) =>
   Yup.string()
-    .required('Password is required')
-    .min(6, 'Password must be at least 6 characters')
-    .matches(/[0-9]/, 'Password must contain at least one number')
+    .trim()
+    .required(`${label} is required`)
     .matches(
-      /[!@#$%^&*(),.?":{}|<>]/,
-      'Password must contain at least one special character',
+      NAME_PATTERN,
+      `${label} can only use letters, spaces, hyphens and apostrophes`,
     )
 
 const loginPasswordValidation = () =>
@@ -26,13 +33,15 @@ export const forgotPasswordSchema = Yup.object().shape({
     .email('Enter a valid email address'),
 })
 
+const lengthMessage = `Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters`
+
 const newPasswordValidation = () =>
   Yup.string()
     .required('Password is required')
-    .min(8, 'Password must be between 8 and 72 characters')
-    .max(72, 'Password must be between 8 and 72 characters')
+    .min(PASSWORD_MIN_LENGTH, lengthMessage)
+    .max(PASSWORD_MAX_LENGTH, lengthMessage)
     .matches(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#.?&])[A-Za-z\d@$!%*#?.&]{8,}$/,
+      PASSWORD_PATTERN,
       'Password must contain at least one number, one letter and one special character',
     )
 
@@ -58,25 +67,11 @@ export const changePasswordSchema = Yup.object().shape({
 })
 
 export const SignUpSchema = Yup.object().shape({
-  email: emailValidation(),
-  password: passwordValidation(),
+  firstName: nameValidation('First name'),
+  lastName: nameValidation('Last name'),
+  email: emailValidation().email('Enter a valid email address'),
+  password: newPasswordValidation(),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), undefined], 'Passwords must match')
-    .required('Confirm Password is required'),
-
-  firstName: Yup.string()
-    .required('First Name is required')
-    .test('is-valid-name', 'First Name should only contain letters', (value) =>
-      /^[a-zA-Z]+$/.test(value || ''),
-    ),
-
-  lastName: Yup.string()
-    .required('Last Name is required')
-    .test('is-valid-name', 'Last Name should only contain letters', (value) =>
-      /^[a-zA-Z]+$/.test(value || ''),
-    ),
-
-  userType: Yup.string()
-    .oneOf(['talent', 'recruiter'], 'Invalid user type')
-    .required('User type is required'),
+    .required('Confirm your password')
+    .oneOf([Yup.ref('password')], 'Passwords must match'),
 })

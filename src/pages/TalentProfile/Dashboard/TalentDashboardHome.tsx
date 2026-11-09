@@ -2,7 +2,7 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { Chart, ColumnDef, DataTable } from '@/components'
-import { PageHero } from '@/components/layout/PageHero'
+import { HeroAction, PageHero } from '@/components/layout/PageHero'
 import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { ActivityHeatmap, bucketDates } from '@/components/ui/ActivityHeatmap'
@@ -10,9 +10,8 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
-import { WelcomeModal } from '@/features/auth/components/WelcomeModal'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
-import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { useRouteToast } from '@/hooks/useRouteToast'
 import { getStatusBadge } from '@/pages/RecruiterProfile/getJobStatus'
@@ -72,12 +71,8 @@ const TalentDashboardHome = () => {
   const navigate = useNavigate()
   useRouteToast()
   const user = useAuthStore((state) => state.user)
-  const { profile, isLoading: isProfileLoading } = useProfile()
-  const isVerified = !!profile?.emailVerifiedAt
-  const { data, isLoading } = useAllJobApplicationsQuery(
-    {},
-    { skip: !isVerified },
-  )
+  const { profile } = useProfile()
+  const { data, isLoading } = useAllJobApplicationsQuery({})
 
   const applications: AllJobTypes[] = data?.data?.applications ?? []
 
@@ -119,25 +114,20 @@ const TalentDashboardHome = () => {
     { label: 'Shortlisted', value: shortlisted },
   ]
 
-  if (isProfileLoading) {
-    return <Spinner fullPage />
-  }
-
-  if (!isVerified) {
-    return (
-      <PageShell wide centered>
-        <EmailVerificationPanel />
-        <WelcomeModal />
-      </PageShell>
-    )
-  }
-
   return (
     <PageShell wide>
       <PageHero
         kicker="Talent dashboard"
         title={`Welcome back, ${user?.firstName ?? ''}`.trim()}
         lead="Here's what's happening with your job search today."
+        actions={
+          profile?.profileCompletion &&
+          !profile.profileCompletion.isProfileComplete ? (
+            <HeroAction onClick={() => navigate(ONBOARDING_PATHS.profile)}>
+              Finish your profile
+            </HeroAction>
+          ) : undefined
+        }
         meta={[
           {
             label: 'Applications',
@@ -204,8 +194,6 @@ const TalentDashboardHome = () => {
           </PagePanel>
         </>
       )}
-
-      <WelcomeModal />
     </PageShell>
   )
 }

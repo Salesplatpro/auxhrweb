@@ -28,3 +28,60 @@
 .inputError {
   @extend %form-error;
 }
+
+.labelAside {
+  margin-left: auto;
+  font-weight: var(--weight-medium);
+  color: var(--color-link);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon,
+.endAdornment {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  left: var(--space-4);
+  color: var(--color-text-muted);
+  pointer-events: none;
+  font-size: var(--text-xl);
+}
+
+.endAdornment {
+  right: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+.withIcon .input {
+  padding-left: calc(var(--space-4) + var(--space-8));
+}
+
+.withEnd-sm .input {
+  padding-right: var(--space-12);
+}
+
+.withEnd-md .input {
+  padding-right: calc(var(--space-16) + var(--space-8));
+}
+
+.invalid ~ .endAdornment,
+.control:has(.invalid) .icon {
+  color: var(--color-danger);
+}
+
+.hint {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}

@@ -11,6 +11,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization'
 import { useMyOrganizations } from '@/features/organizations/hooks/useMyOrganizations'
 import { useSwitchOrganization } from '@/features/organizations/hooks/useSwitchOrganization'
@@ -19,6 +20,7 @@ import { isPublicEmailDomain } from '@/features/organizations/utils/emailDomain'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
+import { AccessCodePanel } from './AccessCodePanel'
 import styles from './Company.module.scss'
 import { CompanyLogo } from './CompanyLogo'
 import { CompanyMembersPanel } from './CompanyMembersPanel'
@@ -118,8 +120,7 @@ const Company = () => {
         }
         actions={
           <>
-            <HeroAction
-              onClick={() => navigate('/recruiterDashboard/company/new')}>
+            <HeroAction onClick={() => navigate(ONBOARDING_PATHS.company)}>
               <AiOutlinePlus size={16} />
               Create company
             </HeroAction>
@@ -152,6 +153,7 @@ const Company = () => {
         <>
           <CompanyMembersPanel organization={teamOrg} />
           <InviteTeamPanel organization={teamOrg} />
+          <AccessCodePanel organization={teamOrg} />
         </>
       )}
 
@@ -174,8 +176,7 @@ const Company = () => {
               sit under the right brand.
             </p>
             <div className={styles.emptyActions}>
-              <Button
-                onClick={() => navigate('/recruiterDashboard/company/new')}>
+              <Button onClick={() => navigate(ONBOARDING_PATHS.company)}>
                 Create company
               </Button>
               <Button

@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 export interface SelectOption {
   value: string
   label: string
@@ -21,6 +23,7 @@ export interface SelectProps {
   searchable?: boolean
   /** Renders the option list open immediately on mount instead of requiring a click to expand. */
   defaultOpen?: boolean
+  icon?: ReactNode
 }
 
 export interface MultiSelectProps {

@@ -1,6 +1,7 @@
 import { FormikProvider, useFormik } from 'formik'
-import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { LuArrowRight, LuCircleAlert, LuLock, LuMail } from 'react-icons/lu'
+import { useLocation } from 'react-router-dom'
 
 import { Alert } from '@/components/feedback'
 import {
@@ -12,12 +13,14 @@ import {
 } from '@/components/forms'
 import { ValidationSchemaProvider } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
+import { TextLink } from '@/components/ui/TextLink'
 import { paths } from '@/paths'
 
 import { useLogin } from '../../hooks/useLogin'
 import { useAuthStore } from '../../store/useAuthStore'
 import { LoginFormValues } from '../../types'
 import { loginSchema } from '../../validation/AuthValidationSchema'
+import { AuthPrompt } from '../AuthScreen'
 import styles from './LoginForm.module.scss'
 
 const defaultValues: LoginFormValues = {
@@ -35,7 +38,7 @@ export const LoginForm = ({
   lockedEmail,
   hideSignupLink = false,
 }: LoginFormProps) => {
-  const { submitLogin, isLoading } = useLogin()
+  const { submitLogin, clearError, invalidCredentials, isLoading } = useLogin()
   const error = useAuthStore((state) => state.error)
   const location = useLocation()
 
@@ -50,21 +53,38 @@ export const LoginForm = ({
       try {
         await submitLogin(values)
       } catch {
-        // error is surfaced via useAuthStore().error
+        return
       }
     },
   })
 
   useFocusFieldOnMount('email')
 
+  useEffect(() => {
+    clearError()
+  }, [])
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    formik.handleChange(event)
+    if (error) clearError()
+  }
+
+  const fieldError = (name: 'email' | 'password') =>
+    formik.touched[name] && formik.errors[name] ? formik.errors[name] : ''
+
   return (
     <FormikProvider value={formik}>
       <ValidationSchemaProvider schema={loginSchema}>
-        <form onSubmit={formik.handleSubmit} noValidate>
+        <form onSubmit={formik.handleSubmit} noValidate className={styles.form}>
           <FormikFocusOnError />
           {error && (
-            <Alert variant="error" className={styles.alert}>
-              {error}
+            <Alert
+              variant="error"
+              icon={<LuCircleAlert />}
+              title={invalidCredentials ? error : undefined}>
+              {invalidCredentials
+                ? 'Check your details and try again, or reset your password.'
+                : error}
             </Alert>
           )}
 
@@ -74,16 +94,14 @@ export const LoginForm = ({
             name="email"
             type="email"
             autoComplete="email"
+            icon={<LuMail />}
             value={formik.values.email}
-            onChange={formik.handleChange}
+            onChange={handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Email"
+            placeholder="you@company.com"
             disabled={!!lockedEmail}
-            error={
-              formik.touched.email && formik.errors.email
-                ? formik.errors.email
-                : ''
-            }
+            invalid={invalidCredentials}
+            error={fieldError('email')}
           />
 
           <PasswordInput
@@ -91,46 +109,46 @@ export const LoginForm = ({
             label="password"
             name="password"
             autoComplete="current-password"
+            icon={<LuLock />}
             value={formik.values.password}
-            onChange={formik.handleChange}
+            onChange={handleChange}
             onBlur={formik.handleBlur}
             placeholder="Enter your password"
             error={
-              formik.touched.password && formik.errors.password
-                ? formik.errors.password
-                : ''
+              fieldError('password') ||
+              (invalidCredentials ? 'Check your password and try again.' : '')
             }
           />
 
-          <div className={styles.rememberMe}>
+          <div className={styles.row}>
             <CheckBox
               name="remember"
-              label="Remember me"
+              label="Remember me on this device"
               checked={formik.values.remember}
               onChange={formik.handleChange}
             />
-            <Link
-              to={`/${paths.forgotPassword}`}
-              className={styles.forgotPassword}>
+            <TextLink to={`/${paths.forgotPassword}`}>
               Forgot password?
-            </Link>
+            </TextLink>
           </div>
 
-          <Button type="submit" fullWidth loading={isLoading}>
+          <Button
+            type="submit"
+            variant="ink"
+            size="xl"
+            pill
+            stretch
+            loading={isLoading}
+            iconEnd={<LuArrowRight />}>
             Log in
           </Button>
 
           {!hideSignupLink && (
-            <div className={styles.already}>
-              Don&apos;t have an account?{' '}
-              <Link
-                to={{
-                  pathname: `/${paths.register}`,
-                  search: location.search,
-                }}>
-                Sign up
-              </Link>
-            </div>
+            <AuthPrompt
+              text="Don't have an account?"
+              linkLabel="Sign up"
+              to={{ pathname: `/${paths.register}`, search: location.search }}
+            />
           )}
         </form>
       </ValidationSchemaProvider>

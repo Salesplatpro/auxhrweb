@@ -5,8 +5,8 @@ import { Spinner } from '@/components/ui/Spinner'
 
 import styles from './Button.module.scss'
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline'
-type ButtonSize = 'sm' | 'md' | 'lg' | 'wide'
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ink'
+type ButtonSize = 'sm' | 'md' | 'lg' | 'wide' | 'xl'
 
 export type ButtonProps = {
   variant?: ButtonVariant
@@ -14,6 +14,9 @@ export type ButtonProps = {
   fullWidth?: boolean
   loading?: boolean
   icon?: ReactNode
+  iconEnd?: ReactNode
+  pill?: boolean
+  stretch?: boolean
 } & ComponentPropsWithoutRef<'button'>
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -24,6 +27,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       fullWidth = false,
       loading = false,
       icon,
+      iconEnd,
+      pill = false,
+      stretch = false,
       disabled,
       className,
       children,
@@ -39,6 +45,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         styles[variant],
         styles[size],
         fullWidth && styles.fullWidth,
+        pill && styles.pill,
+        stretch && styles.stretch,
         className,
       )}
       {...rest}>
@@ -48,6 +56,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <>
           {icon && <span className={styles.icon}>{icon}</span>}
           {children}
+          {iconEnd && <span className={styles.icon}>{iconEnd}</span>}
         </>
       )}
     </button>

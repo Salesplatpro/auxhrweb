@@ -32,8 +32,8 @@ export const useEmailVerification = () => {
   const submitVerifyToken = async (token: string) => {
     try {
       const { data } = await verifyToken.trigger({ token })
-      await mutate()
-      return data?.data
+      const refreshed = await mutate()
+      return { ...data?.data, profile: refreshed?.data?.user }
     } catch (err) {
       throw new Error(
         getErrorMessage(err, 'Verification link is invalid or has expired.'),

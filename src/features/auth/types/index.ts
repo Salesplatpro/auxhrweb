@@ -95,4 +95,5 @@ export interface VerifyEmailResponse {
 export interface ChangeEmailRequest {
   newEmail: string
   currentPassword: string
+  redirectPath?: string
 }

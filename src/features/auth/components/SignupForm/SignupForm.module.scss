@@ -1,35 +1,36 @@
-.alert {
-  margin-bottom: var(--space-4);
-}
+@use '../../../../styles/breakpoints' as bp;
 
-.error {
-  color: var(--color-danger);
-  font-size: var(--text-sm);
-}
-
-.userType {
+.form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  margin: var(--space-2) 0;
+  gap: var(--space-5);
 }
 
-.rememberMe {
+.names {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @include bp.below(bp.$bp-sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.passwordField {
   display: flex;
-  justify-content: space-between;
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-6);
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
-.already {
-  margin-top: var(--space-2);
+.legal {
+  margin: 0;
   text-align: center;
-  font-family: var(--font-heading);
-  font-weight: var(--weight-regular);
   font-size: var(--text-sm);
+  color: var(--color-text-muted);
 
   a {
-    font-weight: var(--weight-medium);
-    color: var(--color-primary-strong);
+    font-weight: var(--weight-bold);
+    color: var(--color-ink);
+    text-decoration: none;
   }
 }

@@ -1,3 +1,6 @@
+export const VERIFY_EMAIL_PATH = '/verify-email'
+export const JOIN_TEAM_PATH = '/join-team'
+
 export const dashboardPathForRole = (userRole?: string | null): string => {
   if (userRole === 'recruiter') return '/recruiterDashboard/dashboard'
   if (userRole === 'talent') return '/talentDashboard'
@@ -35,14 +38,17 @@ const isAllowedResumePath = (
     return (
       path.startsWith('/apply/') ||
       path.startsWith('/join-staff/') ||
-      path.startsWith('/talentDashboard')
+      path.startsWith('/talentDashboard') ||
+      path.startsWith('/onboarding/profile')
     )
   }
   if (userRole === 'recruiter') {
     return (
       path.startsWith('/recruiterDashboard') ||
+      path === JOIN_TEAM_PATH ||
       path.startsWith('/payment/') ||
-      path.startsWith('/join-company/')
+      path.startsWith('/join-company/') ||
+      path.startsWith('/onboarding/company')
     )
   }
   if (userRole === 'admin') {
@@ -51,14 +57,37 @@ const isAllowedResumePath = (
   return false
 }
 
-/** Post-login / already-logged-in destination. Honors `next` only when it is a safe path for that role. */
+export type SessionUser = {
+  userRole?: string | null
+  emailVerifiedAt?: string | null
+}
+
+const FLOW_PATH_PREFIXES = ['/apply/', '/join-staff/', '/join-company/']
+
+const needsEmailVerification = (user?: SessionUser | null): boolean =>
+  (user?.userRole === 'talent' || user?.userRole === 'recruiter') &&
+  !user.emailVerifiedAt
+
+/**
+ * Post-login / already-logged-in destination. Apply and join flows keep their place
+ * because they verify the email themselves; anyone else unverified goes to the inbox
+ * screen. `next` is honored only when it is a safe path for that role.
+ */
 export const destinationAfterAuth = (
-  userRole: string | null | undefined,
+  user: SessionUser | null | undefined,
   nextPath: string | null,
 ): string => {
+  const userRole = user?.userRole
   const next = safeInternalPath(nextPath)
-  if (next && isAllowedResumePath(userRole, next)) return next
-  return dashboardPathForRole(userRole)
+  const allowedNext = next && isAllowedResumePath(userRole, next) ? next : null
+  if (
+    allowedNext &&
+    FLOW_PATH_PREFIXES.some((prefix) => allowedNext.startsWith(prefix))
+  ) {
+    return allowedNext
+  }
+  if (needsEmailVerification(user)) return VERIFY_EMAIL_PATH
+  return allowedNext ?? dashboardPathForRole(userRole)
 }
 
 export const loginPathWithNext = (next?: string | null): string => {

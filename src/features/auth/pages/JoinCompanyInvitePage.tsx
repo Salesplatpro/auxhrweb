@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { mutate } from 'swr'
 
@@ -15,7 +15,8 @@ import { OrganizationInvitePreview } from '@/features/organizations/types'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 
-import { AuthLayout } from '../components/AuthLayout'
+import { AuthScreen } from '../components/AuthScreen'
+import { AuthShell } from '../components/AuthShell'
 import { LoginForm } from '../components/LoginForm'
 import { SignupForm } from '../components/SignupForm'
 import { useAuthStore } from '../store/useAuthStore'
@@ -23,6 +24,22 @@ import styles from './JoinCompanyInvitePage.module.scss'
 
 const verifyEmailPath = (next?: string) =>
   next ? `/verify-email?redirect=${encodeURIComponent(next)}` : '/verify-email'
+
+const InviteLayout = ({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string
+  subtitle: string
+  children: ReactNode
+}) => (
+  <AuthShell>
+    <AuthScreen title={title} subtitle={subtitle}>
+      {children}
+    </AuthScreen>
+  </AuthShell>
+)
 
 export const JoinCompanyInvitePage = () => {
   const { token } = useParams<{ token: string }>()
@@ -126,20 +143,20 @@ export const JoinCompanyInvitePage = () => {
 
   if (loadError || !preview || !token) {
     return (
-      <AuthLayout
+      <InviteLayout
         title="Invite unavailable"
         subtitle="This company invite can no longer be used.">
         <Alert variant="error">{loadError ?? 'Invite not found.'}</Alert>
         <div className={styles.footerLinks}>
           <Link to="/login">Go to login</Link>
         </div>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   if (isLoggedIn && !emailsMatch) {
     return (
-      <AuthLayout
+      <InviteLayout
         title="Wrong account"
         subtitle={`This invite was sent to ${preview.invitedEmail}.`}>
         <Alert variant="error">
@@ -149,26 +166,26 @@ export const JoinCompanyInvitePage = () => {
         <div className={styles.footerLinks}>
           <Link to={loginPathWithNext(redirectPath!)}>Switch account</Link>
         </div>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   if (isLoggedIn && userRole !== 'recruiter') {
     return (
-      <AuthLayout
+      <InviteLayout
         title="Recruiter account required"
         subtitle={`Join ${preview.organizationName} as a recruiter.`}>
         <Alert variant="error">
           Talent accounts cannot accept company invites. Sign up or log in as a
           recruiter using {preview.invitedEmail}.
         </Alert>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   if (isLoggedIn && !isEmailVerified) {
     return (
-      <AuthLayout
+      <InviteLayout
         title="Verify your email"
         subtitle={`Confirm ${preview.invitedEmail} before joining ${preview.organizationName}.`}>
         <Alert variant="warning">
@@ -177,27 +194,30 @@ export const JoinCompanyInvitePage = () => {
         </Alert>
         <Button
           type="button"
-          fullWidth
+          variant="ink"
+          size="xl"
+          pill
+          stretch
           onClick={() => navigate(verifyEmailPath(redirectPath))}>
           Go to email verification
         </Button>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   if (acceptError) {
     return (
-      <AuthLayout
+      <InviteLayout
         title="Could not join company"
         subtitle={preview.organizationName}>
         <Alert variant="error">{acceptError}</Alert>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   if (preview.inviteeExists) {
     return (
-      <AuthLayout
+      <InviteLayout
         title={`Join ${preview.organizationName}`}
         subtitle="Log in with your recruiter account to accept this invite.">
         <p className={styles.lead}>
@@ -210,12 +230,12 @@ export const JoinCompanyInvitePage = () => {
             Use a different account
           </Link>
         </div>
-      </AuthLayout>
+      </InviteLayout>
     )
   }
 
   return (
-    <AuthLayout
+    <InviteLayout
       title={`Join ${preview.organizationName}`}
       subtitle="Create your recruiter account to accept this invite.">
       <p className={styles.lead}>
@@ -226,11 +246,11 @@ export const JoinCompanyInvitePage = () => {
       </p>
 
       <SignupForm
-        forceRecruiter
+        accountType="recruiter"
         lockedEmail={preview.invitedEmail}
         redirectPath={redirectPath}
         onSuccess={() => navigate(verifyEmailPath(redirectPath))}
       />
-    </AuthLayout>
+    </InviteLayout>
   )
 }

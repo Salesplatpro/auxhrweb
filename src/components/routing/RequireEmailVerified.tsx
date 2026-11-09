@@ -1,7 +1,7 @@
 import React from 'react'
 import { Navigate, Outlet, useOutletContext } from 'react-router-dom'
 
-import { Spinner } from '@/components/ui/Spinner'
+import { OnboardingDoneState } from '@/features/onboarding/done/OnboardingDoneState'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
 interface RequireEmailVerifiedProps {
@@ -11,14 +11,20 @@ interface RequireEmailVerifiedProps {
 const RequireEmailVerified: React.FC<RequireEmailVerifiedProps> = ({
   redirectTo,
 }) => {
-  const { profile, isLoading } = useProfile()
+  const { profile, isLoading, error, mutate } = useProfile()
   const outletContext = useOutletContext()
 
-  if (isLoading) {
-    return <Spinner fullPage />
+  if (!profile) {
+    return (
+      <OnboardingDoneState
+        isLoading={isLoading || !error}
+        error={error}
+        onRetry={() => void mutate()}
+      />
+    )
   }
 
-  if (!profile?.emailVerifiedAt) {
+  if (!profile.emailVerifiedAt) {
     return <Navigate to={redirectTo} replace />
   }
 

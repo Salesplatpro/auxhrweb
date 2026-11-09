@@ -1,0 +1,33 @@
+@use '../../../../styles/breakpoints' as bp;
+@use '../../../../styles/brand-scope' as *;
+
+.shell {
+  @include brand-scope;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-8) var(--space-16);
+  box-sizing: border-box;
+  background: var(--color-bg-page);
+
+  @include bp.below(bp.$bp-lg) {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-8) var(--space-4) var(--space-12);
+  }
+}
+
+.art {
+  @include bp.below(bp.$bp-lg) {
+    display: none;
+  }
+}
+
+.content {
+  width: 100%;
+  max-width: 440px;
+  justify-self: center;
+}

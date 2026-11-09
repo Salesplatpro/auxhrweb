@@ -9,8 +9,7 @@ import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Chart } from '@/components/ui/Chart'
 import { Spinner } from '@/components/ui/Spinner'
-import { WelcomeModal } from '@/features/auth/components/WelcomeModal'
-import { EmailVerificationPanel } from '@/features/email-verification/components/EmailVerificationPanel'
+import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
 import { PlanUsage } from '@/features/pricing/components/PlanUsage'
 import { useProfile } from '@/features/profile/hooks/useProfile'
@@ -26,32 +25,17 @@ import RecentCompilation from './RecentCompilation'
 const Dashboard = () => {
   const navigate = useNavigate()
   useRouteToast()
-  const { profile, isLoading: isProfileLoading } = useProfile()
-  const isVerified = !!profile?.emailVerifiedAt
+  const { profile } = useProfile()
   const {
     data: dashboardData,
     isLoading: dashboardLoading,
     error: dashboardError,
-  } = useFetchDashboardQuery({}, { skip: !isVerified })
-
-  if (isProfileLoading) {
-    return <Spinner fullPage />
-  }
-
-  if (!isVerified) {
-    return (
-      <PageShell wide centered>
-        <EmailVerificationPanel />
-        <WelcomeModal />
-      </PageShell>
-    )
-  }
+  } = useFetchDashboardQuery({})
 
   if (dashboardLoading)
     return (
       <PageShell wide>
         <Spinner fullPage />
-        <WelcomeModal />
       </PageShell>
     )
 
@@ -59,7 +43,6 @@ const Dashboard = () => {
     return (
       <>
         <Alert severity="error">Error Fetching Data</Alert>
-        <WelcomeModal />
       </>
     )
 
@@ -109,7 +92,8 @@ const Dashboard = () => {
             </HeroGhost>
           ) : (
             <HeroAction
-              onClick={() => navigate('/recruiterDashboard/company/new')}>
+              tourId="create-company"
+              onClick={() => navigate(ONBOARDING_PATHS.company)}>
               Create company
             </HeroAction>
           )
@@ -142,7 +126,6 @@ const Dashboard = () => {
       </PagePanel>
 
       <RecentCompilation />
-      <WelcomeModal />
     </PageShell>
   )
 }

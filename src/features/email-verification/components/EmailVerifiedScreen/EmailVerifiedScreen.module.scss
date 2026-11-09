@@ -1,0 +1,41 @@
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: var(--space-2);
+}
+
+.summary {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+
+  & + & {
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+.rowIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.rowLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-md);
+  color: var(--color-text-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

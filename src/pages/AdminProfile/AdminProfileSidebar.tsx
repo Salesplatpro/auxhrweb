@@ -11,15 +11,21 @@ import { ThemeProvider } from '@/features/theme/ThemeProvider'
 import { SideBar } from '../../components'
 import { LoggedInUserBadge } from '../LoggedInUserBadge'
 
+const ADMIN_SECTIONS = [{ items: adminSidebarData }]
+
 const AdminProfileSidebar = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const close = () => setIsOpen(false)
 
   return (
     <ThemeProvider>
       <div className="dashboard">
         <div className="dashboard-nav">
-          <button className="menu" onClick={() => setIsOpen(!isOpen)}>
-            {!isOpen && <IoMdMenu className="text-3xl" />}
+          <button
+            className="menu"
+            aria-label="Open menu"
+            onClick={() => setIsOpen(!isOpen)}>
+            {!isOpen && <IoMdMenu className="menu-icon" />}
           </button>
           <LoggedInUserBadge />
         </div>
@@ -28,16 +34,13 @@ const AdminProfileSidebar = () => {
             type="button"
             className="sidebar-backdrop"
             aria-label="Close menu"
-            onClick={() => setIsOpen(false)}
+            onClick={close}
           />
         )}
         <div className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
-          <SideBar
-            sideBarData={adminSidebarData}
-            handleClick={() => setIsOpen(false)}
-          />
-          <button className="close" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen && <AiOutlineCloseCircle className="text-2xl" />}
+          <SideBar sections={ADMIN_SECTIONS} handleClick={close} />
+          <button className="close" aria-label="Close menu" onClick={close}>
+            {isOpen && <AiOutlineCloseCircle className="close-icon" />}
           </button>
         </div>
         <div className="outlet">

@@ -1,26 +1,19 @@
+import cn from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { AiOutlinePlus } from 'react-icons/ai'
-import { BsBuilding } from 'react-icons/bs'
 import {
-  HiOutlineBuildingOffice2,
-  HiOutlineCalculator,
-  HiOutlineChartBar,
-  HiOutlineChartBarSquare,
+  HiChevronUpDown,
   HiOutlineCreditCard,
-  HiOutlineGift,
-  HiOutlineRectangleGroup,
-  HiOutlineShieldCheck,
   HiOutlineUserGroup,
-  HiOutlineUsers,
 } from 'react-icons/hi2'
-import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io'
 import { useNavigate } from 'react-router-dom'
 
+import { Text } from '@/components/ui/Typography'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
-import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
-import { peoplePaths } from '@/features/people/paths'
+import { useOrganizationUsage } from '@/features/organizations/hooks/useOrganizationUsage'
+import { usePricingCatalog } from '@/features/pricing/hooks/usePricingCatalog'
 import { getActiveOrganizationBilling } from '@/features/pricing/utils/getActiveOrganizationBilling'
-import { getBillingPlanBadge } from '@/features/pricing/utils/getBillingPlanBadge'
+import { getPlanDisplayName } from '@/features/pricing/utils/getPlanDisplayName'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
 import styles from './CompanyBanner.module.scss'
@@ -29,85 +22,52 @@ interface CompanyBannerProps {
   onNavigate?: () => void
 }
 
+const ROWS = [
+  {
+    label: 'Manage companies',
+    icon: <HiOutlineUserGroup size={16} />,
+    path: '/recruiterDashboard/company',
+  },
+  {
+    label: 'Create company',
+    icon: <AiOutlinePlus size={16} />,
+    path: ONBOARDING_PATHS.company,
+  },
+  {
+    label: 'View plan',
+    icon: <HiOutlineCreditCard size={16} />,
+    path: '/recruiterDashboard/plan',
+  },
+]
+
+const initialsOf = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('')
+
 export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   const { profile } = useProfile()
-  const { isOwner, canManagePeople, hasPeopleAccess } = usePeopleAccess()
+  const { catalog } = usePricingCatalog()
   const activeOrganization = profile?.activeOrganization
+  const { usage } = useOrganizationUsage(activeOrganization?.id ?? null)
   const { billingPlan } = getActiveOrganizationBilling(profile)
 
-  const rows = [
-    {
-      label: 'Manage companies',
-      icon: <HiOutlineUserGroup size={16} />,
-      path: '/recruiterDashboard/company',
-    },
-    {
-      label: 'Create company',
-      icon: <AiOutlinePlus size={16} />,
-      path: ONBOARDING_PATHS.company,
-    },
-    ...(hasPeopleAccess
-      ? [
-          {
-            label: 'Employees',
-            icon: <HiOutlineUsers size={16} />,
-            path: peoplePaths.employees,
-          },
-        ]
-      : []),
-    ...(canManagePeople
-      ? [
-          {
-            label: 'Org chart',
-            icon: <HiOutlineRectangleGroup size={16} />,
-            path: peoplePaths.orgChart,
-          },
-          {
-            label: 'Quarterly review',
-            icon: <HiOutlineChartBarSquare size={16} />,
-            path: peoplePaths.quarterlyReview,
-          },
-          {
-            label: 'Company profile',
-            icon: <HiOutlineBuildingOffice2 size={16} />,
-            path: peoplePaths.companyProfile,
-          },
-        ]
-      : []),
-    ...(isOwner
-      ? [
-          {
-            label: 'Benefits',
-            icon: <HiOutlineGift size={16} />,
-            path: peoplePaths.benefits,
-          },
-          {
-            label: 'Commission plans',
-            icon: <HiOutlineChartBar size={16} />,
-            path: peoplePaths.commissionPlans,
-          },
-          {
-            label: 'Headcount cost',
-            icon: <HiOutlineCalculator size={16} />,
-            path: peoplePaths.headcountCost,
-          },
-          {
-            label: 'Access log',
-            icon: <HiOutlineShieldCheck size={16} />,
-            path: peoplePaths.accessLog,
-          },
-        ]
-      : []),
-    {
-      label: 'View plan',
-      icon: <HiOutlineCreditCard size={16} />,
-      path: '/recruiterDashboard/plan',
-    },
+  const members = usage?.meters.find(
+    (meter) => meter.key === 'team_members',
+  )?.used
+  const meta = [
+    `${getPlanDisplayName(billingPlan, catalog)} plan`,
+    members ? `${members} member${members === 1 ? '' : 's'}` : null,
   ]
+    .filter(Boolean)
+    .join(' · ')
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,6 +90,8 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
     navigate(path)
   }
 
+  const name = activeOrganization?.name ?? 'No company yet'
+
   return (
     <div
       className={styles.wrapper}
@@ -137,37 +99,41 @@ export const CompanyBanner: React.FC<CompanyBannerProps> = ({ onNavigate }) => {
       data-tour="company-switcher">
       <button
         type="button"
-        className={styles.trigger}
-        onClick={() => setIsOpen((prev) => !prev)}>
-        <div className={styles.iconBox}>
-          <BsBuilding size={18} />
-        </div>
-        <div className={styles.info}>
-          <span className={styles.name}>
-            {activeOrganization?.name ?? 'No company yet'}
-          </span>
-          <span className={styles.metaRow}>
-            {activeOrganization && (
-              <span className={styles.activeTag}>Active</span>
-            )}
-            <span className={styles.planTag}>
-              {getBillingPlanBadge(billingPlan).status}
-            </span>
-          </span>
-        </div>
-        {isOpen ? <IoIosArrowUp size={16} /> : <IoIosArrowDown size={16} />}
+        className={cn(styles.trigger, { [styles.open]: isOpen })}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-haspopup="menu">
+        <span className={styles.initials} aria-hidden>
+          {activeOrganization ? initialsOf(activeOrganization.name) : '?'}
+        </span>
+        <span className={styles.info}>
+          <Text as="span" size="fs-md" weight="bolder" className={styles.line}>
+            {name}
+          </Text>
+          {activeOrganization && (
+            <Text as="span" size="fs-sm" color="muted" className={styles.line}>
+              {meta}
+            </Text>
+          )}
+        </span>
+        <HiChevronUpDown className={styles.chevron} size={18} aria-hidden />
       </button>
 
       {isOpen && (
-        <div className={styles.dropdown}>
-          {rows.map((row) => (
+        <div className={styles.dropdown} role="menu">
+          {ROWS.map((row) => (
             <button
               key={row.label}
               type="button"
+              role="menuitem"
               className={styles.dropdownRow}
               onClick={() => goTo(row.path)}>
-              <div className={styles.iconBox}>{row.icon}</div>
-              <span>{row.label}</span>
+              <span className={styles.rowIcon} aria-hidden>
+                {row.icon}
+              </span>
+              <Text as="span" size="fs-md" weight="bold">
+                {row.label}
+              </Text>
             </button>
           ))}
         </div>

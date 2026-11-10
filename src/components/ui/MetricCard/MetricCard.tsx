@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import React from 'react'
+import React, { ReactNode } from 'react'
 import { HiArrowSmDown, HiArrowSmUp } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
 
@@ -8,19 +8,31 @@ import { Skeleton } from '@/components/ui/Skeleton'
 
 import styles from './MetricCard.module.scss'
 
+type DeltaFormat = 'percent' | 'count'
+
 type MetricCardProps = {
   label: string
+  icon?: ReactNode
   value?: string
   hint?: string
   /** Percent change versus the previous period; null when it can't be computed. */
   delta?: number | null
+  deltaFormat?: DeltaFormat
   deltaLabel?: string
   to?: string
   attention?: boolean
   loading?: boolean
 }
 
-const DeltaChip = ({ delta, label }: { delta: number; label?: string }) => {
+const DeltaChip = ({
+  delta,
+  format,
+  label,
+}: {
+  delta: number
+  format: DeltaFormat
+  label?: string
+}) => {
   const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat'
   const sign = delta > 0 ? '+' : ''
   return (
@@ -29,7 +41,8 @@ const DeltaChip = ({ delta, label }: { delta: number; label?: string }) => {
       {direction === 'down' && <HiArrowSmDown aria-hidden size={14} />}
       <span>
         {sign}
-        {delta}%
+        {delta}
+        {format === 'percent' && '%'}
       </span>
       {label && <span className={styles.deltaLabel}>{label}</span>}
     </span>
@@ -38,9 +51,11 @@ const DeltaChip = ({ delta, label }: { delta: number; label?: string }) => {
 
 export const MetricCard = ({
   label,
+  icon,
   value,
   hint,
   delta,
+  deltaFormat = 'percent',
   deltaLabel,
   to,
   attention = false,
@@ -48,7 +63,14 @@ export const MetricCard = ({
 }: MetricCardProps) => {
   const body = (
     <Card className={cn(styles.card, attention && styles.attention)}>
-      <p className={styles.label}>{label}</p>
+      <p className={styles.label}>
+        {icon && (
+          <span className={styles.icon} aria-hidden>
+            {icon}
+          </span>
+        )}
+        {label}
+      </p>
       {loading || value === undefined ? (
         <>
           <Skeleton height="2rem" width="60%" />
@@ -58,7 +80,9 @@ export const MetricCard = ({
         <>
           <p className={styles.value}>{value}</p>
           {hint && <p className={styles.hint}>{hint}</p>}
-          {delta != null && <DeltaChip delta={delta} label={deltaLabel} />}
+          {delta != null && (
+            <DeltaChip delta={delta} format={deltaFormat} label={deltaLabel} />
+          )}
         </>
       )}
     </Card>

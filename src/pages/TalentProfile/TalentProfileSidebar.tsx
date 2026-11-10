@@ -1,61 +1,50 @@
 import './TalentProfileSidebar.scss'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
-import { HiOutlineBriefcase } from 'react-icons/hi2'
 import { IoMdMenu } from 'react-icons/io'
 import { Outlet } from 'react-router-dom'
 
-import { sidebarData as originalSidebarData } from '@/components/features/talent/SideBar/SideBarData'
+import { talentNavSections } from '@/components/features/talent/SideBar/SideBarData'
 import { SideBar } from '@/components/layout/sidebar/SideBar'
+import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
+import { ProfilePromoCard } from '@/features/dashboard/components/ProfilePromoCard/ProfilePromoCard'
+import { useTalentChatSessions } from '@/features/messaging/hooks/useTalentChatSessions'
 import { useMyWork } from '@/features/people/hooks/useStaffData'
-import { myWorkPath } from '@/features/people/paths'
 import { NavigationLockOverlay } from '@/features/pre-assessment/components/NavigationLockOverlay'
 import { useAssessmentNavigationBlocker } from '@/features/pre-assessment/useAssessmentNavigationBlocker'
 import { ProductTourHost } from '@/features/product-tour'
+import { useProfile } from '@/features/profile/hooks/useProfile'
 import { ThemeProvider } from '@/features/theme/ThemeProvider'
 
-import { LoggedInUserBadge } from '../LoggedInUserBadge'
-
-interface TalentSidebarContext {
-  setUnreadCount: (count: number) => void
-}
+import { SidebarUserCard } from '../LoggedInUserBadge'
 
 const TalentProfileSidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [unreadCount, setUnreadCount] = useState<number>(0)
-  const [currentSidebarData, setCurrentSidebarData] =
-    useState(originalSidebarData)
+  const close = () => setIsOpen(false)
 
   const { isLocked } = useAssessmentNavigationBlocker()
   const { records: workRecords } = useMyWork()
-  const worksSomewhere = workRecords.length > 0
+  const { unreadCount } = useTalentChatSessions()
+  const { profile } = useProfile()
+  const preAssessmentPending = !!profile && profile.prescreeningScore == null
 
-  useEffect(() => {
-    const updatedData = originalSidebarData.map((item) => {
-      if (item.name === 'Inbox') {
-        return { ...item, count: unreadCount }
-      }
-      return item
-    })
-    if (worksSomewhere) {
-      updatedData.splice(1, 0, {
-        name: 'My work',
-        icon: <HiOutlineBriefcase size={20} />,
-        link: myWorkPath,
-      })
-    }
-    setCurrentSidebarData(updatedData)
-  }, [unreadCount, worksSomewhere])
+  const sections = talentNavSections(
+    { messages: unreadCount, assessments: preAssessmentPending ? 1 : 0 },
+    workRecords.length > 0,
+  )
 
   return (
     <ThemeProvider>
       <div className="dashboard">
         <div className="dashboard-nav">
-          <button className="menu" onClick={() => setIsOpen(!isOpen)}>
+          <button
+            className="menu"
+            aria-label="Open menu"
+            onClick={() => setIsOpen(!isOpen)}>
             {!isOpen && <IoMdMenu className="menu-icon" />}
           </button>
-          <LoggedInUserBadge />
+          <DashboardHeader audience="talent" />
         </div>
 
         {isOpen && (
@@ -63,16 +52,18 @@ const TalentProfileSidebar: React.FC = () => {
             type="button"
             className="sidebar-backdrop"
             aria-label="Close menu"
-            onClick={() => setIsOpen(false)}
+            onClick={close}
           />
         )}
         <div className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
           <SideBar
-            sideBarData={currentSidebarData}
-            handleClick={() => setIsOpen(false)}
+            sections={sections}
+            handleClick={close}
+            promoSlot={<ProfilePromoCard onNavigate={close} />}
+            footerSlot={<SidebarUserCard />}
           />
 
-          <button className="close" onClick={() => setIsOpen(!isOpen)}>
+          <button className="close" aria-label="Close menu" onClick={close}>
             {isOpen && <AiOutlineCloseCircle className="close-icon" />}
           </button>
 
@@ -80,7 +71,7 @@ const TalentProfileSidebar: React.FC = () => {
         </div>
 
         <div className="outlet">
-          <Outlet context={{ setUnreadCount } as TalentSidebarContext} />
+          <Outlet />
         </div>
         <ProductTourHost audience="talent" blocked={isLocked} />
       </div>

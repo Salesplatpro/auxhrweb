@@ -1,5 +1,4 @@
 export const peoplePaths = {
-  root: '/recruiterDashboard/people',
   employees: '/recruiterDashboard/people/employees',
   employee: (staffId: string) =>
     `/recruiterDashboard/people/employees/${staffId}`,

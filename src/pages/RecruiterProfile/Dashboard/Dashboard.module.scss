@@ -1,14 +1,57 @@
-.container {
-  width: 100%;
+@use '../../../styles/breakpoints' as bp;
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
-.grid {
+.titleActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.rangeTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-elevated);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.kpis {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+
+  @include bp.from(bp.$bp-md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
   align-items: start;
 
-  @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1.4fr;
+  @include bp.from(bp.$bp-xl) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
 }

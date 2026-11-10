@@ -1,6 +1,7 @@
 import { Form } from 'formik'
 import React, { useEffect, useState } from 'react'
 import { HiOutlineUserGroup } from 'react-icons/hi2'
+import { useSearchParams } from 'react-router-dom'
 
 import { LocationSelect } from '@/components/forms/LocationSelect'
 import { EMPTY_LOCATION } from '@/components/forms/LocationSelect/useLocationSelect'
@@ -50,7 +51,10 @@ const verdictFor = (score: number) =>
     : ('low' as const)
 
 export const TalentSearch = () => {
-  const { criteria, page, setCriteria, setSearchPage } = useScoutStore()
+  const { criteria, page, setCriteria, setSearchPage, clearSearch } =
+    useScoutStore()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const headerQuery = (searchParams.get('q') ?? '').trim()
   const [search, { data, isLoading, isError, reset }] =
     useSearchTalentsMutation()
   const [messageTarget, setMessageTarget] = useState<TalentSearchResult | null>(
@@ -78,10 +82,19 @@ export const TalentSearch = () => {
     [search],
   )
 
+  // A search typed in the header only fills the form: every search is charged, and the
+  // backend needs a longer description than a header search usually has.
+  useEffect(() => {
+    if (headerQuery && (criteria || data)) {
+      clearSearch()
+      reset()
+    }
+  }, [headerQuery, criteria, data, clearSearch, reset])
+
   // Re-runs the stored search on a page change, so paging doesn't need the form.
   useEffect(() => {
-    if (criteria) void run(criteria, page)
-  }, [criteria, page, run])
+    if (criteria && !headerQuery) void run(criteria, page)
+  }, [criteria, page, run, headerQuery])
 
   const results = data?.data?.results ?? []
   const total = data?.data?.total ?? 0
@@ -185,12 +198,17 @@ export const TalentSearch = () => {
       />
 
       <ValidatedForm<TalentSearchFormValues>
-        initialValues={criteria ?? emptyValues}
+        initialValues={
+          headerQuery
+            ? { ...emptyValues, description: headerQuery }
+            : criteria ?? emptyValues
+        }
         validationSchema={talentSearchValidationSchema}
         enableReinitialize
         onSubmit={(values) => {
           // Stored so paging and a return visit can replay it without the form.
           reset()
+          if (headerQuery) setSearchParams({}, { replace: true })
           setCriteria(values)
         }}>
         {({ values, setFieldValue, errors, touched }) => (

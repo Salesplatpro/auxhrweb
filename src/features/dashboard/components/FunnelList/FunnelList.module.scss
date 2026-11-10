@@ -1,0 +1,40 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(48px, 1fr) auto 3rem;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track {
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  overflow: hidden;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-violet);
+}
+
+.value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

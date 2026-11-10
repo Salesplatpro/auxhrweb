@@ -1,5 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
 
 import { Spinner } from '@/components/ui/Spinner'
 import { useOrganizationUsage } from '@/features/organizations/hooks/useOrganizationUsage'
@@ -16,7 +15,6 @@ type PlanUsageProps = {
   planKey?: string | null
   billingStatus?: string | null
   billingPeriodEnd?: string | null
-  compact?: boolean
 }
 
 const formatLimit = (limit: number | null) =>
@@ -32,7 +30,6 @@ export const PlanUsage: React.FC<PlanUsageProps> = ({
   planKey,
   billingStatus,
   billingPeriodEnd,
-  compact = false,
 }) => {
   const { profile } = useProfile()
   const orgId = profile?.activeOrganizationId
@@ -53,14 +50,14 @@ export const PlanUsage: React.FC<PlanUsageProps> = ({
 
   if (isLoading && !usage) {
     return (
-      <div className={compact ? styles.compact : styles.page}>
+      <div className={styles.page}>
         <Spinner />
       </div>
     )
   }
 
   return (
-    <div className={compact ? styles.compact : styles.page}>
+    <div className={styles.page}>
       <header className={styles.header}>
         <p className={styles.kicker}>Current plan</p>
         <div className={styles.titleRow}>
@@ -92,7 +89,7 @@ export const PlanUsage: React.FC<PlanUsageProps> = ({
       </header>
 
       {meters.length > 0 && (
-        <div className={compact ? styles.compactGrid : styles.grid}>
+        <div className={styles.grid}>
           {meters.map((item) => {
             const pct = meterPct(item.used, item.limit)
             const atLimit = item.limit != null && item.used >= item.limit
@@ -121,7 +118,7 @@ export const PlanUsage: React.FC<PlanUsageProps> = ({
         </div>
       )}
 
-      {!compact && flags.length > 0 && (
+      {flags.length > 0 && (
         <div className={styles.flags}>
           <p className={styles.flagsTitle}>Included tools</p>
           <ul className={styles.flagList}>
@@ -132,18 +129,12 @@ export const PlanUsage: React.FC<PlanUsageProps> = ({
         </div>
       )}
 
-      {payPerUse && !compact && (
+      {payPerUse && (
         <p className={styles.note}>
           Activating a job moves it to pending payment. Complete checkout to go
           live. Upgrade below for concurrent listings and team seats without
           per-job charges.
         </p>
-      )}
-
-      {compact && (
-        <Link className={styles.manageLink} to="/recruiterDashboard/plan">
-          Manage plan &amp; billing
-        </Link>
       )}
     </div>
   )

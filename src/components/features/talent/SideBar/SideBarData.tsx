@@ -1,52 +1,107 @@
 import React from 'react'
-import { BiMessageDetail } from 'react-icons/bi'
-import { BsChatDots } from 'react-icons/bs'
-import { IoBagOutline } from 'react-icons/io5'
-import { MdSpaceDashboard } from 'react-icons/md'
-import { MdOutlineAssessment } from 'react-icons/md'
-import { RiFlowChart } from 'react-icons/ri'
+import {
+  HiOutlineBriefcase,
+  HiOutlineChatBubbleOvalLeft,
+  HiOutlineClipboardDocumentCheck,
+  HiOutlineCog6Tooth,
+  HiOutlineDocumentText,
+  HiOutlineMagnifyingGlass,
+  HiOutlineQuestionMarkCircle,
+  HiOutlineSquares2X2,
+  HiOutlineUser,
+} from 'react-icons/hi2'
+
+import type {
+  SideBarItem,
+  SideBarSection,
+} from '@/components/layout/sidebar/SideBar'
+import { myWorkPath } from '@/features/people/paths'
 
 const ICON_SIZE = 20
 
-export const sidebarData = [
+export type TalentNavCountKey = 'assessments' | 'messages'
+
+type TalentNavItem = SideBarItem & { countKey?: TalentNavCountKey }
+
+export const menuItems: TalentNavItem[] = [
   {
     name: 'Dashboard',
-    icon: <MdSpaceDashboard size={ICON_SIZE} />,
-    link: '/talentDashboard/',
+    icon: <HiOutlineSquares2X2 size={ICON_SIZE} />,
+    link: '/talentDashboard',
   },
   {
-    name: 'Pre-Assessment test',
-    tourId: 'nav-pre-assessment',
-    icon: <MdOutlineAssessment size={ICON_SIZE} />,
-
-    link: '/talentDashboard/talentQuiz',
-  },
-  {
-    name: 'Jobs',
+    name: 'Find Jobs',
     tourId: 'nav-jobs',
-    icon: <IoBagOutline size={ICON_SIZE} />,
+    icon: <HiOutlineMagnifyingGlass size={ICON_SIZE} />,
     link: '/talentDashboard/job',
     end: false,
   },
-
   {
-    name: 'Inbox',
-    tourId: 'nav-inbox',
-    icon: <BsChatDots size={ICON_SIZE} />,
-    link: '/talentDashboard/chat',
-  },
-
-  {
-    name: 'Notifications',
-    tourId: 'nav-notifications',
-    icon: <BiMessageDetail size={ICON_SIZE} />,
-    link: '/talentDashboard/notification',
-  },
-  {
-    name: 'Applications pipeline',
+    name: 'Applications',
     tourId: 'nav-pipeline',
-    icon: <RiFlowChart size={ICON_SIZE} />,
+    icon: <HiOutlineDocumentText size={ICON_SIZE} />,
     link: '/talentDashboard/applicationPipeline',
     end: false,
   },
+  {
+    name: 'Assessments',
+    tourId: 'nav-pre-assessment',
+    icon: <HiOutlineClipboardDocumentCheck size={ICON_SIZE} />,
+    link: '/talentDashboard/talentQuiz',
+    countKey: 'assessments',
+  },
+  {
+    name: 'My Profile',
+    icon: <HiOutlineUser size={ICON_SIZE} />,
+    link: '/talentDashboard/talentProfile',
+  },
+  {
+    name: 'Messages',
+    tourId: 'nav-inbox',
+    icon: <HiOutlineChatBubbleOvalLeft size={ICON_SIZE} />,
+    link: '/talentDashboard/chat',
+    countKey: 'messages',
+  },
+]
+
+export const workItems: TalentNavItem[] = [
+  {
+    name: 'My work',
+    icon: <HiOutlineBriefcase size={ICON_SIZE} />,
+    link: myWorkPath,
+    end: false,
+    tag: 'New',
+  },
+]
+
+export const accountItems: TalentNavItem[] = [
+  {
+    name: 'Settings',
+    icon: <HiOutlineCog6Tooth size={ICON_SIZE} />,
+    link: '/talentDashboard/change-password',
+  },
+  {
+    name: 'Help Center',
+    icon: <HiOutlineQuestionMarkCircle size={ICON_SIZE} />,
+    link: '/talentDashboard/support',
+  },
+]
+
+const withCounts = (
+  items: TalentNavItem[],
+  counts: Partial<Record<TalentNavCountKey, number>>,
+): SideBarItem[] =>
+  items.map(({ countKey, ...item }) =>
+    countKey ? { ...item, count: counts[countKey] } : item,
+  )
+
+export const talentNavSections = (
+  counts: Partial<Record<TalentNavCountKey, number>>,
+  showWork: boolean,
+): SideBarSection[] => [
+  { label: 'Menu', items: withCounts(menuItems, counts) },
+  ...(showWork
+    ? [{ label: 'Work', items: withCounts(workItems, counts) }]
+    : []),
+  { label: 'Account', items: withCounts(accountItems, counts) },
 ]

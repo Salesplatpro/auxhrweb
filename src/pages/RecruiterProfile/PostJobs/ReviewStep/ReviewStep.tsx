@@ -39,7 +39,7 @@ export const ReviewStep = ({ jobId }: ReviewStepProps) => {
       <div className={styles.page}>
         <p className={styles.notice}>We couldn&apos;t load this job.</p>
         <Button type="button" onClick={() => navigate(JOB_POSTS_PATH)}>
-          Go to My Job Posts
+          Go to Job Posts
         </Button>
       </div>
     )
@@ -66,7 +66,7 @@ export const ReviewStep = ({ jobId }: ReviewStepProps) => {
   }
 
   const saveAsDraft = () => {
-    notify('success', 'Saved as a draft. Publish it from My Job Posts anytime.')
+    notify('success', 'Saved as a draft. Publish it from Job Posts anytime.')
     navigate(JOB_POSTS_PATH)
   }
 
@@ -147,7 +147,7 @@ export const ReviewStep = ({ jobId }: ReviewStepProps) => {
         <section className={styles.livePanel} role="status">
           <p className={styles.payText}>This job is live.</p>
           <Button type="button" onClick={() => navigate(JOB_POSTS_PATH)}>
-            Go to My Job Posts
+            Go to Job Posts
           </Button>
         </section>
       ) : (

@@ -52,6 +52,7 @@ import ProfileBuilderPage from '@/features/onboarding/profile/ProfileBuilderPage
 import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
 import JoinWithCodePage from '@/features/organizations/pages/JoinWithCodePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
+import { RefereePage } from '@/features/references/RefereePage'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
 import { VerifyDocument } from '@/features/verify-document/VerifyDocument'
@@ -79,6 +80,7 @@ import {
   Profile as RecruiterProfilePage,
   Shortlist,
 } from '@/pages/RecruiterProfile'
+import { ComingSoonPage } from '@/pages/RecruiterProfile/ComingSoon/ComingSoonPage'
 import Company from '@/pages/RecruiterProfile/Company/Company'
 import EditCompany from '@/pages/RecruiterProfile/Company/EditCompany'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
@@ -106,6 +108,7 @@ import { ScoutCampaigns } from '@/pages/RecruiterProfile/Scout/ScoutCampaigns'
 import { UploadStep } from '@/pages/RecruiterProfile/Scout/UploadStep'
 import { TalentSearch } from '@/pages/RecruiterProfile/TalentSearch/TalentSearch'
 import { SupportPage } from '@/pages/Support'
+import AiInterviewPage from '@/pages/TalentProfile/AiInterview/AiInterviewPage'
 import { ApplicationPipeline } from '@/pages/TalentProfile/ApplicationPipeline'
 import TalentDashboardHome from '@/pages/TalentProfile/Dashboard/TalentDashboardHome'
 import Inbox from '@/pages/TalentProfile/Inbox/InboxList'
@@ -242,6 +245,10 @@ export const routeConfig: RouteObject[] = [
         element: <SignDocument />,
       },
       {
+        path: '/reference/:token',
+        element: <RefereePage />,
+      },
+      {
         path: '/verify-document',
         element: <VerifyDocument />,
       },
@@ -370,6 +377,10 @@ export const routeConfig: RouteObject[] = [
                     element: <ApplicationPipeline />,
                   },
                   {
+                    path: 'interview/:interviewId',
+                    element: <AiInterviewPage />,
+                  },
+                  {
                     path: 'applicationPipeline/personalizedTest/:jobId/:talentId',
                     element: <RedirectPersonalizedToJob />,
                   },
@@ -435,6 +446,24 @@ export const routeConfig: RouteObject[] = [
                   {
                     path: 'guide',
                     element: <RecruiterGuide />,
+                  },
+                  {
+                    path: 'pre-screening',
+                    element: (
+                      <ComingSoonPage
+                        title="Pre-Screening"
+                        description="Review pre-screening results across all your job posts."
+                      />
+                    ),
+                  },
+                  {
+                    path: 'ai-configuration',
+                    element: (
+                      <ComingSoonPage
+                        title="AI Configuration"
+                        description="Set how AI screens applicants for your company."
+                      />
+                    ),
                   },
                   {
                     path: paths.changePassword,

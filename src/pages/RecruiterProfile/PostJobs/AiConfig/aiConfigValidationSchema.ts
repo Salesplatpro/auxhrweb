@@ -83,6 +83,16 @@ export const aiConfigValidationSchema = Yup.object({
       otherwise: (schema) => schema.notRequired(),
     }),
 
+  aiInterview: Yup.string().oneOf(['true', 'false']).required('Required'),
+  aiInterviewMode: Yup.string().when('aiInterview', {
+    is: 'true',
+    then: (schema) =>
+      schema
+        .oneOf(['audio', 'audio_video'], 'Choose audio only or audio and video')
+        .required('Choose audio only or audio and video'),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+
   personalityEvaluation: Yup.string()
     .oneOf(['true', 'false'])
     .required('Required'),

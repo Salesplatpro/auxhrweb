@@ -33,10 +33,11 @@ describe('guide content', () => {
     for (const page of [
       'Dashboard',
       'Post a Job',
-      'My Job Posts',
+      'Job Posts',
+      'Applications',
       'Scout',
       'Talent Search',
-      'Chat',
+      'Chats',
       'Shortlist',
     ]) {
       expect(titles).toContain(page)

@@ -30,6 +30,7 @@ export const talentApi = createApi({
         city?: string
         state?: string
         country?: string
+        q?: string
         offset?: number
       }) => {
         const query = new URLSearchParams({
@@ -44,6 +45,7 @@ export const talentApi = createApi({
         if (params?.city) query.set('city', params.city)
         if (params?.state) query.set('state', params.state)
         if (params?.country) query.set('country', params.country)
+        if (params?.q?.trim()) query.set('q', params.q.trim())
 
         return { url: `/jobs?${query.toString()}`, method: 'GET' }
       },
@@ -167,6 +169,12 @@ export const talentApi = createApi({
       },
       providesTags: ['Applications'],
     }),
+    candidateInterview: builder.query({
+      query: (interviewId: string) => ({
+        url: `/interviews/${interviewId}`,
+        method: 'GET',
+      }),
+    }),
     getRole: builder.query({
       query: () => ({
         url: `/roles?limit=1000`,
@@ -192,6 +200,7 @@ export const {
   useEnsurePersonalityQuestionsMutation,
   useAllJobApplicationsQuery,
   useGetRoleQuery,
+  useCandidateInterviewQuery,
   useCompanyAssessmentQuestionsQuery,
   useSubmitCompanyAssessmentAnswersMutation,
 } = talentApi

@@ -95,9 +95,9 @@ const withResults = (results: TalentSearchResult[], total = results.length) => {
   }
 }
 
-const renderPage = () =>
+const renderPage = (path = '/recruiterDashboard/talent-search') =>
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[path]}>
       <TalentSearch />
     </MemoryRouter>,
   )
@@ -165,6 +165,40 @@ describe('TalentSearch form', () => {
     await waitFor(() => {
       expect(useScoutStore.getState().criteria?.description).toBe(DESCRIPTION)
     })
+  })
+})
+
+describe('TalentSearch from the header search', () => {
+  const STORED = {
+    description: 'A stored search from last week about payments engineers.',
+    role: '',
+    experienceLevel: '',
+    workMode: '',
+    location: { country: null, state: null, city: null },
+  }
+
+  it('fills the form without running a charged search, even with a stored one', async () => {
+    useScoutStore.getState().setCriteria(STORED as never)
+    renderPage('/recruiterDashboard/talent-search?q=Senior%20designer')
+
+    const field = (await screen.findByLabelText(
+      /who are you looking for/i,
+    )) as HTMLTextAreaElement
+    await waitFor(() => expect(field.value).toBe('Senior designer'))
+    expect(searchTalentsMock).not.toHaveBeenCalled()
+    expect(useScoutStore.getState().criteria).toBeNull()
+  })
+
+  it('runs exactly one search once the recruiter submits', async () => {
+    renderPage('/recruiterDashboard/talent-search?q=Senior%20designer')
+    describeAndSearch()
+
+    await waitFor(() => expect(searchTalentsMock).toHaveBeenCalledTimes(1))
+    const payload = searchTalentsMock.mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >
+    expect(payload.description).toBe(DESCRIPTION)
   })
 })
 

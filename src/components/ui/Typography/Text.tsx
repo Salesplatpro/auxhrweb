@@ -14,7 +14,14 @@ type TextSize =
   | 'fs-4xl'
   | 'fs-5xl'
 
-type TextColor = 'default' | 'primary' | 'tag' | 'secondary' | 'white' | 'hero'
+type TextColor =
+  | 'default'
+  | 'primary'
+  | 'tag'
+  | 'secondary'
+  | 'white'
+  | 'hero'
+  | 'muted'
 
 type TextWeight = 'normal' | 'bold' | 'bolder'
 

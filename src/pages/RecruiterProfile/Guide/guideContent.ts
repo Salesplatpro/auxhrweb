@@ -36,7 +36,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       {
         id: 'review-applicants',
         title: '4. Review applicants',
-        body: 'Open the job in My Job Posts. Applicants arrive already scored and ranked, so you can start with the strongest.',
+        body: 'Open the job in Job Posts. Applicants arrive already scored and ranked, so you can start with the strongest.',
       },
     ],
   },
@@ -48,17 +48,22 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       {
         id: 'page-dashboard',
         title: 'Dashboard',
-        body: 'A snapshot of your hiring: campaigns, applications received, how many you shortlisted, and the latest applications.',
+        body: 'A snapshot of your hiring: active job posts, applications, AI screening, the hiring funnel and your latest applicants.',
       },
       {
         id: 'page-post-a-job',
         title: 'Post a Job',
-        body: 'Create a job in four steps: Start, Details, Screening and Review. Your progress is saved as you go.',
+        body: 'Press Post A Job at the top of any page. Create a job in four steps: Start, Details, Screening and Review. Your progress is saved as you go.',
       },
       {
         id: 'page-my-job-posts',
-        title: 'My Job Posts',
+        title: 'Job Posts',
         body: 'Every job you posted, with its status and applicant count. Change a status, pay to activate a job, or open a job to see its applicants.',
+      },
+      {
+        id: 'page-applications',
+        title: 'Applications',
+        body: 'Every application across your jobs, newest first, with its CV match, pre-screening score and status.',
       },
       {
         id: 'page-applicants',
@@ -77,7 +82,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       },
       {
         id: 'page-chat',
-        title: 'Chat',
+        title: 'Chats',
         body: 'Your conversations with talents in one place.',
       },
       {
@@ -192,6 +197,12 @@ export const GUIDE_SECTIONS: GuideSection[] = [
         tip: 'Generate the questions for the job after you switch a test on. You choose 1–10 questions per test.',
       },
       {
+        id: 'ai-interview',
+        title: 'AI interview',
+        body: "Runs after the other steps. AI writes 5 interview questions from the job's description and emails the candidate an invite to record their answers.",
+        tip: 'Choose audio only, or audio and video.',
+      },
+      {
         id: 'personality-check',
         title: 'Personality check',
         body: 'Everyday workplace questions that show how someone likes to work: team energy, detail vs big picture, how they decide, and planning style. Candidates see situations, never labels.',
@@ -227,7 +238,7 @@ export const GUIDE_SECTIONS: GuideSection[] = [
       {
         id: 'status-pending-payment',
         title: 'Awaiting payment',
-        body: 'Your plan needs a one-time payment to publish this job. Pay from the Review step or from My Job Posts.',
+        body: 'Your plan needs a one-time payment to publish this job. Pay from the Review step or from Job Posts.',
       },
       {
         id: 'status-active',

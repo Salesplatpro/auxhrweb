@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 import { JobOrganization } from '@/components/features/jobs/CompanyTag'
 import { PageHero } from '@/components/layout/PageHero'
@@ -6,6 +7,8 @@ import { PageShell } from '@/components/layout/PageShell'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { DisplayError } from '@/components/ui/ErrorState'
 import { Spinner } from '@/components/ui/Spinner'
+import { TextLink } from '@/components/ui/TextLink'
+import { SEARCH_MAX_LENGTH } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
 
 import { Button } from '../../../components'
 import { useFetchJobsQuery } from '../../../redux/api/talent'
@@ -35,7 +38,9 @@ interface JobType {
 
 const PAGE_SIZE = 10
 
-const Job = () => {
+const JOBS_PATH = '/talentDashboard/job'
+
+const JobListing = ({ keyword }: { keyword: string }) => {
   const [filters, setFilters] = useState<JobFiltersTypes>(defaultFilterValues)
   const [jobs, setJobs] = useState<JobType[]>([])
   const [offset, setOffset] = useState(0)
@@ -48,6 +53,7 @@ const Job = () => {
     city: filters.location?.city?.name || undefined,
     state: filters.location?.state?.name || undefined,
     country: filters.location?.country?.name || undefined,
+    q: keyword || undefined,
     offset,
   })
 
@@ -89,7 +95,13 @@ const Job = () => {
           <div className={styles.resultsRow}>
             <span className={styles.resultsCount}>
               Showing {jobs.length} result{jobs.length === 1 ? '' : 's'}
+              {keyword ? ` for “${keyword}”` : ''}
             </span>
+            {keyword && (
+              <TextLink to={JOBS_PATH} tone="muted">
+                Clear search
+              </TextLink>
+            )}
           </div>
 
           {isInitialLoading ? (
@@ -138,6 +150,15 @@ const Job = () => {
       </div>
     </PageShell>
   )
+}
+
+const Job = () => {
+  const [searchParams] = useSearchParams()
+  const keyword = (searchParams.get('q') ?? '')
+    .trim()
+    .slice(0, SEARCH_MAX_LENGTH)
+
+  return <JobListing key={keyword} keyword={keyword} />
 }
 
 export default Job

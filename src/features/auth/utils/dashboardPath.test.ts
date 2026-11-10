@@ -5,7 +5,6 @@ import {
   dashboardPathForRole,
   destinationAfterAuth,
   loginPathWithNext,
-  supportPathForRole,
 } from './dashboardPath'
 
 const verified = (userRole: string) => ({
@@ -132,18 +131,6 @@ describe('loginPathWithNext', () => {
 
   it('returns /login when next is absent', () => {
     expect(loginPathWithNext()).toBe('/login')
-  })
-})
-
-describe('supportPathForRole', () => {
-  it('returns the support page for talents and recruiters', () => {
-    expect(supportPathForRole('talent')).toBe('/talentDashboard/support')
-    expect(supportPathForRole('recruiter')).toBe('/recruiterDashboard/support')
-  })
-
-  it('gives the admin no support page to write to', () => {
-    expect(supportPathForRole('admin')).toBeUndefined()
-    expect(supportPathForRole(undefined)).toBeUndefined()
   })
 })
 

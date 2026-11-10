@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  sidebarData as recruiterSidebar,
-  sidebarFooterData,
+  hiringItems,
+  peopleItems,
+  workspaceItems,
 } from '@/components/features/recruiter/SideBar/sidebarData'
-import { sidebarData as talentSidebar } from '@/components/features/talent/SideBar/SideBarData'
+import {
+  accountItems,
+  menuItems,
+  workItems,
+} from '@/components/features/talent/SideBar/SideBarData'
 
 import {
   PAGE_TOURS,
@@ -28,7 +33,11 @@ const anchorExists = (id: string) =>
   )
 
 // Anchors outside the sidebar lists, set directly on their components.
-const LAYOUT_ANCHORS = ['company-switcher', 'profile-menu']
+const LAYOUT_ANCHORS = ['company-switcher', 'profile-menu', 'nav-notifications']
+const RECRUITER_HEADER_ANCHORS = ['nav-post-job']
+
+const recruiterSidebar = [...hiringItems, ...peopleItems, ...workspaceItems]
+const talentSidebar = [...menuItems, ...workItems, ...accountItems]
 
 const ids = (items: { tourId?: string }[]) =>
   items.map((item) => item.tourId).filter(Boolean)
@@ -37,8 +46,8 @@ describe('tour steps', () => {
   it('points every recruiter step at something on the page', () => {
     const available = [
       ...ids(recruiterSidebar),
-      ...ids(sidebarFooterData),
       ...LAYOUT_ANCHORS,
+      ...RECRUITER_HEADER_ANCHORS,
     ]
     for (const step of RECRUITER_TOUR) {
       if (step.target) expect(available).toContain(step.target)
@@ -49,6 +58,25 @@ describe('tour steps', () => {
     const available = [...ids(talentSidebar), ...LAYOUT_ANCHORS]
     for (const step of TALENT_TOUR) {
       if (step.target) expect(available).toContain(step.target)
+    }
+  })
+
+  it('finds the header anchors in the app', () => {
+    for (const id of [...RECRUITER_HEADER_ANCHORS, ...LAYOUT_ANCHORS]) {
+      expect(anchorExists(id)).toBe(true)
+    }
+  })
+
+  it('never puts the same anchor on two things in one shell', () => {
+    for (const shell of [
+      [
+        ...ids(recruiterSidebar),
+        ...LAYOUT_ANCHORS,
+        ...RECRUITER_HEADER_ANCHORS,
+      ],
+      [...ids(talentSidebar), ...LAYOUT_ANCHORS],
+    ]) {
+      expect(new Set(shell).size).toBe(shell.length)
     }
   })
 

@@ -192,6 +192,12 @@ export const GUIDE_SECTIONS: GuideSection[] = [
         tip: 'Generate the questions for the job after you switch a test on. You choose 1–10 questions per test.',
       },
       {
+        id: 'ai-interview',
+        title: 'AI interview',
+        body: "Runs after the other steps. AI writes 5 interview questions from the job's description and emails the candidate an invite to record their answers.",
+        tip: 'Choose audio only, or audio and video.',
+      },
+      {
         id: 'personality-check',
         title: 'Personality check',
         body: 'Everyday workplace questions that show how someone likes to work: team energy, detail vs big picture, how they decide, and planning style. Candidates see situations, never labels.',

@@ -10,6 +10,8 @@ export interface AiConfigFieldValues {
   noOfProblemSolvingQuestions: string | number
   cultureFitAssessment: string
   noOfCultureFitQuestions: string | number
+  aiInterview: string
+  aiInterviewMode: string
   personalityEvaluation: string
   noOfEIQuestions: string | number
   noOfSNQuestions: string | number
@@ -31,6 +33,8 @@ export const AI_CONFIG_DEFAULT_VALUES: AiConfigFieldValues = {
   noOfProblemSolvingQuestions: '',
   cultureFitAssessment: 'false',
   noOfCultureFitQuestions: '',
+  aiInterview: 'false',
+  aiInterviewMode: '',
   personalityEvaluation: 'false',
   noOfEIQuestions: '',
   noOfSNQuestions: '',

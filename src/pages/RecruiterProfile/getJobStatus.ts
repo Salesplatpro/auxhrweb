@@ -49,6 +49,11 @@ export const JOB_STATUS_OPTIONS = [
   { value: 'closed', label: 'Closed' },
 ]
 
+export const statusSavedMessage = (status: string) =>
+  status === 'pending_payment'
+    ? 'Saved. Pay for this job to put it live.'
+    : 'Job status updated'
+
 export const getStatusLabel = (status: string) =>
   status === 'pending_payment'
     ? 'Awaiting payment'

@@ -6,7 +6,12 @@ import { useUpdateJobMutation } from '@/redux/api/recruiter'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { getStatusBadge, JOB_STATUS_OPTIONS } from '../getJobStatus'
+import {
+  getStatusBadge,
+  getStatusLabel,
+  JOB_STATUS_OPTIONS,
+  statusSavedMessage,
+} from '../getJobStatus'
 import styles from './JobStatusControl.module.scss'
 
 type JobStatusControlProps = {
@@ -40,8 +45,13 @@ export const JobStatusControl = ({
     const previousStatus = currentStatus
     setCurrentStatus(nextStatus)
     try {
-      await updateJob({ jobId, data: { status: nextStatus } }).unwrap()
-      notify('success', 'Job status updated')
+      const response = await updateJob({
+        jobId,
+        data: { status: nextStatus },
+      }).unwrap()
+      const savedStatus: string = response?.data?.job?.status ?? nextStatus
+      setCurrentStatus(savedStatus)
+      notify('success', statusSavedMessage(savedStatus))
     } catch (err) {
       setCurrentStatus(previousStatus)
       notify('error', getErrorMessage(err, 'Failed to update job status'))
@@ -66,7 +76,7 @@ export const JobStatusControl = ({
           )}
         </div>
         <StatusBadge
-          status={currentStatus}
+          status={getStatusLabel(currentStatus)}
           {...getStatusBadge(currentStatus)}
         />
       </div>

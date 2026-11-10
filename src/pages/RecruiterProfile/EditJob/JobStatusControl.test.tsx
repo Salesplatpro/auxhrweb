@@ -46,6 +46,19 @@ describe('JobStatusControl', () => {
     })
   })
 
+  it('shows the job as awaiting payment when activation is parked for payment', async () => {
+    updateJobMock.mockReturnValue({
+      unwrap: () =>
+        Promise.resolve({ data: { job: { status: 'pending_payment' } } }),
+    })
+    renderControl('draft')
+
+    fireEvent.click(screen.getByRole('button', { name: /draft/i }))
+    fireEvent.click(await screen.findByText('Active'))
+
+    expect(await screen.findByText('Awaiting payment')).toBeTruthy()
+  })
+
   it('reverts to the previous status if the update fails', async () => {
     updateJobMock.mockReturnValue({
       unwrap: () => Promise.reject(new Error('nope')),

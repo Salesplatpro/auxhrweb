@@ -265,7 +265,7 @@ a {
 }
 
 .rich-text-content code {
-  background-color: #f3f4f6;
+  background-color: var(--color-bg-subtle);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-family: var(--font-mono);

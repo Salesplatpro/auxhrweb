@@ -287,3 +287,219 @@ $badge-border: #e0e7ff;
   padding: 2px 4px;
   white-space: nowrap;
 }
+
+// ---- Features variant: left-aligned header, three columns, mock on top ----
+
+.features {
+  .copy {
+    max-width: 1280px;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .heading {
+    max-width: 768px;
+  }
+
+  .grid {
+    @include bp.from(bp.$bp-lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .mockPanel {
+    order: -1;
+  }
+}
+
+// ---- Toggle and radio rows ----
+
+.choiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-radius: t.$nl-radius-pill;
+  background: #fff;
+  font-family: t.$nl-font-raleway;
+  font-size: 13px;
+  color: t.$nl-slateblue-950;
+
+  &.toggle {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+  }
+}
+
+.choiceMark {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: t.$nl-radius-pill;
+  background: t.$nl-gray-200;
+
+  .radio.on & {
+    background: t.$nl-blue-700;
+  }
+
+  .toggle & {
+    width: 26px;
+    background: radial-gradient(
+      circle at 30% 50%,
+      #fff 4px,
+      t.$nl-gray-300 5px
+    );
+  }
+
+  .toggle.on & {
+    background: radial-gradient(
+      circle at 70% 50%,
+      #fff 4px,
+      t.$nl-blue-700 5px
+    );
+  }
+}
+
+// ---- Requirement vs CV comparison ----
+
+.compareMock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compareSide {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: #fff;
+  font-family: t.$nl-font-raleway;
+  font-size: 10px;
+  line-height: 1.4;
+  color: t.$nl-slateblue-800;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    font-size: 11px;
+    color: t.$nl-blue-700;
+  }
+}
+
+.compareScore {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: t.$nl-blue-800;
+  font-family: t.$nl-font-raleway;
+  font-size: 18px;
+  color: #fff;
+}
+
+// ---- Bar charts ----
+
+.barsMock,
+.chartCard {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.barsMock {
+  flex: 1;
+  margin-bottom: -16px;
+}
+
+.bar {
+  width: 20px;
+  background: #fff;
+}
+
+.chartMock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: auto 0 -16px;
+}
+
+.statChips {
+  display: flex;
+  gap: 8px;
+}
+
+.statChip {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #fff;
+  font-family: t.$nl-font-raleway;
+  font-size: 10px;
+  color: t.$nl-slateblue-800;
+
+  strong {
+    font-weight: 600;
+    font-size: 14px;
+    color: t.$nl-blue-700;
+  }
+}
+
+.chartCard {
+  height: 56px;
+  padding: 0 8px;
+  border-radius: 8px 8px 0 0;
+  background: #fff;
+}
+
+.chartBar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: t.$nl-blue-400;
+}
+
+// ---- Chat bubbles ----
+
+.chatMock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bubble {
+  align-self: flex-start;
+  max-width: 75%;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background: t.$nl-color-chat-bubble-in;
+  font-family: t.$nl-font-raleway;
+  font-weight: 500;
+  font-size: 11px;
+  color: t.$nl-slateblue-950;
+
+  span {
+    display: block;
+    margin-top: 4px;
+    font-size: 8px;
+    opacity: 0.6;
+  }
+
+  &.mine {
+    align-self: flex-end;
+    background: t.$nl-color-chat-bubble-out;
+    color: #fff;
+  }
+}

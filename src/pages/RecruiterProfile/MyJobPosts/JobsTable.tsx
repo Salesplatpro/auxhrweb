@@ -16,6 +16,7 @@ import {
   getStatusBadge,
   getStatusLabel,
   JOB_STATUS_OPTIONS,
+  statusSavedMessage,
 } from '../getJobStatus'
 import styles from './JobsTable.module.scss'
 import { useJobPayment } from './useJobPayment'
@@ -66,8 +67,14 @@ const StatusCell = ({
     setIsEditing(false)
     if (nextStatus === status) return
     try {
-      await updateJob({ jobId, data: { status: nextStatus } }).unwrap()
-      notify('success', 'Job status updated')
+      const response = await updateJob({
+        jobId,
+        data: { status: nextStatus },
+      }).unwrap()
+      notify(
+        'success',
+        statusSavedMessage(response?.data?.job?.status ?? nextStatus),
+      )
     } catch (err) {
       notify('error', getErrorMessage(err, 'Failed to update job status'))
     }

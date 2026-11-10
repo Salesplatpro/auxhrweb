@@ -28,7 +28,45 @@ type ProfileMock = {
   fitLabel: string
 }
 
-export type StepCard = SearchMock | PillMock | SkeletonTableMock | ProfileMock
+type ChoicesMock = {
+  kind: 'choices'
+  control: 'toggle' | 'radio'
+  items: { label: string; on: boolean }[]
+}
+
+type CompareMock = {
+  kind: 'compare'
+  score: string
+  left: { title: string; text: string }
+  right: { title: string; text: string }
+}
+
+type BarsMock = {
+  kind: 'bars'
+  heights: number[]
+}
+
+type ChartMock = {
+  kind: 'chart'
+  stats: { value: string; label: string }[]
+  heights: number[]
+}
+
+type ChatMock = {
+  kind: 'chat'
+  messages: { text: string; mine: boolean }[]
+}
+
+export type StepCard =
+  | SearchMock
+  | PillMock
+  | SkeletonTableMock
+  | ProfileMock
+  | ChoicesMock
+  | CompareMock
+  | BarsMock
+  | ChartMock
+  | ChatMock
 
 export type HowItWorksStep = {
   id: string

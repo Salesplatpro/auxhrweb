@@ -83,7 +83,7 @@
 .track {
   height: 8px;
   border-radius: 999px;
-  background: var(--color-brand-50);
+  background: var(--color-primary-tint);
   overflow: hidden;
 }
 
@@ -119,7 +119,7 @@
 .personality {
   padding: 4px 8px;
   border-radius: 999px;
-  background: var(--color-brand-50);
-  color: var(--color-brand-800);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-on-tint);
   width: max-content;
 }

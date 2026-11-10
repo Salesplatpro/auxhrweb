@@ -7,6 +7,7 @@ import {
   AboutUs,
   ContactPage,
   Features,
+  ForTalentsPage,
   PricingPage,
   PrivacyPage,
   TermsPage,
@@ -148,6 +149,10 @@ export const routeConfig: RouteObject[] = [
           {
             path: 'features',
             element: <Features />,
+          },
+          {
+            path: paths.forTalents,
+            element: <ForTalentsPage />,
           },
           {
             path: 'resources',

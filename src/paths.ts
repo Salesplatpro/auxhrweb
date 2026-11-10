@@ -13,6 +13,7 @@ export const paths = {
   testimonials: 'testimonials',
   pricing: 'pricing',
   features: 'features',
+  forTalents: 'for-talents',
   resources: 'resources',
   blog: 'https://mysalesplat.com/blog/',
   facebook: 'https://facebook.com/Salesplat',

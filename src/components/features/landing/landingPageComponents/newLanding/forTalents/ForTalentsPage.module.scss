@@ -1,0 +1,110 @@
+@use '../../../../../../styles/breakpoints' as bp;
+@use '../styles/tokens' as t;
+
+.banner,
+.integrations {
+  padding: 64px t.$nl-page-padding;
+  color: #fff;
+  @include t.nl-mobile-page-padding-x;
+
+  @include bp.from(bp.$bp-md) {
+    padding-block: 96px;
+  }
+}
+
+.banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 360px;
+  text-align: center;
+
+  @include bp.from(bp.$bp-md) {
+    min-height: 560px;
+  }
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.45);
+}
+
+.title {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.56px;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 40px;
+    letter-spacing: -0.8px;
+  }
+}
+
+.text {
+  margin: 0;
+  font-family: t.$nl-font-general-sans;
+  font-size: 16px;
+  line-height: 1.5;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 18px;
+  }
+}
+
+.integrations {
+  background: linear-gradient(180deg, t.$nl-violet-400, t.$nl-blue-300);
+}
+
+.inner {
+  max-width: 1280px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.groups {
+  display: grid;
+  gap: 32px;
+  margin-top: 32px;
+
+  @include bp.from(bp.$bp-md) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.groupTitle {
+  margin: 0 0 20px;
+  font-family: t.$nl-font-raleway;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: #fff;
+  font-family: t.$nl-font-raleway;
+  font-size: 16px;
+  color: t.$nl-slateblue-950;
+}

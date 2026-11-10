@@ -15,3 +15,7 @@ body {
   padding: 0;
   overflow-x: hidden;
 }
+
+[data-theme] body {
+  color: var(--color-text-heading);
+}

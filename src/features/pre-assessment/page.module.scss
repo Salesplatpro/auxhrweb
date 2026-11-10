@@ -365,13 +365,13 @@
 }
 
 .navigatorButtonCurrent {
-  background: var(--color-primary);
+  background: var(--color-primary-strong);
   color: var(--color-white);
 }
 
 .navigatorButtonAnswered {
-  background: rgba(27, 123, 68, 0.12);
-  color: var(--color-success);
+  background: var(--color-positive-tint);
+  color: var(--color-positive);
   border: 1px solid rgba(27, 123, 68, 0.3);
 }
 
@@ -398,12 +398,12 @@
 }
 
 .legendSwatchAnswered {
-  background: rgba(27, 123, 68, 0.12);
+  background: var(--color-positive-tint);
   border: 1px solid rgba(27, 123, 68, 0.3);
 }
 
 .legendSwatchCurrent {
-  background: var(--color-primary);
+  background: var(--color-primary-strong);
 }
 
 .legendSwatchUnanswered {

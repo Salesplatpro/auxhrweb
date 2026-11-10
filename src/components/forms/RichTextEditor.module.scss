@@ -81,6 +81,14 @@
     fill: var(--color-text-heading);
   }
 
+  :global(.ql-snow .ql-picker) {
+    color: var(--color-text-heading);
+  }
+
+  :global(.ql-snow .ql-picker-options) {
+    background-color: var(--color-bg-elevated);
+  }
+
   :global(.ql-snow.ql-toolbar button) {
     width: 32px;
     height: 32px;

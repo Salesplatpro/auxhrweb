@@ -2,9 +2,11 @@ import cn from 'classnames'
 import React from 'react'
 
 import checkItem from './assets/check-item.svg'
+import { EyebrowPill } from './ui'
 import styles from './WorkflowFeatures.module.scss'
 import {
   Recruiter,
+  WorkflowFeature,
   workflowFeatures,
   WorkflowVisual,
 } from './workflowFeaturesData'
@@ -21,10 +23,22 @@ const RecruiterPill = ({ recruiter }: { recruiter: Recruiter }) => (
   </div>
 )
 
-const FeatureVisual = ({ visual }: { visual: WorkflowVisual }) => {
+export const FeatureVisual = ({ visual }: { visual: WorkflowVisual }) => {
   if (visual.kind === 'scores') {
     return (
-      <div className={cn(styles.visual, styles.visualScores)} aria-hidden>
+      <div
+        className={cn(
+          styles.visual,
+          styles.visualScores,
+          visual.url && styles.browser,
+        )}
+        aria-hidden>
+        {visual.url && (
+          <div className={styles.browserBar}>
+            <span className={styles.browserDots} />
+            {visual.url}
+          </div>
+        )}
         <div className={styles.scoreList}>
           {visual.items.map((item) => (
             <div
@@ -52,6 +66,36 @@ const FeatureVisual = ({ visual }: { visual: WorkflowVisual }) => {
                   style={{ width: `${item.fill}%` }}
                 />
               </span>
+            </div>
+          ))}
+          {visual.questions && (
+            <div className={styles.scoreCard}>
+              <span className={styles.scoreLabel}>Screening Questions</span>
+              {visual.questions.map((question) => (
+                <div key={question.text} className={styles.questionRow}>
+                  {question.text}
+                  <span className={styles.weightPill}>{question.weight}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  if (visual.kind === 'pipeline') {
+    return (
+      <div className={cn(styles.visual, styles.visualPipeline)} aria-hidden>
+        <div className={styles.jobList}>
+          <span className={styles.pipelineLabel}>{visual.label}</span>
+          {visual.stages.map((stage) => (
+            <div key={stage.title} className={styles.jobCard}>
+              <div className={styles.jobText}>
+                <span className={styles.jobTitle}>{stage.title}</span>
+                <span className={styles.jobMeta}>{stage.meta}</span>
+              </div>
+              <span className={styles.pipelineCount}>{stage.count}</span>
             </div>
           ))}
         </div>
@@ -126,24 +170,39 @@ const FeatureVisual = ({ visual }: { visual: WorkflowVisual }) => {
   )
 }
 
-export const WorkflowFeatures = () => (
+type WorkflowFeaturesProps = {
+  features?: WorkflowFeature[]
+  hideHeader?: boolean
+}
+
+export const WorkflowFeatures = ({
+  features = workflowFeatures,
+  hideHeader = false,
+}: WorkflowFeaturesProps) => (
   <section className={styles.section}>
-    <div className={styles.header}>
-      <h2 className={styles.heading}>Your Recruitment Workflow, Reinvented.</h2>
-      <p className={styles.subcopy}>
-        Optimized for speed, high diagnostic clarity, and frictionless
-        collaboration.
-      </p>
-    </div>
+    {!hideHeader && (
+      <div className={styles.header}>
+        <h2 className={styles.heading}>
+          Your Recruitment Workflow, Reinvented.
+        </h2>
+        <p className={styles.subcopy}>
+          Optimized for speed, high diagnostic clarity, and frictionless
+          collaboration.
+        </p>
+      </div>
+    )}
 
     <div className={styles.rows}>
-      {workflowFeatures.map((feature) => (
+      {features.map((feature) => (
         <div
           key={feature.id}
           className={cn(styles.row, feature.visualFirst && styles.visualFirst)}>
           <div className={styles.copyCell}>
             <div className={styles.copy}>
               <div className={styles.copyText}>
+                {feature.eyebrow && (
+                  <EyebrowPill>{feature.eyebrow}</EyebrowPill>
+                )}
                 <h3 className={styles.title}>{feature.title}</h3>
                 <p className={styles.description}>{feature.description}</p>
               </div>

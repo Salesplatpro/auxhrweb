@@ -3,6 +3,7 @@ const EXACT_TITLES: Record<string, string> = {
   '/explore': 'Explore',
   '/solution': 'Solution',
   '/features': 'Features',
+  '/for-talents': 'For Talents',
   '/resources': 'Resources',
   '/customerstories': 'Customer Stories',
   '/pricing': 'Pricing',

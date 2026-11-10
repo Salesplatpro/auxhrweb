@@ -5,7 +5,14 @@
   width: fit-content;
   padding: var(--space-1) var(--space-4);
   border-radius: var(--radius-md);
+  background: var(--badge-bg);
+  color: var(--badge-fg);
   text-align: center;
+
+  :global(html[data-theme='dark']) & {
+    background: color-mix(in srgb, var(--badge-fg) 18%, transparent);
+    color: color-mix(in srgb, var(--badge-fg) 55%, white);
+  }
 }
 
 .dot {

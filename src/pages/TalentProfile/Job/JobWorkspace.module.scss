@@ -5,7 +5,7 @@
   gap: var(--space-1);
   margin-bottom: var(--space-5);
   padding: var(--space-2) var(--space-3);
-  background: var(--color-grey-50);
+  background: var(--color-bg-subtle);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   width: fit-content;
@@ -38,12 +38,12 @@
 }
 
 .crumbCurrent {
-  background: var(--color-primary);
+  background: var(--color-primary-strong);
   color: var(--color-white);
 }
 
 .crumbDone {
-  color: var(--color-primary-strong);
+  color: var(--color-primary-on-tint);
 }
 
 .stagePanel {
@@ -53,7 +53,7 @@
   padding: var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-panel);
-  background: var(--color-white);
+  background: var(--color-bg-elevated);
   margin-top: var(--space-5);
 }
 
@@ -62,6 +62,7 @@
   font-family: var(--font-heading);
   font-size: var(--text-xl);
   font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
 }
 
 .stageMeta {
@@ -80,7 +81,7 @@
 }
 
 .qaItem {
-  background: var(--color-grey-50);
+  background: var(--color-bg-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
@@ -88,9 +89,11 @@
 .qaQuestion {
   margin: 0 0 var(--space-2);
   font-weight: var(--weight-medium);
+  color: var(--color-text-heading);
 }
 
 .qaAnswer {
   margin: 0;
+  color: var(--color-text-body);
   white-space: pre-wrap;
 }

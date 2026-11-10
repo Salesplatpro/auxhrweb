@@ -59,3 +59,22 @@ export interface DashboardApplicantsPage {
   items: DashboardApplicant[]
   total: number
 }
+
+export interface TalentJobMatch {
+  jobId: string
+  title: string
+  company: string | null
+  companyLogoUrl: string | null
+  city: string | null
+  state: string | null
+  country: string | null
+  workMode: string[]
+  createdAt: string
+  matchPercent: number
+}
+
+export interface TalentDashboard {
+  cvReady: boolean
+  matches: TalentJobMatch[]
+  newMatchesToday: number
+}

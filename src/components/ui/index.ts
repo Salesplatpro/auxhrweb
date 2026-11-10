@@ -1,4 +1,3 @@
-export * from './ActivityHeatmap'
 export * from './ArcBackdrop'
 export * from './Avatar'
 export * from './BackButton'

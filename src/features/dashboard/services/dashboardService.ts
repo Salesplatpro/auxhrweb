@@ -6,6 +6,7 @@ import {
   RecruiterNavCounts,
   SummaryChart,
   SummaryRange,
+  TalentDashboard,
 } from '../types'
 
 export const RECRUITER_COUNTS_ENDPOINT = '/recruiter/dashboard/counts'
@@ -47,4 +48,14 @@ export const fetchRecruiterApplicants = (limit: number, offset: number) =>
     .get<{ data: DashboardApplicantsPage }>(RECRUITER_APPLICANTS_ENDPOINT, {
       params: { limit, offset },
     })
+    .then((response) => response.data.data)
+
+export const TALENT_DASHBOARD_ENDPOINT = '/user/dashboard'
+
+export const talentDashboardKey = (userId: string) =>
+  [TALENT_DASHBOARD_ENDPOINT, userId] as const
+
+export const fetchTalentDashboard = () =>
+  httpClient
+    .get<{ data: TalentDashboard }>(TALENT_DASHBOARD_ENDPOINT)
     .then((response) => response.data.data)

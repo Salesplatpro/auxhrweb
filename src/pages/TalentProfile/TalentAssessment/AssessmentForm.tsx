@@ -25,6 +25,8 @@ type AssessmentFormProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   isSubmitting: boolean
   placeholder?: string
+  optionalIds?: string[]
+  maxLength?: number
 }
 
 const answeredCount = (
@@ -52,17 +54,24 @@ export const AssessmentForm = ({
   onSubmit,
   isSubmitting,
   placeholder = 'Share a real example…',
+  optionalIds = [],
+  maxLength,
 }: AssessmentFormProps) => {
-  const filled = answeredCount(questions, answers)
-  const total = questions.length
+  const requiredQuestions = questions.filter(
+    (item) => !optionalIds.includes(item.id),
+  )
+  const filled = answeredCount(requiredQuestions, answers)
+  const total = requiredQuestions.length
   const progress = total === 0 ? 0 : Math.round((filled / total) * 100)
   const [submitAttempted, setSubmitAttempted] = React.useState(false)
+  const isMissing = (id: string) =>
+    submitAttempted && !optionalIds.includes(id) && !(answers[id] ?? '').trim()
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    if (!allQuestionsAnswered(questions, answers)) {
+    if (!allQuestionsAnswered(requiredQuestions, answers)) {
       event.preventDefault()
       setSubmitAttempted(true)
-      const firstEmpty = questions.find(
+      const firstEmpty = requiredQuestions.find(
         (item) => !(answers[item.id] ?? '').trim(),
       )
       if (firstEmpty) {
@@ -116,23 +125,18 @@ export const AssessmentForm = ({
             </div>
             <textarea
               className={`${styles.textarea} ${
-                submitAttempted && !(answers[question.id] ?? '').trim()
-                  ? styles.invalid
-                  : ''
+                isMissing(question.id) ? styles.invalid : ''
               }`}
               id={`answer-${question.id}`}
               name={`answer-${question.id}`}
               value={answers[question.id] ?? ''}
               placeholder={placeholder}
-              required
-              aria-invalid={
-                submitAttempted && !(answers[question.id] ?? '').trim()
-                  ? true
-                  : undefined
-              }
+              required={!optionalIds.includes(question.id)}
+              maxLength={maxLength}
+              aria-invalid={isMissing(question.id) ? true : undefined}
               onChange={(event) => onChange(question.id, event.target.value)}
             />
-            {submitAttempted && !(answers[question.id] ?? '').trim() && (
+            {isMissing(question.id) && (
               <p className={styles.fieldError} role="alert">
                 Please answer this question to continue.
               </p>

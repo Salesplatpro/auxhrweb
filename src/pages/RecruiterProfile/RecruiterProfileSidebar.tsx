@@ -10,13 +10,13 @@ import {
   sidebarData,
   sidebarFooterData,
 } from '@/components/features/recruiter/SideBar/sidebarData'
+import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import { peoplePaths } from '@/features/people/paths'
 import { ProductTourHost } from '@/features/product-tour'
 import { ThemeProvider } from '@/features/theme/ThemeProvider'
 
 import { SideBar } from '../../components'
-import { LoggedInUserBadge } from '../LoggedInUserBadge'
 import { CompanyBanner } from './CompanyBanner/CompanyBanner'
 
 const RecruiterProfileSidebar = () => {
@@ -46,7 +46,7 @@ const RecruiterProfileSidebar = () => {
           <button className="menu" onClick={() => setIsOpen(!isOpen)}>
             {!isOpen && <IoMdMenu className="menu-icon" />}
           </button>
-          <LoggedInUserBadge />
+          <DashboardHeader audience="recruiter" />
         </div>
         {isOpen && (
           <button

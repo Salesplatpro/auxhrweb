@@ -8,14 +8,13 @@ import { Outlet } from 'react-router-dom'
 
 import { sidebarData as originalSidebarData } from '@/components/features/talent/SideBar/SideBarData'
 import { SideBar } from '@/components/layout/sidebar/SideBar'
+import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
 import { useMyWork } from '@/features/people/hooks/useStaffData'
 import { myWorkPath } from '@/features/people/paths'
 import { NavigationLockOverlay } from '@/features/pre-assessment/components/NavigationLockOverlay'
 import { useAssessmentNavigationBlocker } from '@/features/pre-assessment/useAssessmentNavigationBlocker'
 import { ProductTourHost } from '@/features/product-tour'
 import { ThemeProvider } from '@/features/theme/ThemeProvider'
-
-import { LoggedInUserBadge } from '../LoggedInUserBadge'
 
 interface TalentSidebarContext {
   setUnreadCount: (count: number) => void
@@ -55,7 +54,7 @@ const TalentProfileSidebar: React.FC = () => {
           <button className="menu" onClick={() => setIsOpen(!isOpen)}>
             {!isOpen && <IoMdMenu className="menu-icon" />}
           </button>
-          <LoggedInUserBadge />
+          <DashboardHeader audience="talent" />
         </div>
 
         {isOpen && (

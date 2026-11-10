@@ -89,10 +89,16 @@
   }
 }
 
-.name {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--color-text-heading);
+.identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  text-align: left;
+}
+
+.name,
+.subtitle {
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -321,13 +327,8 @@
 }
 
 @media (max-width: 980px) {
-  .name,
-  .pill {
+  .identity {
     display: none;
-  }
-
-  .headerPills .pill {
-    display: inline-flex;
   }
 
   .dropdownMenu {
@@ -337,11 +338,6 @@
 }
 
 @media (max-width: 480px) {
-  .name,
-  .pill {
-    display: none;
-  }
-
   .dropdownMenu {
     width: min(340px, calc(100vw - 16px));
   }

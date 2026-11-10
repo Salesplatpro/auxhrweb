@@ -29,6 +29,7 @@ const anchorExists = (id: string) =>
 
 // Anchors outside the sidebar lists, set directly on their components.
 const LAYOUT_ANCHORS = ['company-switcher', 'profile-menu']
+const RECRUITER_HEADER_ANCHORS = ['nav-post-job']
 
 const ids = (items: { tourId?: string }[]) =>
   items.map((item) => item.tourId).filter(Boolean)
@@ -39,6 +40,7 @@ describe('tour steps', () => {
       ...ids(recruiterSidebar),
       ...ids(sidebarFooterData),
       ...LAYOUT_ANCHORS,
+      ...RECRUITER_HEADER_ANCHORS,
     ]
     for (const step of RECRUITER_TOUR) {
       if (step.target) expect(available).toContain(step.target)
@@ -49,6 +51,12 @@ describe('tour steps', () => {
     const available = [...ids(talentSidebar), ...LAYOUT_ANCHORS]
     for (const step of TALENT_TOUR) {
       if (step.target) expect(available).toContain(step.target)
+    }
+  })
+
+  it('finds the header anchors in the app', () => {
+    for (const id of RECRUITER_HEADER_ANCHORS) {
+      expect(anchorExists(id)).toBe(true)
     }
   })
 

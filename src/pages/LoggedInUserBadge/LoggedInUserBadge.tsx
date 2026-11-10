@@ -18,15 +18,16 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { NotificationPanel } from '@/components/features/notifications/NotificationPanel'
 import { Avatar } from '@/components/ui/Avatar'
+import { Text } from '@/components/ui/Typography'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { changePasswordPathForRole } from '@/features/auth/utils/dashboardPath'
 import { getEmailVerificationBadge } from '@/features/email-verification/utils/getEmailVerificationBadge'
 import { useNotifications } from '@/features/notifications/hooks/useNotifications'
-import { isPayPerUsePlan } from '@/features/pricing/types'
 import { getActiveOrganizationBilling } from '@/features/pricing/utils/getActiveOrganizationBilling'
 import { getBillingPlanBadge } from '@/features/pricing/utils/getBillingPlanBadge'
 import { pageTourFor, useTourStore } from '@/features/product-tour'
 import { useProfile } from '@/features/profile/hooks/useProfile'
+import { ProfileUser } from '@/features/profile/types'
 import { ThemeMode, useTheme } from '@/features/theme/ThemeProvider'
 
 import styles from './LoggedInUserBadge.module.scss'
@@ -51,6 +52,20 @@ const THEME_OPTIONS: Array<{ id: ThemeMode; label: string }> = [
   { id: 'light', label: 'Light' },
   { id: 'dark', label: 'Dark' },
 ]
+
+const subtitleFor = (
+  role: string | undefined,
+  profile?: ProfileUser | null,
+) => {
+  if (role === 'recruiter') {
+    const ownsCompany =
+      !!profile?.id && profile.activeOrganization?.ownerId === profile.id
+    return ownsCompany ? 'Recruiter · Owner' : 'Recruiter'
+  }
+  if (role === 'talent') return profile?.userRoles?.[0]?.name ?? 'Talent'
+  if (role === 'admin') return 'Admin'
+  return ''
+}
 
 export const LoggedInUserBadge: React.FC = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false)
@@ -78,9 +93,10 @@ export const LoggedInUserBadge: React.FC = () => {
   const email = userInfo?.email || user?.email || ''
   const isVerified = !!userInfo?.emailVerifiedAt
   const billing = getActiveOrganizationBilling(userInfo)
-  const isPaid = !isPayPerUsePlan(billing.billingPlan)
   const verificationBadge = getEmailVerificationBadge(userInfo?.emailVerifiedAt)
   const planBadge = getBillingPlanBadge(billing.billingPlan)
+
+  const subtitle = subtitleFor(role, userInfo)
 
   const toggleDropdown = () => {
     setIsNotificationsOpen(false)
@@ -173,31 +189,6 @@ export const LoggedInUserBadge: React.FC = () => {
           onClick={toggleDropdown}
           aria-expanded={isDropdownVisible}
           aria-haspopup="menu">
-          <span className={styles.name}>{fullName}</span>
-          <span
-            className={cn(styles.pill, styles.verifiedPill)}
-            style={{
-              backgroundColor: verificationBadge.backgroundColor,
-              color: verificationBadge.color,
-            }}>
-            {isVerified ? (
-              <IoCheckmarkCircle size={14} />
-            ) : (
-              <span className={styles.pillDot} />
-            )}
-            {verificationBadge.status}
-          </span>
-          {role === 'recruiter' && isPaid && (
-            <span
-              className={cn(styles.pill, styles.paidPill)}
-              style={{
-                backgroundColor: planBadge.backgroundColor,
-                color: planBadge.color,
-              }}>
-              <MdOutlineWorkspacePremium size={14} />
-              {planBadge.status}
-            </span>
-          )}
           <span className={styles.avatarWrap}>
             <Avatar
               firstName={firstName}
@@ -205,6 +196,24 @@ export const LoggedInUserBadge: React.FC = () => {
               src={userInfo?.profileImageUrl}
               size="md"
             />
+          </span>
+          <span className={styles.identity}>
+            <Text
+              as="span"
+              size="fs-md"
+              weight="bolder"
+              className={styles.name}>
+              {fullName}
+            </Text>
+            {subtitle && (
+              <Text
+                as="span"
+                size="fs-sm"
+                color="muted"
+                className={styles.subtitle}>
+                {subtitle}
+              </Text>
+            )}
           </span>
           <IoIosArrowDown
             size={16}

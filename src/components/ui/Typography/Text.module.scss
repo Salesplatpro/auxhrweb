@@ -78,6 +78,10 @@ $mobile-breakpoint: 480px;
   color: var(--color-text-heading);
 }
 
+.muted {
+  color: var(--color-text-muted);
+}
+
 .normal {
   font-weight: var(--weight-regular);
 }

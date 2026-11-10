@@ -18,7 +18,7 @@ const { navigateMock, authState, orgState } = vi.hoisted(() => ({
     },
     logout: vi.fn(),
   },
-  orgState: { billingPlan: 'pay_per_use' as string },
+  orgState: { billingPlan: 'pay_per_use' as string, ownerId: 'u1' },
 }))
 
 vi.mock('react-router-dom', async () => {
@@ -36,13 +36,14 @@ vi.mock('@/features/auth/store/useAuthStore', () => ({
 vi.mock('@/features/profile/hooks/useProfile', () => ({
   useProfile: () => ({
     profile: {
+      id: 'u1',
       firstName: 'Ada',
       lastName: 'Lovelace',
       email: 'ada@example.com',
       emailVerifiedAt: '2026-01-01T00:00:00.000Z',
       activeOrganization: {
         id: 'org-1',
-        ownerId: 'u1',
+        ownerId: orgState.ownerId,
         name: 'Ada Co',
         status: 'verified',
         billingPlan: orgState.billingPlan,
@@ -88,6 +89,7 @@ describe('LoggedInUserBadge', () => {
     authState.logout.mockReset()
     authState.user.userRole = 'talent'
     orgState.billingPlan = 'pay_per_use'
+    orgState.ownerId = 'u1'
     useTourStore.getState().stop()
   })
 
@@ -141,24 +143,30 @@ describe('LoggedInUserBadge', () => {
     ).toBeNull()
   })
 
-  // The trigger pill used to hardcode "Paid" while the dropdown showed the real plan name,
-  // so an org on sme_basic read as two different things in the same header.
-  it('shows the real plan name in the trigger pill for a paid recruiter', () => {
+  it('labels the company owner under their name', () => {
+    authState.user.userRole = 'recruiter'
+    renderBadge()
+
+    expect(screen.getByText('Recruiter · Owner')).toBeTruthy()
+  })
+
+  it('labels a teammate who does not own the company as a recruiter', () => {
+    authState.user.userRole = 'recruiter'
+    orgState.ownerId = 'someone-else'
+    renderBadge()
+
+    expect(screen.getByText('Recruiter')).toBeTruthy()
+    expect(screen.queryByText('Recruiter · Owner')).toBeNull()
+  })
+
+  it('keeps the real plan name in the account menu and never says Free', () => {
     authState.user.userRole = 'recruiter'
     orgState.billingPlan = 'sme_basic'
     renderBadge()
 
-    expect(screen.getByText('Sme Basic')).toBeTruthy()
-    expect(screen.queryByText('Paid')).toBeNull()
-  })
-
-  it('shows no paid pill for a pay-per-use recruiter, and never says Free', () => {
-    authState.user.userRole = 'recruiter'
-    renderBadge()
-
     expect(screen.queryByText(/Free/)).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: /Ada Lovelace/ }))
-    expect(screen.getByText('Pay per Use')).toBeTruthy()
+    expect(screen.getByText('Sme Basic')).toBeTruthy()
   })
 
   describe('tour entry', () => {

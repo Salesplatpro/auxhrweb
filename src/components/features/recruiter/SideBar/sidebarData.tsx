@@ -15,13 +15,6 @@ export const sidebarData = [
     link: '/recruiterDashboard/dashboard',
   },
   {
-    name: 'Post a Job',
-    tourId: 'nav-post-job',
-    icon: <MdWorkOutline size={ICON_SIZE} />,
-    link: '/recruiterDashboard/postjob',
-    end: false,
-  },
-  {
     name: 'My Job Posts',
     tourId: 'nav-my-job-posts',
     icon: <MdWorkOutline size={ICON_SIZE} />,

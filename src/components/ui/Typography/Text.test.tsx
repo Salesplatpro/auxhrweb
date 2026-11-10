@@ -36,6 +36,12 @@ describe('Text', () => {
     expect(element.className).toContain('bolder')
   })
 
+  it('applies the muted color', () => {
+    render(<Text color="muted">Hello world</Text>)
+
+    expect(screen.getByText('Hello world').className).toContain('muted')
+  })
+
   it('merges a custom className with its own', () => {
     render(<Text className="custom-class">Hello world</Text>)
 

@@ -9,6 +9,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
+import { RefereesSection } from '@/features/references/RefereesSection'
 import CompanyAssessments from '@/pages/TalentProfile/TalentAssessment/CompanyAssessments'
 import PersonalityTest from '@/pages/TalentProfile/TalentAssessment/PersonalityTest'
 import PersonalizedTest from '@/pages/TalentProfile/TalentAssessment/PersonalizedTest'
@@ -372,6 +373,8 @@ const IndividualJob = () => {
         ))}
 
       <CompanyAssessments jobId={jobId} application={application} />
+
+      {application?.id && <RefereesSection applicationId={application.id} />}
 
       <ApplicationSuccessModal
         open={showSuccess}

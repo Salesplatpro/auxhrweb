@@ -74,14 +74,7 @@ export const recruiterApi = createApi({
       }),
     }),
     fetchDashboard: builder.query({
-      query: ({ jobId }: { jobId?: string }) => {
-        const baseUrl = '/recruiter/dashboard'
-        const url = jobId ? `${baseUrl}?jobId=${jobId}` : baseUrl
-        return {
-          url,
-          method: 'GET',
-        }
-      },
+      query: () => ({ url: '/recruiter/dashboard', method: 'GET' }),
     }),
     fetchAllApplications: builder.query({
       query: () => ({

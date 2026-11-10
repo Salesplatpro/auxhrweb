@@ -35,6 +35,28 @@ describe('MetricCard', () => {
     expect(screen.getByText('-8%')).toBeTruthy()
   })
 
+  it('shows a count delta without a percent sign', () => {
+    renderCard({
+      label: 'Active jobs',
+      value: '12',
+      delta: 2,
+      deltaFormat: 'count',
+    })
+
+    expect(screen.getByText('+2')).toBeTruthy()
+    expect(screen.queryByText('+2%')).toBeNull()
+  })
+
+  it('shows an icon beside the label', () => {
+    renderCard({
+      label: 'Active jobs',
+      value: '12',
+      icon: <svg data-testid="metric-icon" />,
+    })
+
+    expect(screen.getByTestId('metric-icon')).toBeTruthy()
+  })
+
   it('omits the delta when it cannot be computed', () => {
     renderCard({ label: 'Talents', value: '10', delta: null })
 

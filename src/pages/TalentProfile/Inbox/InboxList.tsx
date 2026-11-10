@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { useOutletContext, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 
 import { InboxLayout } from '@/components/features/messaging/Inbox'
 import { PageHero } from '@/components/layout/PageHero'
@@ -8,17 +8,11 @@ import { useMessages } from '@/features/messaging/hooks/useMessages'
 import { useSendMessage } from '@/features/messaging/hooks/useSendMessage'
 import { useTalentChatSessions } from '@/features/messaging/hooks/useTalentChatSessions'
 
-interface TalentSidebarContext {
-  setUnreadCount: (count: number) => void
-}
-
 const InboxList: React.FC = () => {
-  const { setUnreadCount } = useOutletContext<TalentSidebarContext>()
   const [searchParams, setSearchParams] = useSearchParams()
   const applicationId = searchParams.get('applicationId')
   const {
     sessions,
-    unreadCount,
     isLoading,
     mutate: mutateSessions,
   } = useTalentChatSessions()
@@ -32,10 +26,6 @@ const InboxList: React.FC = () => {
   const selected = sessions.find(
     (session) => session.applicationId === applicationId,
   )
-
-  useEffect(() => {
-    setUnreadCount?.(unreadCount)
-  }, [unreadCount, setUnreadCount])
 
   useEffect(() => {
     if (!applicationId || messagesLoading) return

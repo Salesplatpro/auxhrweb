@@ -80,6 +80,7 @@ import {
   Profile as RecruiterProfilePage,
   Shortlist,
 } from '@/pages/RecruiterProfile'
+import { ComingSoonPage } from '@/pages/RecruiterProfile/ComingSoon/ComingSoonPage'
 import Company from '@/pages/RecruiterProfile/Company/Company'
 import EditCompany from '@/pages/RecruiterProfile/Company/EditCompany'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
@@ -445,6 +446,24 @@ export const routeConfig: RouteObject[] = [
                   {
                     path: 'guide',
                     element: <RecruiterGuide />,
+                  },
+                  {
+                    path: 'pre-screening',
+                    element: (
+                      <ComingSoonPage
+                        title="Pre-Screening"
+                        description="Review pre-screening results across all your job posts."
+                      />
+                    ),
+                  },
+                  {
+                    path: 'ai-configuration',
+                    element: (
+                      <ComingSoonPage
+                        title="AI Configuration"
+                        description="Set how AI screens applicants for your company."
+                      />
+                    ),
                   },
                   {
                     path: paths.changePassword,

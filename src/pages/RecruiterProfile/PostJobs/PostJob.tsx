@@ -108,7 +108,7 @@ const PostJob: React.FC<PostJobProps> = ({
       if (!newJobId) {
         notify(
           'error',
-          'Job was created but no ID was returned. Please check My Job Posts and add an AI Config from there.',
+          'Job was created but no ID was returned. Please check Job Posts and add an AI Config from there.',
         )
         return
       }

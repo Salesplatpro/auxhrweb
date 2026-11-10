@@ -1,5 +1,8 @@
+import { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
 
+import { chatSessionsKey } from '@/features/messaging/services/messagingService'
+import { notificationsKey } from '@/features/notifications/services/notificationService'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
@@ -9,7 +12,7 @@ import {
   switchOrganization,
 } from '../services/organizationService'
 
-const resetCompanyWorkspaceCaches = async () => {
+export const resetCompanyWorkspaceCaches = async () => {
   const [
     { store },
     { recruiterApi },
@@ -34,6 +37,7 @@ const resetCompanyWorkspaceCaches = async () => {
   useJobDraftStore.getState().clearDraft()
   useJobEditDraftStore.getState().clearAllDrafts()
   useAiConfigDraftStore.getState().clearAllDrafts()
+  await Promise.allSettled([mutate(chatSessionsKey), mutate(notificationsKey)])
 }
 
 export const useSwitchOrganization = () => {

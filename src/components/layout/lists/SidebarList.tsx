@@ -1,21 +1,21 @@
+import cn from 'classnames'
 import React, { ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { CountBadge } from '@/components/ui/Badge'
+import { Pill } from '@/components/ui/Pill'
+import { Text } from '@/components/ui/Typography'
 
 import styles from './sidebarList.module.scss'
 
 type SidebarListProps = {
   icon: ReactNode
   name: string
-  details?: string
   count?: number
+  tag?: string
   onClick?: () => void
   link?: string
-  /** Exact-match the route instead of matching nested child routes too.
-   * Defaults to true; set to false for nav items that own nested routes
-   * (e.g. a list page with a `/:id` detail route) so the item stays
-   * highlighted while the user is on one of those child routes. */
+  /** Exact-match the route; set false for items that own nested routes so they stay highlighted on them. */
   end?: boolean
   /** Anchor for the product tour (`data-tour`). */
   tourId?: string
@@ -24,8 +24,8 @@ type SidebarListProps = {
 export const SidebarList = ({
   icon,
   name,
-  details,
   count,
+  tag,
   onClick,
   link,
   end = true,
@@ -33,26 +33,24 @@ export const SidebarList = ({
 }: SidebarListProps) => {
   const content = (
     <>
-      <div className={styles.listItem}>
-        <div className={styles.iconBox}>{icon}</div>
-        <div>
-          <div className={styles.name}>{name}</div>
-          <div>{details}</div>
-        </div>
-      </div>
+      <span className={styles.icon} aria-hidden>
+        {icon}
+      </span>
+      <Text as="span" size="fs-md" weight="bold" className={styles.name}>
+        {name}
+      </Text>
+      {tag && (
+        <Pill tone="success" size="sm">
+          {tag}
+        </Pill>
+      )}
       <CountBadge item={count} />
     </>
   )
 
-  // Entries with no destination (e.g. "Profile") can't be route-matched —
-  // render as a plain, never-active row instead of an empty-`to` NavLink,
-  // which would otherwise match every route and always show as active.
   if (!link) {
     return (
-      <div
-        className={styles.listContainer}
-        onClick={onClick}
-        data-tour={tourId}>
+      <div className={styles.item} onClick={onClick} data-tour={tourId}>
         {content}
       </div>
     )
@@ -63,9 +61,7 @@ export const SidebarList = ({
       to={link}
       end={end}
       data-tour={tourId}
-      className={({ isActive }) =>
-        `${styles.listContainer} ${isActive ? styles.active : ''}`
-      }
+      className={({ isActive }) => cn(styles.item, isActive && styles.active)}
       onClick={onClick}>
       {content}
     </NavLink>

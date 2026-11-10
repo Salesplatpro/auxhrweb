@@ -87,7 +87,7 @@ describe('ReviewStep', () => {
     expect(screen.queryByText(/of 8 done/)).toBeNull()
   })
 
-  it('publishes a job and goes to My Job Posts when it goes live', async () => {
+  it('publishes a job and goes to Job Posts when it goes live', async () => {
     updateMock.mockReturnValue({
       unwrap: () => Promise.resolve({ data: { job: { status: 'active' } } }),
     })

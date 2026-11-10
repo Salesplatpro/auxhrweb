@@ -36,7 +36,7 @@ export const RECRUITER_TOUR: TourStep[] = [
   },
   {
     target: 'nav-my-job-posts',
-    title: 'My Job Posts',
+    title: 'Job Posts',
     body: 'Every job you posted, with its applicants already scored and ranked so you can start with the strongest.',
   },
   {
@@ -51,7 +51,7 @@ export const RECRUITER_TOUR: TourStep[] = [
   },
   {
     target: 'nav-chat',
-    title: 'Chat and Shortlist',
+    title: 'Chats and Shortlist',
     body: 'Message talents directly, and keep everyone you shortlisted in one place.',
   },
   {
@@ -78,28 +78,28 @@ export const TALENT_TOUR: TourStep[] = [
   },
   {
     target: 'nav-pre-assessment',
-    title: 'Pre-assessment test',
-    body: 'Take this once. Your score is reused for every job you apply to, so give it your best.',
+    title: 'Assessments',
+    body: 'Take the pre-assessment once. Your score is reused for every job you apply to, so give it your best.',
   },
   {
     target: 'nav-jobs',
-    title: 'Jobs',
+    title: 'Find Jobs',
     body: 'Browse open jobs and apply. Each job shows the steps you’ll go through.',
   },
   {
     target: 'nav-pipeline',
-    title: 'Applications pipeline',
+    title: 'Applications',
     body: 'See where each application is, and finish any steps that are waiting for you.',
   },
   {
     target: 'nav-inbox',
-    title: 'Inbox',
+    title: 'Messages',
     body: 'Messages from employers land here.',
   },
   {
     target: 'nav-notifications',
     title: 'Notifications',
-    body: 'Updates on your applications, so you never miss a next step.',
+    body: 'The bell shows updates on your applications, so you never miss a next step.',
   },
 ]
 
@@ -239,7 +239,7 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
       to: MY_JOBS_PAGE,
       skipWhen: withinPage(POST_JOB_PAGE),
       title: 'Finish your draft',
-      body: 'Open My Job Posts to find the job you started.',
+      body: 'Open Job Posts to find the job you started.',
       why: 'A job needs a screening setup before it can be published.',
     },
     {

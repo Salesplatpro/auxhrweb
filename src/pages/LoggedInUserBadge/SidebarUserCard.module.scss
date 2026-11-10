@@ -1,0 +1,46 @@
+.wrapper {
+  position: relative;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+
+  &:hover,
+  &.open {
+    background: var(--color-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-brand-vivid);
+    outline-offset: 1px;
+  }
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}

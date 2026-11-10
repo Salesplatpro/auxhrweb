@@ -1,92 +1,89 @@
 import React, { ReactNode } from 'react'
-import { HiOutlineLifebuoy } from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 
-import auxHrLogo from '@/assets/aux_logo.png'
+import logoMark from '@/components/features/landing/landingPageComponents/newLanding/assets/logo-mark.png'
+import { Text } from '@/components/ui/Typography'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
-import {
-  dashboardPathForRole,
-  supportPathForRole,
-} from '@/features/auth/utils/dashboardPath'
+import { dashboardPathForRole } from '@/features/auth/utils/dashboardPath'
 
 import { SidebarList } from '../lists'
 import styles from './sidebar.module.scss'
 
-interface SideBarItem {
+export interface SideBarItem {
   name: string
   icon: ReactNode
   count?: number
+  tag?: string
   link?: string
   end?: boolean
   tourId?: string
 }
 
-interface sideBarProps {
-  sideBarData: SideBarItem[]
-  handleClick?: () => void
-  /** Optional content rendered between the logo and the nav list (e.g. a company switcher). */
-  topSlot?: ReactNode
-  /** Extra links pinned to the bottom of the sidebar, above "Help & support". */
-  footerItems?: SideBarItem[]
+export interface SideBarSection {
+  label?: string
+  items: SideBarItem[]
 }
 
-export const SideBar: React.FC<sideBarProps> = ({
-  sideBarData,
+interface SideBarProps {
+  sections: SideBarSection[]
+  handleClick?: () => void
+  topSlot?: ReactNode
+  promoSlot?: ReactNode
+  footerSlot?: ReactNode
+}
+
+export const SideBar: React.FC<SideBarProps> = ({
+  sections,
   handleClick,
   topSlot,
-  footerItems = [],
+  promoSlot,
+  footerSlot,
 }) => {
   const userRole = useAuthStore((state) => state.user?.userRole)
-  const homePath = dashboardPathForRole(userRole)
-  const supportPath = supportPathForRole(userRole)
 
   return (
-    <div className={styles.sideBarContainer}>
-      <div>
-        <div className={styles.imageContainer}>
-          <Link to={homePath}>
-            <img src={auxHrLogo} alt="Aux HR Logo" />
-          </Link>
-        </div>
+    <aside className={styles.sideBar}>
+      <div className={styles.logo} onClick={handleClick}>
+        <Link to={dashboardPathForRole(userRole)}>
+          <img src={logoMark} alt="AuxHR" />
+        </Link>
+      </div>
 
+      <div className={styles.scroll}>
         {topSlot}
-
-        <div className={styles.sidebarList}>
-          {sideBarData.map((data, index) => (
-            <SidebarList
-              key={index}
-              icon={data.icon}
-              name={data.name}
-              count={data.count}
-              link={data.link}
-              end={data.end}
-              tourId={data.tourId}
-              onClick={handleClick}
-            />
+        <nav aria-label="Main">
+          {sections.map((section, index) => (
+            <div key={section.label ?? index} className={styles.section}>
+              {section.label && (
+                <Text
+                  as="p"
+                  size="fs-sm"
+                  weight="bolder"
+                  color="muted"
+                  className={styles.sectionLabel}>
+                  {section.label}
+                </Text>
+              )}
+              {section.items.map((item) => (
+                <SidebarList
+                  key={item.name}
+                  icon={item.icon}
+                  name={item.name}
+                  count={item.count}
+                  tag={item.tag}
+                  link={item.link}
+                  end={item.end}
+                  tourId={item.tourId}
+                  onClick={handleClick}
+                />
+              ))}
+            </div>
           ))}
-        </div>
+        </nav>
+        {promoSlot && <div className={styles.promo}>{promoSlot}</div>}
       </div>
-      <div>
-        {footerItems.map((item) => (
-          <SidebarList
-            key={item.name}
-            icon={item.icon}
-            name={item.name}
-            link={item.link}
-            end={item.end}
-            tourId={item.tourId}
-            onClick={handleClick}
-          />
-        ))}
-        {supportPath && (
-          <SidebarList
-            icon={<HiOutlineLifebuoy size={20} />}
-            name="Help & support"
-            link={supportPath}
-            onClick={handleClick}
-          />
-        )}
-      </div>
-    </div>
+
+      {footerSlot && <div className={styles.footer}>{footerSlot}</div>}
+    </aside>
   )
 }

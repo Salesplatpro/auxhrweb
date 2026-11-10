@@ -1,6 +1,8 @@
+$sidebar-width: 256px;
+
 /* Shift modal overlay to cover only the main content area (excludes sidebar) */
 .dashboard-modal-overlay {
-  left: 298px !important;
+  left: $sidebar-width !important;
 
   @media (max-width: 980px) {
     left: 0 !important;
@@ -12,7 +14,7 @@
   grid-template-areas:
     'sidebar header'
     'sidebar body';
-  grid-template-columns: 298px minmax(0, 1fr);
+  grid-template-columns: $sidebar-width minmax(0, 1fr);
   grid-template-rows: 70px minmax(0, 1fr);
   height: 100vh;
   overflow: hidden;
@@ -82,7 +84,7 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: min(298px, 86vw);
+      width: min($sidebar-width, 86vw);
       height: 100%;
       z-index: 40;
       transition: transform 0.3s ease;
@@ -101,7 +103,7 @@
       position: relative;
       right: 3rem;
       top: 1rem;
-      color: var(--color-text-on-dark);
+      color: var(--color-text-muted);
       min-width: 44px;
       min-height: 44px;
       display: flex;

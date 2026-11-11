@@ -20,9 +20,9 @@ const asFormikValidates = (values: Record<string, unknown>) =>
   )
 
 describe('interview switch', () => {
-  it('is off by default with no mode chosen', () => {
+  it('is off by default, with audio and video ready for when it is switched on', () => {
     expect(AI_CONFIG_DEFAULT_VALUES.aiInterview).toBe('false')
-    expect(AI_CONFIG_DEFAULT_VALUES.aiInterviewMode).toBe('')
+    expect(AI_CONFIG_DEFAULT_VALUES.aiInterviewMode).toBe('audio_video')
   })
 
   it('loads from a saved setup', () => {
@@ -34,7 +34,7 @@ describe('interview switch', () => {
     expect(values.aiInterviewMode).toBe('audio_video')
     const off = aiConfigFromApi({ aiInterview: false, aiInterviewMode: null })
     expect(off.aiInterview).toBe('false')
-    expect(off.aiInterviewMode).toBe('')
+    expect(off.aiInterviewMode).toBe('audio_video')
   })
 
   it('is sent as a boolean with its mode when on', () => {

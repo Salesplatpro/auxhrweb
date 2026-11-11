@@ -55,32 +55,50 @@ interface DataTableProps<T> {
   sortDirection?: SortDirection
   onSortChange?: (key: string, direction: SortDirection) => void
   onRowClick?: (row: T) => void
+  /** `plain`: light header and no outer frame, for a table that sits inside a panel. */
+  variant?: 'hero' | 'plain'
 }
 
-const StyledTableCell = styled(TableCell)(() => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: 'transparent',
-    color: 'var(--color-text-on-dark)',
-    fontSize: 'var(--text-sm)',
-    fontFamily: 'var(--font-heading)',
-    fontWeight: 600,
-    borderBottom: '0',
-    '& .MuiTableSortLabel-root': {
-      color: 'var(--color-text-on-dark)',
-    },
-    '& .MuiTableSortLabel-root:hover': {
-      color: 'var(--color-text-on-dark)',
-    },
-    '& .MuiTableSortLabel-root.Mui-active': {
-      color: 'var(--color-text-on-dark)',
-    },
-    '& .MuiTableSortLabel-icon': {
-      color: 'rgba(255, 255, 255, 0.7) !important',
-    },
-    '& .MuiCheckbox-root': {
-      color: 'rgba(255, 255, 255, 0.7)',
-    },
+const PLAIN_HEAD = {
+  backgroundColor: 'transparent',
+  color: 'var(--color-text-muted)',
+  fontSize: 'var(--text-sm)',
+  fontFamily: 'var(--font-body)',
+  fontWeight: 500,
+  borderBottom: '1px solid var(--color-border)',
+  '& .MuiCheckbox-root': {
+    color: 'var(--color-text-muted)',
   },
+}
+
+const StyledTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== 'plain',
+})<{ plain?: boolean }>(({ plain }) => ({
+  [`&.${tableCellClasses.head}`]: plain
+    ? PLAIN_HEAD
+    : {
+        backgroundColor: 'transparent',
+        color: 'var(--color-text-on-dark)',
+        fontSize: 'var(--text-sm)',
+        fontFamily: 'var(--font-heading)',
+        fontWeight: 600,
+        borderBottom: '0',
+        '& .MuiTableSortLabel-root': {
+          color: 'var(--color-text-on-dark)',
+        },
+        '& .MuiTableSortLabel-root:hover': {
+          color: 'var(--color-text-on-dark)',
+        },
+        '& .MuiTableSortLabel-root.Mui-active': {
+          color: 'var(--color-text-on-dark)',
+        },
+        '& .MuiTableSortLabel-icon': {
+          color: 'rgba(255, 255, 255, 0.7) !important',
+        },
+        '& .MuiCheckbox-root': {
+          color: 'rgba(255, 255, 255, 0.7)',
+        },
+      },
   [`&.${tableCellClasses.body}`]: {
     color: 'var(--color-text-heading)',
     fontSize: 'var(--text-sm)',
@@ -157,7 +175,9 @@ export function DataTable<T>({
   sortDirection,
   onSortChange,
   onRowClick,
+  variant = 'hero',
 }: DataTableProps<T>) {
+  const plain = variant === 'plain'
   const screenWidth = useScreenWidth()
   const [internalSort, setInternalSort] = useState<{
     key: string
@@ -256,9 +276,9 @@ export function DataTable<T>({
       component={Paper}
       className={styles.root}
       sx={{
-        borderRadius: 'var(--radius-panel)',
-        boxShadow: 'var(--shadow-panel)',
-        border: '1px solid var(--color-border)',
+        borderRadius: plain ? 0 : 'var(--radius-panel)',
+        boxShadow: plain ? 'none' : 'var(--shadow-panel)',
+        border: plain ? 'none' : '1px solid var(--color-border)',
         backgroundColor: 'var(--color-bg-elevated)',
         backgroundImage: 'none',
         color: 'var(--color-text-heading)',
@@ -274,11 +294,16 @@ export function DataTable<T>({
         }}>
         <TableHead
           sx={{
-            background: 'var(--color-bg-hero)',
+            background: plain
+              ? 'var(--color-bg-subtle)'
+              : 'var(--color-bg-hero)',
           }}>
           <TableRow>
             {visibleColumns.map((col) => (
-              <StyledTableCell key={col.key} align={col.align ?? 'left'}>
+              <StyledTableCell
+                key={col.key}
+                align={col.align ?? 'left'}
+                plain={plain}>
                 {col.sortAccessor ? (
                   <TableSortLabel
                     active={sort?.key === col.key}

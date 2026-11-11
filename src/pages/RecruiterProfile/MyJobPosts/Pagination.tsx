@@ -2,6 +2,7 @@ import React from 'react'
 import { FaGreaterThan, FaLessThan } from 'react-icons/fa6'
 
 import { Select } from '../../../components/forms/Select/Select'
+import { Button } from '../../../components/ui/Button'
 import styles from './Pagination.module.scss'
 
 export type PaginationProps = {
@@ -12,6 +13,8 @@ export type PaginationProps = {
   /** When provided (with `onItemsPerPageChange`), renders a page-size selector next to the results text. */
   itemsPerPageOptions?: number[]
   onItemsPerPageChange?: (itemsPerPage: number) => void
+  /** `simple`: "Showing 1–7 of 12" with Previous and Next only. */
+  variant?: 'pages' | 'simple'
 }
 
 export const Pagination = ({
@@ -21,6 +24,7 @@ export const Pagination = ({
   onPageChange,
   itemsPerPageOptions,
   onItemsPerPageChange,
+  variant = 'pages',
 }: PaginationProps) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage)
 
@@ -39,6 +43,32 @@ export const Pagination = ({
 
   const rangeStart = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1
   const rangeEnd = Math.min(currentPage * itemsPerPage, totalItems)
+
+  if (variant === 'simple') {
+    return (
+      <div className={styles.simple}>
+        <span className={styles.summary}>
+          Showing {rangeStart}–{rangeEnd} of {totalItems}
+        </span>
+        <div className={styles.pages}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage <= 1}
+            onClick={handlePrevious}>
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages}
+            onClick={handleNext}>
+            Next
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.container}>

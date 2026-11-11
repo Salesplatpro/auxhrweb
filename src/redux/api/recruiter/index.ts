@@ -10,6 +10,42 @@ import type {
   TalentSearchResponse,
 } from '../../../features/scout/types'
 import { customBaseQuery } from '../../../utils/customBaseQuery'
+import type { RecruiterJobsData } from '../../../utils/recruiterJobPostsTypes'
+
+export type RecruiterJobsQuery = {
+  limit?: number
+  offset?: number
+  status?: string
+  q?: string
+  state?: string
+  workMode?: string
+  experienceLevel?: string
+  employmentType?: string
+  sort?: 'asc' | 'desc'
+}
+
+export type SalaryComparisonQuery = {
+  roleId: string
+  experienceLevel: string
+  currency: string
+  compensationPeriod: string
+  locationCity?: string
+  locationState?: string
+  locationCountry?: string
+  excludeJobId?: string
+}
+
+export type SalaryComparison =
+  | { available: false }
+  | {
+      available: true
+      count: number
+      low: number
+      middle: number
+      high: number
+      currency: string
+      compensationPeriod: string
+    }
 
 /** Body the campaign create/update endpoints accept. */
 type ScoutCampaignPayload = {
@@ -51,20 +87,6 @@ export const recruiterApi = createApi({
         body: data,
       }),
       invalidatesTags: [{ type: 'RecruiterJob', id: 'LIST' }],
-    }),
-    generateJobContent: builder.mutation({
-      query: (data) => ({
-        url: `/jobs/generate`,
-        method: 'POST',
-        body: data,
-      }),
-    }),
-    generateJobContentFromFile: builder.mutation({
-      query: (data: FormData) => ({
-        url: `/jobs/generate/file`,
-        method: 'POST',
-        body: data,
-      }),
     }),
     generateJobField: builder.mutation({
       query: (data) => ({
@@ -146,30 +168,47 @@ export const recruiterApi = createApi({
         }
       },
     }),
-    fetchRecruiterJobPost: builder.query({
-      query: (params: { limit?: number; status?: string } = {}) => {
-        const { limit = 10, status } = params
+    fetchRecruiterJobPost: builder.query<
+      { data: RecruiterJobsData },
+      RecruiterJobsQuery
+    >({
+      query: ({ limit = 10, offset = 0, ...filters } = {}) => {
         const queryParams = new URLSearchParams({
           limit: String(limit),
-          offset: '0',
+          offset: String(offset),
         })
-        if (status) queryParams.append('status', status)
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) queryParams.append(key, value)
+        })
         return `/jobs/me?${queryParams.toString()}`
       },
-      providesTags: (result) => {
-        const jobs = Array.isArray(result?.data)
-          ? result.data
-          : Array.isArray(result?.data?.jobs)
-          ? result.data.jobs
-          : []
-        return [
-          ...jobs.map((job: { id: string }) => ({
-            type: 'RecruiterJob' as const,
-            id: job.id,
-          })),
-          { type: 'RecruiterJob' as const, id: 'LIST' },
-        ]
-      },
+      providesTags: (result) => [
+        ...(result?.data.jobs ?? []).map((job) => ({
+          type: 'RecruiterJob' as const,
+          id: job.id,
+        })),
+        { type: 'RecruiterJob' as const, id: 'LIST' },
+      ],
+    }),
+    salaryComparison: builder.query<
+      { data: SalaryComparison },
+      SalaryComparisonQuery
+    >({
+      query: (params) => ({
+        url: '/jobs/salary-comparison',
+        method: 'GET',
+        params,
+      }),
+    }),
+    generateCompanyQuestions: builder.mutation<
+      unknown,
+      { type: 'problem-solving' | 'culture-fit'; jobId: string; count: number }
+    >({
+      query: ({ type, jobId, count }) => ({
+        url: `/questions/${type}`,
+        method: 'POST',
+        body: { jobId, count },
+      }),
     }),
     genJpPersonality: builder.mutation({
       query: (data) => ({
@@ -382,14 +421,14 @@ export const recruiterApi = createApi({
 
 export const {
   useJobPostCreationMutation,
-  useGenerateJobContentMutation,
-  useGenerateJobContentFromFileMutation,
   useGenerateJobFieldMutation,
   useFetchDashboardQuery,
   useFetchAllApplicationsQuery,
   useAiConfigMutation,
   usePatchAiConfigMutation,
   useFetchRecruiterJobPostQuery,
+  useSalaryComparisonQuery,
+  useGenerateCompanyQuestionsMutation,
   useGenJpPersonalityMutation,
   useDeletePersonalityQuestionMutation,
   useCreateScoutCampaignMutation,

@@ -1,9 +1,13 @@
 import React from 'react'
 import {
   FiBriefcase,
+  FiCalendar,
   FiClock,
   FiCreditCard,
+  FiFileText,
+  FiGrid,
   FiMapPin,
+  FiPieChart,
   FiTrendingUp,
 } from 'react-icons/fi'
 
@@ -11,6 +15,8 @@ import { formatTimeAgo } from '@/utils'
 import { formatCompensation } from '@/utils/formatCompensation'
 
 import {
+  formatClosingDate,
+  formatEmploymentType,
   formatExperience,
   formatLocation,
   formatWorkMode,
@@ -42,6 +48,8 @@ export const JobFacts: React.FC<{ children: React.ReactNode }> = ({
 
 export const JobOverview: React.FC<{ job: JobDetailsJob }> = ({ job }) => {
   const posted = formatTimeAgo(job.createdAt)
+  const employmentType = formatEmploymentType(job)
+  const closes = formatClosingDate(job)
 
   return (
     <section className={styles.card} aria-labelledby="job-overview-title">
@@ -69,6 +77,30 @@ export const JobOverview: React.FC<{ job: JobDetailsJob }> = ({ job }) => {
           label="Experience"
           value={formatExperience(job) ?? 'Not specified'}
         />
+        {employmentType && (
+          <JobFact
+            icon={<FiFileText />}
+            label="Job type"
+            value={employmentType}
+          />
+        )}
+        {job.department && (
+          <JobFact
+            icon={<FiGrid />}
+            label="Department"
+            value={job.department}
+          />
+        )}
+        {closes && (
+          <JobFact icon={<FiCalendar />} label="Closes" value={closes} />
+        )}
+        {job.shareOptions && (
+          <JobFact
+            icon={<FiPieChart />}
+            label="Share options"
+            value="Offered with this job"
+          />
+        )}
         {posted && <JobFact icon={<FiClock />} label="Posted" value={posted} />}
       </JobFacts>
     </section>

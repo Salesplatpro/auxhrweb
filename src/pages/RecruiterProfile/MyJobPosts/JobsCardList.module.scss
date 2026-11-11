@@ -1,29 +1,16 @@
-.container {
+.list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-lg);
-  background-color: var(--color-bg-elevated);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  font-family: var(--font-heading);
-  font-weight: var(--weight-semibold);
-  font-size: var(--text-md);
-  color: var(--color-text-heading);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.headerTitle {
-  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
   border-bottom: 1px solid var(--color-border);
 
   &:last-child {
@@ -31,35 +18,8 @@
   }
 }
 
-.row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  color: inherit;
-
-  &:active {
-    background-color: var(--color-bg-subtle);
-  }
-}
-
-.dot {
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  margin-top: 6px;
-  border-radius: var(--radius-full);
-}
-
-.rowBody {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.rowTop {
+.rowTop,
+.rowBottom {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -67,51 +27,14 @@
 }
 
 .title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
   color: var(--color-text-heading);
-  font-family: var(--font-heading);
-  font-weight: var(--weight-semibold);
-  text-transform: capitalize;
-}
-
-.statusPill {
-  flex-shrink: 0;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
+  text-decoration: none;
 }
 
 .subtext {
+  margin: 0;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
-.chevron {
-  flex-shrink: 0;
-  margin-top: 4px;
-  color: var(--color-icon);
-
-  :global(html[data-theme='dark']) & {
-    color: var(--color-white);
-  }
-}
-
-.payBar {
-  display: flex;
-  justify-content: flex-end;
-  padding: 0 var(--space-4) var(--space-4);
-}
-
-.applicantsLink {
-  display: block;
-  padding: 0 var(--space-4) var(--space-4);
-  margin-top: calc(-1 * var(--space-2));
-  color: var(--color-primary);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  text-decoration: underline;
 }

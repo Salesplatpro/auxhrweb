@@ -1,5 +1,6 @@
 import { Form, FormikHelpers, useFormikContext } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { HiArrowLeft, HiArrowRight } from 'react-icons/hi2'
 import { useNavigate } from 'react-router-dom'
 
 import { FormikFocusOnError } from '@/components/forms/FormikFocusOnError'
@@ -13,6 +14,7 @@ import {
   useUpdateJobMutation,
 } from '@/redux/api/recruiter'
 import { useIndividualJobQuery } from '@/redux/api/talent'
+import { formatTimeAgo } from '@/utils'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { PostJobFormValues } from '@/utils/jobPostTypes'
 import { notify } from '@/utils/toastNotifications'
@@ -20,12 +22,16 @@ import { notify } from '@/utils/toastNotifications'
 import { JobDetailsFields } from './JobDetailsFields'
 import { JobPreview } from './JobPreview/JobPreview'
 import styles from './PostJob.module.scss'
-import { EMPTY_JOB_FORM } from './utils/generatedJobToForm'
-import { jobFormToPayload, jobToFormValues } from './utils/jobFormValues'
+import {
+  EMPTY_JOB_FORM,
+  jobFormToPayload,
+  jobToFormValues,
+} from './utils/jobFormValues'
 import { useRoleName } from './utils/useRoleName'
 import { validationSchema } from './validationSchema'
 
 const BASE_PATH = '/recruiterDashboard/postjob'
+const JOB_POSTS_PATH = '/recruiterDashboard/myJobPosts'
 
 // Syncs Formik values into the draft store on every change.
 const FormObserver: React.FC<{ saveDraft: (v: PostJobFormValues) => void }> = ({
@@ -54,21 +60,15 @@ const LivePreview = () => {
 type PostJobProps = {
   /** Set when editing the details of a job already saved as a draft. */
   jobId?: string
-  /** Number of fields the AI filled in on the Start step, if it was used. */
-  aiFilledCount?: number | null
-  onBackToStart?: () => void
 }
 
-const PostJob: React.FC<PostJobProps> = ({
-  jobId,
-  aiFilledCount,
-  onBackToStart,
-}) => {
+const PostJob: React.FC<PostJobProps> = ({ jobId }) => {
   const navigate = useNavigate()
   const isUpdate = !!jobId
   const [jobPostCreation] = useJobPostCreationMutation()
   const [updateJob] = useUpdateJobMutation()
-  const { draft, saveDraft, clearDraft } = useJobDraftStore()
+  const { draft, savedAt, saveDraft, clearDraft } = useJobDraftStore()
+  const saveAsDraft = useRef(false)
   const { data: jobData, isLoading: jobLoading } = useIndividualJobQuery(
     jobId,
     { skip: !isUpdate },
@@ -77,7 +77,6 @@ const PostJob: React.FC<PostJobProps> = ({
   // Read the draft once at mount: re-deriving it from the store would reset
   // the form (and re-save it) every time the draft is cleared or saved.
   const [initialDraft] = useState(() => (isUpdate ? null : draft))
-  const hadDraft = initialDraft != null
 
   if (isUpdate && jobLoading) return <Spinner fullPage />
 
@@ -87,6 +86,7 @@ const PostJob: React.FC<PostJobProps> = ({
       ? jobToFormValues(job)
       : EMPTY_JOB_FORM
     : { ...EMPTY_JOB_FORM, ...(initialDraft ?? {}) }
+  const lastSaved = isUpdate ? job?.updatedAt : savedAt && new Date(savedAt)
 
   const onSubmit = async (
     values: PostJobFormValues,
@@ -95,30 +95,28 @@ const PostJob: React.FC<PostJobProps> = ({
     const payload = jobFormToPayload(values)
 
     try {
+      let savedJobId = jobId
       if (isUpdate) {
         await updateJob({ jobId, data: payload }).unwrap()
-        notify('success', 'Job details saved.')
-        navigate(`${BASE_PATH}/${jobId}`)
-        return
+      } else {
+        const response = await jobPostCreation(payload).unwrap()
+        savedJobId = response?.data?.job?.id
+        if (!savedJobId) {
+          notify(
+            'error',
+            'Job was saved but no ID came back. Find it in Job Posts to finish it.',
+          )
+          return
+        }
+        clearDraft()
       }
 
-      const response = await jobPostCreation(payload).unwrap()
-      const newJobId: string = response?.data?.job?.id
-
-      if (!newJobId) {
-        notify(
-          'error',
-          'Job was created but no ID was returned. Please check Job Posts and add an AI Config from there.',
-        )
+      if (saveAsDraft.current) {
+        notify('success', 'Saved as a draft. Finish it from Job Posts anytime.')
+        navigate(JOB_POSTS_PATH)
         return
       }
-
-      clearDraft()
-      notify(
-        'success',
-        'Job saved as a draft. Now choose how to screen applicants.',
-      )
-      navigate(`${BASE_PATH}/${newJobId}`)
+      navigate(`${BASE_PATH}/${savedJobId}`)
     } catch (err) {
       notify(
         'error',
@@ -126,7 +124,7 @@ const PostJob: React.FC<PostJobProps> = ({
           err,
           isUpdate
             ? 'Failed to save job details. Please try again.'
-            : 'Failed to post job. Your progress has been saved — please try again.',
+            : 'Failed to save the job. Your progress is kept — please try again.',
         ),
       )
     } finally {
@@ -135,80 +133,85 @@ const PostJob: React.FC<PostJobProps> = ({
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.pageHeader}>
-        <div className={styles.pageTitleGroup}>
-          <h2 className={styles.pageHeading}>Tell candidates about the role</h2>
-          <p className={styles.pageSubheading}>
-            A clear brief and requirements help the right people apply — and
-            give AI better material to screen them.
-          </p>
-        </div>
-        {onBackToStart && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onBackToStart}>
-            Back to start options
-          </Button>
-        )}
-      </div>
+    <ValidatedForm
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      enableReinitialize>
+      {({
+        values,
+        setFieldValue,
+        errors,
+        touched,
+        isSubmitting,
+        submitForm,
+      }) => (
+        <Form noValidate>
+          <FormikFocusOnError />
+          {!isUpdate && <FormObserver saveDraft={saveDraft} />}
 
-      {aiFilledCount != null ? (
-        <div className={styles.draftNotice} role="status">
-          AI filled in {aiFilledCount} field{aiFilledCount === 1 ? '' : 's'}.
-          Check each one before you continue — you can change anything.
-        </div>
-      ) : (
-        hadDraft && (
-          <div className={styles.draftNotice}>
-            Restored your unsaved draft from last time.
-          </div>
-        )
-      )}
-
-      <ValidatedForm
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={onSubmit}
-        enableReinitialize>
-        {({ values, setFieldValue, errors, touched, isSubmitting }) => (
-          <Form noValidate>
-            <FormikFocusOnError />
-            {!isUpdate && <FormObserver saveDraft={saveDraft} />}
-
-            <div className={styles.layout}>
-              <div className={styles.formColumn}>
-                <JobDetailsFields
-                  values={values}
-                  errors={errors}
-                  touched={touched}
-                  setFieldValue={(key, value) => setFieldValue(key, value)}
-                  roleDisabled={isUpdate}
-                />
-              </div>
-              <LivePreview />
+          <div className={styles.layout}>
+            <div className={styles.formCard}>
+              <JobDetailsFields
+                values={values}
+                errors={errors}
+                touched={touched}
+                setFieldValue={(key, value) => setFieldValue(key, value)}
+                roleDisabled={isUpdate}
+                jobId={jobId}
+              />
             </div>
-
-            <div className={styles.actions}>
-              {!isUpdate && (
-                <p className={styles.autosaveHint}>
-                  Your progress is saved automatically as you go.
-                </p>
+            <aside className={styles.sideColumn}>
+              <LivePreview />
+              {lastSaved && (
+                <section className={styles.savedCard}>
+                  <p className={styles.savedTitle}>Draft saved</p>
+                  <p className={styles.savedText}>
+                    Saved {formatTimeAgo(lastSaved)}. You can leave and finish
+                    later.
+                  </p>
+                </section>
               )}
+            </aside>
+          </div>
+
+          <div className={styles.actions}>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              icon={<HiArrowLeft size={16} />}
+              onClick={() => navigate(JOB_POSTS_PATH)}>
+              Back
+            </Button>
+            <div className={styles.actionsEnd}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="lg"
+                disabled={isSubmitting}
+                onClick={() => {
+                  saveAsDraft.current = true
+                  void submitForm()
+                }}>
+                Save as draft
+              </Button>
               <Button
                 type="submit"
-                variant="primary"
+                variant="ink"
                 size="lg"
-                loading={isSubmitting}>
-                {isUpdate ? 'Save and continue' : 'Continue to screening'}
+                loading={isSubmitting && !saveAsDraft.current}
+                iconEnd={<HiArrowRight size={16} />}
+                onClick={() => {
+                  saveAsDraft.current = false
+                }}>
+                Continue to AI Configuration
               </Button>
             </div>
-          </Form>
-        )}
-      </ValidatedForm>
-    </div>
+          </div>
+        </Form>
+      )}
+    </ValidatedForm>
   )
 }
 

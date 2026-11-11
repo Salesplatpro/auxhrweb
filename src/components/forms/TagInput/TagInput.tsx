@@ -1,4 +1,12 @@
-import React, { ClipboardEvent, KeyboardEvent, useRef, useState } from 'react'
+import cn from 'classnames'
+import React, {
+  ClipboardEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { HiPlus } from 'react-icons/hi2'
 import { IoClose } from 'react-icons/io5'
 
 import { useFieldRequired } from '../useFieldRequired'
@@ -15,6 +23,8 @@ interface TagInputProps {
   error?: string
   maxTags?: number
   maxLength?: number
+  /** Shows the tags as chips with an "Add" chip that opens the input, instead of a boxed input. */
+  addLabel?: string
 }
 
 export const TagInput: React.FC<TagInputProps> = ({
@@ -27,8 +37,15 @@ export const TagInput: React.FC<TagInputProps> = ({
   error,
   maxTags,
   maxLength = 250,
+  addLabel,
 }) => {
   const [inputValue, setInputValue] = useState('')
+  const [adding, setAdding] = useState(false)
+  const showInput = !addLabel || adding
+
+  useEffect(() => {
+    if (adding) inputRef.current?.focus()
+  }, [adding])
   const inputRef = useRef<HTMLInputElement>(null)
   const isRequired = useFieldRequired(name, required)
 
@@ -70,9 +87,11 @@ export const TagInput: React.FC<TagInputProps> = ({
     addTags(text.split(/[,;\n]+/))
   }
 
-  const wrapperClass = [styles.inputWrapper, error ? styles.hasError : '']
-    .filter(Boolean)
-    .join(' ')
+  const wrapperClass = cn(
+    styles.inputWrapper,
+    addLabel && styles.chipList,
+    error && styles.hasError,
+  )
 
   return (
     <div className={styles.container} data-field={name}>
@@ -106,24 +125,45 @@ export const TagInput: React.FC<TagInputProps> = ({
           </span>
         ))}
 
-        <input
-          ref={inputRef}
-          id={name}
-          name={name}
-          type="text"
-          className={styles.input}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onPaste={handlePaste}
-          placeholder={value.length === 0 ? placeholder : ''}
-          aria-label={label}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error && name ? `${name}-error` : undefined}
-        />
+        {showInput ? (
+          <input
+            ref={inputRef}
+            id={name}
+            name={name}
+            type="text"
+            className={styles.input}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            onBlur={
+              addLabel
+                ? () => {
+                    addTag(inputValue)
+                    setAdding(false)
+                  }
+                : undefined
+            }
+            placeholder={value.length === 0 || addLabel ? placeholder : ''}
+            aria-label={label}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error && name ? `${name}-error` : undefined}
+          />
+        ) : (
+          <button
+            type="button"
+            id={name}
+            className={styles.addButton}
+            onClick={() => setAdding(true)}>
+            <HiPlus aria-hidden />
+            {addLabel}
+          </button>
+        )}
       </div>
 
-      <span className={styles.hint}>Press Enter to add each item</span>
+      {showInput && (
+        <span className={styles.hint}>Press Enter to add each item</span>
+      )}
 
       {error && (
         <div

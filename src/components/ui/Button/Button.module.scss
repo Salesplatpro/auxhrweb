@@ -54,6 +54,16 @@
   }
 }
 
+.ghost {
+  background: transparent;
+  color: var(--color-text-heading);
+  border: 1px solid transparent;
+
+  &:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
+}
+
 .sm,
 .md,
 .lg {

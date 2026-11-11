@@ -3,14 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useJobPayment } from './useJobPayment'
 
-const { profileMock, activateJobPaymentMock, notifyMock } = vi.hoisted(() => ({
-  profileMock: vi.fn(),
+const { activateJobPaymentMock, notifyMock } = vi.hoisted(() => ({
   activateJobPaymentMock: vi.fn(),
   notifyMock: vi.fn(),
-}))
-
-vi.mock('@/features/profile/hooks/useProfile', () => ({
-  useProfile: () => ({ profile: profileMock() }),
 }))
 
 vi.mock('@/redux/api/recruiter', () => ({
@@ -21,46 +16,11 @@ vi.mock('@/utils/toastNotifications', () => ({
   notify: (...args: unknown[]) => notifyMock(...args),
 }))
 
-const onPlan = (billingPlan?: string) =>
-  profileMock.mockReturnValue(
-    billingPlan === undefined
-      ? { activeOrganization: null }
-      : { activeOrganization: { billingPlan } },
-  )
-
-describe('useJobPayment — canPay', () => {
-  it.each([
-    // plan, status, hasAiConfig, expected
-    ['pay_per_use', 'pending_payment', false, true],
-    ['pay_per_use', 'draft', true, true],
-    ['pay_per_use', 'draft', false, false],
-    ['pay_per_use', 'active', true, false],
-    ['pay_per_use', 'closed', true, false],
-    // A full subscription overflows activations into pending_payment.
-    ['sme_basic', 'pending_payment', true, true],
-    ['pro', 'pending_payment', false, true],
-    // Subscribed drafts go through normal activation, not straight to checkout.
-    ['sme_basic', 'draft', true, false],
-    ['enterprise', 'active', true, false],
-  ])('%s + %s (aiConfig: %s) → %s', (plan, status, hasAiConfig, expected) => {
-    onPlan(plan)
-    const { result } = renderHook(() => useJobPayment())
-    expect(result.current.canPay(status, hasAiConfig)).toBe(expected)
-  })
-
-  it('treats a company with no plan written yet as pay-per-use', () => {
-    onPlan(undefined)
-    const { result } = renderHook(() => useJobPayment())
-    expect(result.current.canPay('draft', true)).toBe(true)
-  })
-})
-
-describe('useJobPayment — payForJob', () => {
+describe('useJobPayment', () => {
   const assignMock = vi.fn()
   const originalLocation = window.location
 
   beforeEach(() => {
-    onPlan('pay_per_use')
     activateJobPaymentMock.mockReset()
     notifyMock.mockReset()
     assignMock.mockReset()

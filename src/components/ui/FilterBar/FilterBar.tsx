@@ -15,6 +15,8 @@ interface FilterBarProps<TFilters extends object> {
   defaultFilters: TFilters
   onChange: (filters: TFilters) => void
   ariaLabel?: string
+  /** Just the "Filters" button, with the panel as a popover; no chips or Reset. */
+  compact?: boolean
 }
 
 const startOfDay = (date: Date) => {
@@ -35,6 +37,7 @@ export function FilterBar<TFilters extends object>({
   defaultFilters,
   onChange,
   ariaLabel = 'Filters',
+  compact = false,
 }: FilterBarProps<TFilters>) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -102,25 +105,31 @@ export function FilterBar<TFilters extends object>({
   }
 
   return (
-    <div className={styles.container} ref={containerRef} aria-label={ariaLabel}>
+    <div
+      className={`${styles.container} ${compact ? styles.compact : ''}`}
+      ref={containerRef}
+      aria-label={ariaLabel}>
       {/* Toggle bar */}
       <div className={styles.bar}>
         <button
           type="button"
-          className={`${styles.toggle} ${isOpen ? styles.toggleOpen : ''}`}
+          className={`${styles.toggle} ${
+            isOpen || (compact && active) ? styles.toggleOpen : ''
+          }`}
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}>
           <LuSlidersHorizontal className={styles.toggleIcon} />
           <span>Filters</span>
-          {isOpen ? (
-            <LuChevronUp className={styles.chevron} />
-          ) : (
-            <LuChevronDown className={styles.chevron} />
-          )}
+          {!compact &&
+            (isOpen ? (
+              <LuChevronUp className={styles.chevron} />
+            ) : (
+              <LuChevronDown className={styles.chevron} />
+            ))}
         </button>
 
         {/* Active filter chips — only visible when collapsed */}
-        {!isOpen && chips.length > 0 && (
+        {!compact && !isOpen && chips.length > 0 && (
           <div className={styles.chips}>
             {chips.map((chip) => (
               <span key={chip.key} className={styles.chip}>
@@ -141,14 +150,16 @@ export function FilterBar<TFilters extends object>({
         )}
 
         {/* Reset — always visible when there are active filters */}
-        <button
-          type="button"
-          className={styles.resetBtn}
-          disabled={!active}
-          onClick={resetAll}>
-          <IoRefresh />
-          Reset
-        </button>
+        {!compact && (
+          <button
+            type="button"
+            className={styles.resetBtn}
+            disabled={!active}
+            onClick={resetAll}>
+            <IoRefresh />
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Expanded filter panel */}

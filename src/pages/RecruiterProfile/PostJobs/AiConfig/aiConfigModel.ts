@@ -34,7 +34,7 @@ export const AI_CONFIG_DEFAULT_VALUES: AiConfigFieldValues = {
   cultureFitAssessment: 'false',
   noOfCultureFitQuestions: '',
   aiInterview: 'false',
-  aiInterviewMode: '',
+  aiInterviewMode: 'audio_video',
   personalityEvaluation: 'false',
   noOfEIQuestions: '',
   noOfSNQuestions: '',

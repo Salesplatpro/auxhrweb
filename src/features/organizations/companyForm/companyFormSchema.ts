@@ -25,6 +25,11 @@ export interface CompanyFormValues {
   twitter: string
 }
 
+/** The edit form also holds how the team works; culture-fit questions are written from these. */
+export type EditCompanyFormValues = CompanyFormValues & {
+  companyValues: string[]
+}
+
 export type CompanyField = keyof CompanyFormValues
 
 export const EMPTY_COMPANY_FORM: CompanyFormValues = {
@@ -127,10 +132,21 @@ export const createCompanySchema = Yup.object({
     }),
 })
 
+export const MAX_COMPANY_VALUES = 10
+export const MAX_COMPANY_VALUE_LENGTH = 200
+
 export const editCompanySchema = Yup.object({
   ...baseShape,
   phone: phoneSchema(),
   linkedin: Yup.string(),
+  companyValues: Yup.array()
+    .of(
+      Yup.string().max(
+        MAX_COMPANY_VALUE_LENGTH,
+        `Each value can be at most ${MAX_COMPANY_VALUE_LENGTH} characters`,
+      ),
+    )
+    .max(MAX_COMPANY_VALUES, `Add at most ${MAX_COMPANY_VALUES} values`),
 })
 
 const trimmed = (value: string) => value.trim()
@@ -156,7 +172,7 @@ export const toCreatePayload = (
 })
 
 export const toUpdatePayload = (
-  values: CompanyFormValues,
+  values: EditCompanyFormValues,
 ): UpdateOrganizationPayload => ({
   name: trimmed(values.name),
   address: trimmed(values.address),
@@ -165,6 +181,7 @@ export const toUpdatePayload = (
   facebook: trimmed(values.facebook),
   twitter: trimmed(values.twitter),
   phone: optional(values.phone),
+  companyValues: values.companyValues,
 })
 
 const SERVER_ERROR_KEYWORDS: [RegExp, CompanyField][] = [

@@ -13,7 +13,9 @@ type ChoiceCardProps = {
   title: string
   badge?: ReactNode
   description: string
-  features: string[]
+  features?: string[]
+  /** Smaller card with the radio first and the icon without a tile. */
+  compact?: boolean
 }
 
 export const ChoiceCard = ({
@@ -26,8 +28,14 @@ export const ChoiceCard = ({
   badge,
   description,
   features,
+  compact = false,
 }: ChoiceCardProps) => (
-  <label className={cn(styles.card, checked && styles.checked)}>
+  <label
+    className={cn(
+      styles.card,
+      checked && styles.checked,
+      compact && styles.compact,
+    )}>
     <input
       type="radio"
       className={styles.input}
@@ -45,11 +53,13 @@ export const ChoiceCard = ({
         {badge}
       </span>
       <span className={styles.description}>{description}</span>
-      <CheckList
-        variant="inline"
-        items={features.map((label) => ({ label }))}
-        className={styles.features}
-      />
+      {features && (
+        <CheckList
+          variant="inline"
+          items={features.map((label) => ({ label }))}
+          className={styles.features}
+        />
+      )}
     </span>
     <span className={styles.radio} aria-hidden />
   </label>

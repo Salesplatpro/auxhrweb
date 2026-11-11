@@ -1,46 +1,89 @@
+import cn from 'classnames'
 import { Field } from 'formik'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import {
+  HiOutlineCalendar,
+  HiOutlineClock,
+  HiOutlineExclamationTriangle,
+  HiOutlineMicrophone,
+  HiOutlineSparkles,
+  HiOutlineVideoCamera,
+} from 'react-icons/hi2'
+import { Link } from 'react-router-dom'
 
+import { Alert } from '@/components/feedback'
 import TextField from '@/components/forms/TextField'
+import { ChoiceCard } from '@/components/ui/ChoiceCard'
+import { IconBadge } from '@/components/ui/IconBadge'
+import { Pill } from '@/components/ui/Pill'
+import { useProfile } from '@/features/profile/hooks/useProfile'
 
-import { guideLink } from '../../Guide/guideContent'
 import { AiFieldActions } from '../AiAssist/AiFieldActions'
 import { JobAiContext } from '../AiAssist/useJobFieldAssist'
 import styles from './AiConfig.module.scss'
 import { AiConfigFieldValues, DICHOTOMY_ERROR_KEY } from './aiConfigModel'
-import { PersonalitySection } from './PersonalitySection'
 import {
-  NumberField,
-  RadioField,
-  ScoreSlider,
-  SwitchField,
-} from './ScreeningControls'
+  PersonalityAdvanced,
+  PersonalityCountField,
+} from './PersonalitySection'
+import { NumberField, scoreLevel, SwitchField } from './ScreeningControls'
+import {
+  NEW_SCREENING_STEPS,
+  SCREENING_STEP_ICON,
+  ScreeningStepKey,
+} from './screeningSteps'
 
-type Section = {
+const COMPANY_PAGE = '/recruiterDashboard/company'
+
+type ScreeningCardProps = {
+  step: ScreeningStepKey
   title: string
-  what: string
-  tip: string
-  guideId: string
-  children: React.ReactNode
+  description: string
+  switchName: string
+  on: boolean
+  locked?: boolean
+  children?: React.ReactNode
 }
 
-const ScreeningSection = ({ title, what, tip, guideId, children }: Section) => (
-  <section className={styles.section}>
-    <h3 className={styles.sectionTitle}>{title}</h3>
-    <p className={styles.sectionWhat}>{what}</p>
-    <div className={styles.sectionBody}>{children}</div>
-    <p className={styles.tip}>
-      Tip: {tip}{' '}
-      <a
-        href={guideLink(guideId)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.learnMore}>
-        Learn more<span className={styles.srOnly}> (opens in a new tab)</span>
-      </a>
-    </p>
-  </section>
-)
+const ScreeningCard = ({
+  step,
+  title,
+  description,
+  switchName,
+  on,
+  locked,
+  children,
+}: ScreeningCardProps) => {
+  const isNew = NEW_SCREENING_STEPS.includes(step)
+  return (
+    <section
+      className={cn(styles.card, isNew && on && styles.cardHighlight)}
+      aria-label={title}>
+      <IconBadge
+        icon={SCREENING_STEP_ICON[step].icon}
+        tone={SCREENING_STEP_ICON[step].tone}
+        className={styles.cardIcon}
+      />
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <div>
+            <h3 className={styles.cardTitle}>
+              {title}
+              {isNew && (
+                <Pill tone="success" size="sm">
+                  New
+                </Pill>
+              )}
+            </h3>
+            <p className={styles.cardWhat}>{description}</p>
+          </div>
+          <SwitchField name={switchName} label={title} disabled={locked} />
+        </div>
+        {on && children}
+      </div>
+    </section>
+  )
+}
 
 type AiConfigFieldsProps = {
   values: AiConfigFieldValues
@@ -51,6 +94,8 @@ type AiConfigFieldsProps = {
   setFieldValue: (key: keyof AiConfigFieldValues, value: unknown) => void
   jobId: string | undefined
   jobContext: JobAiContext
+  /** Shown first inside Advanced, e.g. copying another job's setup. */
+  advancedExtra?: React.ReactNode
 }
 
 export const AiConfigFields = ({
@@ -60,162 +105,247 @@ export const AiConfigFields = ({
   setFieldValue,
   jobId,
   jobContext,
+  advancedExtra,
 }: AiConfigFieldsProps) => {
+  const { profile } = useProfile()
+  const hasCompanyValues =
+    (profile?.activeOrganization?.companyValues?.length ?? 0) > 0
   const dichotomyError =
     typeof errors[DICHOTOMY_ERROR_KEY] === 'string'
       ? (errors[DICHOTOMY_ERROR_KEY] as string)
       : undefined
+  const modeError =
+    typeof errors.aiInterviewMode === 'string'
+      ? errors.aiInterviewMode
+      : undefined
+
+  const [advancedOpen, setAdvancedOpen] = useState(false)
+  useEffect(() => {
+    if (errors.name) setAdvancedOpen(true)
+  }, [errors.name])
+
+  const isOn = (key: keyof AiConfigFieldValues) => values[key] === 'true'
+  const score = Number(values.minPrescreeningScore)
 
   return (
-    <>
-      <ScreeningSection
-        title="Skills test score"
-        guideId="skills-test-score"
-        what="Every candidate takes one general skills test when they sign up. This is the lowest score they need to apply for this job. They don't retake it for your job."
-        tip="50 lets most people through. 70 or higher keeps only strong candidates.">
-        <ScoreSlider
+    <div className={styles.cards}>
+      <ScreeningCard
+        step="skillsTest"
+        title="Skills test"
+        description="Checks the core skills for this role. Candidates must reach your minimum score."
+        switchName={fieldName('prescreeningAssessment')}
+        on
+        locked>
+        <NumberField
+          inline
           name={fieldName('minPrescreeningScore')}
-          label="Minimum skills test score"
+          label="Minimum score"
+          min={0}
+          max={100}
+          step={5}
+          suffix="%"
+          hint={
+            values.minPrescreeningScore !== '' && Number.isFinite(score)
+              ? scoreLevel(score)
+              : undefined
+          }
         />
-      </ScreeningSection>
+      </ScreeningCard>
 
-      <ScreeningSection
+      <ScreeningCard
+        step="cvMatch"
         title="CV match"
-        guideId="cv-match"
-        what="AI reads each CV and scores how well it fits this job, from 0 to 100%. Applicants below your minimum are filtered out. Only you see the score."
-        tip="60–75% is a sensible bar. Set it too high and you may miss good people whose CVs are written differently.">
-        <SwitchField name={fieldName('cvSimilarity')} label="Use CV match" />
-        {values.cvSimilarity === 'true' && (
-          <ScoreSlider
-            name={fieldName('minCvSimilarityScore')}
-            label="Minimum CV match"
-          />
-        )}
-      </ScreeningSection>
+        description="Compares each CV with your job details and ranks the best fit first."
+        switchName={fieldName('cvSimilarity')}
+        on={isOn('cvSimilarity')}>
+        <NumberField
+          inline
+          name={fieldName('minCvSimilarityScore')}
+          label="Minimum match"
+          min={0}
+          max={100}
+          step={5}
+          suffix="%"
+        />
+      </ScreeningCard>
 
-      <ScreeningSection
+      <ScreeningCard
+        step="tailored"
         title="Tailored questions"
-        guideId="tailored-questions"
-        what="AI writes a few written questions for each applicant, based on this job and their CV — like real work situations. AI also marks the answers."
-        tip="4–8 questions works well. More than that and people may give up halfway.">
-        <SwitchField
-          name={fieldName('personalizedAssessment')}
-          label="Ask tailored questions"
+        description="Short written questions based on each candidate's CV."
+        switchName={fieldName('personalizedAssessment')}
+        on={isOn('personalizedAssessment')}>
+        <NumberField
+          inline
+          name={fieldName('noPersonalizedQuestions')}
+          label="Number of questions"
+          min={1}
+          max={20}
         />
-        {values.personalizedAssessment === 'true' && (
-          <NumberField
-            name={fieldName('noPersonalizedQuestions')}
-            label="Number of questions"
-            min={1}
-            max={20}
-          />
-        )}
-      </ScreeningSection>
+      </ScreeningCard>
 
-      <ScreeningSection
-        title="Problem-solving and culture-fit tests"
-        guideId="company-tests"
-        what="Short written tests on this job's page. Problem-solving questions check how someone reasons; culture-fit questions are based on your company values. AI marks the answers and only you see the scores."
-        tip="Generate the questions for this job after you switch a test on. Each candidate gets a random set of the number you choose.">
-        <SwitchField
-          name={fieldName('problemSolvingAssessment')}
-          label="Problem-solving test"
+      <ScreeningCard
+        step="problemSolving"
+        title="Problem-solving test"
+        description="Gives a short work problem and checks how the candidate thinks it through."
+        switchName={fieldName('problemSolvingAssessment')}
+        on={isOn('problemSolvingAssessment')}>
+        <NumberField
+          inline
+          name={fieldName('noOfProblemSolvingQuestions')}
+          label="Number of questions"
+          min={1}
+          max={10}
+          hint="1 to 10"
         />
-        {values.problemSolvingAssessment === 'true' && (
-          <NumberField
-            name={fieldName('noOfProblemSolvingQuestions')}
-            label="Number of problem-solving questions"
-            min={1}
-            max={10}
-          />
-        )}
-        <SwitchField
-          name={fieldName('cultureFitAssessment')}
-          label="Culture-fit test"
+      </ScreeningCard>
+
+      <ScreeningCard
+        step="cultureFit"
+        title="Culture-fit test"
+        description="Checks how well the candidate matches the way your team works."
+        switchName={fieldName('cultureFitAssessment')}
+        on={isOn('cultureFitAssessment')}>
+        <NumberField
+          inline
+          name={fieldName('noOfCultureFitQuestions')}
+          label="Number of questions"
+          min={1}
+          max={10}
+          hint="1 to 10"
         />
-        {values.cultureFitAssessment === 'true' && (
-          <NumberField
-            name={fieldName('noOfCultureFitQuestions')}
-            label="Number of culture-fit questions"
-            min={1}
-            max={10}
-          />
+        {!hasCompanyValues && (
+          <Alert
+            variant="warning"
+            icon={<HiOutlineExclamationTriangle />}
+            className={styles.valuesWarning}>
+            <span>
+              <strong>Add your company values first.</strong> Culture-fit
+              questions are written from them.{' '}
+              <Link to={COMPANY_PAGE} className={styles.warningLink}>
+                Go to Company page
+              </Link>
+            </span>
+          </Alert>
         )}
-      </ScreeningSection>
+      </ScreeningCard>
 
-      <ScreeningSection
-        title="AI interview"
-        guideId="ai-interview"
-        what="After the other steps, AI writes 5 interview questions from this job's description and emails the candidate an invite. They record their answers."
-        tip="Choose audio only, or audio and video if seeing the candidate matters for this job.">
-        <SwitchField name={fieldName('aiInterview')} label="AI interview" />
-        {values.aiInterview === 'true' && (
-          <RadioField
-            name={fieldName('aiInterviewMode')}
-            legend="How candidates answer"
-            options={[
-              { value: 'audio', label: 'Audio only' },
-              { value: 'audio_video', label: 'Audio and video' },
-            ]}
-          />
-        )}
-      </ScreeningSection>
-
-      <ScreeningSection
+      <ScreeningCard
+        step="personality"
         title="Personality check"
-        guideId="personality-check"
-        what="Everyday workplace questions that show how someone likes to work. Candidates see situations, never personality labels."
-        tip="Use this when team fit matters. There are no right or wrong answers — it shows working style.">
-        <SwitchField
-          name={fieldName('personalityEvaluation')}
-          label="Add a personality check"
+        description="Questions spread over 4 traits. Shows a 4-letter type and a fit score."
+        switchName={fieldName('personalityEvaluation')}
+        on={isOn('personalityEvaluation')}>
+        <PersonalityCountField
+          values={values}
+          fieldName={fieldName}
+          dichotomyError={dichotomyError}
         />
-        {values.personalityEvaluation === 'true' && (
-          <PersonalitySection
-            values={values}
-            fieldName={fieldName}
-            dichotomyError={dichotomyError}
-            jobId={jobId}
+      </ScreeningCard>
+
+      <ScreeningCard
+        step="aiInterview"
+        title="AI interview"
+        description="AI writes 5 questions from your job description and may ask up to 2 follow-ups."
+        switchName={fieldName('aiInterview')}
+        on={isOn('aiInterview')}>
+        <div
+          className={styles.choiceRow}
+          role="radiogroup"
+          aria-label="How candidates answer"
+          data-field={fieldName('aiInterviewMode')}>
+          <ChoiceCard
+            compact
+            name={fieldName('aiInterviewMode')}
+            value="audio"
+            checked={values.aiInterviewMode === 'audio'}
+            onSelect={(mode) => setFieldValue('aiInterviewMode', mode)}
+            icon={<HiOutlineMicrophone />}
+            title="Audio only"
+            description="Candidates answer by voice"
           />
+          <ChoiceCard
+            compact
+            name={fieldName('aiInterviewMode')}
+            value="audio_video"
+            checked={values.aiInterviewMode === 'audio_video'}
+            onSelect={(mode) => setFieldValue('aiInterviewMode', mode)}
+            icon={<HiOutlineVideoCamera />}
+            title="Audio and video"
+            description="Candidates answer on camera"
+          />
+        </div>
+        {modeError && (
+          <div className={styles.fieldError} role="alert">
+            {modeError}
+          </div>
         )}
-      </ScreeningSection>
+        <ul className={styles.metaLine}>
+          <li>
+            <HiOutlineClock aria-hidden /> About 15 minutes
+          </li>
+          <li>
+            <HiOutlineCalendar aria-hidden /> Candidates do it whenever suits
+            them
+          </li>
+          <li>
+            <HiOutlineSparkles aria-hidden /> Scores are AI suggestions
+          </li>
+        </ul>
+      </ScreeningCard>
 
-      <ScreeningSection
-        title="Notes for the AI (optional)"
-        guideId="notes-for-ai"
-        what="Private notes telling the AI what a great hire looks like: must-have skills, warning signs, experience level. It uses them to write and mark tailored questions. Candidates never see them."
-        tip="Be specific, e.g. “Must have closed B2B deals over ₦10M. Red flag: only retail sales experience.”">
-        <AiFieldActions
-          field="recruiterGuide"
-          format="text"
-          value={values.recruiterGuide}
-          job={jobContext}
-          onApply={(text) => setFieldValue('recruiterGuide', text)}
-          writeLabel="Draft notes with AI"
-        />
-        <label htmlFor={fieldName('recruiterGuide')} className={styles.label}>
-          Notes for the AI
-        </label>
-        <Field
-          as="textarea"
-          id={fieldName('recruiterGuide')}
-          name={fieldName('recruiterGuide')}
-          className={styles.textarea}
-          placeholder="What should a strong candidate show for this role?"
-        />
-      </ScreeningSection>
+      <details
+        className={styles.advanced}
+        open={advancedOpen}
+        onToggle={(event) =>
+          setAdvancedOpen((event.target as HTMLDetailsElement).open)
+        }>
+        <summary>Advanced</summary>
+        <div className={styles.advancedBody}>
+          {advancedExtra}
 
-      <ScreeningSection
-        title="Setup name"
-        guideId="setup-name"
-        what="A label so your team can tell this screening setup apart from others."
-        tip="Only your team sees this. Candidates never do.">
-        <TextField
-          label="Setup name"
-          name={fieldName('name')}
-          placeholder="e.g. Backend engineer – Balanced"
-        />
-      </ScreeningSection>
-    </>
+          {isOn('personalityEvaluation') && (
+            <PersonalityAdvanced
+              values={values}
+              fieldName={fieldName}
+              jobId={jobId}
+            />
+          )}
+
+          <div className={styles.fieldGroup}>
+            <AiFieldActions
+              field="recruiterGuide"
+              format="text"
+              value={values.recruiterGuide}
+              job={jobContext}
+              onApply={(text) => setFieldValue('recruiterGuide', text)}
+              writeLabel="Draft notes with AI"
+            />
+            <label
+              htmlFor={fieldName('recruiterGuide')}
+              className={styles.label}>
+              Notes for the AI (optional)
+            </label>
+            <Field
+              as="textarea"
+              id={fieldName('recruiterGuide')}
+              name={fieldName('recruiterGuide')}
+              className={styles.textarea}
+              placeholder="What should a strong candidate show for this role?"
+            />
+            <p className={styles.hint}>
+              Private notes the AI uses to write and mark tailored questions.
+              Candidates never see them.
+            </p>
+          </div>
+
+          <TextField
+            label="Setup name"
+            name={fieldName('name')}
+            placeholder="e.g. Backend engineer – Balanced"
+          />
+        </div>
+      </details>
+    </div>
   )
 }

@@ -2,6 +2,7 @@ import { Form, useFormikContext } from 'formik'
 import React from 'react'
 
 import { FormikFocusOnError } from '@/components/forms/FormikFocusOnError'
+import { TagInput } from '@/components/forms/TagInput/TagInput'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Button } from '@/components/ui/Button'
@@ -9,8 +10,11 @@ import {
   CompanyFormValues,
   CompanyPreviewCard,
   ContactFields,
+  EditCompanyFormValues,
   editCompanySchema,
   IdentityFields,
+  MAX_COMPANY_VALUE_LENGTH,
+  MAX_COMPANY_VALUES,
   PresenceFields,
 } from '@/features/organizations/companyForm'
 import { OrganizationStatus } from '@/features/organizations/types'
@@ -34,10 +38,31 @@ const LivePreview = ({
   )
 }
 
+const CompanyValuesField = () => {
+  const { values, errors, touched, setFieldValue } =
+    useFormikContext<EditCompanyFormValues>()
+  return (
+    <TagInput
+      name="companyValues"
+      label="Company values"
+      value={values.companyValues}
+      onChange={(next) => setFieldValue('companyValues', next)}
+      placeholder="e.g. We share work early and ask for feedback."
+      maxTags={MAX_COMPANY_VALUES}
+      maxLength={MAX_COMPANY_VALUE_LENGTH}
+      error={
+        touched.companyValues && typeof errors.companyValues === 'string'
+          ? errors.companyValues
+          : undefined
+      }
+    />
+  )
+}
+
 interface CompanyFormProps {
-  initialValues: CompanyFormValues
+  initialValues: EditCompanyFormValues
   isSubmitting: boolean
-  onSubmit: (values: CompanyFormValues) => void | Promise<void>
+  onSubmit: (values: EditCompanyFormValues) => void | Promise<void>
   onCancel: () => void
   organizationId: string
   logoUrl?: string | null
@@ -85,6 +110,14 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
               companyName={initialValues.name}
               logoUrl={logoUrl}
             />
+          </div>
+        </PagePanel>
+
+        <PagePanel
+          title="Company values"
+          hint="Describe how your team works, for example 'We share work early and ask for feedback.' Culture-fit questions are written from this.">
+          <div className={styles.fields}>
+            <CompanyValuesField />
           </div>
         </PagePanel>
 

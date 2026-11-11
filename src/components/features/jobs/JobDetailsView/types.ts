@@ -18,6 +18,10 @@ export interface JobDetailsJob {
   minSalary?: number | null
   maxSalary?: number | null
   compensationPeriod?: string | null
+  department?: string | null
+  employmentType?: string | null
+  closesAt?: string | null
+  shareOptions?: boolean | null
   noOfApplicants?: number
   postedBy?: { firstName?: string; lastName?: string } | null
   organization?: JobOrganization | null

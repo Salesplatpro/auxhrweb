@@ -62,4 +62,13 @@ export const validationSchema = Yup.object({
         .max(250, 'Goal cannot exceed 250 characters'),
     )
     .min(1, 'At least one goal is required'),
+  department: Yup.string().max(100, 'Department can be at most 100 characters'),
+  employmentType: Yup.string()
+    .oneOf(['full_time', 'part_time', 'contract', 'internship'])
+    .required('Job type is required'),
+  closesAt: Yup.string().matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Pick a closing date',
+    excludeEmptyString: true,
+  }),
+  shareOptions: Yup.boolean(),
 })

@@ -17,31 +17,19 @@ import {
 import { NumberField } from './ScreeningControls'
 import useGeneratedQuestion from './useGeneratedQuestion'
 
-type PersonalitySectionProps = {
+type PersonalityProps = {
   values: AiConfigFieldValues
   fieldName: (key: keyof AiConfigFieldValues) => string
-  dichotomyError?: string
-  jobId?: string
 }
 
-export const PersonalitySection = ({
+/** One question count, spread evenly across the four traits. */
+export const PersonalityCountField = ({
   values,
   fieldName,
   dichotomyError,
-  jobId,
-}: PersonalitySectionProps) => {
+}: PersonalityProps & { dichotomyError?: string }) => {
   const { setValues } = useFormikContext<Record<string, unknown>>()
-  const { questionsByPair, generateQuestion, removeQuestion, loadingPairs } =
-    useGeneratedQuestion(jobId)
   const total = personalityTotal(values)
-  const isPreviewing = Object.values(loadingPairs).some(Boolean)
-  const pairsToPreview = DICHOTOMY_PAIRS.filter((pair) => {
-    const count = Number(values[COUNT_FIELD[pair]])
-    return count > 0 && !(questionsByPair[pair]?.length > 0)
-  })
-  const hasPreview = DICHOTOMY_PAIRS.some(
-    (pair) => questionsByPair[pair]?.length > 0,
-  )
 
   // One atomic update: four setFieldValue calls would each validate against
   // stale values, leaving a wrong "no personality questions" error behind.
@@ -56,6 +44,43 @@ export const PersonalitySection = ({
     )
   }
 
+  return (
+    <>
+      <NumberField
+        inline
+        name="personalityTotal"
+        label="Number of questions"
+        min={1}
+        max={40}
+        value={total > 0 ? total : ''}
+        onValueChange={setTotal}
+      />
+      {dichotomyError && (
+        <div className={styles.fieldError} role="alert">
+          {dichotomyError}
+        </div>
+      )}
+    </>
+  )
+}
+
+/** Per-trait counts, preview questions and the recruiter's own questions. */
+export const PersonalityAdvanced = ({
+  values,
+  fieldName,
+  jobId,
+}: PersonalityProps & { jobId?: string }) => {
+  const { questionsByPair, generateQuestion, removeQuestion, loadingPairs } =
+    useGeneratedQuestion(jobId)
+  const isPreviewing = Object.values(loadingPairs).some(Boolean)
+  const pairsToPreview = DICHOTOMY_PAIRS.filter((pair) => {
+    const count = Number(values[COUNT_FIELD[pair]])
+    return count > 0 && !(questionsByPair[pair]?.length > 0)
+  })
+  const hasPreview = DICHOTOMY_PAIRS.some(
+    (pair) => questionsByPair[pair]?.length > 0,
+  )
+
   const previewQuestions = () =>
     Promise.all(
       pairsToPreview.map((pair) =>
@@ -65,23 +90,8 @@ export const PersonalitySection = ({
 
   return (
     <>
-      <NumberField
-        name="personalityTotal"
-        label="How many personality questions?"
-        min={1}
-        max={40}
-        value={total > 0 ? total : ''}
-        onValueChange={setTotal}
-        hint="We spread them evenly across the four traits below."
-      />
-      {dichotomyError && (
-        <div className={styles.fieldError} role="alert">
-          {dichotomyError}
-        </div>
-      )}
-
-      <details className={styles.advanced}>
-        <summary>Advanced: set the number per trait</summary>
+      <div className={styles.fieldGroup}>
+        <p className={styles.label}>Personality questions per trait</p>
         <div className={styles.traitGrid}>
           {DICHOTOMY_PAIRS.map((pair) => (
             <NumberField
@@ -93,7 +103,7 @@ export const PersonalitySection = ({
             />
           ))}
         </div>
-      </details>
+      </div>
 
       {jobId && (
         <div className={styles.preview}>

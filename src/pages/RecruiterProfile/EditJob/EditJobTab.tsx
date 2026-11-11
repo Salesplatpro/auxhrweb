@@ -123,6 +123,11 @@ export const EditJobTab = () => {
     location: savedDraft?.location ?? jobInitialValues.location,
     skills: savedDraft?.skills ?? jobInitialValues.skills,
     goals: savedDraft?.goals ?? jobInitialValues.goals,
+    department: savedDraft?.department ?? jobInitialValues.department,
+    employmentType:
+      savedDraft?.employmentType ?? jobInitialValues.employmentType,
+    closesAt: savedDraft?.closesAt ?? jobInitialValues.closesAt,
+    shareOptions: savedDraft?.shareOptions ?? jobInitialValues.shareOptions,
     status: savedDraft?.status ?? job.status ?? 'draft',
     aiConfig: aiConfigInitialValues,
   }
@@ -193,13 +198,16 @@ export const EditJobTab = () => {
             <FormikFocusOnError />
             <FormObserver saveDraft={draftSaver} />
 
-            <JobDetailsFields
-              values={values}
-              errors={errors}
-              touched={touched}
-              setFieldValue={(key, value) => setFieldValue(key, value)}
-              roleDisabled
-            />
+            <div className={postJobStyles.formCard}>
+              <JobDetailsFields
+                values={values}
+                errors={errors}
+                touched={touched}
+                setFieldValue={(key, value) => setFieldValue(key, value)}
+                roleDisabled
+                jobId={jobId}
+              />
+            </div>
 
             <h2 className={tabStyles.heading}>Screening</h2>
 

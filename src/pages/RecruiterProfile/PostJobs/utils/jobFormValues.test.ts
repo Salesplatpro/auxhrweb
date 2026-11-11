@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { EMPTY_JOB_FORM } from './generatedJobToForm'
-import { jobFormToPayload, jobToFormValues } from './jobFormValues'
+import {
+  EMPTY_JOB_FORM,
+  jobFormToPayload,
+  jobToFormValues,
+} from './jobFormValues'
 
 describe('jobToFormValues', () => {
   it('maps an API job onto the form', () => {
@@ -29,6 +32,28 @@ describe('jobToFormValues', () => {
     expect(values.location.country.name).toBe('Nigeria')
   })
 
+  it('maps the department, job type, closing date and share options', () => {
+    expect(
+      jobToFormValues({
+        department: 'Design',
+        employmentType: 'contract',
+        closesAt: '2026-11-24',
+        shareOptions: true,
+      }),
+    ).toMatchObject({
+      department: 'Design',
+      employmentType: 'contract',
+      closesAt: '2026-11-24',
+      shareOptions: true,
+    })
+    expect(jobToFormValues({})).toMatchObject({
+      department: '',
+      employmentType: 'full_time',
+      closesAt: '',
+      shareOptions: false,
+    })
+  })
+
   it('accepts a legacy single work mode string and defaults the period', () => {
     const values = jobToFormValues({ workMode: 'remote' })
     expect(values.workMode).toEqual(['remote'])
@@ -46,6 +71,20 @@ describe('jobFormToPayload', () => {
     expect(payload).not.toHaveProperty('maxSalary')
     expect(payload).not.toHaveProperty('location')
     expect(payload.locationCountry).toBeNull()
+  })
+
+  it('sends a blank department and closing date as null', () => {
+    const payload = jobFormToPayload({
+      ...EMPTY_JOB_FORM,
+      workMode: ['remote'],
+      department: '  ',
+    })
+    expect(payload).toMatchObject({
+      department: null,
+      closesAt: null,
+      employmentType: 'full_time',
+      shareOptions: false,
+    })
   })
 
   it('sends location names for on-site jobs', () => {

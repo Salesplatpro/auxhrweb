@@ -255,3 +255,26 @@
   color: var(--color-primary-strong);
   cursor: pointer;
 }
+
+// ── Compact: a toolbar button with a popover panel ──────────────────────────
+.compact {
+  width: auto;
+
+  .toggle {
+    height: 36px;
+    padding: 0 var(--space-3);
+    border-width: 1px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: var(--z-dropdown);
+    flex-direction: column;
+    min-width: 260px;
+    margin-top: var(--space-2);
+  }
+}

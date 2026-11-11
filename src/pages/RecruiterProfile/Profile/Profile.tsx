@@ -33,7 +33,7 @@ import {
   useFetchRecruiterJobPostQuery,
   useGetScoutCampaignsQuery,
 } from '@/redux/api/recruiter'
-import { recruiterJobPostsTypes } from '@/utils/recruiterJobPostsTypes'
+import { RecruiterJob } from '@/utils/recruiterJobPostsTypes'
 
 import { CompanyLogo } from '../Company/CompanyLogo'
 import styles from './Profile.module.scss'
@@ -67,11 +67,7 @@ export const Profile = () => {
   }
 
   const stats = dashboardData?.data?.data
-  const jobPosts: recruiterJobPostsTypes[] = Array.isArray(jobsData?.data)
-    ? jobsData.data
-    : Array.isArray(jobsData?.data?.jobs)
-    ? jobsData.data.jobs
-    : []
+  const jobPosts: RecruiterJob[] = jobsData?.data.jobs ?? []
   const scoutJobs = Array.isArray(scoutData?.data?.scoutJobs)
     ? scoutData.data.scoutJobs
     : []

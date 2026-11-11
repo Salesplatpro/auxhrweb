@@ -43,7 +43,7 @@ export const aiConfigFromApi = (
   cultureFitAssessment: config.cultureFitAssessment ? 'true' : 'false',
   noOfCultureFitQuestions: config.noOfCultureFitQuestions ?? '',
   aiInterview: config.aiInterview ? 'true' : 'false',
-  aiInterviewMode: config.aiInterviewMode ?? '',
+  aiInterviewMode: config.aiInterviewMode || 'audio_video',
   personalityEvaluation: config.personalityEvaluation ? 'true' : 'false',
   noOfEIQuestions: config.noOfEIQuestions ?? '',
   noOfSNQuestions: config.noOfSNQuestions ?? '',

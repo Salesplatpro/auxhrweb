@@ -94,3 +94,46 @@
     border: 6px solid var(--color-brand-vivid);
   }
 }
+
+.compact {
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+
+  &.checked {
+    padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px);
+  }
+
+  .radio {
+    order: -1;
+    width: 18px;
+    height: 18px;
+  }
+
+  &.checked .radio {
+    border-width: 5px;
+  }
+
+  .icon,
+  &.checked .icon {
+    width: auto;
+    height: auto;
+    font-size: var(--text-xl);
+    background: none;
+    color: var(--color-text-heading);
+  }
+
+  .body {
+    gap: 2px;
+  }
+
+  .title {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+  }
+
+  .description {
+    font-size: var(--text-sm);
+  }
+}

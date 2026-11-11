@@ -2,15 +2,18 @@ import React from 'react'
 
 import { PageHero } from '@/components/layout/PageHero'
 import { BackButton } from '@/components/ui/BackButton'
+import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb'
 import { Heading, Text } from '@/components/ui/Typography'
 
 import styles from './PageHeaderTitle.module.scss'
 
 type PageHeaderTitleProps = {
   title: string
-  description: string
+  description: React.ReactNode
   onBack?: () => void
   variant?: 'plain' | 'hero'
+  breadcrumbs?: BreadcrumbItem[]
+  actions?: React.ReactNode
 }
 
 /**
@@ -25,6 +28,8 @@ export const PageHeaderTitle = ({
   title,
   onBack,
   variant = 'plain',
+  breadcrumbs,
+  actions,
 }: PageHeaderTitleProps) => {
   if (variant === 'hero') {
     return (
@@ -32,6 +37,23 @@ export const PageHeaderTitle = ({
         {onBack && <BackButton onClick={onBack} />}
         <PageHero compact title={title} lead={description} />
       </>
+    )
+  }
+
+  if (breadcrumbs) {
+    return (
+      <header className={styles.withCrumbs}>
+        <Breadcrumb items={breadcrumbs} />
+        <div className={styles.titleRow}>
+          <div className={styles.titleCopy}>
+            <Heading level={1}>{title}</Heading>
+            <Text as="p" size="fs-md" color="muted">
+              {description}
+            </Text>
+          </div>
+          {actions && <div className={styles.actions}>{actions}</div>}
+        </div>
+      </header>
     )
   }
 

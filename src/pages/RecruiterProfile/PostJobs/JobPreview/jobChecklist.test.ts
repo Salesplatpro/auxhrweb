@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { EMPTY_JOB_FORM } from '../utils/generatedJobToForm'
+import { EMPTY_JOB_FORM } from '../utils/jobFormValues'
 import { jobChecklist } from './jobChecklist'
 
 const done = (values: Parameters<typeof jobChecklist>[0]) =>

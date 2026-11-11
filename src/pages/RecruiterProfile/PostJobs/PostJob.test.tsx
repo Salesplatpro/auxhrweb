@@ -7,7 +7,7 @@ import { useJobDraftStore } from '@/features/jobs/store/useJobDraftStore'
 import { PostJobFormValues } from '@/utils/jobPostTypes'
 
 import PostJob from './PostJob'
-import { EMPTY_JOB_FORM } from './utils/generatedJobToForm'
+import { EMPTY_JOB_FORM } from './utils/jobFormValues'
 
 const { createMock, updateMock, navigateMock, notifyMock, jobQueryMock } =
   vi.hoisted(() => ({
@@ -100,7 +100,7 @@ describe('PostJob', () => {
   it('does not submit an incomplete job', async () => {
     renderPostJob()
     fireEvent.click(
-      screen.getByRole('button', { name: /continue to screening/i }),
+      screen.getByRole('button', { name: /continue to ai configuration/i }),
     )
     await waitFor(() => expect(createMock).not.toHaveBeenCalled())
   })
@@ -113,7 +113,7 @@ describe('PostJob', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Fill valid' }))
     fireEvent.click(
-      screen.getByRole('button', { name: /continue to screening/i }),
+      screen.getByRole('button', { name: /continue to ai configuration/i }),
     )
 
     await waitFor(() =>
@@ -138,7 +138,7 @@ describe('PostJob', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Fill valid' }))
     fireEvent.click(
-      screen.getByRole('button', { name: /continue to screening/i }),
+      screen.getByRole('button', { name: /continue to ai configuration/i }),
     )
 
     await waitFor(() =>
@@ -154,7 +154,7 @@ describe('PostJob', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Fill valid' }))
     fireEvent.click(
-      screen.getByRole('button', { name: /continue to screening/i }),
+      screen.getByRole('button', { name: /continue to ai configuration/i }),
     )
 
     await waitFor(() =>
@@ -166,11 +166,36 @@ describe('PostJob', () => {
     expect(navigateMock).not.toHaveBeenCalled()
   })
 
-  it('restores a saved draft and says so', () => {
+  it('restores a saved draft and says when it was saved', () => {
     useJobDraftStore.getState().saveDraft({ ...EMPTY_JOB_FORM, role: 'role-1' })
     renderPostJob()
-    expect(screen.getByText(/restored your unsaved draft/i)).toBeTruthy()
+    expect(screen.getByText('Draft saved')).toBeTruthy()
+    expect(screen.getByText(/you can leave and finish later/i)).toBeTruthy()
     expect(screen.getByText('Role value: role-1')).toBeTruthy()
+  })
+
+  it('saves as a draft and goes back to Job Posts', async () => {
+    createMock.mockReturnValue({
+      unwrap: () => Promise.resolve({ data: { job: { id: 'job-9' } } }),
+    })
+    renderPostJob()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fill valid' }))
+    fireEvent.click(screen.getByRole('button', { name: /save as draft/i }))
+
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith(
+        '/recruiterDashboard/myJobPosts',
+      ),
+    )
+    expect(createMock).toHaveBeenCalledTimes(1)
+    expect(useJobDraftStore.getState().draft).toBeNull()
+  })
+
+  it('goes back to Job Posts', () => {
+    renderPostJob()
+    fireEvent.click(screen.getByRole('button', { name: /^back$/i }))
+    expect(navigateMock).toHaveBeenCalledWith('/recruiterDashboard/myJobPosts')
   })
 
   it('fills in fields missing from an older saved draft', () => {
@@ -179,11 +204,6 @@ describe('PostJob', () => {
       .saveDraft({ role: 'role-1' } as unknown as PostJobFormValues)
     renderPostJob()
     expect(screen.getByText('Role value: role-1')).toBeTruthy()
-  })
-
-  it('shows how many fields the AI filled in', () => {
-    renderPostJob({ aiFilledCount: 1 })
-    expect(screen.getByText(/AI filled in 1 field\./)).toBeTruthy()
   })
 
   it('shows the preview beside the form', () => {
@@ -210,7 +230,9 @@ describe('PostJob', () => {
     expect(screen.getByText('Role locked: true')).toBeTruthy()
     expect(jobQueryMock).toHaveBeenCalledWith('job-1', { skip: false })
 
-    fireEvent.click(screen.getByRole('button', { name: /save and continue/i }))
+    fireEvent.click(
+      screen.getByRole('button', { name: /continue to ai configuration/i }),
+    )
 
     await waitFor(() =>
       expect(navigateMock).toHaveBeenCalledWith(

@@ -107,3 +107,87 @@
     color: var(--color-white);
   }
 }
+
+.connected {
+  margin: 0;
+  padding: var(--space-4) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-elevated);
+
+  .list {
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+    border: none;
+    border-radius: var(--radius-full);
+    background: none;
+
+    &:last-child {
+      flex: 0 0 auto;
+    }
+  }
+
+  .stepButton,
+  .stepStatic {
+    width: auto;
+    padding: 0;
+    white-space: nowrap;
+  }
+
+  .title {
+    font-family: var(--font-body);
+    font-weight: var(--weight-medium);
+    color: var(--color-text-muted);
+  }
+
+  .marker {
+    width: 28px;
+    height: 28px;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+  }
+
+  .line {
+    flex: 1 1 auto;
+    min-width: var(--space-6);
+    height: 2px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-border);
+  }
+
+  .done {
+    .marker {
+      background-color: var(--color-brand-vivid);
+      border-color: var(--color-brand-vivid);
+    }
+
+    .title {
+      color: var(--color-text-body);
+    }
+
+    .line {
+      background-color: var(--color-brand-vivid);
+    }
+  }
+
+  .current {
+    background: none;
+
+    .marker {
+      background-color: transparent;
+      border: 1.5px solid var(--color-brand-vivid);
+      color: var(--color-brand-vivid);
+    }
+
+    .title {
+      color: var(--color-text-heading);
+    }
+  }
+}

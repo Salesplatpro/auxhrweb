@@ -1,5 +1,6 @@
 import { Form, FormikHelpers, useFormikContext } from 'formik'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { HiArrowLeft, HiArrowRight } from 'react-icons/hi2'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { FormikFocusOnError } from '@/components/forms/FormikFocusOnError'
@@ -39,6 +40,7 @@ import { CopySetupSelect } from './CopySetupSelect'
 import { ScreeningPresets } from './ScreeningPresets'
 
 const BASE_PATH = '/recruiterDashboard/postjob'
+const JOB_POSTS_PATH = '/recruiterDashboard/myJobPosts'
 
 const FormObserver: React.FC<{ saveDraft: (v: unknown) => void }> = ({
   saveDraft,
@@ -66,6 +68,7 @@ const AiConfig = () => {
   const [createAiConfig] = useAiConfigMutation()
   const [patchAiConfig] = usePatchAiConfigMutation()
   const { drafts, saveDraft, clearDraft } = useAiConfigDraftStore()
+  const saveAsDraft = useRef(false)
   const { data: jobData, isLoading: jobLoading } = useIndividualJobQuery(
     jobId,
     { skip: !jobId },
@@ -118,7 +121,11 @@ const AiConfig = () => {
         await createAiConfig({ ...payload, jobId }).unwrap()
       }
       clearDraft(jobId)
-      notify('success', 'Screening saved. Check everything, then publish.')
+      if (saveAsDraft.current) {
+        notify('success', 'Saved as a draft. Finish it from Job Posts anytime.')
+        navigate(JOB_POSTS_PATH)
+        return
+      }
       navigate(`${BASE_PATH}/${jobId}/review`)
     } catch (err) {
       notify(
@@ -134,49 +141,45 @@ const AiConfig = () => {
   }
 
   return (
-    <div className={styles.page}>
-      <h2 className={styles.heading}>How should applicants be screened?</h2>
-      <p className={styles.subheading}>
-        Start from a preset, then adjust anything. Each part adds a step
-        candidates complete before they reach you.
-      </p>
+    <ValidatedForm
+      initialValues={initialValues}
+      validationSchema={aiConfigValidationSchema}
+      onSubmit={onSubmit}
+      enableReinitialize>
+      {({
+        values,
+        errors,
+        setFieldValue,
+        setValues,
+        isSubmitting,
+        submitForm,
+      }) => {
+        const applyPreset = (id: ScreeningPresetId) => {
+          const preset = getPreset(id)
+          setValues({
+            ...values,
+            ...preset.values,
+            name: isAutoSetupName(values.name, roleName)
+              ? setupName(roleName, preset.title)
+              : values.name,
+          })
+        }
 
-      <ValidatedForm
-        initialValues={initialValues}
-        validationSchema={aiConfigValidationSchema}
-        onSubmit={onSubmit}
-        enableReinitialize>
-        {({ values, errors, setFieldValue, setValues, isSubmitting }) => {
-          const applyPreset = (id: ScreeningPresetId) => {
-            const preset = getPreset(id)
-            setValues({
-              ...values,
-              ...preset.values,
-              name: isAutoSetupName(values.name, roleName)
-                ? setupName(roleName, preset.title)
-                : values.name,
-            })
-          }
+        return (
+          <Form noValidate data-tour="ai-config">
+            <FormikFocusOnError />
+            {!existingConfig && <FormObserver saveDraft={draftSaver} />}
 
-          return (
-            <Form noValidate data-tour="ai-config">
-              <FormikFocusOnError />
-              {!existingConfig && <FormObserver saveDraft={draftSaver} />}
-
-              {!existingConfig && initialDraft && (
-                <div className={styles.draftBanner}>
-                  Restored your unsaved screening setup.
-                </div>
-              )}
-
-              <div className={styles.layout}>
-                <div className={styles.formColumn}>
-                  <ScreeningPresets
-                    selected={detectPreset(values)}
-                    onSelect={applyPreset}
-                  />
-
-                  <div className={styles.copyRow}>
+            <div className={styles.layout}>
+              <div className={styles.formColumn}>
+                <AiConfigFields
+                  values={values}
+                  errors={errors}
+                  fieldName={(key) => key}
+                  setFieldValue={(key, value) => setFieldValue(key, value)}
+                  jobId={jobId}
+                  jobContext={jobContext}
+                  advancedExtra={
                     <CopySetupSelect
                       excludeId={existingConfig?.id}
                       onCopy={(config) => {
@@ -187,44 +190,57 @@ const AiConfig = () => {
                         notify('success', `Copied “${config.name}”.`)
                       }}
                     />
-                  </div>
-
-                  <AiConfigFields
-                    values={values}
-                    errors={errors}
-                    fieldName={(key) => key}
-                    setFieldValue={(key, value) => setFieldValue(key, value)}
-                    jobId={jobId}
-                    jobContext={jobContext}
-                  />
-                </div>
-
-                <div className={styles.sideColumn}>
-                  <CandidateJourney values={values} />
-                </div>
+                  }
+                />
               </div>
 
-              <div className={styles.actions}>
+              <div className={styles.sideColumn}>
+                <CandidateJourney values={values} />
+                <ScreeningPresets
+                  selected={detectPreset(values)}
+                  onSelect={applyPreset}
+                />
+              </div>
+            </div>
+
+            <div className={styles.actions}>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                icon={<HiArrowLeft size={16} />}
+                onClick={() => navigate(`${BASE_PATH}/${jobId}/details`)}>
+                Back to job details
+              </Button>
+              <div className={styles.actionsEnd}>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="lg"
-                  onClick={() => navigate(`${BASE_PATH}/${jobId}/details`)}>
-                  Back to details
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    saveAsDraft.current = true
+                    void submitForm()
+                  }}>
+                  Save as draft
                 </Button>
                 <Button
                   type="submit"
-                  variant="primary"
+                  variant="ink"
                   size="lg"
-                  loading={isSubmitting}>
+                  loading={isSubmitting && !saveAsDraft.current}
+                  iconEnd={<HiArrowRight size={16} />}
+                  onClick={() => {
+                    saveAsDraft.current = false
+                  }}>
                   Save and review
                 </Button>
               </div>
-            </Form>
-          )
-        }}
-      </ValidatedForm>
-    </div>
+            </div>
+          </Form>
+        )
+      }}
+    </ValidatedForm>
   )
 }
 

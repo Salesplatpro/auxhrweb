@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   createCompanySchema,
+  editCompanySchema,
   EMPTY_COMPANY_FORM,
   fieldForServerError,
   stepForField,
@@ -62,13 +63,39 @@ describe('payloads', () => {
       '',
     )
     expect(toCreatePayload({ ...valid, phone: '' }).phone).toBeUndefined()
-    expect(toUpdatePayload({ ...valid, phone: ' ' }).phone).toBeUndefined()
+    expect(
+      toUpdatePayload({ ...valid, companyValues: [], phone: ' ' }).phone,
+    ).toBeUndefined()
   })
 
   it('trims what it sends', () => {
     expect(toCreatePayload({ ...valid, name: ' Acme Ltd ' }).name).toBe(
       'Acme Ltd',
     )
+  })
+})
+
+describe('company values', () => {
+  it('sends them on update', () => {
+    expect(
+      toUpdatePayload({ ...valid, companyValues: ['We share work early'] })
+        .companyValues,
+    ).toEqual(['We share work early'])
+  })
+
+  it('allows at most 10 values of 200 characters each', async () => {
+    await expect(
+      editCompanySchema.isValid({ ...valid, companyValues: ['x'.repeat(200)] }),
+    ).resolves.toBe(true)
+    await expect(
+      editCompanySchema.isValid({ ...valid, companyValues: ['x'.repeat(201)] }),
+    ).resolves.toBe(false)
+    await expect(
+      editCompanySchema.isValid({
+        ...valid,
+        companyValues: Array.from({ length: 11 }, (_, i) => `Value ${i}`),
+      }),
+    ).resolves.toBe(false)
   })
 })
 

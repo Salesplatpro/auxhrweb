@@ -25,6 +25,10 @@ export interface Organization {
   billingStatus?: OrganizationBillingStatus | null
   /** ISO timestamp when the current paid period ends; null on pay_per_use. */
   billingPeriodEnd?: string | null
+  /** How the team works; culture-fit questions are written from these. */
+  companyValues?: string[] | null
+  /** Whether the company's open jobs are in its Indeed job feed. */
+  indeedFeedEnabled?: boolean
   verifiedAt?: string | null
   createdAt: string
   updatedAt: string
@@ -95,6 +99,7 @@ export interface UpdateOrganizationPayload {
   facebook?: string
   linkedin?: string
   twitter?: string
+  companyValues?: string[]
 }
 
 export interface OrganizationsApiResponse {

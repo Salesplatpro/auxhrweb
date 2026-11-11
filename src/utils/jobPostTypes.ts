@@ -16,6 +16,11 @@ export interface FormValues {
   requirements: string
   skills: string[]
   goals: string[]
+  department: string
+  employmentType: string
+  /** YYYY-MM-DD, or '' for no closing date. */
+  closesAt: string
+  shareOptions: boolean
 }
 
 export type PostJobFormValues = Omit<FormValues, 'workMode'> & {

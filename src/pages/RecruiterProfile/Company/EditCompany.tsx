@@ -8,7 +8,7 @@ import { BackButton } from '@/components/ui/BackButton'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import {
-  CompanyFormValues,
+  EditCompanyFormValues,
   EMPTY_COMPANY_FORM,
   toUpdatePayload,
 } from '@/features/organizations/companyForm'
@@ -28,7 +28,7 @@ const EditCompany = () => {
 
   const goBack = () => navigate('/recruiterDashboard/company')
 
-  const handleSubmit = async (values: CompanyFormValues) => {
+  const handleSubmit = async (values: EditCompanyFormValues) => {
     if (!organization) return
     const updated = await updateOrganization(
       organization.id,
@@ -39,7 +39,7 @@ const EditCompany = () => {
     }
   }
 
-  const initialValues: CompanyFormValues = organization
+  const initialValues: EditCompanyFormValues = organization
     ? {
         ...EMPTY_COMPANY_FORM,
         name: organization.name ?? '',
@@ -54,8 +54,9 @@ const EditCompany = () => {
         linkedin: organization.linkedin ?? '',
         facebook: organization.facebook ?? '',
         twitter: organization.twitter ?? '',
+        companyValues: organization.companyValues ?? [],
       }
-    : EMPTY_COMPANY_FORM
+    : { ...EMPTY_COMPANY_FORM, companyValues: [] }
 
   return (
     <PageShell>

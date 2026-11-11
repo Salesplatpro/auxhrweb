@@ -27,21 +27,6 @@ export const getStatusBadge = (status: string) => {
   }
 }
 
-export const getStatusDotColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return '#2e9e4f'
-    case 'closed':
-    case 'suspended':
-      return '#9ca3af'
-    case 'pending_payment':
-      return '#c17600'
-    case 'draft':
-    default:
-      return '#c99a06'
-  }
-}
-
 export const JOB_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
   { value: 'active', label: 'Active' },

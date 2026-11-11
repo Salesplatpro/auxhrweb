@@ -1,9 +1,6 @@
 import React from 'react'
 
-import {
-  workModeNeedsLocation,
-  WorkTypeCheckboxes,
-} from '@/components/features/jobs/WorkTypeCheckboxes'
+import { workModeNeedsLocation } from '@/components/features/jobs/WorkTypeCheckboxes'
 import { FieldLabel } from '@/components/forms/FieldLabel'
 import {
   EMPTY_LOCATION,
@@ -13,19 +10,45 @@ import { RoleSelect } from '@/components/forms/Roles/RoleSelect'
 import {
   COMPENSATION_PERIOD_OPTIONS,
   CURRENCY_OPTIONS,
+  EMPLOYMENT_TYPE_OPTIONS,
   EXPERIENCE_LEVEL_OPTIONS,
   Select,
 } from '@/components/forms/Select'
 import { TagInput } from '@/components/forms/TagInput/TagInput'
 import TextField from '@/components/forms/TextField'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
+import { Switch } from '@/components/ui/Switch'
 import { PostJobFormValues } from '@/utils/jobPostTypes'
 
 import { AiFieldActions } from './AiAssist/AiFieldActions'
 import { SuggestionChips } from './AiAssist/SuggestionChips'
 import { JobAiContext } from './AiAssist/useJobFieldAssist'
 import styles from './PostJob.module.scss'
+import { SalaryComparison } from './SalaryComparison/SalaryComparison'
 import { htmlToPlainText } from './utils/aiText'
 import { useRoleName } from './utils/useRoleName'
+
+const WORK_MODE_OPTIONS = [
+  { value: 'remote', label: 'Remote' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'onSite', label: 'On-site' },
+]
+
+const Section = ({
+  title,
+  note,
+  children,
+}: {
+  title: string
+  note: string
+  children: React.ReactNode
+}) => (
+  <section className={styles.formSection}>
+    <h3 className={styles.sectionTitle}>{title}</h3>
+    <p className={styles.sectionNote}>{note}</p>
+    {children}
+  </section>
+)
 
 type FormikErrorsLike = Partial<Record<keyof PostJobFormValues, unknown>> & {
   location?: { country?: { name?: string } }
@@ -40,6 +63,8 @@ type JobDetailsFieldsProps = {
   touched: FormikTouchedLike
   setFieldValue: (key: keyof PostJobFormValues, value: unknown) => void
   roleDisabled?: boolean
+  /** The saved job being edited, left out of the salary comparison. */
+  jobId?: string
 }
 
 export const JobDetailsFields = ({
@@ -48,6 +73,7 @@ export const JobDetailsFields = ({
   touched,
   setFieldValue,
   roleDisabled,
+  jobId,
 }: JobDetailsFieldsProps) => {
   const roleName = useRoleName(values.role)
   const aiContext: JobAiContext = {
@@ -59,16 +85,15 @@ export const JobDetailsFields = ({
     goals: values.goals,
   }
 
+  const fieldError = (key: keyof PostJobFormValues) =>
+    touched[key] && typeof errors[key] === 'string'
+      ? (errors[key] as string)
+      : undefined
+
   return (
     <>
-      {/* Section 1: Job Overview */}
-      <section className={styles.formSection}>
-        <h3 className={styles.sectionTitle}>Role overview</h3>
-        <p className={styles.sectionNote}>
-          Start with the role. The AI buttons above each box can write or
-          improve the text for you — you can edit everything afterwards.
-        </p>
-        <div className={styles.fieldGroup}>
+      <Section title="Role overview" note="The basics candidates read first.">
+        <div className={styles.grid2}>
           <RoleSelect
             label="Role"
             required
@@ -77,11 +102,38 @@ export const JobDetailsFields = ({
             onChange={(value) => setFieldValue('role', value)}
             creatable={!roleDisabled}
             disabled={roleDisabled}
-            error={
-              touched.role && typeof errors.role === 'string'
-                ? (errors.role as string)
-                : undefined
-            }
+            error={fieldError('role')}
+          />
+          <Select
+            name="experienceLevel"
+            label="Experience level"
+            required
+            options={EXPERIENCE_LEVEL_OPTIONS}
+            value={values.experienceLevel}
+            onChange={(value) => setFieldValue('experienceLevel', value)}
+            placeholder="Select experience level"
+            error={fieldError('experienceLevel')}
+          />
+        </div>
+
+        <div className={styles.grid3}>
+          <TextField
+            label="Department (optional)"
+            name="department"
+            placeholder="e.g. Design"
+          />
+          <Select
+            name="employmentType"
+            label="Job type"
+            options={EMPLOYMENT_TYPE_OPTIONS}
+            value={values.employmentType}
+            onChange={(value) => setFieldValue('employmentType', value)}
+            error={fieldError('employmentType')}
+          />
+          <TextField
+            label="Closing date (optional)"
+            name="closesAt"
+            type="date"
           />
         </div>
 
@@ -94,20 +146,18 @@ export const JobDetailsFields = ({
             writeLabel="Write the brief with AI"
           />
           <TextField
-            label="Job Brief"
+            label="Job brief"
             name="jobBrief"
             placeholder="Describe the role in up to 600 words"
             type="textarea"
             MAX_WORDS={600}
-            tooltip="What the candidate reads first. Be specific about the work, team, and outcomes — this also drives AI screening questions and CV matching."
           />
         </div>
-      </section>
+      </Section>
 
-      {/* Section 2: Requirements */}
-      <section className={styles.formSection}>
-        <h3 className={styles.sectionTitle}>Requirements</h3>
-
+      <Section
+        title="Requirements"
+        note="What candidates need to bring. CV match and tailored questions use this.">
         <div className={styles.fieldGroup}>
           <AiFieldActions
             field="requirements"
@@ -117,70 +167,45 @@ export const JobDetailsFields = ({
             writeLabel="Write requirements with AI"
           />
           <TextField
-            label="Job Requirements"
+            label="Job requirements"
             name="requirements"
             placeholder="List the qualifications and skills needed"
             type="textarea"
-            tooltip="Must-haves and nice-to-haves. CV match and personalized questions are grounded in this text."
           />
         </div>
+      </Section>
 
-        <div className={styles.fieldGroup}>
-          <Select
-            name="experienceLevel"
-            label="Experience Level"
-            required
-            options={EXPERIENCE_LEVEL_OPTIONS}
-            value={values.experienceLevel}
-            onChange={(value) => setFieldValue('experienceLevel', value)}
-            placeholder="Select experience level"
-            error={
-              touched.experienceLevel &&
-              typeof errors.experienceLevel === 'string'
-                ? (errors.experienceLevel as string)
-                : undefined
-            }
-          />
-        </div>
-      </section>
-
-      {/* Section 3: Work & Location */}
-      <section className={styles.formSection}>
-        <h3 className={styles.sectionTitle}>Work &amp; Location</h3>
-
-        <div className={styles.fieldGroup}>
-          <FieldLabel htmlFor="workMode" className={styles.label}>
-            Work Mode
-          </FieldLabel>
-          <WorkTypeCheckboxes
-            name="workMode"
-            value={values.workMode}
-            onChange={(value) => {
-              setFieldValue('workMode', value)
-              if (!workModeNeedsLocation(value)) {
-                setFieldValue('location', { ...EMPTY_LOCATION })
-              }
-            }}
-            error={
-              touched.workMode && typeof errors.workMode === 'string'
-                ? (errors.workMode as string)
-                : undefined
-            }
-          />
-        </div>
-
-        {workModeNeedsLocation(values.workMode) && (
-          <>
-            <p className={styles.sectionNote}>
-              Only Country is required — State/Province and Region/City are
-              optional.
-            </p>
-            <div className={styles.fieldGroup}>
+      <Section title="Work & location" note="Where the work happens.">
+        <div className={styles.workRow}>
+          <div className={styles.workMode}>
+            <FieldLabel htmlFor="workMode" className={styles.label}>
+              Work mode
+            </FieldLabel>
+            <SegmentedControl
+              label="Work mode"
+              multiple
+              options={WORK_MODE_OPTIONS}
+              value={values.workMode}
+              onChange={(value) => {
+                setFieldValue('workMode', value)
+                if (!workModeNeedsLocation(value as typeof values.workMode)) {
+                  setFieldValue('location', { ...EMPTY_LOCATION })
+                }
+              }}
+            />
+            {fieldError('workMode') && (
+              <div className={styles.errorText} role="alert">
+                {fieldError('workMode')}
+              </div>
+            )}
+          </div>
+          {workModeNeedsLocation(values.workMode) && (
+            <div className={styles.location}>
               <LocationSelect
                 value={values.location}
                 onChange={(location) => setFieldValue('location', location)}
-                stateLabel="State/Province (Optional)"
-                cityLabel="Region/City (Optional)"
+                stateLabel="State"
+                cityLabel="City"
                 countryRequired
                 errors={{
                   country:
@@ -191,88 +216,74 @@ export const JobDetailsFields = ({
                 }}
               />
             </div>
-          </>
-        )}
-      </section>
-
-      {/* Section 4: Compensation */}
-      <section className={styles.formSection}>
-        <h3 className={styles.sectionTitle}>Compensation</h3>
-
-        <div className={styles.compensationRow}>
-          <div className={styles.compensationFieldThird}>
-            <Select
-              name="currency"
-              label="Currency"
-              required
-              options={CURRENCY_OPTIONS}
-              value={values.currency}
-              onChange={(value) => setFieldValue('currency', value)}
-              placeholder="Select currency"
-              error={
-                Boolean(touched.currency) && typeof errors.currency === 'string'
-                  ? (errors.currency as string)
-                  : undefined
-              }
-            />
-          </div>
-
-          <div className={styles.compensationFieldThird}>
-            <TextField
-              label="Min Salary"
-              name="minSalary"
-              placeholder="e.g. 300000"
-              tooltip="Lowest compensation you will offer in the selected currency and period. Shown to candidates on the job post."
-            />
-          </div>
-
-          <div className={styles.compensationFieldThird}>
-            <TextField
-              label="Max Salary"
-              name="maxSalary"
-              placeholder="e.g. 600000"
-              tooltip="Optional upper bound. Leave blank if you prefer not to publish a range ceiling."
-            />
-          </div>
-
-          <div className={styles.compensationFieldThird}>
-            <Select
-              name="compensationPeriod"
-              label="Compensation Period"
-              required
-              options={COMPENSATION_PERIOD_OPTIONS}
-              value={values.compensationPeriod}
-              onChange={(value) => setFieldValue('compensationPeriod', value)}
-              placeholder="Select period"
-              error={
-                Boolean(touched.compensationPeriod) &&
-                typeof errors.compensationPeriod === 'string'
-                  ? (errors.compensationPeriod as string)
-                  : undefined
-              }
-            />
-          </div>
+          )}
         </div>
-      </section>
+      </Section>
 
-      {/* Section 5: Goals & Skills */}
-      <section className={styles.formSection}>
-        <h3 className={styles.sectionTitle}>Goals &amp; Skills</h3>
+      <Section
+        title="Compensation"
+        note="What this role pays. Candidates see the range.">
+        <div className={styles.grid4}>
+          <Select
+            name="currency"
+            label="Currency"
+            required
+            options={CURRENCY_OPTIONS}
+            value={values.currency}
+            onChange={(value) => setFieldValue('currency', value)}
+            placeholder="Select currency"
+            error={fieldError('currency')}
+          />
+          <TextField label="Min salary" name="minSalary" placeholder="300000" />
+          <TextField
+            label="Max salary (optional)"
+            name="maxSalary"
+            placeholder="380000"
+          />
+          <Select
+            name="compensationPeriod"
+            label="Period"
+            required
+            options={COMPENSATION_PERIOD_OPTIONS}
+            value={values.compensationPeriod}
+            onChange={(value) => setFieldValue('compensationPeriod', value)}
+            placeholder="Select period"
+            error={fieldError('compensationPeriod')}
+          />
+        </div>
 
+        <SalaryComparison values={values} roleName={roleName} jobId={jobId} />
+
+        <div className={styles.switchRow}>
+          <div>
+            <p className={styles.switchTitle}>Offers share options</p>
+            <p className={styles.sectionNote}>
+              Mentioned on the job post for candidates to see.
+            </p>
+          </div>
+          <Switch
+            label="Offers share options"
+            hideLabel
+            checked={values.shareOptions}
+            onChange={(checked) => setFieldValue('shareOptions', checked)}
+          />
+        </div>
+      </Section>
+
+      <Section
+        title="Skills & goals"
+        note="Used by AI to match and screen candidates.">
         <div className={styles.fieldGroup}>
           <TagInput
             name="skills"
-            label="Required Skills"
+            label="Required skills"
             required
+            addLabel="Add skill"
             value={values.skills}
             onChange={(tags) => setFieldValue('skills', tags)}
-            placeholder="Type a skill and press Enter"
+            placeholder="Type a skill"
             maxLength={250}
-            error={
-              touched.skills && typeof errors.skills === 'string'
-                ? (errors.skills as string)
-                : undefined
-            }
+            error={fieldError('skills')}
           />
           <SuggestionChips
             field="skills"
@@ -287,17 +298,14 @@ export const JobDetailsFields = ({
         <div className={styles.fieldGroup}>
           <TagInput
             name="goals"
-            label="Top Goals"
+            label="Top goals"
             required
+            addLabel="Add goal"
             value={values.goals}
             onChange={(tags) => setFieldValue('goals', tags)}
-            placeholder="Type a goal and press Enter"
+            placeholder="Type a goal"
             maxLength={250}
-            error={
-              touched.goals && typeof errors.goals === 'string'
-                ? (errors.goals as string)
-                : undefined
-            }
+            error={fieldError('goals')}
           />
           <SuggestionChips
             field="goals"
@@ -308,7 +316,7 @@ export const JobDetailsFields = ({
             }
           />
         </div>
-      </section>
+      </Section>
     </>
   )
 }

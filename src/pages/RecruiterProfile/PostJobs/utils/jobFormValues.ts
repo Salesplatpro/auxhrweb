@@ -21,6 +21,29 @@ export interface JobApiRecord {
   locationCity?: string | null
   skills?: string[] | null
   goals?: string[] | null
+  department?: string | null
+  employmentType?: string | null
+  closesAt?: string | null
+  shareOptions?: boolean | null
+}
+
+export const EMPTY_JOB_FORM: PostJobFormValues = {
+  jobBrief: '',
+  role: '',
+  requirements: '',
+  minSalary: '',
+  maxSalary: '',
+  compensationPeriod: '',
+  currency: '',
+  workMode: [],
+  experienceLevel: '',
+  location: { ...EMPTY_LOCATION },
+  skills: [],
+  goals: [],
+  department: '',
+  employmentType: 'full_time',
+  closesAt: '',
+  shareOptions: false,
 }
 
 export const jobToFormValues = (job: JobApiRecord): PostJobFormValues => {
@@ -47,14 +70,21 @@ export const jobToFormValues = (job: JobApiRecord): PostJobFormValues => {
     ) ?? { ...EMPTY_LOCATION },
     skills: job.skills || [],
     goals: job.goals || [],
+    department: job.department || '',
+    employmentType: job.employmentType || 'full_time',
+    closesAt: job.closesAt?.slice(0, 10) || '',
+    shareOptions: !!job.shareOptions,
   }
 }
 
 export const jobFormToPayload = (values: PostJobFormValues) => {
-  const { location, maxSalary, workMode, ...rest } = values
+  const { location, maxSalary, workMode, department, closesAt, ...rest } =
+    values
   return {
     ...rest,
     workMode,
+    department: department.trim() || null,
+    closesAt: closesAt || null,
     ...(maxSalary ? { maxSalary } : {}),
     ...locationFieldsFromWorkMode(location, workMode),
   }

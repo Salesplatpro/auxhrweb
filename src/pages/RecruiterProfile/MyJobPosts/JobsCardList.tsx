@@ -1,84 +1,63 @@
 import React from 'react'
-import { IoChevronForward } from 'react-icons/io5'
 import { Link } from 'react-router-dom'
 
-import { CompanyTag } from '@/components/features/jobs/CompanyTag'
-import { CountBadge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
+import { StatusBadge } from '@/components/ui/Badge'
+import { RecruiterJob } from '@/utils/recruiterJobPostsTypes'
 
-import { formatTimeAgo, recruiterJobPostsTypes } from '../../../utils'
+import { getStatusBadge, getStatusLabel } from '../getJobStatus'
 import {
-  getStatusBadge,
-  getStatusDotColor,
-  getStatusLabel,
-} from '../getJobStatus'
+  isDraftLike,
+  jobLocation,
+  jobMonthlySalary,
+  jobPostedLabel,
+  jobTitle,
+} from './jobRowFormat'
+import { JobRowMenu } from './JobRowMenu'
 import styles from './JobsCardList.module.scss'
-import { useJobPayment } from './useJobPayment'
 
 type JobsCardListProps = {
-  data: recruiterJobPostsTypes[]
+  data: RecruiterJob[]
+  emptyState: React.ReactNode
 }
 
-export const JobsCardList = ({ data }: JobsCardListProps) => {
-  const { canPay, payForJob, payingJobId } = useJobPayment()
+export const JobsCardList = ({ data, emptyState }: JobsCardListProps) => {
+  if (data.length === 0) return <>{emptyState}</>
+  const firstDraftId = data.find(isDraftLike)?.id
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <span className={styles.headerTitle}>Job Posts</span>
-        <CountBadge item={data.length} />
-      </div>
-
-      {data.map((job) => {
-        const status = job.status ?? 'draft'
-        const aiConfigId =
-          job.aiConfigId ??
-          (typeof job.aiConfig === 'string' ? job.aiConfig : null)
-        return (
-          <div key={job.id} className={styles.item}>
+    <ul className={styles.list}>
+      {data.map((job) => (
+        <li key={job.id} className={styles.item}>
+          <div className={styles.rowTop}>
             <Link
               to={`/recruiterDashboard/jobdetail/${job.id}`}
-              state={{ jobName: job.role.name, postedAt: job.createdAt }}
-              className={styles.row}>
-              <span
-                className={styles.dot}
-                style={{ backgroundColor: getStatusDotColor(status) }}
-              />
-              <div className={styles.rowBody}>
-                <div className={styles.rowTop}>
-                  <span className={styles.title}>{job.role.name}</span>
-                  <span
-                    className={styles.statusPill}
-                    style={getStatusBadge(status)}>
-                    {getStatusLabel(status)}
-                  </span>
-                </div>
-                <CompanyTag organization={job.organization} />
-                <p className={styles.subtext}>{formatTimeAgo(job.createdAt)}</p>
-              </div>
-              <IoChevronForward className={styles.chevron} />
+              className={styles.title}>
+              {jobTitle(job)}
             </Link>
-            <Link
-              to={`/recruiterDashboard/singleJobPost/${job.id}`}
-              state={{ jobName: job.role.name, postedAt: job.createdAt }}
-              className={styles.applicantsLink}>
-              {job.noOfApplicants ?? 0} applicant
-              {job.noOfApplicants === 1 ? '' : 's'} — view applicants
-            </Link>
-            {canPay(status, !!aiConfigId) && (
-              <div className={styles.payBar}>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  loading={payingJobId === job.id}
-                  onClick={() => void payForJob(job.id)}>
-                  Pay to activate
-                </Button>
-              </div>
-            )}
+            <JobRowMenu
+              job={job}
+              tourId={job.id === firstDraftId ? 'add-ai-config' : undefined}
+            />
           </div>
-        )
-      })}
-    </div>
+          <p className={styles.subtext}>
+            {jobLocation(job)} · {jobMonthlySalary(job)} / month
+          </p>
+          <div className={styles.rowBottom}>
+            <StatusBadge
+              status={getStatusLabel(job.status)}
+              {...getStatusBadge(job.status)}
+              showDot
+            />
+            <span className={styles.subtext}>
+              {isDraftLike(job)
+                ? jobPostedLabel(job)
+                : `${job.noOfApplicants ?? 0} applicants · ${jobPostedLabel(
+                    job,
+                  )}`}
+            </span>
+          </div>
+        </li>
+      ))}
+    </ul>
   )
 }

@@ -1,3 +1,4 @@
+import { EMPLOYMENT_TYPE_OPTIONS } from '@/components/forms/Select'
 import { capitalizeFirstWord } from '@/utils'
 
 import type { JobDetailsJob } from './types'
@@ -24,6 +25,23 @@ export const formatLocation = (job: JobDetailsJob): string | null => {
 
 export const formatExperience = (job: JobDetailsJob): string | null =>
   job.experienceLevel ? capitalizeFirstWord(job.experienceLevel) : null
+
+export const formatEmploymentType = (job: JobDetailsJob): string | null =>
+  EMPLOYMENT_TYPE_OPTIONS.find((option) => option.value === job.employmentType)
+    ?.label ?? null
+
+/** "24 Nov 2026" from a date-only value, without a timezone shift. */
+export const formatClosingDate = (job: JobDetailsJob): string | null => {
+  if (!job.closesAt) return null
+  const [year, month, day] = job.closesAt.slice(0, 10).split('-').map(Number)
+  if (!year || !month || !day) return null
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
 
 export const formatPoster = (job: JobDetailsJob): string | null =>
   job.postedBy?.firstName

@@ -5,13 +5,12 @@ import {
   Stepper,
 } from '../../../../components/ui/Stepper/Stepper'
 
-export type PostJobStepId = 'start' | 'details' | 'screening' | 'review'
+export type PostJobStepId = 'details' | 'screening' | 'review'
 
 const STEPS: StepDef<PostJobStepId>[] = [
-  { id: 'start', title: 'Start', description: 'Pick how to begin' },
-  { id: 'details', title: 'Details', description: 'Describe the role' },
-  { id: 'screening', title: 'Screening', description: 'Choose how to screen' },
-  { id: 'review', title: 'Review', description: 'Check and publish' },
+  { id: 'details', title: 'Job details' },
+  { id: 'screening', title: 'AI Configuration' },
+  { id: 'review', title: 'Review & publish' },
 ]
 
 type PostJobStepperProps = {
@@ -27,9 +26,10 @@ export const PostJobStepper = ({
   selectable = [],
 }: PostJobStepperProps) => (
   <Stepper
+    connected
     steps={STEPS}
     current={current}
-    ariaLabel="Create a job progress"
+    ariaLabel="Post a job progress"
     selectable={selectable}
     onSelect={onSelect}
   />

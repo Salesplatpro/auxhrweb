@@ -228,7 +228,7 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
       target: 'post-job-content',
       advanceOn: 'stage',
       title: 'Describe the role',
-      body: 'Let AI draft it from a sentence, or start from scratch. Check the details, then continue to screening.',
+      body: 'Fill in the role. AI can write the brief and requirements for you. Then continue to AI Configuration.',
       why: 'Applicants and AI screening both work from this brief.',
     },
   ],
@@ -248,7 +248,7 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
       advanceOn: 'click',
       skipWhen: withinPage(POST_JOB_PAGE),
       title: 'Add the screening setup',
-      body: 'Press Add AI Config on your draft job.',
+      body: 'Open the menu on your draft job and press Edit.',
       why: 'It decides which tests applicants take before you see them.',
     },
     {

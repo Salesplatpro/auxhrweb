@@ -99,6 +99,7 @@ import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
 import { OrgChart } from '@/pages/RecruiterProfile/People/OrgChart'
 import { QuarterlyReview } from '@/pages/RecruiterProfile/People/QuarterlyReview'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
+import { JobLive } from '@/pages/RecruiterProfile/PostJobs/JobLive/JobLive'
 import PostJobTab from '@/pages/RecruiterProfile/PostJobs/PostJobTab'
 import RecruiterProfileSidebar from '@/pages/RecruiterProfile/RecruiterProfileSidebar'
 import { CampaignDetail } from '@/pages/RecruiterProfile/Scout/CampaignDetail'
@@ -507,6 +508,10 @@ export const routeConfig: RouteObject[] = [
                       {
                         path: 'postjob/:jobId/review',
                         element: <PostJobTab step="review" />,
+                      },
+                      {
+                        path: 'postjob/:jobId/live',
+                        element: <JobLive />,
                       },
                       {
                         path: 'myJobPosts',

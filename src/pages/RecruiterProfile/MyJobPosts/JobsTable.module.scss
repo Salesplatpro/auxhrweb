@@ -1,118 +1,35 @@
-// Amber palette — no design token exists yet; grouped here for future extraction
-$amber-50: #fffbeb;
-$amber-100: #fef3c7;
-$amber-300: #fcd34d;
-$amber-500: #f59e0b;
-$amber-700: #b45309;
-
-// ── Job Title cell ─────────────────────────────────────────────────────────
 .titleCell {
   display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.companyCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.titleLink {
-  display: block;
-  max-width: 260px;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: inherit;
-  font-family: var(--font-heading);
-  text-transform: capitalize;
-}
-
-// ── Status cell ────────────────────────────────────────────────────────────
-.statusCell {
-  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 140px;
-}
-
-.statusPillButton {
-  cursor: pointer;
-
-  &:disabled {
-    cursor: default;
-    opacity: 0.6;
-  }
-}
-
-// ── Applicants cell ────────────────────────────────────────────────────────
-.applicantsButton {
+  gap: 2px;
   color: inherit;
-  font-family: var(--font-heading);
-  font-weight: var(--weight-semibold);
+  text-decoration: none;
+
+  &:hover .title {
+    color: var(--color-brand-vivid);
+  }
+}
+
+.title {
+  font-family: var(--font-body);
   font-size: var(--text-md);
-  line-height: 1.75rem;
-  text-decoration: underline;
-}
-
-// ── Date cell ──────────────────────────────────────────────────────────────
-.dateText {
-  white-space: nowrap;
-}
-
-.addAiConfigButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 32px;
-  box-sizing: border-box;
-  font-family: var(--font-heading);
   font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.subtitle {
   font-size: var(--text-sm);
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-md);
-  border: 1px solid $amber-500;
-  color: $amber-700;
-  background-color: $amber-50;
-  white-space: nowrap;
-  transition: background-color var(--duration-fast) var(--ease-standard);
-
-  &:hover {
-    background-color: $amber-100;
-  }
-
-  :global(html[data-theme='dark']) & {
-    background-color: rgba(245, 158, 11, 0.16);
-    color: #fcd34d;
-
-    &:hover {
-      background-color: rgba(245, 158, 11, 0.28);
-    }
-  }
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
 }
 
-// ── Row status colours ─────────────────────────────────────────────────────
-// Left accent only so rows keep the shared DataTable (scout) surface.
-// Green: job complete (has AI config)
-// Amber: incomplete (no AI config)
-// Gray: paused or closed job
-.rowComplete {
-  td:first-child {
-    box-shadow: inset 4px 0 0 #16a34a;
-  }
+.muted {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
 }
 
-.rowIncomplete {
-  td:first-child {
-    box-shadow: inset 4px 0 0 $amber-500;
-  }
-}
-
-.rowClosed {
-  td:first-child {
-    box-shadow: inset 4px 0 0 #9ca3af;
-  }
+.strong {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+  text-decoration: none;
 }

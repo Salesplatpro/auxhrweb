@@ -1,3 +1,4 @@
+import cn from 'classnames'
 import React, { useEffect } from 'react'
 import { IoClose } from 'react-icons/io5'
 
@@ -10,6 +11,11 @@ export type DrawerProps = {
   subtitle?: React.ReactNode
   /** Rendered in the header, beside the close button. */
   actions?: React.ReactNode
+  /** Rendered before the title, e.g. an avatar. */
+  leading?: React.ReactNode
+  /** Pinned under the scrolling body. */
+  footer?: React.ReactNode
+  size?: 'md' | 'lg'
   children: React.ReactNode
 }
 
@@ -23,6 +29,9 @@ export const Drawer = ({
   title,
   subtitle,
   actions,
+  leading,
+  footer,
+  size = 'md',
   children,
 }: DrawerProps) => {
   useEffect(() => {
@@ -45,11 +54,12 @@ export const Drawer = ({
         aria-label="Close panel"
       />
       <aside
-        className={styles.panel}
+        className={cn(styles.panel, size === 'lg' && styles.lg)}
         role="dialog"
         aria-modal="true"
         aria-label={title}>
         <header className={styles.header}>
+          {leading}
           <div className={styles.heading}>
             <h2 className={styles.title}>{title}</h2>
             {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
@@ -66,6 +76,7 @@ export const Drawer = ({
           </div>
         </header>
         <div className={styles.body}>{children}</div>
+        {footer && <footer className={styles.footer}>{footer}</footer>}
       </aside>
     </div>
   )

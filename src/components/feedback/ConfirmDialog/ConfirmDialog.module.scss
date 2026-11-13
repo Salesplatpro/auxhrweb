@@ -1,3 +1,7 @@
+.root {
+  z-index: var(--z-modal);
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -13,6 +17,12 @@
   margin: 0;
   font-size: var(--text-lg);
   font-weight: 600;
+}
+
+.description {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .actions {

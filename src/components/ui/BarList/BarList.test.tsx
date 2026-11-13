@@ -46,4 +46,30 @@ describe('BarList', () => {
     expect(screen.getByText('Nothing is stuck right now')).toBeTruthy()
     expect(screen.queryByRole('list')).toBeNull()
   })
+
+  it('shows each item as a share of a given total, for a funnel', () => {
+    renderList({
+      ariaLabel: 'Pipeline',
+      of: 200,
+      items: [
+        { key: 'applied', label: 'Applied', value: 200 },
+        { key: 'matched', label: 'CV Matched', value: 50 },
+      ],
+    })
+
+    expect(screen.getByText('100%')).toBeTruthy()
+    expect(screen.getByText('25%')).toBeTruthy()
+  })
+
+  it('shows only the percentage for items that are percentages', () => {
+    renderList({
+      ariaLabel: 'Skills',
+      of: 100,
+      valueDisplay: 'share',
+      items: [{ key: 'ga4', label: 'GA4', value: 76 }],
+    })
+
+    expect(screen.getByText('76%')).toBeTruthy()
+    expect(screen.queryByText('76')).toBeNull()
+  })
 })

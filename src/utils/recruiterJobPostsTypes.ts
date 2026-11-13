@@ -144,4 +144,109 @@ export type SingleJobDetails = {
   personalityFitPending?: boolean
   problemSolvingAnswers?: GradedAnswer[] | null
   cultureFitAnswers?: GradedAnswer[] | null
+  /** Lower-cased link source, e.g. linkedin or whatsapp; null for a direct apply. */
+  source?: string | null
+  stage?: ProgressStage
+  boardColumn?: BoardColumn | null
+  interview?: { id: string | null; status: InterviewProgress } | null
+  /** Company only, on the single application. */
+  nextStep?: NextStep
+}
+
+/** The single application as the company reads it: the interview comes in full. */
+export type ApplicationDetail = Omit<SingleJobDetails, 'interview'> & {
+  interview?: RecruiterInterview | null
+}
+
+export type BoardColumn =
+  | 'applied'
+  | 'cv_matched'
+  | 'pre_screened'
+  | 'personality_test'
+  | 'shortlisted'
+
+export type ProgressStage =
+  | 'applied'
+  | 'cv_matched'
+  | 'pre_screened'
+  | 'personality_test'
+  | 'interview'
+
+export type InterviewProgress =
+  | 'not_started'
+  | 'in_progress'
+  | 'processing'
+  | 'ready'
+
+export type NextStep = 'ai_interview' | 'shortlisted'
+
+export interface InterviewScore {
+  score: number
+  reason: string
+}
+
+export interface RecruiterInterview {
+  id: string
+  mode: 'audio' | 'audio_video'
+  status: InterviewProgress
+  invitedAt: string | null
+  startedAt: string | null
+  scoringStatus: 'pending' | 'completed' | 'failed' | null
+  scores: {
+    clearSpeaking: InterviewScore
+    fitForRole: InterviewScore
+    confidence: InterviewScore
+  } | null
+  summary: string | null
+  flags: { text: string; question: number | null }[] | null
+  scoredAt: string | null
+  questions: {
+    id: string
+    position: number
+    isFollowUp: boolean
+    question: string
+    recorded: boolean
+    recordedAt: string | null
+    durationSeconds: number | null
+    transcriptStatus: 'pending' | 'completed' | 'failed' | null
+    transcript: string | null
+  }[]
+}
+
+export interface JobSummary {
+  applicants: { total: number; thisWeek: number }
+  passRate: {
+    value: number | null
+    passed: number
+    preScreened: number
+    deltaVsLastPost: number | null
+  }
+  avgCvMatch: { value: number | null; deltaThisWeek: number | null }
+  shortlisted: { count: number; pctOfApplicants: number }
+  pipeline: {
+    applied: number
+    cvMatched: number
+    preScreened: number
+    personalityTest: number
+    interview: number
+  }
+  topSkills: { skill: string; pct: number }[]
+  recentActivity: {
+    type:
+      | 'posted'
+      | 'matched'
+      | 'shortlisted'
+      | 'rejected'
+      | 'interview_invited'
+      | 'interview_finished'
+    title: string
+    at: string
+  }[]
+  hiringTeam: { userId: string; name: string; role: string; isOwner: boolean }[]
+  keyDates: {
+    postedAt: string
+    postedBy: string | null
+    closesAt: string | null
+    interviewsStartAt: string | null
+  }
 }

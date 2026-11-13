@@ -1,6 +1,12 @@
 import { httpClient } from '@/features/auth/services/httpClient'
 import { downloadBlobResponse } from '@/utils/downloadBlob'
-import { SingleJobDetails } from '@/utils/recruiterJobPostsTypes'
+import {
+  BoardColumn,
+  InterviewProgress,
+  JobSummary,
+  NextStep,
+  SingleJobDetails,
+} from '@/utils/recruiterJobPostsTypes'
 
 export type ApplicationDecision = 'rejected' | 'shortlisted'
 
@@ -12,13 +18,35 @@ export const fetchApplication = (applicationId: string) =>
     .get(applicationKey(applicationId))
     .then((response) => response.data)
 
+export interface DecisionEmail {
+  send: boolean
+  body: string
+}
+
 export const updateApplicationStatus = (
   applicationId: string,
   status: ApplicationDecision,
+  email?: DecisionEmail,
 ) =>
   httpClient
-    .patch(`${applicationKey(applicationId)}/status`, { status })
+    .patch(`${applicationKey(applicationId)}/status`, { status, email })
     .then((response) => response.data)
+
+export interface AdvanceResult {
+  nextStep: NextStep
+  interview: 'invited' | 'ready' | 'failed' | 'skipped' | null
+}
+
+/** Move forward: shortlists, and starts the recorded interview when it is next. */
+export const advanceApplication = (
+  applicationId: string,
+  sendInterviewInvite: boolean,
+) =>
+  httpClient
+    .post<{ data: AdvanceResult }>(`${applicationKey(applicationId)}/advance`, {
+      sendInterviewInvite,
+    })
+    .then((response) => response.data.data)
 
 export const bulkUpdateApplicationStatus = (
   applicationIds: string[],
@@ -37,14 +65,48 @@ export interface JobAiConfigThresholds {
   minPrescreeningScore: number | null
 }
 
-export const fetchJobApplications = (jobId: string) =>
+export interface JobApplicationsQuery {
+  limit?: number
+  offset?: number
+  q?: string
+  source?: string
+  sort?: 'aiMatch' | 'dateApplied' | 'cvSimilarity'
+  boardColumn?: BoardColumn
+  interview?: InterviewProgress
+  applicationStatus?: string
+  matchVerdict?: string
+}
+
+export const fetchJobApplications = (
+  jobId: string,
+  query: JobApplicationsQuery = {},
+) =>
   httpClient
     .get<{
       data: {
         applications: SingleJobDetails[]
+        total: number
         aiConfig: JobAiConfigThresholds | null
       }
-    }>(jobApplicationsKey(jobId))
+    }>(jobApplicationsKey(jobId), { params: query })
+    .then((response) => response.data)
+
+export const jobSummaryKey = (jobId: string) => `/jobs/${jobId}/summary`
+
+export const fetchJobSummary = (jobId: string) =>
+  httpClient
+    .get<{ data: JobSummary }>(jobSummaryKey(jobId))
+    .then((response) => response.data.data)
+
+/** A private interview recording, as a blob the player can seek through. */
+export const fetchInterviewRecording = (
+  interviewId: string,
+  questionId: string,
+) =>
+  httpClient
+    .get<Blob>(`/interviews/${interviewId}/questions/${questionId}/recording`, {
+      responseType: 'blob',
+    })
     .then((response) => response.data)
 
 export interface RetryVerdictsResult {

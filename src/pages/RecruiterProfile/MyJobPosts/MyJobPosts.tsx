@@ -1,9 +1,5 @@
 import React, { useState } from 'react'
-import {
-  HiChevronDown,
-  HiOutlineMagnifyingGlass,
-  HiPlus,
-} from 'react-icons/hi2'
+import { HiOutlineMagnifyingGlass, HiPlus } from 'react-icons/hi2'
 import { LuFilter } from 'react-icons/lu'
 import { useNavigate } from 'react-router-dom'
 
@@ -29,6 +25,7 @@ import { JobsCardList } from './JobsCardList'
 import { JobsTable } from './JobsTable'
 import styles from './MyJobPosts.module.scss'
 import { Pagination } from './Pagination'
+import { ToolbarTrigger } from './ToolbarTrigger'
 
 const MOBILE_BREAKPOINT = 768
 const PAGE_SIZE = 7
@@ -87,20 +84,6 @@ const MORE_FILTER_FIELDS: FilterFieldConfig<MoreFilters>[] = [
     ],
   },
 ]
-
-const Trigger = ({
-  label,
-  icon,
-}: {
-  label: string
-  icon?: React.ReactNode
-}) => (
-  <span className={styles.trigger}>
-    {icon}
-    {label}
-    <HiChevronDown size={14} aria-hidden />
-  </span>
-)
 
 export const MyJobPosts = () => {
   const navigate = useNavigate()
@@ -224,7 +207,7 @@ export const MyJobPosts = () => {
           <Dropdown
             align="left"
             trigger={
-              <Trigger
+              <ToolbarTrigger
                 icon={<LuFilter size={14} aria-hidden />}
                 label={`Location: ${state || 'All'}`}
               />
@@ -237,7 +220,7 @@ export const MyJobPosts = () => {
           />
           <Dropdown
             align="left"
-            trigger={<Trigger label={`Work type: ${workTypeLabel}`} />}
+            trigger={<ToolbarTrigger label={`Work type: ${workTypeLabel}`} />}
             items={WORK_TYPES.map((option) => ({
               key: option.value || 'all',
               label: option.label,
@@ -247,7 +230,7 @@ export const MyJobPosts = () => {
           <Dropdown
             align="left"
             trigger={
-              <Trigger
+              <ToolbarTrigger
                 label={`Sort: ${
                   SORTS.find((option) => option.value === sort)?.label
                 }`}

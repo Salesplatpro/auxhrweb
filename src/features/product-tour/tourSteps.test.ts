@@ -155,7 +155,7 @@ describe('tour steps', () => {
         pageTourFor('recruiter', '/recruiterDashboard/shortlist')?.id,
       ).toBe('recruiter-shortlist')
       expect(
-        pageTourFor('recruiter', '/recruiterDashboard/singleJobPost/abc')?.id,
+        pageTourFor('recruiter', '/recruiterDashboard/jobdetail/abc')?.id,
       ).toBe('recruiter-applicants')
       expect(
         pageTourFor('talent', '/recruiterDashboard/shortlist'),

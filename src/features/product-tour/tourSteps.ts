@@ -343,7 +343,7 @@ export const PAGE_TOURS: PageTour[] = [
   {
     id: 'recruiter-applicants',
     role: 'recruiter',
-    path: '/recruiterDashboard/singleJobPost',
+    path: '/recruiterDashboard/jobdetail',
     steps: [
       {
         title: 'Ranked applicants',

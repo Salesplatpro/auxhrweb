@@ -3,13 +3,18 @@ import useSWR from 'swr'
 import {
   fetchJobApplications,
   jobApplicationsKey,
+  JobApplicationsQuery,
 } from '../services/applicationService'
 
-export const useJobApplications = (jobId?: string) => {
-  const { data, error, isLoading, mutate } = useSWR(
-    jobId ? jobApplicationsKey(jobId) : null,
-    () => fetchJobApplications(jobId!),
+export const useJobApplications = (
+  jobId?: string,
+  query: JobApplicationsQuery = {},
+) => {
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    jobId ? [jobApplicationsKey(jobId), query] : null,
+    () => fetchJobApplications(jobId!, query),
+    { keepPreviousData: true },
   )
 
-  return { data, error, isLoading, mutate }
+  return { data, error, isLoading, isValidating, mutate }
 }

@@ -62,8 +62,7 @@ export const JobsTable = ({ data, emptyState }: JobsTableProps) => {
             <span className={styles.muted}>—</span>
           ) : (
             <Link
-              to={`/recruiterDashboard/singleJobPost/${job.id}`}
-              state={{ jobName: job.role.name, postedAt: job.createdAt }}
+              to={`/recruiterDashboard/jobdetail/${job.id}?tab=candidates`}
               className={styles.strong}>
               {job.noOfApplicants ?? 0}
             </Link>

@@ -29,6 +29,7 @@ export interface JobDetailsJob {
   hasApplied?: boolean
   applicationStage?: string | null
   applicationId?: string | null
+  interviewId?: string | null
   applicationStages?: Record<string, string> | null
   aiConfigId?: string | null
   aiConfig?: { id?: string } | null

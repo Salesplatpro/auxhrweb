@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import {
   JobDetailsJob,
@@ -113,6 +113,7 @@ const StageReview = ({
 
 const IndividualJob = () => {
   const { jobId } = useParams()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const talentId = useAuthStore((state) => state.user)?.id
   const [showSuccess, setShowSuccess] = useState(false)
@@ -371,6 +372,23 @@ const IndividualJob = () => {
             onComplete={() => void handleStageComplete()}
           />
         ))}
+
+      {job.interviewId && (
+        <div className={styles.stagePanel}>
+          <h2 className={styles.stageTitle}>Your interview</h2>
+          <p className={styles.stageMeta}>
+            Record your answers to the interview questions.
+          </p>
+          <div>
+            <Button
+              onClick={() =>
+                navigate(`/talentDashboard/interview/${job.interviewId}`)
+              }>
+              Open your interview
+            </Button>
+          </div>
+        </div>
+      )}
 
       <CompanyAssessments jobId={jobId} application={application} />
 

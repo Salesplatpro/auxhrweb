@@ -1,302 +1,227 @@
+import cn from 'classnames'
 import React from 'react'
-import {
-  HiOutlineClipboardDocumentCheck,
-  HiOutlineDocumentText,
-  HiOutlineSparkles,
-} from 'react-icons/hi2'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
-import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Pill } from '@/components/ui/Pill'
-import { Skeleton } from '@/components/ui/Skeleton'
+import { MetricCard } from '@/components/ui/MetricCard'
 import { Heading, Text } from '@/components/ui/Typography'
 import { CardError } from '@/features/dashboard/components/CardError/CardError'
 import { useTalentDashboard } from '@/features/dashboard/hooks/useTalentDashboard'
-import {
-  applicationCounts,
-  newMatchesLine,
-  placeAndMode,
-  STRONG_PROFILE_PERCENT,
-  waitingOnTalent,
-  yearsLabel,
-} from '@/features/dashboard/utils/talentDashboard'
+import { TalentTodo } from '@/features/dashboard/types'
 import { useProfile } from '@/features/profile/hooks/useProfile'
+import { dayMonth } from '@/features/talent-applications/format'
+import { StatusBadge } from '@/features/talent-applications/StatusBadge/StatusBadge'
+import { STEP_ICON } from '@/features/talent-applications/stepIcons'
+import {
+  applicationPath,
+  STEP_TITLE,
+  stepActionPath,
+} from '@/features/talent-applications/steps'
 import { useRouteToast } from '@/hooks/useRouteToast'
 import { useAllJobApplicationsQuery } from '@/redux/api/talent'
-import { formatTimeAgo } from '@/utils'
-import ProgressBar from '@/utils/ProgressBar'
-import { AllJobTypes } from '@/utils/types'
 
 import styles from './TalentDashboardHome.module.scss'
 
-const JOBS_PATH = '/talentDashboard/job'
-const PROFILE_PATH = '/talentDashboard/talentProfile'
-const SKILLS_SHOWN = 3
+const RECENT_APPLICATIONS = 4
+const APPLICATIONS_PATH = '/talentDashboard/applicationPipeline'
 
-const TalentDashboardHome = () => {
-  useRouteToast()
-  const navigate = useNavigate()
-  const { profile } = useProfile()
-  const { dashboard, error, isLoading, retry } = useTalentDashboard()
-  const { data: applicationsData, isLoading: applicationsLoading } =
-    useAllJobApplicationsQuery()
+const WORK_MODE: Record<string, string> = { remote: 'Remote', hybrid: 'Hybrid' }
 
-  const applications = (applicationsData?.applications ??
-    []) as unknown as AllJobTypes[]
-  const counts = applicationCounts(applications)
-  const upNext = waitingOnTalent(applications)
-  const percentage = profile?.profileCompletion?.percentage ?? 0
-  const firstName = profile?.firstName ?? ''
-  const lastName = profile?.lastName ?? ''
-  const roleName = profile?.userRoles?.[0]?.name
-  const meta = [
-    roleName,
-    [profile?.locationCity, profile?.locationState, profile?.locationCountry]
-      .filter(Boolean)
-      .join(', ') || null,
-    yearsLabel(profile?.cvYearsExperience, profile?.experience),
+const weekday = (date: string | null) =>
+  date
+    ? new Date(date).toLocaleDateString('en-GB', { weekday: 'short' })
+    : undefined
+
+const todoTitle = (item: TalentTodo) =>
+  [
+    item.step.key === 'ai_interview'
+      ? 'Recorded interview'
+      : STEP_TITLE[item.step.key],
+    item.company?.name,
   ]
     .filter(Boolean)
     .join(' · ')
-  const skills = (profile?.cvSkills ?? []).slice(0, SKILLS_SHOWN)
+
+const todoMeta = (item: TalentTodo) =>
+  [
+    item.jobTitle,
+    item.step.minutes && `${item.step.minutes} min`,
+    item.step.dueAt &&
+      `${item.step.key === 'ai_interview' ? 'by' : 'due'} ${dayMonth(
+        item.step.dueAt,
+      )}`,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+
+const TodoCard = ({
+  item,
+  highlight,
+}: {
+  item: TalentTodo
+  highlight: boolean
+}) => {
+  const navigate = useNavigate()
+  const path = stepActionPath(item.applicationId, item.step)
+  return (
+    <article className={cn(styles.todo, highlight && styles.todoHighlight)}>
+      <span
+        className={cn(
+          styles.todoIcon,
+          item.step.key === 'ai_interview' ? styles.violet : styles.amber,
+        )}
+        aria-hidden>
+        {STEP_ICON[item.step.key]}
+      </span>
+      <span className={styles.todoText}>
+        <span className={styles.todoTitle}>{todoTitle(item)}</span>
+        <span className={styles.todoMeta}>{todoMeta(item)}</span>
+      </span>
+      {path && (
+        <Button variant="gradient" onClick={() => navigate(path)}>
+          {item.step.key === 'ai_interview' ? 'Start interview' : 'Start test'}
+        </Button>
+      )}
+    </article>
+  )
+}
+
+const TalentDashboardHome = () => {
+  useRouteToast()
+  const { profile } = useProfile()
+  const { dashboard, error, isLoading, retry } = useTalentDashboard()
+  const { data: recent, isLoading: recentLoading } = useAllJobApplicationsQuery(
+    {
+      limit: RECENT_APPLICATIONS,
+    },
+  )
+  const todo = dashboard?.todo ?? []
+  const firstName = profile?.firstName ?? ''
 
   return (
     <PageShell wide>
-      <div className={styles.titleRow}>
-        <div>
-          <Heading level={1}>
-            {`Welcome back${firstName ? `, ${firstName}` : ''}`}
-          </Heading>
-          <Text as="p" size="fs-lg" color="muted">
-            {dashboard
-              ? newMatchesLine(dashboard.newMatchesToday)
-              : 'Here’s what’s happening with your job search.'}
+      <header className={styles.header}>
+        <Heading level={1}>
+          Welcome Back{firstName ? `, ${firstName}` : ''}
+        </Heading>
+        {dashboard && (
+          <Text as="p" size="fs-md" color="muted">
+            {todo.length > 0
+              ? `You have ${todo.length} thing${
+                  todo.length === 1 ? '' : 's'
+                } to do today. `
+              : 'Nothing needs you today. '}
+            Your applications are below.
           </Text>
-        </div>
-        <Button
-          icon={<HiOutlineSparkles size={16} />}
-          onClick={() => navigate(JOBS_PATH)}>
-          Find Matches
-        </Button>
-      </div>
+        )}
+      </header>
 
-      <div className={styles.layout}>
-        <div className={styles.column}>
-          <Card className={styles.profileCard}>
-            <div className={styles.banner} aria-hidden />
-            <div className={styles.profileBody}>
-              <Avatar
-                firstName={firstName}
-                lastName={lastName}
-                src={profile?.profileImageUrl}
-                size="lg"
-                className={styles.avatar}
-              />
-              <Text as="p" size="fs-xl" weight="bolder">
-                {`${firstName} ${lastName}`.trim() || 'Your profile'}
-              </Text>
-              {meta && (
-                <Text as="p" size="fs-md" color="muted">
-                  {meta}
-                </Text>
-              )}
-              {skills.length > 0 && (
-                <div className={styles.skills}>
-                  {skills.map((skill) => (
-                    <Pill
-                      key={skill}
-                      tone="violet"
-                      size="sm"
-                      className={styles.skill}>
-                      {skill}
-                    </Pill>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          <Card className={styles.strength}>
-            <ProgressBar
-              percentage={percentage}
-              size={96}
-              textColor="var(--color-text-heading)"
-              pathColor="var(--color-violet)"
-              trailColor="var(--color-bg-subtle)"
-            />
-            <div className={styles.strengthText}>
-              <Text as="p" size="fs-lg" weight="bolder">
-                Profile Strength
-              </Text>
-              <Text as="p" size="fs-md" color="muted">
-                {percentage >= 100
-                  ? 'Your profile is complete.'
-                  : 'Complete your profile to reach 100%.'}
-              </Text>
-              {percentage >= STRONG_PROFILE_PERCENT ? (
-                <Pill tone="violet" size="sm">
-                  Strong Profile
-                </Pill>
-              ) : (
-                <Link to={PROFILE_PATH} className={styles.inlineLink}>
-                  Complete profile
-                </Link>
-              )}
-            </div>
-          </Card>
-
-          <PagePanel title="Your Applications" hint="Tracked live">
-            {applicationsLoading ? (
-              <Skeleton height="5rem" />
-            ) : (
-              <div className={styles.counts}>
-                {[
-                  { label: 'Applied', value: counts.applied },
-                  { label: 'In Review', value: counts.inReview },
-                  { label: 'Shortlisted', value: counts.shortlisted },
-                ].map((tile) => (
-                  <div key={tile.label} className={styles.countTile}>
-                    <Text as="p" size="fs-3xl" weight="bolder">
-                      {tile.value}
-                    </Text>
-                    <Text as="p" size="fs-md" color="muted">
-                      {tile.label}
-                    </Text>
-                  </div>
+      {error ? (
+        <CardError onRetry={retry} />
+      ) : (
+        <>
+          {todo.length > 0 && (
+            <section className={styles.section}>
+              <h2 className={styles.label}>To do</h2>
+              <div className={styles.todoRow}>
+                {todo.map((item, index) => (
+                  <TodoCard
+                    key={`${item.applicationId}-${item.step.key}`}
+                    item={item}
+                    highlight={index === 0}
+                  />
                 ))}
               </div>
-            )}
-          </PagePanel>
-        </div>
+            </section>
+          )}
 
-        <div className={styles.column}>
-          <PagePanel
-            title="Matched For You"
-            hint="Ranked by how well your CV fits each role"
-            actionTo={JOBS_PATH}
-            actionLabel="View All">
-            {error ? (
-              <CardError onRetry={retry} />
-            ) : isLoading || !dashboard ? (
-              <Skeleton height="16rem" />
-            ) : !dashboard.cvReady ? (
-              <EmptyState
-                icon={<HiOutlineDocumentText size={28} />}
-                title="We’re still reading your CV"
-                description="Your matches show up here once it’s done. This usually takes a few minutes."
-              />
-            ) : dashboard.matches.length === 0 ? (
-              <EmptyState
-                title="No new matches right now"
-                description="Browse every open role while new ones come in."
-                action={
-                  <Button variant="outline" onClick={() => navigate(JOBS_PATH)}>
-                    Find Jobs
-                  </Button>
-                }
-              />
-            ) : (
-              <ul className={styles.matches}>
-                {dashboard.matches.map((match) => (
-                  <li key={match.jobId} className={styles.match}>
+          <div className={styles.metrics}>
+            <MetricCard
+              label="Applications sent"
+              loading={isLoading}
+              value={String(dashboard?.applications.sent ?? 0)}
+              hint={`${dashboard?.applications.sentThisWeek ?? 0} this week`}
+            />
+            <MetricCard
+              label="Tests to take"
+              loading={isLoading}
+              value={String(dashboard?.tests.toTake ?? 0)}
+              hint={
+                dashboard?.tests.nextDueAt
+                  ? `Due ${weekday(dashboard.tests.nextDueAt)}`
+                  : undefined
+              }
+            />
+            <MetricCard
+              label="Interviews"
+              loading={isLoading}
+              value={String(dashboard?.interviews.toRecord ?? 0)}
+              hint={dashboard?.interviews.toRecord ? 'Recorded' : undefined}
+            />
+          </div>
+        </>
+      )}
+
+      <PagePanel
+        title="My applications"
+        hint="Where each one stands"
+        actionTo={APPLICATIONS_PATH}
+        actionLabel="View all">
+        {!recentLoading && !recent?.applications.length ? (
+          <EmptyState
+            title="No applications yet"
+            description="Jobs you apply to show up here."
+          />
+        ) : (
+          <ul className={styles.applications}>
+            {recent?.applications.map((row) => {
+              const place = [
+                row.job.locationState ?? row.job.locationCity,
+                row.job.workMode
+                  ?.map((mode) => WORK_MODE[mode])
+                  .filter(Boolean)
+                  .join(', '),
+              ]
+                .filter(Boolean)
+                .join(', ')
+              return (
+                <li key={row.id}>
+                  <Link
+                    to={applicationPath(row.id)}
+                    className={styles.application}>
                     <span className={styles.initial} aria-hidden>
-                      {(match.company ?? match.title)[0]?.toUpperCase()}
+                      {(row.job.organization?.name ??
+                        row.job.role?.name ??
+                        '')[0]?.toUpperCase()}
                     </span>
-                    <span className={styles.matchText}>
-                      <Text as="span" size="fs-lg" weight="bolder">
-                        {match.title}
-                      </Text>
-                      <Text as="span" size="fs-md" color="muted">
-                        {[
-                          match.company,
-                          placeAndMode(
-                            [match.city, match.state, match.country],
-                            match.workMode,
-                          ),
-                        ]
+                    <span className={styles.applicationText}>
+                      <span className={styles.applicationTitle}>
+                        {row.job.role?.name}
+                      </span>
+                      <span className={styles.applicationMeta}>
+                        {[row.job.organization?.name, place]
                           .filter(Boolean)
                           .join(' · ')}
-                      </Text>
-                      <Pill tone="neutral" size="sm">
-                        Posted {formatTimeAgo(match.createdAt)}
-                      </Pill>
-                    </span>
-                    <span className={styles.score}>
-                      <Text as="span" size="fs-xl" weight="bolder">
-                        {Math.round(match.matchPercent)}%
-                      </Text>
-                      <Text as="span" size="fs-sm" color="muted">
-                        Match
-                      </Text>
-                      <span className={styles.scoreTrack} aria-hidden>
-                        <span
-                          className={styles.scoreFill}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.max(0, match.matchPercent),
-                            )}%`,
-                          }}
-                        />
                       </span>
                     </span>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`${JOBS_PATH}/${match.jobId}`)}>
-                      Apply
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </PagePanel>
-
-          <PagePanel title="Up Next" hint="Assessments waiting for you">
-            {applicationsLoading ? (
-              <Skeleton height="5rem" />
-            ) : upNext.length === 0 ? (
-              <EmptyState
-                icon={<HiOutlineClipboardDocumentCheck size={28} />}
-                title="Nothing waiting on you"
-                description="Assessments for jobs you apply to show up here."
-              />
-            ) : (
-              <ul className={styles.upNext}>
-                {upNext.map((item) => (
-                  <li key={item.applicationId}>
-                    <Link
-                      to={`${JOBS_PATH}/${item.jobId}`}
-                      className={styles.upNextRow}>
-                      <span className={styles.initial} aria-hidden>
-                        {(item.company ?? item.title)[0]?.toUpperCase()}
-                      </span>
-                      <span className={styles.matchText}>
-                        <Text as="span" size="fs-md" weight="bolder">
-                          {item.stage}
-                        </Text>
-                        <Text as="span" size="fs-sm" color="muted">
-                          {[item.title, item.company]
-                            .filter(Boolean)
-                            .join(' · ')}
-                        </Text>
-                      </span>
-                      <Pill tone="warning" size="sm">
-                        Due
-                      </Pill>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </PagePanel>
-        </div>
-      </div>
+                    <StatusBadge
+                      status={row.candidateStatus}
+                      label={
+                        row.candidateStatus === 'interview_to_do'
+                          ? 'Interview'
+                          : undefined
+                      }
+                    />
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </PagePanel>
     </PageShell>
   )
 }

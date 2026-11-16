@@ -37,8 +37,3 @@ export const humanStage = (stage?: string | null) => {
   }
   return EXTRA_STAGE_LABELS[stage] ?? stage.replace(/_/g, ' ')
 }
-
-export const TALENT_OWNED_STAGES: PipelineStageId[] = [
-  'personality',
-  'personalized',
-]

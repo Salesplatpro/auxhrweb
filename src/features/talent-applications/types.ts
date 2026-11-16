@@ -72,3 +72,26 @@ export interface CandidatePipeline {
   totalSteps: number
   nextStep: PipelineStep | null
 }
+
+export interface PayComparison {
+  available: boolean
+  count?: number
+  low?: number
+  middle?: number
+  high?: number
+  currency?: string
+  compensationPeriod?: string
+  area: string | null
+  job: {
+    minSalary: number
+    maxSalary: number | null
+    currency: string | null
+    compensationPeriod: string
+  }
+}
+
+export interface ScreeningPlanStep {
+  key: PipelineStepKey
+  questionCount: number | null
+  minutes: number
+}

@@ -1,6 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
-import type { CandidatePipeline } from '@/features/talent-applications/types'
+import type {
+  CandidatePipeline,
+  PayComparison,
+} from '@/features/talent-applications/types'
 
 import { customBaseQuery } from '../../../utils/customBaseQuery'
 
@@ -11,19 +14,6 @@ export const talentApi = createApi({
   baseQuery: customBaseQuery,
   tagTypes: ['Applications', 'Jobs'],
   endpoints: (builder) => ({
-    fetchPretest: builder.query({
-      query: (roleId) => ({
-        url: `/questions?limit=20&offset=0&questionType=prescreening&roleId=${roleId}`,
-        method: 'GET',
-      }),
-    }),
-    postPretest: builder.mutation({
-      query: (testAnswer) => ({
-        url: `/questions/answer/prescreening`,
-        method: 'POST',
-        body: testAnswer,
-      }),
-    }),
     fetchJobs: builder.query({
       query: (params?: {
         workMode?: string
@@ -74,11 +64,19 @@ export const talentApi = createApi({
       providesTags: ['Jobs'],
     }),
     applyToJob: builder.mutation({
-      query: (jobId: string) => ({
+      query: ({ jobId, note }: { jobId: string; note?: string }) => ({
         url: `/jobs/applications/${jobId}`,
         method: 'PATCH',
+        body: note ? { note } : {},
       }),
       invalidatesTags: ['Applications', 'Jobs'],
+    }),
+    payComparison: builder.query<PayComparison, string>({
+      query: (jobId) => ({
+        url: `/jobs/${jobId}/pay-comparison`,
+        method: 'GET',
+      }),
+      transformResponse: (response: { data: PayComparison }) => response.data,
     }),
     jobApplication: builder.query({
       query: (applicationId) => ({
@@ -108,13 +106,6 @@ export const talentApi = createApi({
         body: testAnswer,
       }),
       invalidatesTags: ['Applications'],
-    }),
-    personalizedTest: builder.query({
-      query: ({ jobId, talentId }) => ({
-        url: `/questions?limit=20&offset=0&questionType=personalized&jobId=${jobId}&talentId=${talentId}`,
-        method: 'GET',
-      }),
-      providesTags: ['Applications'],
     }),
     personalityTest: builder.query({
       query: (jobId) => ({
@@ -209,18 +200,16 @@ export const talentApi = createApi({
 })
 
 export const {
-  useFetchPretestQuery,
-  usePostPretestMutation,
   useFetchJobsQuery,
   useSaveJobMutation,
   useIndividualJobQuery,
   useApplyToJobMutation,
+  usePayComparisonQuery,
   useJobApplicationQuery,
   useLazyCheckPrescreeningStageQuery,
   useGeneratePersonalizedTestQuery,
   usePostPersonalizedTestMutation,
   usePersonalityTestQuery,
-  usePersonalizedTestQuery,
   usePostPersonalityTestMutation,
   useEnsurePersonalityQuestionsMutation,
   useAllJobApplicationsQuery,

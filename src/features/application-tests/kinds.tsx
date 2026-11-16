@@ -1,11 +1,6 @@
-import React, { ReactNode } from 'react'
-import {
-  HiOutlineChatBubbleLeftRight,
-  HiOutlineHeart,
-  HiOutlinePuzzlePiece,
-  HiOutlineUser,
-} from 'react-icons/hi2'
+import { ReactNode } from 'react'
 
+import { STEP_ICON } from '@/features/talent-applications/stepIcons'
 import { TestKind } from '@/features/talent-applications/steps'
 import { PipelineStepKey } from '@/features/talent-applications/types'
 
@@ -13,33 +8,28 @@ export interface TestKindConfig {
   label: string
   step: PipelineStepKey
   icon: ReactNode
-  choice: boolean
 }
 
 export const TEST_KINDS: Record<TestKind, TestKindConfig> = {
   'problem-solving': {
     label: 'Problem-solving test',
     step: 'problem_solving',
-    icon: <HiOutlinePuzzlePiece />,
-    choice: true,
+    icon: STEP_ICON.problem_solving,
   },
   'culture-fit': {
     label: 'Culture-fit test',
     step: 'culture_fit',
-    icon: <HiOutlineHeart />,
-    choice: true,
+    icon: STEP_ICON.culture_fit,
   },
   tailored: {
     label: 'Tailored questions',
     step: 'tailored',
-    icon: <HiOutlineChatBubbleLeftRight />,
-    choice: false,
+    icon: STEP_ICON.tailored,
   },
   personality: {
     label: 'Personality check',
     step: 'personality',
-    icon: <HiOutlineUser />,
-    choice: false,
+    icon: STEP_ICON.personality,
   },
 }
 

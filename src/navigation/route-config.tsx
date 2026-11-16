@@ -112,10 +112,11 @@ import { TalentSearch } from '@/pages/RecruiterProfile/TalentSearch/TalentSearch
 import { SupportPage } from '@/pages/Support'
 import AiInterviewPage from '@/pages/TalentProfile/AiInterview/AiInterviewPage'
 import { ApplicationPipeline } from '@/pages/TalentProfile/ApplicationPipeline'
+import ApplicationSent from '@/pages/TalentProfile/Applications/ApplicationSent'
 import TalentDashboardHome from '@/pages/TalentProfile/Dashboard/TalentDashboardHome'
 import Inbox from '@/pages/TalentProfile/Inbox/InboxList'
-import IndividualJob from '@/pages/TalentProfile/Job/IndividualJob'
 import Job from '@/pages/TalentProfile/Job/Job'
+import TalentJobDetail from '@/pages/TalentProfile/Job/JobDetail/TalentJobDetail'
 import {
   RedirectPersonalityToJob,
   RedirectPersonalizedToJob,
@@ -376,7 +377,11 @@ export const routeConfig: RouteObject[] = [
                   },
                   {
                     path: 'job/:jobId',
-                    element: <IndividualJob />,
+                    element: <TalentJobDetail />,
+                  },
+                  {
+                    path: 'applications/:applicationId/sent',
+                    element: <ApplicationSent />,
                   },
                   {
                     path: 'applicationPipeline',

@@ -97,3 +97,6 @@ export const jobPlace = (job: {
   const parts = [job.locationCity, job.locationState].filter(Boolean)
   return parts.length ? parts.join(', ') : job.locationCountry ?? null
 }
+
+export const dayMonth = (date: string) =>
+  new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })

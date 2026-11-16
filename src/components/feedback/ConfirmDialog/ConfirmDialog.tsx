@@ -18,7 +18,7 @@ type ConfirmDialogProps = {
   children?: React.ReactNode
   confirmLabel?: string
   cancelLabel?: string
-  variant?: 'danger' | 'default' | 'ink'
+  variant?: 'danger' | 'default' | 'ink' | 'gradient'
   isConfirming?: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -68,8 +68,8 @@ export const ConfirmDialog = ({
           variant={
             variant === 'danger'
               ? 'secondary'
-              : variant === 'ink'
-              ? 'ink'
+              : variant === 'ink' || variant === 'gradient'
+              ? variant
               : 'primary'
           }
           className={variant === 'danger' ? styles.dangerButton : undefined}

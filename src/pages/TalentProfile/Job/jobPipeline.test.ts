@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  buildPipelineCrumbs,
-  canVisitStep,
-  firstRemainingStep,
+  humanStage,
   humanTalentStage,
   orderedStageKeys,
   talentFacingStage,
@@ -17,14 +15,6 @@ const stages = {
 }
 
 describe('jobPipeline', () => {
-  it('orders crumbs from the stages map with Job details first, omitting prescreening and CV match', () => {
-    expect(buildPipelineCrumbs(stages).map((c) => c.id)).toEqual([
-      'details',
-      'personality',
-      'personalized',
-    ])
-  })
-
   it('walks a subset of enabled stages', () => {
     expect(
       orderedStageKeys({
@@ -34,58 +24,9 @@ describe('jobPipeline', () => {
     ).toEqual(['personalized', 'cv_similarity'])
   })
 
-  it('blocks skipping forward while incomplete', () => {
-    expect(
-      canVisitStep({
-        step: 'personalized',
-        currentStage: 'personality',
-        stages,
-      }),
-    ).toBe(false)
-    expect(
-      canVisitStep({
-        step: 'personality',
-        currentStage: 'personality',
-        stages,
-      }),
-    ).toBe(true)
-    expect(
-      canVisitStep({
-        step: 'details',
-        currentStage: 'personality',
-        stages,
-      }),
-    ).toBe(true)
-  })
-
-  it('allows free navigation of visible crumbs when complete', () => {
-    expect(
-      canVisitStep({
-        step: 'personalized',
-        currentStage: 'completed',
-        stages,
-      }),
-    ).toBe(true)
-    expect(
-      canVisitStep({
-        step: 'cv_similarity',
-        currentStage: 'completed',
-        stages,
-      }),
-    ).toBe(false)
-  })
-
-  it('uses currentStage as the next crumb after apply', () => {
-    expect(firstRemainingStep('personality', stages)).toBe('personality')
-    expect(firstRemainingStep('completed', stages)).toBe('details')
-  })
-
-  it('keeps the talent on job details while the global prescreening gate runs', () => {
-    expect(firstRemainingStep('prescreening', stages)).toBe('details')
-  })
-
-  it('keeps the talent on job details while CV match runs in the background', () => {
-    expect(firstRemainingStep('cv_similarity', stages)).toBe('details')
+  it('labels the problem-solving and culture-fit stages for recruiters', () => {
+    expect(humanStage('problem_solving')).toBe('Problem-solving test')
+    expect(humanStage('culture_fit')).toBe('Culture-fit test')
   })
 
   it('surfaces talent-owned stages and hides CV match / prescreening', () => {

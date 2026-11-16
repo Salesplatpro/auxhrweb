@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       import('@/features/jobs/store/useAiConfigDraftStore'),
       import('@/features/pre-assessment/store'),
       import('@/features/pre-assessment/lockStore'),
+      import('@/features/application-tests/store'),
     ])
       .then(
         ([
@@ -76,6 +77,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
           { useAiConfigDraftStore },
           { usePreAssessmentStore },
           { useAssessmentLockStore },
+          { useApplicationTestsStore },
         ]) => {
           store.dispatch(talentApi.util.resetApiState())
           store.dispatch(recruiterApi.util.resetApiState())
@@ -87,6 +89,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
           useAiConfigDraftStore.getState().clearAllDrafts()
           usePreAssessmentStore.getState().reset()
           useAssessmentLockStore.getState().unlock()
+          useApplicationTestsStore.getState().reset()
         },
       )
       .finally(() => {

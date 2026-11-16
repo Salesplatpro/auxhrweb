@@ -1,0 +1,114 @@
+@use '../../../styles/breakpoints' as bp;
+@use '../../../styles/brand-scope' as *;
+
+.page {
+  @include brand-scope;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--color-bg-subtle);
+  font-family: var(--font-body);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 0 var(--space-10);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+
+  @include bp.below(bp.$bp-md) {
+    height: 56px;
+    padding: 0 var(--space-4);
+  }
+}
+
+.logo {
+  height: 32px;
+}
+
+.context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+
+  @include bp.below(bp.$bp-md) {
+    display: none;
+  }
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--color-brand-vivid);
+  color: var(--color-text-inverse);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.contextText {
+  display: flex;
+  flex-direction: column;
+}
+
+.contextTitle {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.contextCompany {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.help {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.helpShort {
+  display: none;
+}
+
+@include bp.below(bp.$bp-md) {
+  .helpLong {
+    display: none;
+  }
+
+  .helpShort {
+    display: inline;
+  }
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--space-12) var(--space-4);
+
+  @include bp.below(bp.$bp-md) {
+    padding: var(--space-4);
+  }
+}

@@ -1,0 +1,59 @@
+@use '../../../styles/breakpoints' as bp;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  font-size: var(--text-lg);
+  color: var(--color-ink);
+  cursor: pointer;
+
+  &:has(.input:focus-visible) {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  @include bp.below(bp.$bp-md) {
+    min-height: 56px;
+  }
+}
+
+.selected {
+  border-color: var(--color-brand-vivid);
+  background: var(--color-brand-vivid-tint);
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radio {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--space-5);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+
+  .selected & {
+    border: 5px solid var(--color-brand-vivid);
+  }
+}
+
+.letter {
+  width: 34px;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}

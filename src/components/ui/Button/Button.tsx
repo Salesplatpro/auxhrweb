@@ -5,7 +5,14 @@ import { Spinner } from '@/components/ui/Spinner'
 
 import styles from './Button.module.scss'
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ink' | 'ghost'
+type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ink'
+  | 'ghost'
+  | 'brand'
+  | 'gradient'
 type ButtonSize = 'sm' | 'md' | 'lg' | 'wide' | 'xl'
 
 export type ButtonProps = {

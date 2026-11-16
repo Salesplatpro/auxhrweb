@@ -20,6 +20,7 @@ import RequireActiveCompany from '@/components/routing/RequireActiveCompany'
 import RequireEmailVerified from '@/components/routing/RequireEmailVerified'
 import RequireOnboarded from '@/components/routing/RequireOnboarded'
 import RequirePeopleAccess from '@/components/routing/RequirePeopleAccess'
+import ApplicationTestPage from '@/features/application-tests/ApplicationTestPage'
 import ApplyWizardEntry from '@/features/apply-wizard/ApplyWizardEntry'
 import ApplyWizardLayout from '@/features/apply-wizard/ApplyWizardLayout'
 import ApplyStep from '@/features/apply-wizard/steps/ApplyStep'
@@ -315,6 +316,10 @@ export const routeConfig: RouteObject[] = [
           {
             element: <RequireOnboarded />,
             children: [
+              {
+                path: 'applications/:applicationId/test/:kind',
+                element: <ApplicationTestPage />,
+              },
               {
                 path: '',
                 element: <TalentProfileSidebar />,

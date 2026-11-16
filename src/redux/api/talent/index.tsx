@@ -1,5 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
+import type { CandidatePipeline } from '@/features/talent-applications/types'
+
 import { customBaseQuery } from '../../../utils/customBaseQuery'
 
 export type CompanyAssessmentKind = 'problem-solving' | 'culture-fit'
@@ -140,7 +142,7 @@ export const talentApi = createApi({
       }: {
         jobId: string
         type: CompanyAssessmentKind
-        answers: Record<string, string>
+        answers: Record<string, number>
       }) => ({
         url: `/questions/answer/${type}`,
         method: 'POST',
@@ -167,6 +169,15 @@ export const talentApi = createApi({
           method: 'GET',
         }
       },
+      providesTags: ['Applications'],
+    }),
+    applicationPipeline: builder.query<CandidatePipeline, string>({
+      query: (applicationId) => ({
+        url: `/user/applications/${applicationId}/pipeline`,
+        method: 'GET',
+      }),
+      transformResponse: (response: { data: CandidatePipeline }) =>
+        response.data,
       providesTags: ['Applications'],
     }),
     candidateInterview: builder.query({
@@ -201,6 +212,7 @@ export const {
   useAllJobApplicationsQuery,
   useGetRoleQuery,
   useCandidateInterviewQuery,
+  useApplicationPipelineQuery,
   useCompanyAssessmentQuestionsQuery,
   useSubmitCompanyAssessmentAnswersMutation,
 } = talentApi

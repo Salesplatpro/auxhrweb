@@ -160,6 +160,11 @@
     var(--color-violet-500) 0%,
     var(--color-blue-300) 100%
   );
+  --color-gradient-action: linear-gradient(
+    90deg,
+    var(--color-violet-500) 0%,
+    var(--color-blue-300) 100%
+  );
   --color-gradient-celebrate: linear-gradient(
     135deg,
     var(--color-violet-500) 0%,

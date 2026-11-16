@@ -1,21 +1,23 @@
 import React from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 
-export const RedirectPipelineToJob = () => {
-  const { jobId } = useParams()
-  return <Navigate to={`/talentDashboard/job/${jobId}`} replace />
-}
+import { Spinner } from '@/components/ui/Spinner'
+import { applicationPath } from '@/features/talent-applications/steps'
+import { useIndividualJobQuery } from '@/redux/api/talent'
 
-export const RedirectPersonalityToJob = () => {
-  const { jobId } = useParams()
+export const RedirectJobToApplication = () => {
+  const { jobId } = useParams<{ jobId: string }>()
+  const { data, isLoading } = useIndividualJobQuery(jobId)
+  if (isLoading) return <Spinner fullPage />
+  const applicationId: string | undefined = data?.data?.job?.applicationId
   return (
-    <Navigate to={`/talentDashboard/job/${jobId}?step=personality`} replace />
-  )
-}
-
-export const RedirectPersonalizedToJob = () => {
-  const { jobId } = useParams()
-  return (
-    <Navigate to={`/talentDashboard/job/${jobId}?step=personalized`} replace />
+    <Navigate
+      to={
+        applicationId
+          ? applicationPath(applicationId)
+          : `/talentDashboard/job/${jobId}`
+      }
+      replace
+    />
   )
 }

@@ -112,16 +112,13 @@ import { TalentSearch } from '@/pages/RecruiterProfile/TalentSearch/TalentSearch
 import { SupportPage } from '@/pages/Support'
 import AiInterviewPage from '@/pages/TalentProfile/AiInterview/AiInterviewPage'
 import { ApplicationPipeline } from '@/pages/TalentProfile/ApplicationPipeline'
+import ApplicationDetail from '@/pages/TalentProfile/Applications/ApplicationDetail'
 import ApplicationSent from '@/pages/TalentProfile/Applications/ApplicationSent'
 import TalentDashboardHome from '@/pages/TalentProfile/Dashboard/TalentDashboardHome'
 import Inbox from '@/pages/TalentProfile/Inbox/InboxList'
 import Job from '@/pages/TalentProfile/Job/Job'
 import TalentJobDetail from '@/pages/TalentProfile/Job/JobDetail/TalentJobDetail'
-import {
-  RedirectPersonalityToJob,
-  RedirectPersonalizedToJob,
-  RedirectPipelineToJob,
-} from '@/pages/TalentProfile/Job/PipelineRedirects'
+import { RedirectJobToApplication } from '@/pages/TalentProfile/Job/PipelineRedirects'
 import Notifications from '@/pages/TalentProfile/Notifications/NotificationsList'
 import TalentProfile from '@/pages/TalentProfile/Profile'
 import TalentProfileSidebar from '@/pages/TalentProfile/TalentProfileSidebar'
@@ -380,6 +377,10 @@ export const routeConfig: RouteObject[] = [
                     element: <TalentJobDetail />,
                   },
                   {
+                    path: 'applications/:applicationId',
+                    element: <ApplicationDetail />,
+                  },
+                  {
                     path: 'applications/:applicationId/sent',
                     element: <ApplicationSent />,
                   },
@@ -393,15 +394,15 @@ export const routeConfig: RouteObject[] = [
                   },
                   {
                     path: 'applicationPipeline/personalizedTest/:jobId/:talentId',
-                    element: <RedirectPersonalizedToJob />,
+                    element: <RedirectJobToApplication />,
                   },
                   {
                     path: 'applicationPipeline/:jobId',
-                    element: <RedirectPipelineToJob />,
+                    element: <RedirectJobToApplication />,
                   },
                   {
                     path: 'applicationPipeline/personalityTest/:jobId',
-                    element: <RedirectPersonalityToJob />,
+                    element: <RedirectJobToApplication />,
                   },
                 ],
               },

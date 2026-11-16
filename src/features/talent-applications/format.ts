@@ -100,3 +100,12 @@ export const jobPlace = (job: {
 
 export const dayMonth = (date: string) =>
   new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+
+export const weekdayDayMonth = (date: string) =>
+  new Date(date)
+    .toLocaleDateString('en-GB', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    })
+    .replace(',', '')

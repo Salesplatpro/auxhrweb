@@ -25,6 +25,8 @@ vi.mock('@/features/people/services/peopleService', () => ({
   downloadMySignedDocument: downloadMock,
 }))
 
+vi.mock('./PendingInvites', () => ({ PendingInvites: () => null }))
+
 vi.mock('./CompletionAction', () => ({
   CompletionAction: () => <button type="button">Request completion</button>,
 }))

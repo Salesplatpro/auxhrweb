@@ -224,3 +224,30 @@
     color: var(--color-text-body);
   }
 }
+
+.invites {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.invite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+}
+
+.inviteTitle {
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}

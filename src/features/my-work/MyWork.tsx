@@ -27,6 +27,7 @@ import { CompletionAction } from './CompletionAction'
 import { MyPerformance } from './MyPerformance'
 import { MyTeam } from './MyTeam'
 import styles from './MyWork.module.scss'
+import { PendingInvites } from './PendingInvites'
 
 const PER_PERIOD = { monthly: 'per month', yearly: 'per year' } as const
 
@@ -304,6 +305,7 @@ export const MyWork = () => {
         title={active ? `Welcome to ${active.companyName}` : 'My work'}
         lead="Your documents to sign, your first-week tasks and your pay, in one place."
       />
+      <PendingInvites />
       {isLoading ? (
         <Spinner />
       ) : hasError ? (

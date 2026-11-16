@@ -198,6 +198,15 @@ export type StaffInvitePreview =
       inviteeExists: boolean
     }
 
+export interface MyStaffInvite {
+  id: string
+  organizationName: string
+  organizationLogoUrl: string | null
+  jobTitle: string | null
+  invitedByName: string | null
+  expiresAt: string | null
+}
+
 export interface JoinedStaff {
   organizationName: string
   jobTitle: string

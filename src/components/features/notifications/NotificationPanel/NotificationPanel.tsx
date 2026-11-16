@@ -1,14 +1,26 @@
-import React, { useState } from 'react'
+import cn from 'classnames'
+import React, { ReactNode, useState } from 'react'
 import { HiOutlineBell } from 'react-icons/hi'
+import {
+  HiOutlineBriefcase,
+  HiOutlineCheck,
+  HiOutlineEye,
+  HiOutlinePuzzlePiece,
+  HiOutlineVideoCamera,
+} from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
+import { FilterChip } from '@/components/ui/FilterChip'
 import { Spinner } from '@/components/ui/Spinner'
 import { useMarkAllNotificationsRead } from '@/features/notifications/hooks/useMarkAllNotificationsRead'
 import { useMarkNotificationRead } from '@/features/notifications/hooks/useMarkNotificationRead'
 import { useNotifications } from '@/features/notifications/hooks/useNotifications'
 import { useOpenNotification } from '@/features/notifications/hooks/useOpenNotification'
-import { AppNotification } from '@/features/notifications/types'
+import {
+  AppNotification,
+  NOTIFICATION_META,
+} from '@/features/notifications/types'
 import { formatTimeAgo } from '@/utils'
 import { stripHtml } from '@/utils/truncateTexts'
 
@@ -18,6 +30,14 @@ type NotificationPanelProps = {
   viewAllTo: string
   /** Called when a notification takes the user to another page. */
   onNavigate?: () => void
+}
+
+const ICONS: Record<string, ReactNode> = {
+  interview_invite: <HiOutlineVideoCamera size={18} />,
+  test_sent: <HiOutlinePuzzlePiece size={18} />,
+  application_received: <HiOutlineCheck size={18} />,
+  profile_viewed: <HiOutlineEye size={18} />,
+  staff_invite: <HiOutlineBriefcase size={18} />,
 }
 
 const previewOf = (notification: AppNotification) => {
@@ -72,25 +92,13 @@ export const NotificationPanel = ({
         </button>
       </div>
 
-      <div className={styles.tabs} role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'all'}
-          className={`${styles.tab} ${tab === 'all' ? styles.tabActive : ''}`}
-          onClick={() => setTab('all')}>
-          All Notifications
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'unread'}
-          className={`${styles.tab} ${
-            tab === 'unread' ? styles.tabActive : ''
-          }`}
-          onClick={() => setTab('unread')}>
-          Unread ({unReadCount})
-        </button>
+      <div className={styles.chips}>
+        <FilterChip active={tab === 'all'} onClick={() => setTab('all')}>
+          All
+        </FilterChip>
+        <FilterChip active={tab === 'unread'} onClick={() => setTab('unread')}>
+          Unread {unReadCount}
+        </FilterChip>
       </div>
 
       <div className={styles.list}>
@@ -105,6 +113,7 @@ export const NotificationPanel = ({
         ) : (
           visible.map((notification) => {
             const { title, body } = previewOf(notification)
+            const meta = NOTIFICATION_META[notification.type ?? '']
             return (
               <button
                 key={notification.id}
@@ -113,12 +122,19 @@ export const NotificationPanel = ({
                   notification.isRead ? '' : styles.unread
                 }`}
                 onClick={() => void handleOpen(notification)}>
-                <span className={styles.icon} aria-hidden>
-                  <HiOutlineBell size={18} />
+                <span
+                  className={cn(styles.icon, meta && styles[meta.tone])}
+                  aria-hidden>
+                  {ICONS[notification.type ?? ''] ?? (
+                    <HiOutlineBell size={18} />
+                  )}
                 </span>
                 <span className={styles.copy}>
                   <span className={styles.rowTitle}>{title}</span>
                   {body ? <span className={styles.rowBody}>{body}</span> : null}
+                  {meta?.action && notification.link ? (
+                    <span className={styles.action}>{meta.action}</span>
+                  ) : null}
                 </span>
                 <span className={styles.meta}>
                   <span className={styles.time}>
@@ -135,7 +151,7 @@ export const NotificationPanel = ({
       </div>
 
       <Link to={viewAllTo} className={styles.viewAll}>
-        View all
+        View all notifications
       </Link>
 
       <ConfirmDialog

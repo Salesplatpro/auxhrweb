@@ -48,7 +48,7 @@ vi.mock('@/features/dashboard/hooks/useTalentDashboard', () => ({
 
 vi.mock('@/redux/api/talent', () => ({
   useAllJobApplicationsQuery: () => ({
-    data: { data: { applications: state.applications } },
+    data: { applications: state.applications },
     isLoading: false,
   }),
 }))

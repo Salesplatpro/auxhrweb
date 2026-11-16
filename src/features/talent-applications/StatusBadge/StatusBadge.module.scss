@@ -1,0 +1,34 @@
+.badge {
+  display: inline-flex;
+  width: max-content;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.interview_to_do {
+  background: var(--color-violet-tint);
+  color: var(--color-violet);
+}
+
+.test_to_take {
+  background: var(--color-caution-tint);
+  color: var(--color-caution-text);
+}
+
+.screening,
+.applied {
+  background: var(--color-bg-subtle);
+  color: var(--color-ink-muted);
+}
+
+.shortlisted {
+  background: var(--color-brand-vivid-tint);
+  color: var(--color-brand-vivid);
+}
+
+.not_proceeding {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}

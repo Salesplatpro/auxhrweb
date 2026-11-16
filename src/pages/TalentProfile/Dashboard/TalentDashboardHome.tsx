@@ -44,9 +44,10 @@ const TalentDashboardHome = () => {
   const { profile } = useProfile()
   const { dashboard, error, isLoading, retry } = useTalentDashboard()
   const { data: applicationsData, isLoading: applicationsLoading } =
-    useAllJobApplicationsQuery({})
+    useAllJobApplicationsQuery()
 
-  const applications: AllJobTypes[] = applicationsData?.data?.applications ?? []
+  const applications = (applicationsData?.applications ??
+    []) as unknown as AllJobTypes[]
   const counts = applicationCounts(applications)
   const upNext = waitingOnTalent(applications)
   const percentage = profile?.profileCompletion?.percentage ?? 0

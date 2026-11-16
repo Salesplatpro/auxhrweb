@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
 import type {
+  ApplicationGroup,
   CandidatePipeline,
   PayComparison,
+  TalentApplications,
 } from '@/features/talent-applications/types'
 
 import { customBaseQuery } from '../../../utils/customBaseQuery'
@@ -78,19 +80,6 @@ export const talentApi = createApi({
       }),
       transformResponse: (response: { data: PayComparison }) => response.data,
     }),
-    jobApplication: builder.query({
-      query: (applicationId) => ({
-        url: `/applications/${applicationId}`,
-        method: 'GET',
-      }),
-      providesTags: ['Applications'],
-    }),
-    checkPrescreeningStage: builder.query({
-      query: (jobId) => ({
-        url: `/jobs/prescreening-check/${jobId}`,
-        method: 'PATCH',
-      }),
-    }),
     generatePersonalizedTest: builder.query({
       query: ({ jobId, talentId }) => ({
         url: `/questions/personalized`,
@@ -162,17 +151,20 @@ export const talentApi = createApi({
       }),
       invalidatesTags: ['Applications'],
     }),
-    allJobApplications: builder.query({
-      query: (params?: { limit?: number; offset?: number }) => {
+    allJobApplications: builder.query<
+      TalentApplications,
+      { group?: ApplicationGroup; limit?: number } | void
+    >({
+      query: (params) => {
         const query = new URLSearchParams({
           limit: String(params?.limit ?? 200),
-          offset: String(params?.offset ?? 0),
+          offset: '0',
         })
-        return {
-          url: `/user/applications?${query.toString()}`,
-          method: 'GET',
-        }
+        if (params?.group) query.set('group', params.group)
+        return { url: `/user/applications?${query.toString()}`, method: 'GET' }
       },
+      transformResponse: (response: { data: TalentApplications }) =>
+        response.data,
       providesTags: ['Applications'],
     }),
     applicationPipeline: builder.query<CandidatePipeline, string>({
@@ -205,8 +197,6 @@ export const {
   useIndividualJobQuery,
   useApplyToJobMutation,
   usePayComparisonQuery,
-  useJobApplicationQuery,
-  useLazyCheckPrescreeningStageQuery,
   useGeneratePersonalizedTestQuery,
   usePostPersonalizedTestMutation,
   usePersonalityTestQuery,

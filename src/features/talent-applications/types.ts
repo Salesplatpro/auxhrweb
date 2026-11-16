@@ -95,3 +95,25 @@ export interface ScreeningPlanStep {
   questionCount: number | null
   minutes: number
 }
+
+export interface TalentApplicationRow {
+  id: string
+  createdAt: string
+  candidateStatus: CandidateStatus
+  group: ApplicationGroup
+  job: {
+    id: string
+    role?: { name: string } | null
+    organization?: { name: string } | null
+    workMode?: string[]
+    locationCity?: string | null
+    locationState?: string | null
+    locationCountry?: string | null
+  }
+}
+
+export interface TalentApplications {
+  applications: TalentApplicationRow[]
+  total: number
+  counts: Record<'all' | ApplicationGroup, number>
+}

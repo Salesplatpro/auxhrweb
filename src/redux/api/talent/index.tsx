@@ -26,12 +26,12 @@ export const talentApi = createApi({
     }),
     fetchJobs: builder.query({
       query: (params?: {
-        roleId?: string
-        experienceLevel?: string
         workMode?: string
-        city?: string
+        experienceLevel?: string
+        employmentType?: string
+        minMonthlySalary?: number
+        postedWithin?: 'week'
         state?: string
-        country?: string
         q?: string
         offset?: number
       }) => {
@@ -39,19 +39,32 @@ export const talentApi = createApi({
           limit: '10',
           offset: String(params?.offset ?? 0),
         })
-
-        if (params?.roleId) query.set('roleId', params.roleId)
+        if (params?.workMode) query.set('workMode', params.workMode)
         if (params?.experienceLevel)
           query.set('experienceLevel', params.experienceLevel)
-        if (params?.workMode) query.set('workMode', params.workMode)
-        if (params?.city) query.set('city', params.city)
+        if (params?.employmentType)
+          query.set('employmentType', params.employmentType)
+        if (params?.minMonthlySalary) {
+          query.set('minMonthlySalary', String(params.minMonthlySalary))
+          query.set('currency', 'NGN')
+        }
+        if (params?.postedWithin) query.set('postedWithin', params.postedWithin)
         if (params?.state) query.set('state', params.state)
-        if (params?.country) query.set('country', params.country)
         if (params?.q?.trim()) query.set('q', params.q.trim())
 
         return { url: `/jobs?${query.toString()}`, method: 'GET' }
       },
       providesTags: ['Jobs'],
+    }),
+    saveJob: builder.mutation<
+      { saved: boolean },
+      { jobId: string; saved: boolean }
+    >({
+      query: ({ jobId, saved }) => ({
+        url: `/jobs/${jobId}/save`,
+        method: saved ? 'PUT' : 'DELETE',
+      }),
+      invalidatesTags: ['Jobs'],
     }),
     individualJob: builder.query({
       query: (jobId) => ({
@@ -199,6 +212,7 @@ export const {
   useFetchPretestQuery,
   usePostPretestMutation,
   useFetchJobsQuery,
+  useSaveJobMutation,
   useIndividualJobQuery,
   useApplyToJobMutation,
   useJobApplicationQuery,

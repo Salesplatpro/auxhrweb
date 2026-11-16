@@ -1,0 +1,23 @@
+.chip {
+  height: 32px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-elevated);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--color-ink);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+.active {
+  border-color: var(--color-violet-300);
+  background: var(--color-violet-tint);
+  color: var(--color-violet);
+}

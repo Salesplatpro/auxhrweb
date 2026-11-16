@@ -14,6 +14,8 @@ type PageHeaderTitleProps = {
   variant?: 'plain' | 'hero'
   breadcrumbs?: BreadcrumbItem[]
   actions?: React.ReactNode
+  /** Shown beside the title, e.g. a status pill. */
+  titleAddon?: React.ReactNode
 }
 
 /**
@@ -30,6 +32,7 @@ export const PageHeaderTitle = ({
   variant = 'plain',
   breadcrumbs,
   actions,
+  titleAddon,
 }: PageHeaderTitleProps) => {
   if (variant === 'hero') {
     return (
@@ -46,7 +49,10 @@ export const PageHeaderTitle = ({
         <Breadcrumb items={breadcrumbs} />
         <div className={styles.titleRow}>
           <div className={styles.titleCopy}>
-            <Heading level={1}>{title}</Heading>
+            <div className={styles.titleLine}>
+              <Heading level={1}>{title}</Heading>
+              {titleAddon}
+            </div>
             <Text as="p" size="fs-md" color="muted">
               {description}
             </Text>

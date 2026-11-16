@@ -88,7 +88,7 @@ import Dashboard from '@/pages/RecruiterProfile/Dashboard/Dashboard'
 import { EditJobTab } from '@/pages/RecruiterProfile/EditJob'
 import RecruiterGuide from '@/pages/RecruiterProfile/Guide/Guide'
 import JobDetail from '@/pages/RecruiterProfile/JobDetail'
-import { SingleJobPost } from '@/pages/RecruiterProfile/MyJobPosts/SingleJobPost'
+import { ApplicantsRedirect } from '@/pages/RecruiterProfile/JobDetail/ApplicantsRedirect'
 import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
 import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
 import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
@@ -546,7 +546,7 @@ export const routeConfig: RouteObject[] = [
                       },
                       {
                         path: 'singleJobPost/:jobId',
-                        element: <SingleJobPost />,
+                        element: <ApplicantsRedirect />,
                       },
                       {
                         path: 'editJob/:jobId',

@@ -11,10 +11,14 @@ import styles from './ConfirmDialog.module.scss'
 type ConfirmDialogProps = {
   open: boolean
   title: string
-  message: string
+  /** Shown in an alert. Pass `children` instead for a custom body. */
+  message?: string
+  description?: string
+  icon?: React.ReactNode
+  children?: React.ReactNode
   confirmLabel?: string
   cancelLabel?: string
-  variant?: 'danger' | 'default'
+  variant?: 'danger' | 'default' | 'ink'
   isConfirming?: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -24,6 +28,9 @@ export const ConfirmDialog = ({
   open,
   title,
   message,
+  description,
+  icon,
+  children,
   confirmLabel = 'Confirm',
   cancelLabel = 'Cancel',
   variant = 'default',
@@ -35,12 +42,19 @@ export const ConfirmDialog = ({
     open={open}
     onClose={onCancel}
     center
-    classNames={{ overlay: 'dashboard-modal-overlay' }}>
+    classNames={{ root: styles.root, overlay: 'dashboard-modal-overlay' }}>
     <div className={styles.container}>
-      <h3 className={styles.title}>{title}</h3>
-      <Alert variant={variant === 'danger' ? 'warning' : 'info'}>
-        {message}
-      </Alert>
+      {icon}
+      <div>
+        <h3 className={styles.title}>{title}</h3>
+        {description && <p className={styles.description}>{description}</p>}
+      </div>
+      {message && (
+        <Alert variant={variant === 'danger' ? 'warning' : 'info'}>
+          {message}
+        </Alert>
+      )}
+      {children}
       <div className={styles.actions}>
         <Button
           type="button"
@@ -51,7 +65,13 @@ export const ConfirmDialog = ({
         </Button>
         <Button
           type="button"
-          variant={variant === 'danger' ? 'secondary' : 'primary'}
+          variant={
+            variant === 'danger'
+              ? 'secondary'
+              : variant === 'ink'
+              ? 'ink'
+              : 'primary'
+          }
           className={variant === 'danger' ? styles.dangerButton : undefined}
           onClick={onConfirm}
           loading={isConfirming}>

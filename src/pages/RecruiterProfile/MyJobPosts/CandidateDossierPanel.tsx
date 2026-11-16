@@ -60,7 +60,7 @@ const RECOMMENDATION_LABELS: Record<string, string> = {
 
 // The one sentence a recruiter should be able to read and act on without
 // opening anything else — plain English, suggestive, first thing on the page.
-const verdictSentence = (application: SingleJobDetails): string => {
+export const verdictSentence = (application: SingleJobDetails): string => {
   const { matchVerdict, matchRecommendation, currentStage } = application
   if (!matchVerdict) {
     return currentStage && currentStage !== 'completed'

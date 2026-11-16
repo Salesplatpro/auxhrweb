@@ -23,6 +23,13 @@
   gap: var(--space-1);
 }
 
+.titleLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
 .actions {
   display: flex;
   align-items: center;

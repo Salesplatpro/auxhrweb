@@ -27,6 +27,15 @@
   animation: slideIn 180ms var(--ease-enter, ease-out);
 }
 
+.lg {
+  width: min(600px, 100%);
+}
+
+.footer {
+  padding: var(--space-4, 1rem) var(--space-6, 1.5rem);
+  border-top: 1px solid var(--color-border, #e4e7ec);
+}
+
 .header {
   display: flex;
   align-items: flex-start;
@@ -38,6 +47,7 @@
 
 .heading {
   display: flex;
+  flex: 1;
   flex-direction: column;
   gap: 2px;
   min-width: 0;

@@ -8,6 +8,7 @@ import {
   InviteApiResponse,
   InvitePreviewApiResponse,
   InvitesApiResponse,
+  JobFeedStatus,
   JoinOrganizationRequestPayload,
   JoinRequestsApiResponse,
   JoinWithAccessCodeApiResponse,
@@ -127,17 +128,42 @@ export const fetchOrganizationMembers = (organizationId: string) =>
     .get<MembersApiResponse>(`/organizations/${organizationId}/members`)
     .then((response) => response.data)
 
-export const updateMemberCanManagePeople = (
+export const updateMember = (
   organizationId: string,
   memberId: string,
-  canManagePeople: boolean,
+  changes: { canManagePeople?: boolean; title?: string | null },
 ) =>
   httpClient
     .patch<{ data: { member: OrganizationMember } }>(
       `/organizations/${organizationId}/members/${memberId}`,
-      { canManagePeople },
+      changes,
     )
     .then((response) => response.data.data.member)
+
+export const addDepartment = (organizationId: string, name: string) =>
+  httpClient
+    .post<{ data: { departments: string[] } }>(
+      `/organizations/${organizationId}/departments`,
+      { name },
+    )
+    .then((response) => response.data.data.departments)
+
+export const removeDepartment = (organizationId: string, name: string) =>
+  httpClient
+    .delete<{ data: { departments: string[] } }>(
+      `/organizations/${organizationId}/departments/${encodeURIComponent(
+        name,
+      )}`,
+    )
+    .then((response) => response.data.data.departments)
+
+export const jobFeedKey = (organizationId: string) =>
+  `/organizations/${organizationId}/feed`
+
+export const fetchJobFeed = (organizationId: string) =>
+  httpClient
+    .get<{ data: { feed: JobFeedStatus } }>(jobFeedKey(organizationId))
+    .then((response) => response.data.data.feed)
 
 export const fetchOrganizationUsage = (organizationId: string) =>
   httpClient

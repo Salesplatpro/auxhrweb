@@ -47,6 +47,7 @@ import {
   CompanyProfile,
   CreateStaffPayload,
   DocumentTemplate,
+  EndReason,
   ImportStaffRow,
   PayData,
   PayPackagePayload,
@@ -56,6 +57,7 @@ import {
   StaffMember,
   UpdateStaffPayload,
 } from '../types'
+import { formatDateOnly } from '../utils/formatDate'
 import {
   benefitsKey,
   checklistDefaultsKey,
@@ -117,13 +119,12 @@ export const useStaffActions = (organizationId: string | null) => {
 
     if (result.inviteEmailSent === false) {
       notify('warning', EMAIL_NOT_SENT, { autoClose: 6000 })
-    } else if (result.inviteEmailSent) {
-      notify(
-        'success',
-        `${result.staff.fullName} added. Invite sent to ${result.staff.email}.`,
-      )
     } else {
-      notify('success', `${result.staff.fullName} added`)
+      notify('success', `${result.staff.fullName} was added`, {
+        description: result.inviteEmailSent
+          ? 'We sent them an invite email.'
+          : undefined,
+      })
     }
     return result
   }
@@ -138,13 +139,24 @@ export const useStaffActions = (organizationId: string | null) => {
     return staff
   }
 
-  const endEmployment = async (staffId: string, endDate: string) => {
+  const endEmployment = async (
+    staffId: string,
+    endDate: string,
+    reason: EndReason | null,
+  ) => {
     const staff = await run(async (orgId) => {
-      const ended = await endStaff(orgId, staffId, endDate)
+      const ended = await endStaff(orgId, staffId, endDate, reason)
       await cacheChange(orgId, ended)
       return ended
     }, 'Could not end employment')
-    if (staff) notify('success', `${staff.fullName}'s employment has ended`)
+    if (staff) {
+      const day = formatDateOnly(endDate)
+      notify('success', `${staff.fullName}'s employment ends on ${day}`, {
+        description: staff.endingOn
+          ? `Status changes to Ended on ${day}.`
+          : 'Status changed to Ended.',
+      })
+    }
     return staff
   }
 

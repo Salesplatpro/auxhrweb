@@ -29,12 +29,18 @@ export const useUpdateOrganization = () => {
   const update = async (
     organizationId: string,
     payload: UpdateOrganizationPayload,
+    success: { title: string; description?: string } = {
+      title: 'Company updated',
+    },
   ) => {
     try {
       const response = await trigger({ organizationId, payload })
       // The edited company may be the active one, so the banner needs refreshing too.
       await Promise.all([mutateOrganizations(), mutateProfile()])
-      notify('success', 'Company updated', { autoClose: 2000 })
+      notify('success', success.title, {
+        autoClose: 2000,
+        description: success.description,
+      })
       return response.data.organization
     } catch (error) {
       notify('error', getErrorMessage(error, 'Failed to update company'))

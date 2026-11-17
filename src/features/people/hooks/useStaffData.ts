@@ -73,6 +73,7 @@ export const useStaffList = (
     items: data?.items ?? [],
     total: data?.total ?? 0,
     counts: data?.counts ?? { invited: 0, active: 0, ended: 0 },
+    hiredThroughAuxhr: data?.hiredThroughAuxhr ?? 0,
     isLoading,
     hasError: !!error,
     isForbidden: isForbidden(error),

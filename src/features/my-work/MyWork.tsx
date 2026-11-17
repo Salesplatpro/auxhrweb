@@ -3,10 +3,12 @@ import { HiOutlineBriefcase } from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
 
+import { Alert } from '@/components/feedback/Alert'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button, EmptyState, Tabs } from '@/components/ui'
+import { Pill } from '@/components/ui/Pill'
 import { Spinner } from '@/components/ui/Spinner'
 import { VestingTimeline } from '@/features/people/components/VestingTimeline'
 import { useMyPay, useMyWork } from '@/features/people/hooks/useStaffData'
@@ -15,9 +17,17 @@ import {
   downloadMySignedDocument,
   MY_WORK_KEY,
 } from '@/features/people/services/peopleService'
-import { CompletionRequest, MyWorkRecord } from '@/features/people/types'
-import { formatDateOnly } from '@/features/people/utils/formatDate'
-import { formatMoney } from '@/features/people/utils/formatMoney'
+import {
+  CompletionRequest,
+  MyWorkRecord,
+  PayPackage,
+} from '@/features/people/types'
+import {
+  formatDateOnly,
+  todayDateOnly,
+} from '@/features/people/utils/formatDate'
+import { formatCount, formatMoney } from '@/features/people/utils/formatMoney'
+import { vestedSharesOn } from '@/features/people/utils/vesting'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { downloadBlobResponse } from '@/utils/downloadBlob'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -31,60 +41,144 @@ import { PendingInvites } from './PendingInvites'
 
 const PER_PERIOD = { monthly: 'per month', yearly: 'per year' } as const
 
-const MyPay: React.FC<{ staffId: string; firstName: string }> = ({
+export const yearlyTotal = (
+  pkg: Pick<PayPackage, 'period' | 'baseSalary' | 'bonus'>,
+) => (pkg.baseSalary + (pkg.bonus ?? 0)) * (pkg.period === 'monthly' ? 12 : 1)
+
+const usePayView = (staffId: string) => {
+  const { pay, isLoading, hasError } = useMyPay(staffId)
+  const current = pay?.packages.find((pkg) => pkg.id === pay.currentPackageId)
+  return { pay, current, isLoading, hasError }
+}
+
+const PaySummary: React.FC<{ staffId: string; onOpen: () => void }> = ({
+  staffId,
+  onOpen,
+}) => {
+  const { pay, current } = usePayView(staffId)
+  if (!current) return null
+  const grant = pay?.grants[0]
+
+  return (
+    <section className={styles.paySummary}>
+      <div>
+        <h3>My pay</h3>
+        <p className={styles.muted}>Read only · set by HR</p>
+      </div>
+      <dl>
+        <div>
+          <dt>Base salary</dt>
+          <dd>
+            {formatMoney(current.currency, current.baseSalary)} /{' '}
+            {current.period === 'monthly' ? 'month' : 'year'}
+          </dd>
+        </div>
+        <div>
+          <dt>Total yearly</dt>
+          <dd>{formatMoney(current.currency, yearlyTotal(current))}</dd>
+        </div>
+        {grant && (
+          <div>
+            <dt>Share options</dt>
+            <dd>
+              {formatCount(vestedSharesOn(grant, todayDateOnly()))} of{' '}
+              {formatCount(grant.shares)} yours
+            </dd>
+          </div>
+        )}
+      </dl>
+      <button type="button" className={styles.linkButton} onClick={onOpen}>
+        See pay &amp; shares
+      </button>
+    </section>
+  )
+}
+
+const PayAndShares: React.FC<{ staffId: string; firstName: string }> = ({
   staffId,
   firstName,
 }) => {
-  const { pay, isLoading, hasError } = useMyPay(staffId)
-  const current = pay?.packages.find((pkg) => pkg.id === pay.currentPackageId)
+  const { pay, current, isLoading, hasError } = usePayView(staffId)
+
+  if (isLoading) return <Spinner />
+  if (hasError || !pay) {
+    return (
+      <PagePanel title="Current pay">
+        <p>Couldn&apos;t load your pay. Refresh the page to try again.</p>
+      </PagePanel>
+    )
+  }
 
   return (
-    <PagePanel title="My pay">
-      {isLoading ? (
-        <Spinner />
-      ) : hasError || !pay ? (
-        <p>Couldn&apos;t load your pay. Refresh the page to try again.</p>
-      ) : (
-        <div className={styles.stack}>
-          {current ? (
-            <>
-              <StatGrid>
-                <StatCard
-                  label="Base salary"
-                  value={`${formatMoney(
-                    current.currency,
-                    current.baseSalary,
-                  )} ${PER_PERIOD[current.period]}`}
-                />
-                {current.bonus > 0 && (
-                  <StatCard
-                    label="Bonus"
-                    value={`${formatMoney(current.currency, current.bonus)} ${
-                      PER_PERIOD[current.period]
-                    }`}
-                  />
-                )}
-                <StatCard
-                  label="Starts on"
-                  value={formatDateOnly(current.startsOn)}
-                />
-              </StatGrid>
-              <p className={styles.paragraph}>{current.paragraph}</p>
-            </>
-          ) : (
-            <p className={styles.muted}>
-              Your pay hasn&apos;t been set up yet.
-            </p>
-          )}
-          {pay.grants.map((grant) => (
-            <div key={grant.id} className={styles.grant}>
-              <h4>Share options</h4>
-              <VestingTimeline grant={grant} ownerFirstName={firstName} />
-            </div>
-          ))}
-        </div>
-      )}
-    </PagePanel>
+    <div className={styles.stack}>
+      <PagePanel
+        title="Current pay"
+        hint={
+          current
+            ? `Since ${formatDateOnly(current.startsOn)} · read only`
+            : undefined
+        }
+        action={<Pill tone="neutral">Set by HR</Pill>}>
+        {current ? (
+          <div className={styles.stack}>
+            <StatGrid columns={4}>
+              <StatCard
+                label="Base salary"
+                value={formatMoney(current.currency, current.baseSalary)}
+                caption={PER_PERIOD[current.period]}
+              />
+              <StatCard
+                label="Bonus"
+                value={formatMoney(current.currency, current.bonus)}
+                caption={PER_PERIOD[current.period]}
+              />
+              <StatCard
+                label="Commission target"
+                value={
+                  current.commissionTarget > 0
+                    ? formatMoney(current.currency, current.commissionTarget)
+                    : '—'
+                }
+                caption={
+                  current.commissionTarget > 0 ? undefined : 'not on a plan'
+                }
+              />
+              <StatCard
+                label="Total yearly"
+                value={formatMoney(current.currency, yearlyTotal(current))}
+                caption="base + bonus"
+              />
+            </StatGrid>
+            {current.benefits.length > 0 && (
+              <div className={styles.benefits}>
+                <span className={styles.muted}>Benefits</span>
+                {current.benefits.map((benefit) => (
+                  <Pill key={benefit.id} tone="success" size="sm">
+                    {benefit.name}
+                  </Pill>
+                ))}
+              </div>
+            )}
+            <p className={styles.paragraph}>{current.paragraph}</p>
+          </div>
+        ) : (
+          <p className={styles.muted}>Your pay hasn&apos;t been set up yet.</p>
+        )}
+      </PagePanel>
+      {pay.grants.map((grant, index) => (
+        <PagePanel
+          key={grant.id}
+          title="My share options"
+          hint={`Grant ${index + 1} · ${formatCount(
+            grant.shares,
+          )} shares · strike ${formatMoney(
+            grant.currency,
+            grant.strikePrice,
+          )} · read only`}>
+          <VestingTimeline grant={grant} ownerFirstName={firstName} />
+        </PagePanel>
+      ))}
+    </div>
   )
 }
 
@@ -141,11 +235,12 @@ const MyDocuments: React.FC<{ documents: MyWorkRecord['signedDocuments'] }> = ({
   )
 }
 
-const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
+const Overview: React.FC<{ record: MyWorkRecord; onOpenPay: () => void }> = ({
   record,
-  firstName,
+  onOpenPay,
 }) => {
   const { mutate } = useSWRConfig()
+  const doneTasks = record.tasks.filter((task) => task.doneAt).length
 
   const updateTaskRequest = (
     taskId: string,
@@ -222,7 +317,20 @@ const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
 
       <MyDocuments documents={record.signedDocuments} />
 
-      <PagePanel title="First week">
+      <PagePanel
+        title="First week"
+        hint={
+          record.tasks.length > 0
+            ? `${doneTasks} of ${record.tasks.length} done`
+            : undefined
+        }
+        action={
+          record.tasks.length > 0 ? (
+            <span className={styles.muted}>
+              {Math.round((doneTasks / record.tasks.length) * 100)}%
+            </span>
+          ) : undefined
+        }>
         {record.tasks.length === 0 ? (
           <p className={styles.muted}>No tasks yet.</p>
         ) : (
@@ -259,31 +367,37 @@ const WorkRecord: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
 
       <MyPerformance staffId={record.staffId} />
 
-      <MyPay staffId={record.staffId} firstName={firstName} />
+      <PaySummary staffId={record.staffId} onOpen={onOpenPay} />
     </div>
   )
 }
-
-const VIEWS = [
-  { key: 'mine', label: 'My work' },
-  { key: 'team', label: 'My team' },
-]
 
 const RecordViews: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
   record,
   firstName,
 }) => {
-  const [view, setView] = useState('mine')
-  const showTeam = record.hasTeam && view === 'team'
+  const [view, setView] = useState('overview')
+  const tabs = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'pay', label: 'Pay & shares' },
+    ...(record.hasTeam ? [{ key: 'team', label: 'My team' }] : []),
+  ]
+  const activeView = tabs.some((tab) => tab.key === view) ? view : 'overview'
+
   return (
     <div className={styles.stack}>
-      {record.hasTeam && (
-        <Tabs tabs={VIEWS} activeKey={view} onChange={setView} />
-      )}
-      {showTeam ? (
-        <MyTeam managerStaffId={record.staffId} />
+      <Tabs tabs={tabs} activeKey={activeView} onChange={setView} />
+      {activeView === 'team' ? (
+        <>
+          <Alert variant="info">
+            You see this tab because people report to you.
+          </Alert>
+          <MyTeam managerStaffId={record.staffId} />
+        </>
+      ) : activeView === 'pay' ? (
+        <PayAndShares staffId={record.staffId} firstName={firstName} />
       ) : (
-        <WorkRecord record={record} firstName={firstName} />
+        <Overview record={record} onOpenPay={() => setView('pay')} />
       )}
     </div>
   )

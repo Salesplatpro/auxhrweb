@@ -4,7 +4,7 @@ import { useSWRConfig } from 'swr'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { updateMemberCanManagePeople } from '../services/organizationService'
+import { updateMember } from '../services/organizationService'
 import { OrganizationMember } from '../types'
 import { organizationMembersKey } from './useOrganizationMembers'
 
@@ -30,11 +30,7 @@ export const useSetMemberCanManagePeople = (organizationId: string) => {
       await mutate<OrganizationMember[]>(
         organizationMembersKey(organizationId),
         async (current) => {
-          await updateMemberCanManagePeople(
-            organizationId,
-            member.id,
-            canManagePeople,
-          )
+          await updateMember(organizationId, member.id, { canManagePeople })
           return withFlag(current, member.id, canManagePeople)
         },
         {

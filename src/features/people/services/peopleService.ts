@@ -22,6 +22,7 @@ import {
   DocumentPreview,
   DocumentTemplate,
   EfficiencyTip,
+  EndReason,
   Envelope,
   Goal,
   GoalPayload,
@@ -149,10 +150,12 @@ export const endStaff = (
   organizationId: string,
   staffId: string,
   endDate: string,
+  reason: EndReason | null,
 ) =>
   unwrap<{ staff: StaffMember }>(
     httpClient.post(`${staffBase(organizationId)}/${staffId}/end`, {
       endDate,
+      reason,
     }),
   ).then((data) => data.staff)
 

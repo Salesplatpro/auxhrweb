@@ -12,11 +12,19 @@ import { StaffFormValues } from '@/features/people/types'
 import styles from './AddEmployeePanel.module.scss'
 import { EMPTY_STAFF_FORM, StaffFields, staffSchema } from './StaffForm'
 
+export interface ApplicantToHire {
+  applicationId: string
+  fullName: string
+  email: string
+  jobTitle: string
+}
+
 interface AddEmployeePanelProps {
   open: boolean
   organizationId: string
   companyName: string
   onClose: () => void
+  applicant?: ApplicantToHire
 }
 
 export const AddEmployeePanel: React.FC<AddEmployeePanelProps> = ({
@@ -24,6 +32,7 @@ export const AddEmployeePanel: React.FC<AddEmployeePanelProps> = ({
   organizationId,
   companyName,
   onClose,
+  applicant,
 }) => {
   const { options: managers } = useStaffOptions(organizationId, {
     enabled: open,
@@ -40,6 +49,7 @@ export const AddEmployeePanel: React.FC<AddEmployeePanelProps> = ({
       startDate: values.startDate,
       isExecutive: values.isExecutive,
       sendInvite: values.sendInvite,
+      ...(applicant ? { applicationId: applicant.applicationId } : {}),
     })
     if (result) onClose()
   }
@@ -49,15 +59,28 @@ export const AddEmployeePanel: React.FC<AddEmployeePanelProps> = ({
       open={open}
       onClose={onClose}
       title="Add employee"
-      subtitle={`Add someone who works at ${companyName}, whether or not they were hired through AuxHR.`}>
+      subtitle={`They'll appear in Employees at ${companyName} straight away.`}>
       <ValidatedForm
-        initialValues={EMPTY_STAFF_FORM}
+        initialValues={
+          applicant
+            ? {
+                ...EMPTY_STAFF_FORM,
+                fullName: applicant.fullName,
+                email: applicant.email,
+                jobTitle: applicant.jobTitle,
+              }
+            : EMPTY_STAFF_FORM
+        }
         validationSchema={staffSchema('create')}
         onSubmit={handleSubmit}>
         {({ isSubmitting }) => (
           <Form className={styles.form} noValidate>
             <FormikFocusOnError />
-            <StaffFields mode="create" managers={managers} />
+            <StaffFields
+              mode="create"
+              managers={managers}
+              lockIdentity={!!applicant}
+            />
             <div className={styles.footer}>
               <Button
                 type="button"

@@ -71,6 +71,8 @@ const person = (overrides: Partial<StaffMember> = {}): StaffMember => ({
   managerName: 'Bola Boss',
   startDate: '2026-01-05',
   endDate: null,
+  endingOn: null,
+  endReason: null,
   status: 'active',
   hiredThroughAuxhr: false,
   isExecutive: false,
@@ -94,6 +96,7 @@ const mockList = (
     items,
     total: items.length,
     counts: { invited: 0, active: items.length, ended: 0 },
+    hiredThroughAuxhr: 0,
     isLoading: false,
     hasError: false,
     isForbidden: false,
@@ -164,7 +167,10 @@ describe('Employees', () => {
     mockList([], { counts: { invited: 0, active: 0, ended: 0 } })
     renderPage()
 
-    expect(screen.getByText('No employees yet')).toBeTruthy()
+    expect(screen.getByText('No staff yet')).toBeTruthy()
+    expect(
+      screen.getAllByRole('button', { name: 'Import from file' }).length,
+    ).toBeGreaterThan(0)
     const buttons = screen.getAllByRole('button', { name: 'Add employee' })
     fireEvent.click(buttons[buttons.length - 1]!)
     expect(screen.getByRole('dialog', { name: 'Add employee' })).toBeTruthy()
@@ -227,7 +233,50 @@ describe('Employees', () => {
     }
 
     fireEvent.click(screen.getByLabelText('Row actions'))
-    expect(screen.getByText('Open')).toBeTruthy()
+    expect(screen.getByText('Open employee page')).toBeTruthy()
+    expect(screen.queryByText('Edit details')).toBeNull()
     expect(screen.queryByText('End employment')).toBeNull()
+  })
+
+  it('shows the four totals, including people hired through AuxHR', () => {
+    mockList([person({ hiredThroughAuxhr: true })], {
+      counts: { invited: 2, active: 7, ended: 0 },
+      hiredThroughAuxhr: 4,
+    })
+    renderPage()
+
+    for (const [label, value] of [
+      ['Total staff', '9'],
+      ['Active', '7'],
+      ['Invited', '2'],
+      ['Hired through AuxHR', '4'],
+    ]) {
+      const card = screen.getAllByText(label)[0]!.parentElement!
+      expect(within(card).getByText(value!)).toBeTruthy()
+    }
+    const row = screen.getByText('Ada Obi').closest('tr')!
+    expect(within(row).getByText('AuxHR')).toBeTruthy()
+  })
+
+  it('shows when someone with a future last day will leave', () => {
+    mockList([person({ endingOn: '2026-11-28' })])
+    renderPage()
+
+    const row = screen.getByText('Ada Obi').closest('tr')!
+    expect(within(row).getByText('Active')).toBeTruthy()
+    expect(within(row).getByText('Ends 28 Nov 2026')).toBeTruthy()
+    fireEvent.click(within(row).getByLabelText('Row actions'))
+    expect(screen.getByText('Change end date')).toBeTruthy()
+  })
+
+  it('opens the details tab from Edit details', () => {
+    mockList([person()])
+    renderPage()
+
+    fireEvent.click(screen.getByLabelText('Row actions'))
+    fireEvent.click(screen.getByText('Edit details'))
+    expect(navigateMock).toHaveBeenCalledWith(
+      '/recruiterDashboard/people/employees/s-1?tab=details',
+    )
   })
 })

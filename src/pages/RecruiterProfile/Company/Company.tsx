@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import { AiOutlinePlus } from 'react-icons/ai'
 import { BsBuilding } from 'react-icons/bs'
 import { FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
-import { HeroAction, HeroGhost, PageHero } from '@/components/layout/PageHero'
+import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { StatusBadge } from '@/components/ui/Badge'
@@ -14,16 +14,26 @@ import { Spinner } from '@/components/ui/Spinner'
 import { ONBOARDING_PATHS } from '@/features/onboarding/paths'
 import { useDeleteOrganization } from '@/features/organizations/hooks/useDeleteOrganization'
 import { useMyOrganizations } from '@/features/organizations/hooks/useMyOrganizations'
+import { useOrganizationUsage } from '@/features/organizations/hooks/useOrganizationUsage'
 import { useSwitchOrganization } from '@/features/organizations/hooks/useSwitchOrganization'
 import { Organization } from '@/features/organizations/types'
 import { isPublicEmailDomain } from '@/features/organizations/utils/emailDomain'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
+import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
 import { AccessCodePanel } from './AccessCodePanel'
 import styles from './Company.module.scss'
+import {
+  AboutCompanyCard,
+  CompanyHeaderCard,
+  DepartmentsCard,
+  JobFeedCard,
+  PlanCard,
+} from './CompanyCards'
 import { CompanyLogo } from './CompanyLogo'
 import { CompanyMembersPanel } from './CompanyMembersPanel'
+import { EditCompanyDrawer } from './EditCompanyDrawer'
 import { InviteTeamPanel } from './InviteTeamPanel'
 import { JoinCompanyModal } from './JoinCompanyModal'
 import { PendingJoinRequests } from './PendingJoinRequests'
@@ -42,6 +52,7 @@ const Company = () => {
 
   const [pendingDelete, setPendingDelete] = useState<Organization | null>(null)
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
+  const [editing, setEditing] = useState<Organization | null>(null)
 
   const activeOrg =
     organizations.find((org) => org.id === profile?.activeOrganizationId) ??
@@ -80,6 +91,36 @@ const Company = () => {
     teamOrg && profile?.id && teamOrg.ownerId === profile.id,
   )
 
+  const { canManagePeople } = usePeopleAccess()
+  const { usage } = useOrganizationUsage(isCompanyCreator ? teamOrg?.id : null)
+  const seatsMeter = usage?.meters.find((meter) => meter.key === 'team_members')
+  const seats = seatsMeter
+    ? { used: seatsMeter.used, limit: seatsMeter.limit }
+    : null
+
+  const inviteRef = useRef<HTMLDivElement>(null)
+  const scrollToInvite = () =>
+    inviteRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  const companyActions = (
+    <div className={styles.companyActions}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => navigate(ONBOARDING_PATHS.company)}>
+        <AiOutlinePlus size={14} />
+        Create company
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsJoinModalOpen(true)}>
+        <BsBuilding size={14} />
+        Join company
+      </Button>
+    </div>
+  )
+
   const handleDelete = async () => {
     if (!pendingDelete) return
     const removed = await deleteOrganization(pendingDelete.id)
@@ -90,69 +131,52 @@ const Company = () => {
 
   return (
     <PageShell>
-      <PageHero
-        identity={
-          activeOrg ? (
-            <CompanyLogo
-              name={activeOrg.name}
-              logoUrl={activeOrg.logoUrl}
-              size="lg"
-              onDark
+      {activeOrg ? (
+        <CompanyHeaderCard
+          organization={activeOrg}
+          canEdit={activeOrg.ownerId === profile?.id}
+          onEdit={() => setEditing(activeOrg)}
+        />
+      ) : (
+        <PageHero
+          identity={<CompanyLogo name="Company" size="lg" onDark />}
+          title="No active company"
+          lead="Create a company or join a verified team to start posting jobs under your brand."
+          actions={companyActions}
+        />
+      )}
+
+      {activeOrg && (
+        <div className={styles.overview}>
+          <div className={styles.mainColumn}>
+            <AboutCompanyCard organization={activeOrg} />
+            <DepartmentsCard
+              organization={activeOrg}
+              canEdit={canManagePeople}
             />
-          ) : (
-            <CompanyLogo name="Company" size="lg" onDark />
-          )
-        }
-        title={activeOrg?.name ?? 'No active company'}
-        lead={
-          activeOrg
-            ? 'This is the brand candidates will see on new jobs. Create another company or join a verified team with a matching corporate email.'
-            : 'Create a company or join a verified team to start posting jobs under your brand.'
-        }
-        pills={
-          activeOrg ? (
-            <StatusBadge
-              status={titleCase(activeOrg.status)}
-              {...getOrganizationStatusBadge(activeOrg.status)}
-              showDot
-            />
-          ) : undefined
-        }
-        actions={
-          <>
-            <HeroAction onClick={() => navigate(ONBOARDING_PATHS.company)}>
-              <AiOutlinePlus size={16} />
-              Create company
-            </HeroAction>
-            <HeroGhost onClick={() => setIsJoinModalOpen(true)}>
-              <BsBuilding size={14} />
-              Join company
-            </HeroGhost>
-            {activeOrg && activeOrg.ownerId === profile?.id && (
-              <HeroGhost
-                onClick={() =>
-                  navigate(`/recruiterDashboard/company/${activeOrg.id}/edit`)
-                }>
-                <FiEdit2 size={14} />
-                Edit details
-              </HeroGhost>
+            {isCompanyCreator && teamOrg && (
+              <CompanyMembersPanel
+                organization={teamOrg}
+                seats={seats}
+                onInvite={scrollToInvite}
+              />
             )}
-          </>
-        }
-        meta={[
-          {
-            label: 'Active workspace',
-            value: activeOrg?.name ?? 'Not selected',
-          },
-          { label: 'Industry', value: activeOrg?.industry || 'Not set' },
-          { label: 'Companies', value: organizations.length },
-        ]}
-      />
+          </div>
+          <div className={styles.sideColumn}>
+            <JobFeedCard
+              organization={activeOrg}
+              canEdit={activeOrg.ownerId === profile?.id}
+            />
+            <PlanCard organization={activeOrg} />
+          </div>
+        </div>
+      )}
 
       {isCompanyCreator && teamOrg && (
         <>
-          <CompanyMembersPanel organization={teamOrg} />
-          <InviteTeamPanel organization={teamOrg} />
+          <div ref={inviteRef}>
+            <InviteTeamPanel organization={teamOrg} />
+          </div>
           <AccessCodePanel organization={teamOrg} />
         </>
       )}
@@ -161,7 +185,8 @@ const Company = () => {
 
       <PagePanel
         title="Your companies"
-        hint="Switch to the company you want jobs to belong to, then post or edit as usual.">
+        hint="Switch to the company you want jobs to belong to, then post or edit as usual."
+        action={activeOrg ? companyActions : undefined}>
         {isLoading ? (
           <Spinner />
         ) : organizations.length === 0 ? (
@@ -239,11 +264,7 @@ const Company = () => {
                         <button
                           type="button"
                           className={styles.editBtn}
-                          onClick={() =>
-                            navigate(
-                              `/recruiterDashboard/company/${org.id}/edit`,
-                            )
-                          }>
+                          onClick={() => setEditing(org)}>
                           <FiEdit2 size={14} />
                           Edit
                         </button>
@@ -263,6 +284,14 @@ const Company = () => {
           </div>
         )}
       </PagePanel>
+
+      {editing && (
+        <EditCompanyDrawer
+          open
+          organization={editing}
+          onClose={() => setEditing(null)}
+        />
+      )}
 
       <JoinCompanyModal
         open={isJoinModalOpen}

@@ -13,7 +13,7 @@ const { updateMock, notifyMock } = vi.hoisted(() => ({
 }))
 
 vi.mock('../services/organizationService', () => ({
-  updateMemberCanManagePeople: updateMock,
+  updateMember: updateMock,
 }))
 
 vi.mock('@/utils/toastNotifications', () => ({ notify: notifyMock }))
@@ -25,6 +25,7 @@ const member = (id: string, canManagePeople: boolean): OrganizationMember => ({
   workEmail: `${id}@acme.com`,
   role: 'member',
   canManagePeople,
+  title: null,
   createdAt: '2026-01-01T00:00:00.000Z',
   user: {
     id: `u-${id}`,
@@ -78,7 +79,9 @@ describe('useSetMemberCanManagePeople', () => {
     })
 
     expect(ok).toBe(true)
-    expect(updateMock).toHaveBeenCalledWith('org-1', 'a', true)
+    expect(updateMock).toHaveBeenCalledWith('org-1', 'a', {
+      canManagePeople: true,
+    })
     expect(cached(hook).map((m) => [m.id, m.canManagePeople])).toEqual([
       ['a', true],
       ['b', true],

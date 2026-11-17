@@ -25,9 +25,11 @@ export interface CompanyFormValues {
   twitter: string
 }
 
-/** The edit form also holds how the team works; culture-fit questions are written from these. */
 export type EditCompanyFormValues = CompanyFormValues & {
-  companyValues: string[]
+  size: string
+  foundedYear: string
+  about: string
+  companyValues: string
 }
 
 export type CompanyField = keyof CompanyFormValues
@@ -132,21 +134,39 @@ export const createCompanySchema = Yup.object({
     }),
 })
 
-export const MAX_COMPANY_VALUES = 10
-export const MAX_COMPANY_VALUE_LENGTH = 200
+export const COMPANY_SIZES = ['1–10', '11–50', '51–200', '201–500', '500+']
+export const MAX_COMPANY_VALUES_LENGTH = 1000
+export const MAX_COMPANY_ABOUT_LENGTH = 2000
+export const MIN_FOUNDED_YEAR = 1800
 
 export const editCompanySchema = Yup.object({
   ...baseShape,
   phone: phoneSchema(),
   linkedin: Yup.string(),
-  companyValues: Yup.array()
-    .of(
-      Yup.string().max(
-        MAX_COMPANY_VALUE_LENGTH,
-        `Each value can be at most ${MAX_COMPANY_VALUE_LENGTH} characters`,
-      ),
-    )
-    .max(MAX_COMPANY_VALUES, `Add at most ${MAX_COMPANY_VALUES} values`),
+  size: Yup.string().oneOf(['', ...COMPANY_SIZES]),
+  foundedYear: Yup.string()
+    .trim()
+    .test(
+      'founded-year',
+      `Enter a year from ${MIN_FOUNDED_YEAR} to this year`,
+      (value) => {
+        if (!value) return true
+        const year = Number(value)
+        return (
+          /^\d{4}$/.test(value) &&
+          year >= MIN_FOUNDED_YEAR &&
+          year <= new Date().getFullYear()
+        )
+      },
+    ),
+  about: Yup.string().max(
+    MAX_COMPANY_ABOUT_LENGTH,
+    `Keep this under ${MAX_COMPANY_ABOUT_LENGTH} characters`,
+  ),
+  companyValues: Yup.string().max(
+    MAX_COMPANY_VALUES_LENGTH,
+    `Keep this under ${MAX_COMPANY_VALUES_LENGTH} characters`,
+  ),
 })
 
 const trimmed = (value: string) => value.trim()
@@ -181,7 +201,10 @@ export const toUpdatePayload = (
   facebook: trimmed(values.facebook),
   twitter: trimmed(values.twitter),
   phone: optional(values.phone),
-  companyValues: values.companyValues,
+  size: values.size || null,
+  foundedYear: values.foundedYear.trim() ? Number(values.foundedYear) : null,
+  about: values.about.trim() || null,
+  companyValues: values.companyValues.trim() || null,
 })
 
 const SERVER_ERROR_KEYWORDS: [RegExp, CompanyField][] = [

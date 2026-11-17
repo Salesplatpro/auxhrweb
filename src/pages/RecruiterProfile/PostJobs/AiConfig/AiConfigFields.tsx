@@ -108,8 +108,7 @@ export const AiConfigFields = ({
   advancedExtra,
 }: AiConfigFieldsProps) => {
   const { profile } = useProfile()
-  const hasCompanyValues =
-    (profile?.activeOrganization?.companyValues?.length ?? 0) > 0
+  const hasCompanyValues = !!profile?.activeOrganization?.companyValues?.trim()
   const dichotomyError =
     typeof errors[DICHOTOMY_ERROR_KEY] === 'string'
       ? (errors[DICHOTOMY_ERROR_KEY] as string)

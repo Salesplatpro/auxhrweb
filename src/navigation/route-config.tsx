@@ -83,7 +83,6 @@ import {
 } from '@/pages/RecruiterProfile'
 import { ComingSoonPage } from '@/pages/RecruiterProfile/ComingSoon/ComingSoonPage'
 import Company from '@/pages/RecruiterProfile/Company/Company'
-import EditCompany from '@/pages/RecruiterProfile/Company/EditCompany'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
 import Dashboard from '@/pages/RecruiterProfile/Dashboard/Dashboard'
 import { EditJobTab } from '@/pages/RecruiterProfile/EditJob'
@@ -495,7 +494,9 @@ export const routeConfig: RouteObject[] = [
                   },
                   {
                     path: 'company/:id/edit',
-                    element: <EditCompany />,
+                    element: (
+                      <Navigate to="/recruiterDashboard/company" replace />
+                    ),
                   },
                   {
                     element: <RequireActiveCompany />,

@@ -103,7 +103,7 @@ export const ReviewStep = ({ jobId }: ReviewStepProps) => {
   const steps = (journey?.stages ?? []).filter(
     (stage) => stage.key !== 'apply' && stage.key !== 'review',
   )
-  const companyValues = profile?.activeOrganization?.companyValues ?? []
+  const hasCompanyValues = !!profile?.activeOrganization?.companyValues?.trim()
 
   const place =
     [job.locationCity, job.locationState].filter(Boolean).join(', ') ||
@@ -148,7 +148,7 @@ export const ReviewStep = ({ jobId }: ReviewStepProps) => {
       ? [
           {
             label: 'Company values added for culture-fit',
-            done: companyValues.length > 0,
+            done: hasCompanyValues,
           },
         ]
       : []),

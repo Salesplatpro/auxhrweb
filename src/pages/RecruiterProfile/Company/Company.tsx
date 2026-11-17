@@ -24,6 +24,7 @@ import { AccessCodePanel } from './AccessCodePanel'
 import styles from './Company.module.scss'
 import { CompanyLogo } from './CompanyLogo'
 import { CompanyMembersPanel } from './CompanyMembersPanel'
+import { EditCompanyDrawer } from './EditCompanyDrawer'
 import { InviteTeamPanel } from './InviteTeamPanel'
 import { JoinCompanyModal } from './JoinCompanyModal'
 import { PendingJoinRequests } from './PendingJoinRequests'
@@ -42,6 +43,7 @@ const Company = () => {
 
   const [pendingDelete, setPendingDelete] = useState<Organization | null>(null)
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
+  const [editing, setEditing] = useState<Organization | null>(null)
 
   const activeOrg =
     organizations.find((org) => org.id === profile?.activeOrganizationId) ??
@@ -129,10 +131,7 @@ const Company = () => {
               Join company
             </HeroGhost>
             {activeOrg && activeOrg.ownerId === profile?.id && (
-              <HeroGhost
-                onClick={() =>
-                  navigate(`/recruiterDashboard/company/${activeOrg.id}/edit`)
-                }>
+              <HeroGhost onClick={() => setEditing(activeOrg)}>
                 <FiEdit2 size={14} />
                 Edit details
               </HeroGhost>
@@ -239,11 +238,7 @@ const Company = () => {
                         <button
                           type="button"
                           className={styles.editBtn}
-                          onClick={() =>
-                            navigate(
-                              `/recruiterDashboard/company/${org.id}/edit`,
-                            )
-                          }>
+                          onClick={() => setEditing(org)}>
                           <FiEdit2 size={14} />
                           Edit
                         </button>
@@ -263,6 +258,14 @@ const Company = () => {
           </div>
         )}
       </PagePanel>
+
+      {editing && (
+        <EditCompanyDrawer
+          open
+          organization={editing}
+          onClose={() => setEditing(null)}
+        />
+      )}
 
       <JoinCompanyModal
         open={isJoinModalOpen}

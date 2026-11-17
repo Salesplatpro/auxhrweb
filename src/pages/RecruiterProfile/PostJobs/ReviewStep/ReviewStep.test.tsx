@@ -109,7 +109,7 @@ describe('ReviewStep', () => {
     withJob(job())
     profileMock.mockReturnValue({
       activeOrganizationId: 'org-1',
-      activeOrganization: { name: 'Kosana', companyValues: ['We ship'] },
+      activeOrganization: { name: 'Kosana', companyValues: 'We ship.' },
     })
     usageMock.mockReturnValue({
       billingPlan: 'pro',
@@ -137,7 +137,7 @@ describe('ReviewStep', () => {
 
   it('lists what is ready to publish', () => {
     profileMock.mockReturnValue({
-      activeOrganization: { name: 'Kosana', companyValues: [] },
+      activeOrganization: { name: 'Kosana', companyValues: null },
     })
     renderReview()
     expect(screen.getByText('Job details complete')).toBeTruthy()

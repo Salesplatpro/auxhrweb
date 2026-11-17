@@ -6,19 +6,68 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MyWork } from './MyWork'
 
-const { useMyWorkMock, downloadMock, notifyMock } = vi.hoisted(() => ({
-  notifyMock: vi.fn(),
-  useMyWorkMock: vi.fn(),
-  downloadMock: vi.fn(),
-}))
+const { useMyWorkMock, downloadMock, notifyMock, payState } = vi.hoisted(
+  () => ({
+    notifyMock: vi.fn(),
+    useMyWorkMock: vi.fn(),
+    downloadMock: vi.fn(),
+    payState: {
+      value: {
+        isLoading: false,
+        hasError: false,
+        pay: { currentPackageId: null, packages: [], grants: [] } as unknown,
+      },
+    },
+  }),
+)
 
 vi.mock('@/features/people/hooks/useStaffData', () => ({
   useMyWork: useMyWorkMock,
-  useMyPay: () => ({
-    isLoading: false,
-    pay: { currentPackageId: null, packages: [], grants: [] },
-  }),
+  useMyPay: () => payState.value,
 }))
+
+const noPay = {
+  isLoading: false,
+  hasError: false,
+  pay: { currentPackageId: null, packages: [], grants: [] },
+}
+
+const pkg = {
+  id: 'p-1',
+  currency: 'NGN',
+  period: 'monthly',
+  baseSalary: 420000,
+  bonus: 50000,
+  commissionTarget: 0,
+  startsOn: '2026-12-01',
+  commissionPlanId: null,
+  benefits: [
+    { id: 'b-1', name: 'Health cover (HMO)' },
+    { id: 'b-2', name: 'Pension 10%' },
+  ],
+  paragraph: 'Your pay is set by HR.',
+  createdAt: '2026-11-01T00:00:00Z',
+}
+
+const withPay = {
+  isLoading: false,
+  hasError: false,
+  pay: {
+    currentPackageId: 'p-1',
+    packages: [pkg],
+    grants: [
+      {
+        id: 'g-1',
+        shares: 10000,
+        grantedOn: '2020-01-01',
+        cliffMonths: 12,
+        vestingMonths: 48,
+        strikePrice: 50,
+        currency: 'NGN',
+      },
+    ],
+  },
+}
 
 vi.mock('@/features/people/services/peopleService', () => ({
   MY_WORK_KEY: '/my-work',
@@ -84,6 +133,7 @@ const renderPage = () =>
 describe('MyWork', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    payState.value = noPay
   })
 
   it('shows the welcome card, documents to sign and first-week tasks', () => {
@@ -141,6 +191,9 @@ describe('MyWork', () => {
     renderPage()
     fireEvent.click(screen.getByText('My team'))
     expect(screen.getByText('My team list')).toBeTruthy()
+    expect(
+      screen.getByText('You see this tab because people report to you.'),
+    ).toBeTruthy()
     expect(screen.queryByText('My performance cards')).toBeNull()
   })
 
@@ -149,5 +202,89 @@ describe('MyWork', () => {
     renderPage()
 
     expect(screen.getByText("You're not on a company's staff yet")).toBeTruthy()
+  })
+
+  it('shows how much of the first week is done', () => {
+    useMyWorkMock.mockReturnValue({
+      records: [
+        {
+          ...record,
+          tasks: [
+            ...record.tasks,
+            {
+              id: 't-2',
+              title: 'Meet your team',
+              dueOn: null,
+              doneAt: '2026-01-05',
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+    })
+    renderPage()
+
+    expect(screen.getByText('1 of 2 done')).toBeTruthy()
+    expect(screen.getByText('50%')).toBeTruthy()
+  })
+
+  it('shows no percentage when there are no first-week tasks', () => {
+    useMyWorkMock.mockReturnValue({
+      records: [{ ...record, tasks: [] }],
+      isLoading: false,
+    })
+    renderPage()
+
+    expect(screen.getByText('No tasks yet.')).toBeTruthy()
+    expect(screen.queryByText(/%$/)).toBeNull()
+  })
+
+  it('sums a monthly package into a yearly total and opens Pay & shares from the overview', () => {
+    payState.value = withPay
+    useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
+    renderPage()
+
+    expect(screen.getByText('NGN 5,640,000')).toBeTruthy()
+    expect(screen.getByText('10,000 of 10,000 yours')).toBeTruthy()
+
+    fireEvent.click(screen.getByText('See pay & shares'))
+
+    expect(screen.getByText('Current pay')).toBeTruthy()
+    expect(screen.getByText('Health cover (HMO)')).toBeTruthy()
+    expect(screen.getByText('not on a plan')).toBeTruthy()
+    expect(screen.getByText('My share options')).toBeTruthy()
+  })
+
+  it('does not multiply a yearly package', () => {
+    payState.value = {
+      ...withPay,
+      pay: {
+        ...withPay.pay,
+        packages: [{ ...pkg, period: 'yearly', baseSalary: 6000000, bonus: 0 }],
+        grants: [],
+      },
+    }
+    useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
+    renderPage()
+
+    expect(screen.getByText('NGN 6,000,000')).toBeTruthy()
+  })
+
+  it('explains an empty Pay & shares tab and a failed load', () => {
+    useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
+    const first = renderPage()
+    expect(screen.queryByText('See pay & shares')).toBeNull()
+    fireEvent.click(screen.getByText('Pay & shares'))
+    expect(screen.getByText("Your pay hasn't been set up yet.")).toBeTruthy()
+    first.unmount()
+
+    payState.value = { isLoading: false, hasError: true, pay: null }
+    renderPage()
+    fireEvent.click(screen.getByText('Pay & shares'))
+    expect(
+      screen.getByText(
+        "Couldn't load your pay. Refresh the page to try again.",
+      ),
+    ).toBeTruthy()
   })
 })

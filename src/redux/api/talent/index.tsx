@@ -1,5 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 
+import type {
+  ApplicationGroup,
+  CandidatePipeline,
+  PayComparison,
+  TalentApplications,
+} from '@/features/talent-applications/types'
+
 import { customBaseQuery } from '../../../utils/customBaseQuery'
 
 export type CompanyAssessmentKind = 'problem-solving' | 'culture-fit'
@@ -9,27 +16,14 @@ export const talentApi = createApi({
   baseQuery: customBaseQuery,
   tagTypes: ['Applications', 'Jobs'],
   endpoints: (builder) => ({
-    fetchPretest: builder.query({
-      query: (roleId) => ({
-        url: `/questions?limit=20&offset=0&questionType=prescreening&roleId=${roleId}`,
-        method: 'GET',
-      }),
-    }),
-    postPretest: builder.mutation({
-      query: (testAnswer) => ({
-        url: `/questions/answer/prescreening`,
-        method: 'POST',
-        body: testAnswer,
-      }),
-    }),
     fetchJobs: builder.query({
       query: (params?: {
-        roleId?: string
-        experienceLevel?: string
         workMode?: string
-        city?: string
+        experienceLevel?: string
+        employmentType?: string
+        minMonthlySalary?: number
+        postedWithin?: 'week'
         state?: string
-        country?: string
         q?: string
         offset?: number
       }) => {
@@ -37,19 +31,32 @@ export const talentApi = createApi({
           limit: '10',
           offset: String(params?.offset ?? 0),
         })
-
-        if (params?.roleId) query.set('roleId', params.roleId)
+        if (params?.workMode) query.set('workMode', params.workMode)
         if (params?.experienceLevel)
           query.set('experienceLevel', params.experienceLevel)
-        if (params?.workMode) query.set('workMode', params.workMode)
-        if (params?.city) query.set('city', params.city)
+        if (params?.employmentType)
+          query.set('employmentType', params.employmentType)
+        if (params?.minMonthlySalary) {
+          query.set('minMonthlySalary', String(params.minMonthlySalary))
+          query.set('currency', 'NGN')
+        }
+        if (params?.postedWithin) query.set('postedWithin', params.postedWithin)
         if (params?.state) query.set('state', params.state)
-        if (params?.country) query.set('country', params.country)
         if (params?.q?.trim()) query.set('q', params.q.trim())
 
         return { url: `/jobs?${query.toString()}`, method: 'GET' }
       },
       providesTags: ['Jobs'],
+    }),
+    saveJob: builder.mutation<
+      { saved: boolean },
+      { jobId: string; saved: boolean }
+    >({
+      query: ({ jobId, saved }) => ({
+        url: `/jobs/${jobId}/save`,
+        method: saved ? 'PUT' : 'DELETE',
+      }),
+      invalidatesTags: ['Jobs'],
     }),
     individualJob: builder.query({
       query: (jobId) => ({
@@ -59,24 +66,19 @@ export const talentApi = createApi({
       providesTags: ['Jobs'],
     }),
     applyToJob: builder.mutation({
-      query: (jobId: string) => ({
+      query: ({ jobId, note }: { jobId: string; note?: string }) => ({
         url: `/jobs/applications/${jobId}`,
         method: 'PATCH',
+        body: note ? { note } : {},
       }),
       invalidatesTags: ['Applications', 'Jobs'],
     }),
-    jobApplication: builder.query({
-      query: (applicationId) => ({
-        url: `/applications/${applicationId}`,
+    payComparison: builder.query<PayComparison, string>({
+      query: (jobId) => ({
+        url: `/jobs/${jobId}/pay-comparison`,
         method: 'GET',
       }),
-      providesTags: ['Applications'],
-    }),
-    checkPrescreeningStage: builder.query({
-      query: (jobId) => ({
-        url: `/jobs/prescreening-check/${jobId}`,
-        method: 'PATCH',
-      }),
+      transformResponse: (response: { data: PayComparison }) => response.data,
     }),
     generatePersonalizedTest: builder.query({
       query: ({ jobId, talentId }) => ({
@@ -93,13 +95,6 @@ export const talentApi = createApi({
         body: testAnswer,
       }),
       invalidatesTags: ['Applications'],
-    }),
-    personalizedTest: builder.query({
-      query: ({ jobId, talentId }) => ({
-        url: `/questions?limit=20&offset=0&questionType=personalized&jobId=${jobId}&talentId=${talentId}`,
-        method: 'GET',
-      }),
-      providesTags: ['Applications'],
     }),
     personalityTest: builder.query({
       query: (jobId) => ({
@@ -140,7 +135,7 @@ export const talentApi = createApi({
       }: {
         jobId: string
         type: CompanyAssessmentKind
-        answers: Record<string, string>
+        answers: Record<string, number>
       }) => ({
         url: `/questions/answer/${type}`,
         method: 'POST',
@@ -156,17 +151,29 @@ export const talentApi = createApi({
       }),
       invalidatesTags: ['Applications'],
     }),
-    allJobApplications: builder.query({
-      query: (params?: { limit?: number; offset?: number }) => {
+    allJobApplications: builder.query<
+      TalentApplications,
+      { group?: ApplicationGroup; limit?: number } | void
+    >({
+      query: (params) => {
         const query = new URLSearchParams({
           limit: String(params?.limit ?? 200),
-          offset: String(params?.offset ?? 0),
+          offset: '0',
         })
-        return {
-          url: `/user/applications?${query.toString()}`,
-          method: 'GET',
-        }
+        if (params?.group) query.set('group', params.group)
+        return { url: `/user/applications?${query.toString()}`, method: 'GET' }
       },
+      transformResponse: (response: { data: TalentApplications }) =>
+        response.data,
+      providesTags: ['Applications'],
+    }),
+    applicationPipeline: builder.query<CandidatePipeline, string>({
+      query: (applicationId) => ({
+        url: `/user/applications/${applicationId}/pipeline`,
+        method: 'GET',
+      }),
+      transformResponse: (response: { data: CandidatePipeline }) =>
+        response.data,
       providesTags: ['Applications'],
     }),
     candidateInterview: builder.query({
@@ -185,22 +192,20 @@ export const talentApi = createApi({
 })
 
 export const {
-  useFetchPretestQuery,
-  usePostPretestMutation,
   useFetchJobsQuery,
+  useSaveJobMutation,
   useIndividualJobQuery,
   useApplyToJobMutation,
-  useJobApplicationQuery,
-  useLazyCheckPrescreeningStageQuery,
+  usePayComparisonQuery,
   useGeneratePersonalizedTestQuery,
   usePostPersonalizedTestMutation,
   usePersonalityTestQuery,
-  usePersonalizedTestQuery,
   usePostPersonalityTestMutation,
   useEnsurePersonalityQuestionsMutation,
   useAllJobApplicationsQuery,
   useGetRoleQuery,
   useCandidateInterviewQuery,
+  useApplicationPipelineQuery,
   useCompanyAssessmentQuestionsQuery,
   useSubmitCompanyAssessmentAnswersMutation,
 } = talentApi

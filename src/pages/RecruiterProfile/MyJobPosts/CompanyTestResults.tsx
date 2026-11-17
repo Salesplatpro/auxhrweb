@@ -10,7 +10,17 @@ export type GradedAnswer = {
   score: number | null
   maxScore: number
   feedback: string | null
+  options?: string[]
+  selectedOption?: number
+  correctOption?: number
 }
+
+const LETTERS = ['A', 'B', 'C', 'D']
+
+const isChoice = (item: GradedAnswer) =>
+  !!item.options &&
+  item.selectedOption !== undefined &&
+  item.correctOption !== undefined
 
 export type CompanyTestResultsApplication = {
   problemSolvingScore?: number | null
@@ -41,15 +51,34 @@ const TestPanel = ({
           <div className={`${styles.row} ${styles.own}`}>
             <div className={styles.bubble}>
               <span className={styles.role}>Talent</span>
-              <p className={styles.content}>{item.answer?.trim() || '—'}</p>
+              <p className={styles.content}>
+                {isChoice(item) ? `${LETTERS[item.selectedOption!]}. ` : ''}
+                {item.answer?.trim() || '—'}
+              </p>
             </div>
           </div>
           <div className={styles.feedback}>
-            <p className={styles.feedbackKicker}>
-              AI grade{' '}
-              <strong>{`${item.score ?? '—'}/${item.maxScore}`}</strong>
-            </p>
-            {item.feedback ? <p>{item.feedback}</p> : null}
+            {isChoice(item) ? (
+              <p className={styles.feedbackKicker}>
+                {item.selectedOption === item.correctOption ? (
+                  <strong>Correct</strong>
+                ) : (
+                  <>
+                    <strong>Wrong</strong> · correct answer{' '}
+                    {LETTERS[item.correctOption!]}.{' '}
+                    {item.options![item.correctOption!]}
+                  </>
+                )}
+              </p>
+            ) : (
+              <>
+                <p className={styles.feedbackKicker}>
+                  AI grade{' '}
+                  <strong>{`${item.score ?? '—'}/${item.maxScore}`}</strong>
+                </p>
+                {item.feedback ? <p>{item.feedback}</p> : null}
+              </>
+            )}
           </div>
         </React.Fragment>
       ))}
@@ -59,7 +88,7 @@ const TestPanel = ({
 
 /**
  * Problem-solving and culture-fit results in the recruiter's candidate panel
- * (plan Day 5): the % score and each graded answer with the AI's feedback.
+ * (plan Day 5): the % score and each answer, marked right or wrong.
  * A test the candidate hasn't taken isn't shown.
  */
 export const CompanyTestResults = ({

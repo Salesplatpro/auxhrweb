@@ -36,6 +36,7 @@ import {
   ManagedPerformance,
   MonthlyFeedback,
   MyPerformance,
+  MyStaffInvite,
   MyTeamData,
   MyWorkRecord,
   OrgChartData,
@@ -180,6 +181,18 @@ export const fetchStaffInvitePreview = (token: string) =>
 export const acceptStaffInvite = (token: string) =>
   unwrap<{ joined: JoinedStaff }>(
     httpClient.post(`/staff-invites/${token}/accept`),
+  ).then((data) => data.joined)
+
+export const MY_STAFF_INVITES_KEY = '/staff-invites/mine'
+
+export const fetchMyStaffInvites = () =>
+  unwrap<{ invites: MyStaffInvite[] }>(
+    httpClient.get(MY_STAFF_INVITES_KEY),
+  ).then((data) => data.invites)
+
+export const acceptMyStaffInvite = (staffId: string) =>
+  unwrap<{ joined: JoinedStaff }>(
+    httpClient.post(`${MY_STAFF_INVITES_KEY}/${staffId}/accept`),
   ).then((data) => data.joined)
 
 export const fetchPay = (organizationId: string, staffId: string) =>

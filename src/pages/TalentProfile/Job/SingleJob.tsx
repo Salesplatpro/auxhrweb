@@ -1,110 +1,94 @@
 import React from 'react'
-import { GoDotFill } from 'react-icons/go'
-import { PiBuildingOfficeBold } from 'react-icons/pi'
+import { HiOutlineStar, HiStar } from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 
 import {
-  CompanyTag,
-  JobOrganization,
-} from '@/components/features/jobs/CompanyTag'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import {
-  humanStage,
-  talentFacingStage,
-} from '@/pages/TalentProfile/Job/jobPipeline'
+  experienceLabel,
+  formatPayShort,
+  jobPlace,
+  workModeLabel,
+} from '@/features/talent-applications/format'
+import { useSaveJob } from '@/features/talent-applications/useSaveJob'
+import { formatTimeAgo } from '@/utils/calculateDaysFromCreation'
 
-import { capitalizeFirstWord } from '../../../utils'
-import { JobDetails } from './JobDetails'
 import styles from './SingleJob.module.scss'
 
-const stripHtmlAndTruncate = (html: string, limit: number) => {
-  const text = html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-  return text.length > limit ? `${text.slice(0, limit)}...` : text
+export interface ListedJob {
+  id: string
+  role: { name: string }
+  createdAt: string
+  experienceLevel?: string | null
+  employmentType?: string | null
+  workMode?: string[]
+  locationCity?: string | null
+  locationState?: string | null
+  locationCountry?: string | null
+  minSalary?: number | null
+  maxSalary?: number | null
+  currency?: string | null
+  compensationPeriod?: string | null
+  isSaved?: boolean
+  organization?: { name: string } | null
 }
 
-export type SingleJobProps = {
-  jobId?: string
-  jobTitle?: string
-  jobCategory?: string
-  jobBrief?: string
-  jobWorkMode?: string[]
-  jobCountry?: string
-  jobExperience?: string
-  jobSalary?: string
-  isApplied?: boolean
-  applicationStage?: string | null
-  applicationStages?: Record<string, string> | null
-  organization?: JobOrganization | null
-  tourId?: string
+const EMPLOYMENT: Record<string, string> = {
+  full_time: 'Full time',
+  part_time: 'Part time',
+  contract: 'Contract',
+  internship: 'Internship',
 }
+
+export const jobPath = (jobId: string) => `/talentDashboard/job/${jobId}`
 
 export const SingleJob = ({
-  jobId,
-  jobTitle,
-  jobCategory,
-  jobBrief,
-  jobWorkMode,
-  jobExperience,
-  jobCountry,
-  jobSalary,
-  isApplied: _isApplied,
-  applicationStage,
-  applicationStages,
-  organization,
+  job,
   tourId,
-}: SingleJobProps) => {
-  const facingStage = talentFacingStage(applicationStage, applicationStages)
-  const isComplete = facingStage === 'completed'
-  const inProgress = !!facingStage && !isComplete
+}: {
+  job: ListedJob
+  tourId?: string
+}) => {
+  const { saved, toggle, pending } = useSaveJob(job.id, !!job.isSaved)
+  const company = job.organization?.name
+  const meta = [company, jobPlace(job), workModeLabel(job.workMode)].filter(
+    Boolean,
+  )
+  const pay = formatPayShort(job)
+  const tags = [
+    job.employmentType ? EMPLOYMENT[job.employmentType] : null,
+    experienceLabel(job.experienceLevel),
+  ].filter(Boolean)
+
   return (
-    <Card className={styles.card}>
-      <PiBuildingOfficeBold size={36} className={styles.icon} />
+    <article className={styles.card} data-tour={tourId}>
+      <span className={styles.avatar} aria-hidden>
+        {(company ?? job.role.name)[0]?.toUpperCase()}
+      </span>
       <div className={styles.body}>
-        <Link
-          to={`/talentDashboard/job/${jobId}`}
-          className={styles.titleRow}
-          data-tour={tourId}>
-          <span className={styles.title}>{capitalizeFirstWord(jobTitle)}</span>
-          <span className={styles.category}>
-            <GoDotFill className={styles.categoryDot} />
-            {capitalizeFirstWord(jobCategory)}
-          </span>
+        <Link to={jobPath(job.id)} className={styles.title}>
+          {job.role.name}
         </Link>
-
-        <CompanyTag organization={organization} />
-
-        {jobBrief && (
-          <p className={styles.description}>
-            {stripHtmlAndTruncate(jobBrief, 140)}
-          </p>
-        )}
-
-        <div className={styles.footer}>
-          <JobDetails
-            location={capitalizeFirstWord(jobCountry || '')}
-            type={jobWorkMode?.map(capitalizeFirstWord).join(', ')}
-            level={capitalizeFirstWord(jobExperience) || ''}
-            salary={jobSalary || ''}
-          />
-          {isComplete ? (
-            <Button size="sm" variant="secondary" disabled>
-              Applied ✓
-            </Button>
-          ) : inProgress ? (
-            <Link to={`/talentDashboard/job/${jobId}`}>
-              <Button size="sm">Continue · {humanStage(facingStage)}</Button>
-            </Link>
-          ) : (
-            <Link to={`/talentDashboard/job/${jobId}`}>
-              <Button size="sm">Apply Now</Button>
-            </Link>
-          )}
+        <p className={styles.meta}>{meta.join(' · ')}</p>
+        <div className={styles.tags}>
+          {pay && <span className={styles.pay}>{pay}</span>}
+          {tags.map((tag) => (
+            <span key={tag} className={styles.tag}>
+              {tag}
+            </span>
+          ))}
         </div>
       </div>
-    </Card>
+      <div className={styles.side}>
+        <span className={styles.posted}>{formatTimeAgo(job.createdAt)}</span>
+        <button
+          type="button"
+          className={styles.star}
+          aria-pressed={saved}
+          aria-label={saved ? 'Remove from saved jobs' : 'Save job'}
+          disabled={pending}
+          onClick={() => void toggle()}>
+          {saved ? <HiStar /> : <HiOutlineStar />}
+        </button>
+      </div>
+    </article>
   )
 }

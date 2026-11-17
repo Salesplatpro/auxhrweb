@@ -7,7 +7,7 @@ import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { dashboardPathForRole } from '@/features/auth/utils/dashboardPath'
 import { usePreAssessment } from '@/features/pre-assessment/hooks'
 import { useProfile } from '@/features/profile/hooks/useProfile'
-import { firstRemainingStep } from '@/pages/TalentProfile/Job/jobPipeline'
+import { applicationPath } from '@/features/talent-applications/steps'
 import { useIndividualJobQuery } from '@/redux/api/talent'
 import { notify } from '@/utils/toastNotifications'
 
@@ -64,15 +64,8 @@ const ApplyWizardEntry: React.FC = () => {
       return
     }
 
-    if (job?.applicationStage) {
-      const step = firstRemainingStep(
-        job.applicationStage,
-        job.applicationStages,
-      )
-      const suffix = step === 'details' ? '' : `?step=${step}`
-      navigate(`/talentDashboard/job/${jobId}${suffix}`, {
-        replace: true,
-      })
+    if (job?.applicationId) {
+      navigate(applicationPath(job.applicationId), { replace: true })
       return
     }
 
@@ -93,8 +86,7 @@ const ApplyWizardEntry: React.FC = () => {
     isLoading,
     isProfileIncomplete,
     assessment?.status,
-    job?.applicationStage,
-    job?.applicationStages,
+    job?.applicationId,
     navigate,
   ])
 
@@ -122,7 +114,7 @@ const ApplyWizardEntry: React.FC = () => {
             Go to dashboard
           </Button>
         ) : (
-          <Button onClick={() => navigate('/talentDashboard/jobs')}>
+          <Button onClick={() => navigate('/talentDashboard/job')}>
             Browse open jobs
           </Button>
         )}

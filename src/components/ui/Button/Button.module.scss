@@ -143,6 +143,26 @@
   }
 }
 
+.brand {
+  background: var(--color-brand-vivid);
+  color: var(--color-text-inverse);
+  border: 1px solid transparent;
+
+  &:hover:not(:disabled) {
+    background: var(--color-brand-vivid-hover);
+  }
+}
+
+.gradient {
+  background: var(--color-gradient-action);
+  color: var(--color-text-inverse);
+  border: 1px solid transparent;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+  }
+}
+
 .xl {
   min-height: 56px;
   padding: var(--space-3) var(--space-6);

@@ -26,10 +26,3 @@ export interface FormValues {
 export type PostJobFormValues = Omit<FormValues, 'workMode'> & {
   workMode: WorkType[]
 }
-
-export interface JobFiltersTypes {
-  role?: string
-  experienceLevel?: string
-  workMode: WorkType[]
-  location: LocationFormValue
-}

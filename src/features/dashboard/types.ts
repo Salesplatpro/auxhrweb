@@ -1,3 +1,5 @@
+import type { PipelineStep } from '@/features/talent-applications/types'
+
 export interface RecruiterNavCounts {
   applications: number
   shortlisted: number
@@ -60,21 +62,17 @@ export interface DashboardApplicantsPage {
   total: number
 }
 
-export interface TalentJobMatch {
+export interface TalentTodo {
+  applicationId: string
   jobId: string
-  title: string
-  company: string | null
-  companyLogoUrl: string | null
-  city: string | null
-  state: string | null
-  country: string | null
-  workMode: string[]
-  createdAt: string
-  matchPercent: number
+  jobTitle: string
+  company: { name: string; logoUrl: string | null } | null
+  step: PipelineStep
 }
 
 export interface TalentDashboard {
-  cvReady: boolean
-  matches: TalentJobMatch[]
-  newMatchesToday: number
+  applications: { sent: number; sentThisWeek: number }
+  tests: { toTake: number; nextDueAt: string | null }
+  interviews: { toRecord: number; nextDueAt: string | null }
+  todo: TalentTodo[]
 }

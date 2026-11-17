@@ -1,0 +1,105 @@
+@use '../../../styles/breakpoints' as bp;
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    bottom: 0;
+    left: 12px;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.done:not(:last-child)::before {
+  background: var(--color-violet);
+}
+
+.marker {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-elevated);
+  font-size: var(--text-md);
+  color: var(--color-text-inverse);
+
+  .done & {
+    border-color: var(--color-violet);
+    background: var(--color-violet);
+  }
+
+  .current & {
+    border-color: var(--color-violet);
+    box-shadow: inset 0 0 0 4px var(--color-bg-elevated);
+    background: var(--color-violet);
+  }
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+
+  .current & {
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--color-violet-100);
+    border-radius: var(--radius-lg);
+    background: var(--color-violet-tint);
+  }
+
+  @include bp.below(bp.$bp-md) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: var(--text-lg);
+  color: var(--color-ink);
+
+  .upcoming & {
+    color: var(--color-text-muted);
+  }
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.action {
+  flex-shrink: 0;
+}

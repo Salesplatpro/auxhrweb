@@ -1,153 +1,190 @@
-import React, { useEffect, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
+import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
+import { LuTarget } from 'react-icons/lu'
 import { useSearchParams } from 'react-router-dom'
 
-import { JobOrganization } from '@/components/features/jobs/CompanyTag'
-import { PageHero } from '@/components/layout/PageHero'
+import { getStateOptions } from '@/components/forms/LocationSelect/useLocationSelect'
+import { Select } from '@/components/forms/Select'
 import { PageShell } from '@/components/layout/PageShell'
+import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { DisplayError } from '@/components/ui/ErrorState'
+import { FilterChip } from '@/components/ui/FilterChip'
 import { Spinner } from '@/components/ui/Spinner'
-import { TextLink } from '@/components/ui/TextLink'
+import { Heading, Text } from '@/components/ui/Typography'
 import { SEARCH_MAX_LENGTH } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
+import { useProfile } from '@/features/profile/hooks/useProfile'
+import { MID_LEVEL } from '@/features/talent-applications/format'
+import { useFetchJobsQuery } from '@/redux/api/talent'
 
-import { Button } from '../../../components'
-import { useFetchJobsQuery } from '../../../redux/api/talent'
-import { formatCompensation } from '../../../utils/formatCompensation'
-import { JobFiltersTypes } from '../../../utils/jobPostTypes'
-import { notify } from '../../../utils/toastNotifications'
 import styles from './Job.module.scss'
-import { defaultFilterValues, JobFilter } from './JobFilter'
-import { SingleJob } from './SingleJob'
-
-interface JobType {
-  id: string
-  role: { name: string }
-  experienceLevel: string
-  jobBrief: string
-  workMode: string[]
-  locationCountry: string | null
-  minSalary?: number | null
-  maxSalary?: number | null
-  currency?: string | null
-  compensationPeriod?: string | null
-  hasApplied?: boolean
-  applicationStage?: string | null
-  applicationStages?: Record<string, string> | null
-  organization?: JobOrganization | null
-}
+import { ListedJob, SingleJob } from './SingleJob'
 
 const PAGE_SIZE = 10
+const NIGERIA = 'NG'
 
-const JOBS_PATH = '/talentDashboard/job'
+type ChipKey =
+  | 'hybrid'
+  | 'remote'
+  | 'onSite'
+  | 'mid'
+  | 'pay'
+  | 'fullTime'
+  | 'week'
+
+const CHIPS: { key: ChipKey; label: string }[] = [
+  { key: 'hybrid', label: 'Hybrid' },
+  { key: 'remote', label: 'Remote' },
+  { key: 'onSite', label: 'On-site' },
+  { key: 'mid', label: 'Mid-level' },
+  { key: 'pay', label: '₦300k+ / month' },
+  { key: 'fullTime', label: 'Full time' },
+  { key: 'week', label: 'Posted this week' },
+]
+
+const WORK_MODES: ChipKey[] = ['hybrid', 'remote', 'onSite']
+
+const resultsLine = (total: number, keyword: string, place: string) =>
+  `${total} job${total === 1 ? '' : 's'}${
+    keyword ? ` match “${keyword}”` : ''
+  }${place ? ` in ${place}` : ''}`
 
 const JobListing = ({ keyword }: { keyword: string }) => {
-  const [filters, setFilters] = useState<JobFiltersTypes>(defaultFilterValues)
-  const [jobs, setJobs] = useState<JobType[]>([])
+  const [, setSearchParams] = useSearchParams()
+  const { profile } = useProfile()
+  const [query, setQuery] = useState(keyword)
+  const [place, setPlace] = useState<string | null>(null)
+  const [chips, setChips] = useState<Set<ChipKey>>(new Set())
   const [offset, setOffset] = useState(0)
-  const [hasMore, setHasMore] = useState(false)
+  const [jobs, setJobs] = useState<ListedJob[]>([])
+  const state = place ?? profile?.locationState ?? ''
 
   const { data, error, isLoading, isFetching } = useFetchJobsQuery({
-    roleId: filters.role || undefined,
-    experienceLevel: filters.experienceLevel || undefined,
-    workMode: filters.workMode?.length ? filters.workMode.join(',') : undefined,
-    city: filters.location?.city?.name || undefined,
-    state: filters.location?.state?.name || undefined,
-    country: filters.location?.country?.name || undefined,
+    workMode:
+      WORK_MODES.filter((mode) => chips.has(mode)).join(',') || undefined,
+    experienceLevel: chips.has('mid') ? MID_LEVEL : undefined,
+    minMonthlySalary: chips.has('pay') ? 300000 : undefined,
+    employmentType: chips.has('fullTime') ? 'full_time' : undefined,
+    postedWithin: chips.has('week') ? 'week' : undefined,
+    state: state || undefined,
     q: keyword || undefined,
     offset,
   })
+  const total: number = data?.data?.total ?? 0
 
   useEffect(() => {
     if (!data) return
-    const page: JobType[] = data.data.jobs
+    const page: ListedJob[] = data.data.jobs
     setJobs((prev) => (offset === 0 ? page : [...prev, ...page]))
-    setHasMore(page.length === PAGE_SIZE)
   }, [data, offset])
 
-  useEffect(() => {
-    if (error) {
-      notify('error', 'Error fetching jobs')
-    }
-  }, [error])
+  const restart = () => setOffset(0)
 
-  const handleFilterChange = (nextFilters: JobFiltersTypes) => {
-    setOffset(0)
-    setFilters(nextFilters)
+  const toggleChip = (key: ChipKey) => {
+    restart()
+    setChips((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
   }
 
-  const handleLoadMore = () => setOffset((prev) => prev + PAGE_SIZE)
+  const search = (event: FormEvent) => {
+    event.preventDefault()
+    const next = query.trim().slice(0, SEARCH_MAX_LENGTH)
+    setSearchParams(next ? { q: next } : {})
+  }
 
-  const isInitialLoading = isLoading && offset === 0
-  const isLoadingMore = isFetching && offset > 0
+  const stateOptions = [
+    { label: 'Anywhere', value: '' },
+    ...getStateOptions(NIGERIA).map((option) => ({
+      label: option.label,
+      value: option.label,
+    })),
+  ]
 
   return (
     <PageShell wide>
-      <PageHero
-        compact
-        title="Jobs"
-        lead="Find your dream job by searching and applying directly."
-      />
+      <header className={styles.header}>
+        <Heading level={1}>Find Jobs</Heading>
+        <Text as="p" size="fs-md" color="muted">
+          {resultsLine(total, keyword, state)}
+        </Text>
+      </header>
 
-      <div className={styles.section}>
-        <JobFilter filters={filters} onChange={handleFilterChange} />
+      <form className={styles.searchCard} role="search" onSubmit={search}>
+        <label className={styles.search}>
+          <HiOutlineMagnifyingGlass aria-hidden />
+          <input
+            type="search"
+            value={query}
+            maxLength={SEARCH_MAX_LENGTH}
+            placeholder="Search jobs, companies or skills"
+            aria-label="Search jobs, companies or skills"
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </label>
+        <div className={styles.place}>
+          <Select
+            name="state"
+            options={stateOptions}
+            value={state}
+            icon={<LuTarget />}
+            searchable
+            placeholder="Anywhere"
+            onChange={(value) => {
+              restart()
+              setPlace(value)
+            }}
+          />
+        </div>
+        <Button type="submit" variant="gradient" size="lg">
+          Search
+        </Button>
+      </form>
 
-        <div className={styles.listing}>
-          <div className={styles.resultsRow}>
-            <span className={styles.resultsCount}>
-              Showing {jobs.length} result{jobs.length === 1 ? '' : 's'}
-              {keyword ? ` for “${keyword}”` : ''}
-            </span>
-            {keyword && (
-              <TextLink to={JOBS_PATH} tone="muted">
-                Clear search
-              </TextLink>
-            )}
-          </div>
+      <div className={styles.chips}>
+        {CHIPS.map((chip) => (
+          <FilterChip
+            key={chip.key}
+            active={chips.has(chip.key)}
+            onClick={() => toggleChip(chip.key)}>
+            {chip.label}
+          </FilterChip>
+        ))}
+      </div>
 
-          {isInitialLoading ? (
-            <Spinner fullPage />
-          ) : jobs.length > 0 ? (
-            <div className={styles.jobList}>
-              {jobs.map((job, index) => (
-                <SingleJob
-                  key={job.id}
-                  jobId={job.id}
-                  jobTitle={job.role?.name}
-                  jobCategory={job.experienceLevel}
-                  jobBrief={job.jobBrief}
-                  jobWorkMode={job.workMode}
-                  jobCountry={job.locationCountry ?? undefined}
-                  jobExperience={job.experienceLevel}
-                  jobSalary={formatCompensation(job)}
-                  isApplied={job.hasApplied}
-                  applicationStage={job.applicationStage}
-                  applicationStages={job.applicationStages}
-                  organization={job.organization}
-                  tourId={index === 0 ? 'job-card' : undefined}
-                />
-              ))}
-            </div>
-          ) : error ? (
-            <DisplayError message="We couldn't load jobs. Please try again." />
-          ) : (
-            <EmptyState
-              title="No jobs found"
-              description="Try adjusting your filters or check back later for new openings."
+      {isLoading && offset === 0 ? (
+        <Spinner fullPage />
+      ) : jobs.length > 0 ? (
+        <div className={styles.list}>
+          {jobs.map((job, index) => (
+            <SingleJob
+              key={job.id}
+              job={job}
+              tourId={index === 0 ? 'job-card' : undefined}
             />
-          )}
-
-          {!isInitialLoading && hasMore && (
-            <div className={styles.loadMore}>
-              <Button
-                variant="secondary"
-                onClick={handleLoadMore}
-                loading={isLoadingMore}>
-                Load More
-              </Button>
-            </div>
+          ))}
+          {jobs.length < total && (
+            <Button
+              variant="secondary"
+              className={styles.more}
+              loading={isFetching && offset > 0}
+              onClick={() => setOffset((prev) => prev + PAGE_SIZE)}>
+              Load more
+            </Button>
           )}
         </div>
-      </div>
+      ) : (
+        <EmptyState
+          title={error ? 'We couldn’t load jobs' : 'No jobs found'}
+          description={
+            error
+              ? 'Please try again in a moment.'
+              : 'Try fewer filters or another place.'
+          }
+        />
+      )}
     </PageShell>
   )
 }
@@ -157,7 +194,6 @@ const Job = () => {
   const keyword = (searchParams.get('q') ?? '')
     .trim()
     .slice(0, SEARCH_MAX_LENGTH)
-
   return <JobListing key={keyword} keyword={keyword} />
 }
 

@@ -1,15 +1,62 @@
-.pipelineContainer {
+.header {
   display: flex;
   flex-direction: column;
-  gap: 37px;
+  gap: var(--space-1);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-elevated);
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.initial {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--color-violet-tint);
+  color: var(--color-violet);
+  font-weight: var(--weight-semibold);
+}
+
+.title,
+.company {
+  display: block;
 }
 
 .title {
-  font-weight: 700;
-  font-size: var(--text-2xl);
-  color: var(--color-text-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+}
 
-  @media (min-width: 768px) {
-    font-size: var(--text-3xl);
-  }
+.company,
+.date {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.view {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-link);
+  text-decoration: none;
 }

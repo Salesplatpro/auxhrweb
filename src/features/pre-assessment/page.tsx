@@ -8,6 +8,7 @@ import {
 } from 'react-icons/md'
 import { useLocation } from 'react-router-dom'
 
+import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
@@ -122,24 +123,6 @@ const PreAssessmentPage: React.FC<PreAssessmentPageProps> = ({
       unlock()
     }
   }, [unlock])
-
-  useEffect(() => {
-    if (
-      assessment?.status === 'pending' &&
-      isReadyToStart &&
-      !assessmentStarted &&
-      !countdownCompleted &&
-      !isCountingDown
-    ) {
-      setIsCountingDown(true)
-    }
-  }, [
-    assessment,
-    isReadyToStart,
-    assessmentStarted,
-    countdownCompleted,
-    isCountingDown,
-  ])
 
   useEffect(() => {
     if (!isCountingDown) return
@@ -347,6 +330,31 @@ const PreAssessmentPage: React.FC<PreAssessmentPageProps> = ({
           You are about to start your assessment
         </p>
         <span className={styles.countdownNumber}>{countdown}</span>
+      </div>
+    )
+  }
+
+  if (assessment?.status === 'pending' && !assessmentStarted) {
+    return (
+      <div className={styles.countdownWrapper}>
+        <p className={styles.countdownLabel}>Your assessment is ready</p>
+        <ul className={styles.introList}>
+          <li>
+            <MdOutlineAssessment />
+            {questions.length} multiple choice questions
+          </li>
+          <li>
+            <MdAccessTime />
+            {formatTime(totalSeconds)} to finish once you start
+          </li>
+          <li>
+            <MdRefresh />
+            Do not refresh or close the browser
+          </li>
+        </ul>
+        <Button onClick={() => setIsCountingDown(true)}>
+          Start assessment
+        </Button>
       </div>
     )
   }

@@ -88,6 +88,20 @@
   margin-bottom: var(--space-8);
 }
 
+.introList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  color: var(--color-text-muted);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
 .countdownNumber {
   font-size: var(--text-8xl);
   font-weight: var(--weight-bold);

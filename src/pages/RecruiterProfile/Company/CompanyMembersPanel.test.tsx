@@ -9,13 +9,21 @@ import type {
 
 import { CompanyMembersPanel } from './CompanyMembersPanel'
 
-const { setCanManagePeopleMock, membersMock, saveAssignmentsMock } = vi.hoisted(
-  () => ({
-    setCanManagePeopleMock: vi.fn(),
-    membersMock: vi.fn(),
-    saveAssignmentsMock: vi.fn(),
-  }),
-)
+const {
+  setCanManagePeopleMock,
+  membersMock,
+  saveAssignmentsMock,
+  setTitleMock,
+} = vi.hoisted(() => ({
+  setCanManagePeopleMock: vi.fn(),
+  membersMock: vi.fn(),
+  saveAssignmentsMock: vi.fn(),
+  setTitleMock: vi.fn(),
+}))
+
+vi.mock('@/features/organizations/hooks/useCompanyDetails', () => ({
+  useSetMemberTitle: () => ({ setTitle: setTitleMock, isSaving: false }),
+}))
 
 vi.mock('@/features/people/hooks/useHrAssignments', () => ({
   useAssignedStaffIds: () => ({
@@ -75,6 +83,7 @@ const member = (
   workEmail: 'hana@acme.com',
   role: 'member',
   canManagePeople: false,
+  title: null,
   createdAt: '2026-01-01T00:00:00.000Z',
   user: {
     id: 'u-1',
@@ -100,43 +109,82 @@ const owner = member({
 
 const organization = { id: 'org-1', name: 'Acme Ltd' } as Organization
 
+const renderPanel = (seats?: { used: number; limit: number | null }) =>
+  render(
+    <CompanyMembersPanel
+      organization={organization}
+      seats={seats}
+      onInvite={vi.fn()}
+    />,
+  )
+
+const openMenuFor = (name: string) =>
+  fireEvent.click(screen.getByLabelText(`Actions for ${name}`))
+
 beforeEach(() => {
   vi.clearAllMocks()
   setCanManagePeopleMock.mockResolvedValue(true)
+  setTitleMock.mockResolvedValue(true)
 })
 
 describe('CompanyMembersPanel — Can manage people', () => {
-  it('shows a switch for each recruiter but not for the creator', () => {
+  it("keeps the owner's switch on and locked, and gives each recruiter a working one", () => {
     membersMock.mockReturnValue([owner, member()])
-    render(<CompanyMembersPanel organization={organization} />)
+    renderPanel()
 
-    expect(screen.getAllByRole('switch')).toHaveLength(1)
-    expect(screen.getByRole('switch').getAttribute('aria-checked')).toBe(
-      'false',
-    )
+    const [ownerSwitch, memberSwitch] = screen.getAllByRole(
+      'switch',
+    ) as HTMLButtonElement[]
+    expect(ownerSwitch!.getAttribute('aria-checked')).toBe('true')
+    expect(ownerSwitch!.disabled).toBe(true)
+    expect(memberSwitch!.getAttribute('aria-checked')).toBe('false')
+    expect(memberSwitch!.disabled).toBe(false)
+  })
+
+  it('shows Owner for the owner and the job title or Member for others', () => {
+    membersMock.mockReturnValue([
+      owner,
+      member(),
+      member({ id: 'mem-2', title: 'HR lead' }),
+    ])
+    renderPanel({ used: 3, limit: 7 })
+
+    expect(screen.getByText('Owner')).toBeTruthy()
+    expect(screen.getAllByText('Member')).toHaveLength(2)
+    expect(screen.getByText('HR lead')).toBeTruthy()
+    expect(
+      screen.getByText(
+        '3 of 7 seats used · Only the owner can change people access',
+      ),
+    ).toBeTruthy()
+  })
+
+  it('leaves out the seats when usage could not load', () => {
+    membersMock.mockReturnValue([owner])
+    renderPanel()
+
+    expect(
+      screen.getByText('Only the owner can change people access'),
+    ).toBeTruthy()
   })
 
   it('asks for confirmation before giving access', () => {
     membersMock.mockReturnValue([owner, member()])
-    render(<CompanyMembersPanel organization={organization} />)
+    renderPanel()
 
-    fireEvent.click(screen.getByRole('switch'))
-    expect(
-      screen.getByText(
-        "This person will be able to add, edit and end employees and see everyone's performance. They won't see pay, benefits or contracts, which stay with the company's creator.",
-      ),
-    ).toBeTruthy()
+    fireEvent.click(screen.getAllByRole('switch')[1]!)
+    expect(screen.getByText('Let Hana Resources manage people?')).toBeTruthy()
     expect(setCanManagePeopleMock).not.toHaveBeenCalled()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Allow access' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Turn on' }))
     expect(setCanManagePeopleMock).toHaveBeenCalledWith(member(), true)
   })
 
   it('does nothing if the owner cancels the confirmation', () => {
     membersMock.mockReturnValue([owner, member()])
-    render(<CompanyMembersPanel organization={organization} />)
+    renderPanel()
 
-    fireEvent.click(screen.getByRole('switch'))
+    fireEvent.click(screen.getAllByRole('switch')[1]!)
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(setCanManagePeopleMock).not.toHaveBeenCalled()
   })
@@ -144,31 +192,37 @@ describe('CompanyMembersPanel — Can manage people', () => {
   it('takes access away straight away without a confirmation', () => {
     const hr = member({ canManagePeople: true })
     membersMock.mockReturnValue([owner, hr])
-    render(<CompanyMembersPanel organization={organization} />)
+    renderPanel()
 
-    fireEvent.click(screen.getByRole('switch'))
+    fireEvent.click(screen.getAllByRole('switch')[1]!)
     expect(setCanManagePeopleMock).toHaveBeenCalledWith(hr, false)
   })
 
-  it('lets the creator assign themselves and their teammates', () => {
-    membersMock.mockReturnValue([owner, member()])
-    render(<CompanyMembersPanel organization={organization} />)
+  it('lets the owner set a job title from the row menu', async () => {
+    const teammate = member()
+    membersMock.mockReturnValue([owner, teammate])
+    renderPanel()
 
-    expect(
-      screen.getAllByRole('button', { name: /^Manage people for/ }),
-    ).toHaveLength(2)
+    openMenuFor('Hana Resources')
+    fireEvent.click(screen.getByText('Set job title'))
+    fireEvent.change(screen.getByLabelText('Job title'), {
+      target: { value: 'HR lead' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() =>
+      expect(setTitleMock).toHaveBeenCalledWith(teammate, 'HR lead'),
+    )
   })
 
   it("saves only the people whose ticks changed, and can't add an ended employee", async () => {
     saveAssignmentsMock.mockResolvedValue(undefined)
     const teammate = member()
     membersMock.mockReturnValue([owner, teammate])
-    render(<CompanyMembersPanel organization={organization} />)
+    renderPanel()
 
-    const name = `${teammate.user.firstName} ${teammate.user.lastName}`.trim()
-    fireEvent.click(
-      screen.getByRole('button', { name: `Manage people for ${name}` }),
-    )
+    openMenuFor('Hana Resources')
+    fireEvent.click(screen.getByText('Choose who they manage'))
 
     const save = screen.getByRole('button', {
       name: 'Save',

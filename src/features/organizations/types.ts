@@ -30,6 +30,7 @@ export interface Organization {
   size?: string | null
   about?: string | null
   foundedYear?: number | null
+  departments?: string[]
   /** Whether the company's open jobs are in its Indeed job feed. */
   indeedFeedEnabled?: boolean
   verifiedAt?: string | null
@@ -106,6 +107,14 @@ export interface UpdateOrganizationPayload {
   size?: string | null
   about?: string | null
   foundedYear?: number | null
+  indeedFeedEnabled?: boolean
+}
+
+export interface JobFeedStatus {
+  enabled: boolean
+  url: string | null
+  openJobs: number
+  updatedAt: string | null
 }
 
 export interface OrganizationsApiResponse {
@@ -160,6 +169,7 @@ export interface OrganizationMember {
   workEmail: string
   role: string
   canManagePeople: boolean
+  title: string | null
   createdAt: string
   user: {
     id: string

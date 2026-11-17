@@ -142,15 +142,15 @@ const TalentDashboardHome = () => {
             <MetricCard
               label="Applications sent"
               loading={isLoading}
-              value={String(dashboard?.applications.sent ?? 0)}
-              hint={`${dashboard?.applications.sentThisWeek ?? 0} this week`}
+              value={String(dashboard?.applications?.sent ?? 0)}
+              hint={`${dashboard?.applications?.sentThisWeek ?? 0} this week`}
             />
             <MetricCard
               label="Tests to take"
               loading={isLoading}
-              value={String(dashboard?.tests.toTake ?? 0)}
+              value={String(dashboard?.tests?.toTake ?? 0)}
               hint={
-                dashboard?.tests.nextDueAt
+                dashboard?.tests?.nextDueAt
                   ? `Due ${weekday(dashboard.tests.nextDueAt)}`
                   : undefined
               }
@@ -158,8 +158,8 @@ const TalentDashboardHome = () => {
             <MetricCard
               label="Interviews"
               loading={isLoading}
-              value={String(dashboard?.interviews.toRecord ?? 0)}
-              hint={dashboard?.interviews.toRecord ? 'Recorded' : undefined}
+              value={String(dashboard?.interviews?.toRecord ?? 0)}
+              hint={dashboard?.interviews?.toRecord ? 'Recorded' : undefined}
             />
           </div>
         </>

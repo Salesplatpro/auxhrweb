@@ -2,13 +2,22 @@ import { ErrorMessage, Field, FieldProps, useFormikContext } from 'formik'
 import React, { useMemo } from 'react'
 import * as Yup from 'yup'
 
+import { CheckBox } from '@/components/forms/CheckBox'
 import { FieldLabel } from '@/components/forms/FieldLabel'
 import { Select } from '@/components/forms/Select'
-import { Switch } from '@/components/ui/Switch'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { StaffFormValues, StaffOption } from '@/features/people/types'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
 import styles from './StaffForm.module.scss'
+
+const EXECUTIVE_OPTIONS = [
+  { value: 'yes', label: 'Yes' },
+  { value: 'no', label: 'No' },
+]
+
+const firstNameOf = (fullName: string) =>
+  fullName.trim().split(/\s+/)[0] || 'They'
 
 export const EMPTY_STAFF_FORM: StaffFormValues = {
   fullName: '',
@@ -96,6 +105,8 @@ interface StaffFieldsProps {
   currentStaffId?: string
   currentManager?: { id: string; name: string } | null
   readOnly?: boolean
+  /** Name and email come from the applicant's account and can't be typed over. */
+  lockIdentity?: boolean
 }
 
 export const StaffFields: React.FC<StaffFieldsProps> = ({
@@ -104,6 +115,7 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
   currentStaffId,
   currentManager,
   readOnly = false,
+  lockIdentity = false,
 }) => {
   const { values, setFieldValue } = useFormikContext<StaffFormValues>()
   const { profile } = useProfile()
@@ -127,6 +139,20 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
     return [{ value: '', label: 'No manager' }, ...options]
   }, [managers, currentStaffId, currentManager])
 
+  const departmentOptions = useMemo(() => {
+    const departments = profile?.activeOrganization?.departments ?? []
+    const options = departments.map((name) => ({ value: name, label: name }))
+    if (
+      values.department &&
+      !departments.some(
+        (name) => name.toLowerCase() === values.department.toLowerCase(),
+      )
+    ) {
+      options.unshift({ value: values.department, label: values.department })
+    }
+    return [{ value: '', label: 'No department' }, ...options]
+  }, [profile?.activeOrganization?.departments, values.department])
+
   const senderName =
     `${profile?.firstName ?? ''} ${profile?.lastName ?? ''}`.trim() || 'you'
   const companyName = profile?.activeOrganization?.name ?? 'your company'
@@ -137,14 +163,14 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         name="fullName"
         label="Full name"
         placeholder="Ada Obi"
-        readOnly={readOnly}
+        readOnly={readOnly || lockIdentity}
       />
       <TextField
         name="email"
         label="Email address"
         type="email"
         placeholder="ada@company.com"
-        readOnly={readOnly || mode === 'edit'}
+        readOnly={readOnly || lockIdentity || mode === 'edit'}
         hint={
           mode === 'edit'
             ? 'The email can’t be changed. End this record and add them again if it’s wrong.'
@@ -157,12 +183,19 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         placeholder="Product Designer"
         readOnly={readOnly}
       />
-      <TextField
-        name="department"
-        label="Department"
-        placeholder="Design"
-        readOnly={readOnly}
-      />
+      <div className={styles.field} data-field="department">
+        <Select
+          name="department"
+          label="Department"
+          disabled={readOnly}
+          options={departmentOptions}
+          value={values.department}
+          onChange={(value) => setFieldValue('department', value)}
+        />
+        {!readOnly && departmentOptions.length === 1 && (
+          <p className={styles.hint}>Add departments on the Company page.</p>
+        )}
+      </div>
       <div className={styles.field} data-field="managerId">
         <Select
           name="managerId"
@@ -181,30 +214,35 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         type="date"
         readOnly={readOnly}
       />
-      <Switch
-        label="This person is an executive"
-        checked={values.isExecutive}
-        disabled={readOnly}
-        onChange={(checked) => setFieldValue('isExecutive', checked)}
-      />
+      <div className={styles.field}>
+        <SegmentedControl
+          label="Is this person an executive?"
+          options={EXECUTIVE_OPTIONS}
+          value={[values.isExecutive ? 'yes' : 'no']}
+          disabled={readOnly}
+          onChange={([choice]) =>
+            setFieldValue('isExecutive', choice === 'yes')
+          }
+        />
+        <p className={styles.hint}>
+          Executives don&apos;t get AI advice on weekly reports.
+        </p>
+      </div>
       {mode === 'create' && (
         <div className={styles.inviteBox}>
-          <input
-            id="sendInvite"
-            type="checkbox"
+          <CheckBox
+            name="sendInvite"
+            label="Send an invite email"
             checked={values.sendInvite}
             onChange={(event) =>
               setFieldValue('sendInvite', event.target.checked)
             }
           />
-          <div>
-            <label htmlFor="sendInvite" className={styles.inviteLabel}>
-              Send an invite email
-            </label>
-            <p className={styles.hint}>
-              {`${companyName} will email them a link, sent as ${senderName}. They create an AuxHR account, complete their profile, then join.`}
-            </p>
-          </div>
+          <p className={styles.hint}>
+            {`${firstNameOf(
+              values.fullName,
+            )} gets an email from ${companyName}, sent as ${senderName}, to accept and see their contracts, pay and first-week tasks.`}
+          </p>
         </div>
       )}
     </div>

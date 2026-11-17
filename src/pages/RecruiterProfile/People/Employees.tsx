@@ -11,6 +11,7 @@ import { ColumnDef, DataTable, TableActions } from '@/components/ui/DataTable'
 import { Dropdown, DropdownItem } from '@/components/ui/Dropdown'
 import { FilterBar } from '@/components/ui/FilterBar'
 import type { FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pill } from '@/components/ui/Pill'
 import { NoPeopleAccess } from '@/features/people/components/NoPeopleAccess'
 import { StaffStatusBadge } from '@/features/people/components/StaffStatusBadge'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
@@ -57,7 +58,10 @@ const ActionsCell = ({ staff, canEdit, onInvite, onEnd }: ActionsCellProps) => {
   const navigate = useNavigate()
 
   const items: DropdownItem[] = [
-    { label: 'Open', onClick: () => navigate(peoplePaths.employee(staff.id)) },
+    {
+      label: 'Open employee page',
+      onClick: () => navigate(peoplePaths.employee(staff.id)),
+    },
   ]
   if (canEdit && canSendInvite(staff)) {
     items.push({
@@ -66,7 +70,17 @@ const ActionsCell = ({ staff, canEdit, onInvite, onEnd }: ActionsCellProps) => {
     })
   }
   if (canEdit && staff.status !== 'ended') {
-    items.push({ label: 'End employment', onClick: () => onEnd(staff) })
+    items.push(
+      {
+        label: 'Edit details',
+        onClick: () =>
+          navigate(`${peoplePaths.employee(staff.id)}?tab=details`),
+      },
+      {
+        label: staff.endingOn ? 'Change end date' : 'End employment',
+        onClick: () => onEnd(staff),
+      },
+    )
   }
 
   return (
@@ -93,14 +107,21 @@ export const Employees = () => {
   const [toEnd, setToEnd] = useState<StaffMember | null>(null)
 
   const search = useDebouncedValue(filters.search.trim())
-  const { items, total, counts, isLoading, hasError, isForbidden } =
-    useStaffList(organizationId, {
-      search,
-      status: filters.status as StaffStatus | '',
-      ...(filters.assigned === 'me' ? { assignedToMe: 'true' } : {}),
-      limit: ROWS_PER_PAGE,
-      offset: (page - 1) * ROWS_PER_PAGE,
-    })
+  const {
+    items,
+    total,
+    counts,
+    hiredThroughAuxhr,
+    isLoading,
+    hasError,
+    isForbidden,
+  } = useStaffList(organizationId, {
+    search,
+    status: filters.status as StaffStatus | '',
+    ...(filters.assigned === 'me' ? { assignedToMe: 'true' } : {}),
+    limit: ROWS_PER_PAGE,
+    offset: (page - 1) * ROWS_PER_PAGE,
+  })
   const { sendInvite, exportStaffCsv } = useStaffActions(organizationId)
   const [importOpen, setImportOpen] = useState(false)
   const [checklistOpen, setChecklistOpen] = useState(false)
@@ -181,6 +202,11 @@ export const Employees = () => {
       render: (staff) => (
         <div className={styles.statusCell}>
           <StaffStatusBadge status={staff.status} />
+          {staff.endingOn && (
+            <span className={styles.secondary}>
+              Ends {formatDateOnly(staff.endingOn)}
+            </span>
+          )}
           {staff.status !== 'ended' && staff.invite.state === 'expired' && (
             <span className={styles.expired}>Invite expired</span>
           )}
@@ -191,7 +217,14 @@ export const Employees = () => {
       key: 'hiredThrough',
       header: 'Hired through',
       hideBelow: 1000,
-      render: (staff) => (staff.hiredThroughAuxhr ? 'AuxHR' : 'Outside'),
+      render: (staff) =>
+        staff.hiredThroughAuxhr ? (
+          <Pill size="sm">AuxHR</Pill>
+        ) : (
+          <Pill size="sm" tone="neutral">
+            Outside
+          </Pill>
+        ),
     },
     {
       key: 'actions',
@@ -257,19 +290,26 @@ export const Employees = () => {
       ) : showFirstRun ? (
         <EmptyState
           icon={<HiOutlineUsers />}
-          title="No employees yet"
-          description="Add the people who work at your company. You can invite them to AuxHR so they can see their contracts, pay and first-week tasks."
+          title="No staff yet"
+          description="Add your team to keep their pay, contracts and first-week tasks in one place."
           action={
-            <Button onClick={() => setAddOpen(true)}>Add employee</Button>
+            canEdit && (
+              <div className={styles.emptyActions}>
+                <Button variant="outline" onClick={() => setImportOpen(true)}>
+                  Import from file
+                </Button>
+                <Button onClick={() => setAddOpen(true)}>Add employee</Button>
+              </div>
+            )
           }
         />
       ) : (
         <>
           <StatGrid columns={4}>
-            <StatCard value={everyone} label="Everyone" />
+            <StatCard value={everyone} label="Total staff" />
             <StatCard value={counts.active} label="Active" />
             <StatCard value={counts.invited} label="Invited" />
-            <StatCard value={counts.ended} label="Ended" />
+            <StatCard value={hiredThroughAuxhr} label="Hired through AuxHR" />
           </StatGrid>
 
           <FilterBar

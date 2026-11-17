@@ -86,6 +86,8 @@ const person = (overrides: Partial<StaffMember> = {}): StaffMember => ({
   managerName: null,
   startDate: '2026-01-05',
   endDate: null,
+  endingOn: null,
+  endReason: null,
   status: 'invited',
   hiredThroughAuxhr: false,
   isExecutive: false,

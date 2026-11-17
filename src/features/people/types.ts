@@ -10,6 +10,25 @@ export interface StaffInvite {
   joinedAt: string | null
 }
 
+export type EndReason =
+  | 'resigned'
+  | 'dismissed'
+  | 'contract_ended'
+  | 'redundancy'
+  | 'retired'
+  | 'mutual_agreement'
+  | 'other'
+
+export const END_REASONS: { value: EndReason; label: string }[] = [
+  { value: 'resigned', label: 'Resigned' },
+  { value: 'dismissed', label: 'Dismissed' },
+  { value: 'contract_ended', label: 'Contract ended' },
+  { value: 'redundancy', label: 'Redundancy' },
+  { value: 'retired', label: 'Retired' },
+  { value: 'mutual_agreement', label: 'Mutual agreement' },
+  { value: 'other', label: 'Other' },
+]
+
 export interface StaffMember {
   id: string
   fullName: string
@@ -20,6 +39,9 @@ export interface StaffMember {
   managerName: string | null
   startDate: string
   endDate: string | null
+  /** A last working day still ahead; they stay active until it has passed. */
+  endingOn: string | null
+  endReason: EndReason | null
   status: StaffStatus
   hiredThroughAuxhr: boolean
   isExecutive: boolean
@@ -53,6 +75,7 @@ export interface StaffListData {
   items: StaffMember[]
   total: number
   counts: Record<StaffStatus, number>
+  hiredThroughAuxhr: number
 }
 
 export interface StaffOption {
@@ -153,6 +176,7 @@ export interface StaffFormValues {
   startDate: string
   isExecutive: boolean
   sendInvite: boolean
+  applicationId?: string
 }
 
 export interface CreateStaffPayload {

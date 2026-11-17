@@ -36,6 +36,8 @@ const staff = (overrides: Partial<StaffMember> = {}): StaffMember => ({
   managerName: null,
   startDate: '2026-01-05',
   endDate: null,
+  endingOn: null,
+  endReason: null,
   status: 'active',
   hiredThroughAuxhr: false,
   isExecutive: false,
@@ -86,10 +88,9 @@ describe('useStaffActions', () => {
     const { result } = setup()
 
     await act(() => result.current.actions.addStaff(payload))
-    expect(notifyMock).toHaveBeenCalledWith(
-      'success',
-      'Ada Obi added. Invite sent to ada@example.com.',
-    )
+    expect(notifyMock).toHaveBeenCalledWith('success', 'Ada Obi was added', {
+      description: 'We sent them an invite email.',
+    })
   })
 
   it('warns, rather than claiming success, when the invite email failed', async () => {
@@ -118,7 +119,9 @@ describe('useStaffActions', () => {
     await act(() =>
       result.current.actions.addStaff({ ...payload, sendInvite: false }),
     )
-    expect(notifyMock).toHaveBeenCalledWith('success', 'Ada Obi added')
+    expect(notifyMock).toHaveBeenCalledWith('success', 'Ada Obi was added', {
+      description: undefined,
+    })
   })
 
   it('reports the server message and returns null when saving fails', async () => {
@@ -185,15 +188,35 @@ describe('useStaffActions', () => {
     serviceMock.endStaff.mockResolvedValue(staff({ status: 'ended' }))
     const { result } = setup()
 
-    await act(() => result.current.actions.endEmployment('s-1', '2026-04-01'))
+    await act(() =>
+      result.current.actions.endEmployment('s-1', '2026-04-01', 'resigned'),
+    )
     expect(serviceMock.endStaff).toHaveBeenCalledWith(
       'org-1',
       's-1',
       '2026-04-01',
+      'resigned',
     )
     expect(notifyMock).toHaveBeenCalledWith(
       'success',
-      "Ada Obi's employment has ended",
+      "Ada Obi's employment ends on 1 Apr 2026",
+      { description: 'Status changed to Ended.' },
+    )
+  })
+
+  it('says when a future end date will take effect', async () => {
+    serviceMock.endStaff.mockResolvedValue(
+      staff({ status: 'active', endingOn: '2026-12-01' }),
+    )
+    const { result } = setup()
+
+    await act(() =>
+      result.current.actions.endEmployment('s-1', '2026-12-01', null),
+    )
+    expect(notifyMock).toHaveBeenCalledWith(
+      'success',
+      "Ada Obi's employment ends on 1 Dec 2026",
+      { description: 'Status changes to Ended on 1 Dec 2026.' },
     )
   })
 })

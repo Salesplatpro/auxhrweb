@@ -14,10 +14,13 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
 import { VerdictBadge } from '@/components/ui/VerdictBadge'
 import { useBroadcastMessage } from '@/features/messaging/hooks/useBroadcastMessage'
+import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
+import { useProfile } from '@/features/profile/hooks/useProfile'
 import { notify } from '@/utils/toastNotifications'
 
 import { useGetRecruiterShortlistQuery } from '../../../redux/api/recruiter'
 import { capitalizeEachWord } from '../../../utils/CapitalizeWord'
+import { AddEmployeePanel, ApplicantToHire } from '../People/AddEmployeePanel'
 import styles from './Shortlist.module.scss'
 
 interface ShortlistedApplication {
@@ -26,7 +29,7 @@ interface ShortlistedApplication {
   status: string
   createdAt: string
   role?: { name: string } | null
-  talent: { id: string; firstName: string; lastName: string }
+  talent: { id: string; firstName: string; lastName: string; email: string }
   matchVerdict?: 'high' | 'medium' | 'low' | null
   averageScore?: number | null
 }
@@ -68,6 +71,9 @@ export const Shortlist = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<Set<string>>(new Set())
   const [messageOpen, setMessageOpen] = useState(false)
   const [messageContent, setMessageContent] = useState('')
+  const [hiring, setHiring] = useState<ApplicantToHire | null>(null)
+  const { organizationId, canManagePeople } = usePeopleAccess()
+  const { profile } = useProfile()
 
   const handleSortChange = (key: string, direction: SortDirection) => {
     setSortKey(key)
@@ -133,10 +139,28 @@ export const Shortlist = () => {
       header: '',
       align: 'center',
       render: (row) => (
-        <Link
-          to={`/recruiterDashboard/singleJobPost/${row.jobId}?applicationId=${row.id}`}>
-          <Button size="sm">Details</Button>
-        </Link>
+        <div className={styles.rowActions}>
+          <Link
+            to={`/recruiterDashboard/singleJobPost/${row.jobId}?applicationId=${row.id}`}>
+            <Button size="sm">Details</Button>
+          </Link>
+          {canManagePeople && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setHiring({
+                  applicationId: row.id,
+                  fullName:
+                    `${row.talent.firstName} ${row.talent.lastName}`.trim(),
+                  email: row.talent.email,
+                  jobTitle: capitalizeEachWord(row.role?.name ?? ''),
+                })
+              }>
+              Add as employee
+            </Button>
+          )}
+        </div>
       ),
     },
   ]
@@ -263,6 +287,15 @@ export const Shortlist = () => {
           </div>
         )}
       </div>
+      {organizationId && hiring && (
+        <AddEmployeePanel
+          open
+          organizationId={organizationId}
+          companyName={profile?.activeOrganization?.name ?? 'your company'}
+          applicant={hiring}
+          onClose={() => setHiring(null)}
+        />
+      )}
     </PageShell>
   )
 }

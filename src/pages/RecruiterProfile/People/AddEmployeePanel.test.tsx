@@ -30,7 +30,10 @@ vi.mock('@/features/profile/hooks/useProfile', () => ({
     profile: {
       firstName: 'Hana',
       lastName: 'Resources',
-      activeOrganization: { name: 'Acme Ltd' },
+      activeOrganization: {
+        name: 'Acme Ltd',
+        departments: ['Design', 'Sales'],
+      },
     },
   }),
 }))
@@ -73,9 +76,7 @@ describe('AddEmployeePanel', () => {
     renderPanel()
 
     expect(
-      screen.getByText(
-        /Acme Ltd will email them a link, sent as Hana Resources/,
-      ),
+      screen.getByText(/gets an email from Acme Ltd, sent as Hana Resources/),
     ).toBeTruthy()
   })
 
@@ -86,7 +87,8 @@ describe('AddEmployeePanel', () => {
     type(/Full name/, ' Ada Obi ')
     type(/Email address/, 'ada@example.com')
     type(/Job title/, 'Product Designer')
-    type(/Department/, 'Design')
+    fireEvent.click(screen.getByText('No department'))
+    fireEvent.click(screen.getByText('Design'))
     type(/Start date/, '2026-01-05')
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
@@ -134,5 +136,57 @@ describe('AddEmployeePanel', () => {
     expect((screen.getByLabelText(/Full name/) as HTMLInputElement).value).toBe(
       'Ada Obi',
     )
+  })
+
+  it('marks someone as an executive with the Yes option', async () => {
+    addStaffMock.mockResolvedValue({ staff: { id: 's-1' } })
+    renderPanel()
+
+    type(/Full name/, 'Ada Obi')
+    type(/Email address/, 'ada@example.com')
+    type(/Job title/, 'Chief of Staff')
+    type(/Start date/, '2026-01-05')
+    fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(addStaffMock).toHaveBeenCalled())
+    expect(addStaffMock.mock.calls[0]![0]).toMatchObject({ isExecutive: true })
+  })
+
+  it('adds a shortlisted applicant with their own name and email locked', async () => {
+    addStaffMock.mockResolvedValue({ staff: { id: 's-1' } })
+    render(
+      <MemoryRouter>
+        <AddEmployeePanel
+          open
+          organizationId="org-1"
+          companyName="Acme Ltd"
+          onClose={onClose}
+          applicant={{
+            applicationId: 'app-1',
+            fullName: 'Kelechi Okoro',
+            email: 'kelechi@example.com',
+            jobTitle: 'Data Analyst',
+          }}
+        />
+      </MemoryRouter>,
+    )
+
+    const name = screen.getByLabelText(/Full name/) as HTMLInputElement
+    expect(name.value).toBe('Kelechi Okoro')
+    expect(name.readOnly).toBe(true)
+    expect(
+      (screen.getByLabelText(/Email address/) as HTMLInputElement).readOnly,
+    ).toBe(true)
+    type(/Start date/, '2026-12-01')
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() => expect(addStaffMock).toHaveBeenCalled())
+    expect(addStaffMock.mock.calls[0]![0]).toMatchObject({
+      fullName: 'Kelechi Okoro',
+      email: 'kelechi@example.com',
+      jobTitle: 'Data Analyst',
+      applicationId: 'app-1',
+    })
   })
 })

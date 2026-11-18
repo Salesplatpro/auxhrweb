@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .page {
   width: min(1100px, 100%);
   margin-bottom: var(--space-10);
@@ -55,11 +57,11 @@
   grid-template-columns: 1fr;
   gap: var(--space-4);
 
-  @media (min-width: 720px) {
+  @include bp.from(bp.$bp-md) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -134,7 +136,7 @@
   display: grid;
   gap: var(--space-1);
 
-  @media (min-width: 720px) {
+  @include bp.from(bp.$bp-md) {
     grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -1,4 +1,5 @@
 @use '../../../styles/form-field' as *;
+@use '../../../styles/breakpoints' as bp;
 
 .fieldGroup {
   @extend %form-field-group;
@@ -38,7 +39,7 @@
   justify-content: space-between;
   margin-top: var(--space-6);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     flex-direction: row;
   }
 }
@@ -50,7 +51,7 @@
 /* Lets the 4-column salary row (see .salaryField) wrap onto a second line
    at narrower desktop widths instead of squeezing every column. */
 .salaryRow {
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     flex-wrap: wrap;
     gap: var(--space-4);
   }
@@ -60,7 +61,7 @@
   width: 100%;
   margin-bottom: var(--space-6);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     width: 48%;
     margin-bottom: 0;
   }
@@ -74,7 +75,7 @@
   width: 100%;
   margin-bottom: var(--space-6);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     width: 31%;
     margin-bottom: 0;
   }
@@ -87,7 +88,7 @@
   width: 100%;
   margin-bottom: var(--space-6);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     flex: 1 1 22%;
     min-width: 160px;
     margin-bottom: 0;

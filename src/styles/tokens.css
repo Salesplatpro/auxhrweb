@@ -328,10 +328,12 @@
   /* Breakpoints. Media queries were hand-written per file and ColumnDef.hideBelow
      takes raw pixels, so these keep the two in step. Use the breakpoints.scss
      mixins in SCSS; the raw values are here for hideBelow and JS. */
+  --bp-xs: 480px;
   --bp-sm: 640px;
   --bp-md: 768px;
   --bp-lg: 900px;
   --bp-xl: 1000px;
+  --bp-wide: 1100px;
 
   --z-sticky: 100;
   --z-dropdown: 1000;

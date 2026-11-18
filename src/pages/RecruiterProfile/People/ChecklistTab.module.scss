@@ -75,7 +75,7 @@
     @extend %form-input;
   }
 
-  @media (max-width: $bp-sm) {
+  @include below($bp-sm) {
     grid-template-columns: 1fr;
   }
 }

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 // Breakpoints mirror the landing feature's responsive type scale.
 $small-breakpoint: 868px;
 $mobile-breakpoint: 480px;
@@ -5,11 +7,11 @@ $mobile-breakpoint: 480px;
 @mixin responsive-font($base-size, $small-size, $mobile-size) {
   font-size: $base-size;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     font-size: $small-size;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
+  @include bp.below(bp.$bp-xs) {
     font-size: $mobile-size;
   }
 }

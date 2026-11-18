@@ -1,4 +1,5 @@
 @use './index' as *;
+@use '../../../../../styles/breakpoints' as bp;
 
 .primary {
   background-color: $landing-bg-primary-color;
@@ -72,7 +73,7 @@
 }
 
 // Responsive override for mobile screens
-@media screen and (max-width: $small-breakpoint) {
+@include bp.below(bp.$bp-lg) {
   .gridContainer {
     grid-template-columns: 1fr;
     grid-template-rows: auto;

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -70,7 +72,7 @@
   padding: 10px 16px;
   width: max-content;
 
-  @media (max-width: 768px) {
+  @include bp.below(bp.$bp-md) {
     width: 100%;
     margin: 0 auto;
 
@@ -118,7 +120,7 @@
   width: 100%;
   max-width: 20rem;
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     max-width: 28rem;
   }
 }

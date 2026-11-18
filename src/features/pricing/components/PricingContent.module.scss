@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .page {
   background: var(--color-bg-subtle);
   color: var(--color-text-heading);
@@ -133,7 +135,7 @@
   padding: var(--space-10);
   margin-bottom: var(--space-10);
 
-  @media (min-width: 900px) {
+  @include bp.from(bp.$bp-lg) {
     grid-template-columns: 0.9fr 1.4fr;
     align-items: center;
   }
@@ -163,7 +165,7 @@
   display: grid;
   gap: var(--space-6);
 
-  @media (min-width: 700px) {
+  @include bp.from(bp.$bp-md) {
     grid-template-columns: repeat(3, 1fr);
   }
 }

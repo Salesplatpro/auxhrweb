@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .headerRow {
   display: flex;
   justify-content: space-between;
@@ -13,7 +15,7 @@
   font-size: var(--text-3xl);
   color: var(--color-text-heading);
 
-  @media (max-width: 767px) {
+  @include bp.below(bp.$bp-md) {
     font-size: var(--text-xl);
   }
 }
@@ -27,7 +29,7 @@
   margin-top: var(--space-1);
   min-width: 0;
 
-  @media (max-width: 640px) {
+  @include bp.below(bp.$bp-sm) {
     flex-direction: column;
   }
 }

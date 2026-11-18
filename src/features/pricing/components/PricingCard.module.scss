@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .card {
   position: relative;
   flex: 0 0 min(280px, 85vw);
@@ -11,12 +13,12 @@
   flex-direction: column;
   gap: var(--space-4);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     flex-basis: calc((100% - 3 * var(--space-6)) / 4);
     min-width: 240px;
   }
 
-  @media (min-width: 1100px) {
+  @include bp.from(bp.$bp-wide) {
     flex-basis: calc((100% - 3 * var(--space-6)) / 4);
   }
 }

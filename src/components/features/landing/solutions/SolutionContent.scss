@@ -1,3 +1,5 @@
+@use '../../../../styles/breakpoints' as bp;
+
 .solution-content {
   padding: 96px 80px;
 
@@ -130,7 +132,7 @@
   }
 }
 
-@media (min-width: 320px) and (max-width: 980px) {
+@include bp.below(bp.$bp-xl) {
   .solution-content {
     padding: 64px 20px;
 

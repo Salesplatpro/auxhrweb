@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -163,7 +165,7 @@
   grid-template-columns: 1fr;
   gap: var(--space-4);
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     grid-template-columns: 1fr 1fr;
   }
 }

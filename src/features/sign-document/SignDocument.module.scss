@@ -15,7 +15,7 @@
   background: var(--color-bg-elevated);
   box-shadow: var(--shadow-panel);
 
-  @media (max-width: $bp-sm) {
+  @include below($bp-sm) {
     padding: var(--space-5);
   }
 }

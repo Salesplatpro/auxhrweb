@@ -1,10 +1,12 @@
+@use '../../../../styles/breakpoints' as bp;
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
 
-  @media (min-width: 1100px) {
+  @include bp.from(bp.$bp-wide) {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
   }
 }
@@ -57,7 +59,7 @@
   gap: var(--space-4) var(--space-6);
   margin: var(--space-5) 0 0;
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -129,7 +131,7 @@
   flex-direction: column;
   gap: var(--space-3);
 
-  @media (min-width: 1100px) {
+  @include bp.from(bp.$bp-wide) {
     position: sticky;
     top: var(--space-4);
   }

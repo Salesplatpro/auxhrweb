@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 .container {
   position: relative;
   display: flex;
@@ -128,7 +130,7 @@
   }
 }
 
-@media (max-width: 980px) {
+@include bp.below(bp.$bp-xl) {
   .identity {
     display: none;
   }

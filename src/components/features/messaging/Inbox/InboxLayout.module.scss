@@ -1,3 +1,5 @@
+@use '../../../../styles/breakpoints' as bp;
+
 .layout {
   display: grid;
   grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
@@ -226,7 +228,7 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@include bp.below(bp.$bp-md) {
   .layout {
     grid-template-columns: 1fr;
     min-height: min(560px, calc(100vh - 160px));

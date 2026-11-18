@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .stepper {
   margin: var(--space-6) 0 var(--space-4);
   overflow-x: auto;
@@ -12,7 +14,7 @@
   list-style: none;
   min-width: max-content;
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     min-width: 0;
   }
 }

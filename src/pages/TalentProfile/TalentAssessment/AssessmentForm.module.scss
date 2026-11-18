@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .shell {
   display: flex;
   flex-direction: column;
@@ -202,7 +204,7 @@
   color: var(--color-danger, #c4320a);
 }
 
-@media (max-width: 768px) {
+@include bp.below(bp.$bp-md) {
   .title {
     font-size: var(--text-xl);
   }

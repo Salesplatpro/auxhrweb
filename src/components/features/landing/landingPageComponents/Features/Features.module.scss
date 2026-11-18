@@ -1,4 +1,5 @@
 @use '../styles/index' as *;
+@use '../../../../../styles/breakpoints' as bp;
 
 .container {
   padding: 32px 0;
@@ -18,7 +19,7 @@
   text-align: center;
   border-radius: 20px;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     padding: 16px;
     gap: 24px;
   }
@@ -29,7 +30,7 @@
   height: 60px;
   object-fit: cover;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     width: 54px;
     height: 30px;
   }
@@ -48,7 +49,7 @@
   border-radius: 10px;
   background: $landing-bg-card;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     max-width: 100%;
   }
 }

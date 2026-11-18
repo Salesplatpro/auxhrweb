@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .container {
   display: flex;
   flex-direction: column;
@@ -19,7 +21,7 @@
   min-width: 0;
   width: 100%;
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     min-width: 200px;
     width: auto;
   }

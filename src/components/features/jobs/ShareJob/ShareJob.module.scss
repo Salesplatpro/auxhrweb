@@ -1,3 +1,5 @@
+@use '../../../../styles/breakpoints' as bp;
+
 // ── Trigger row ────────────────────────────────────────────────────────────
 .row {
   display: flex;
@@ -57,11 +59,11 @@
   font-size: var(--text-lg);
   font-weight: var(--weight-medium);
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     font-size: var(--text-xl);
   }
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     font-size: var(--text-2xl);
   }
 }
@@ -87,7 +89,7 @@
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-standard);
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     font-size: var(--text-md);
   }
 

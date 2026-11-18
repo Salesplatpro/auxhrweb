@@ -37,8 +37,9 @@ const pkg = {
   currency: 'NGN',
   period: 'monthly',
   baseSalary: 420000,
-  bonus: 50000,
+  bonus: 600000,
   commissionTarget: 0,
+  totalYearly: 5640000,
   startsOn: '2026-12-01',
   commissionPlanId: null,
   benefits: [
@@ -255,12 +256,20 @@ describe('MyWork', () => {
     expect(screen.getByText('My share options')).toBeTruthy()
   })
 
-  it('does not multiply a yearly package', () => {
+  it('shows the yearly total worked out by the server', () => {
     payState.value = {
       ...withPay,
       pay: {
         ...withPay.pay,
-        packages: [{ ...pkg, period: 'yearly', baseSalary: 6000000, bonus: 0 }],
+        packages: [
+          {
+            ...pkg,
+            period: 'yearly',
+            baseSalary: 6000000,
+            bonus: 0,
+            totalYearly: 6000000,
+          },
+        ],
         grants: [],
       },
     }

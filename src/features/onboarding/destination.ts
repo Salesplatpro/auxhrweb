@@ -16,6 +16,7 @@ export const onboardingDestination = (
   }
   if (
     user.userRole === 'talent' &&
+    !user.hasJoinedStaff &&
     user.profileCompletion &&
     !user.profileCompletion.isProfileComplete
   ) {
@@ -27,12 +28,14 @@ export const onboardingDestination = (
 /**
  * Where a user must go before the dashboard: the inbox screen until the email is
  * verified, and for talent the profile wizard until a CV and roles are saved.
+ * Staff who joined through an invite can use My work before that.
  */
 export const onboardingGate = (user: ProfileUser): string | null => {
   const isMember = user.userRole === 'talent' || user.userRole === 'recruiter'
   if (isMember && !user.emailVerifiedAt) return VERIFY_EMAIL_PATH
   if (
     user.userRole === 'talent' &&
+    !user.hasJoinedStaff &&
     user.profileCompletion &&
     !user.profileCompletion.canProceedToPlatform
   ) {

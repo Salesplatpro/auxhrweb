@@ -91,6 +91,8 @@ const person = (overrides: Partial<StaffMember> = {}): StaffMember => ({
   status: 'invited',
   hiredThroughAuxhr: false,
   isExecutive: false,
+  phone: null,
+  homeAddress: null,
   hasAccount: false,
   invite: invite(),
   createdAt: '2026-01-01T00:00:00.000Z',

@@ -50,6 +50,7 @@ export interface ProfileUser {
   userRoles?: ProfileRole[]
   activeOrganization?: Organization | null
   profileCompletion?: ProfileCompletion
+  hasJoinedStaff?: boolean
 }
 
 export type OnboardingStage =

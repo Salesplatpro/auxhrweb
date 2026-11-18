@@ -27,6 +27,9 @@ import type { EmployeeTabProps } from './employeeTabs'
 
 const FIELD_LABELS: Record<string, string> = {
   fullName: 'Name',
+  email: 'Work email',
+  phone: 'Phone',
+  homeAddress: 'Home address',
   jobTitle: 'Job title',
   department: 'Department',
   manager: 'Manager',

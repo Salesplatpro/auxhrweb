@@ -38,12 +38,7 @@ import {
 } from '@/features/auth/pages'
 import { VERIFY_EMAIL_PATH } from '@/features/auth/utils/dashboardPath'
 import AccountEmailVerification from '@/features/email-verification/pages/AccountEmailVerification'
-import JoinStaffEntry from '@/features/join-staff/JoinStaffEntry'
-import JoinStaffLayout from '@/features/join-staff/JoinStaffLayout'
-import JoinStaffAccountStep from '@/features/join-staff/steps/AccountStep'
-import JoinStaffJoinStep from '@/features/join-staff/steps/JoinStep'
-import JoinStaffProfileStep from '@/features/join-staff/steps/ProfileStep'
-import JoinStaffVerifyStep from '@/features/join-staff/steps/VerifyStep'
+import JoinStaffPage from '@/features/join-staff/JoinStaffPage'
 import { MyWork } from '@/features/my-work/MyWork'
 import { MyWorkDocument } from '@/features/my-work/MyWorkDocument'
 import CompanyDonePage from '@/features/onboarding/company/CompanyDonePage'
@@ -257,19 +252,7 @@ export const routeConfig: RouteObject[] = [
       },
       {
         path: '/join-staff/:token',
-        element: <JoinStaffLayout />,
-        children: [
-          { index: true, element: <JoinStaffEntry /> },
-          { path: 'account', element: <JoinStaffAccountStep /> },
-          {
-            element: <ProtectedRoute allowedRoles={['talent']} />,
-            children: [
-              { path: 'verify', element: <JoinStaffVerifyStep /> },
-              { path: 'profile', element: <JoinStaffProfileStep /> },
-              { path: 'join', element: <JoinStaffJoinStep /> },
-            ],
-          },
-        ],
+        element: <JoinStaffPage />,
       },
       {
         path: '/apply/:jobId',

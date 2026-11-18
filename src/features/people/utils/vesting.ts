@@ -36,3 +36,46 @@ export const vestingDates = (grant: VestingSchedule) => ({
   cliffDate: addMonths(grant.grantedOn, grant.cliffMonths),
   fullyVestedDate: addMonths(grant.grantedOn, grant.vestingMonths),
 })
+
+export type VestingStage = 'before-cliff' | 'vesting' | 'fully-owned'
+
+export const vestingStage = (
+  grant: VestingSchedule,
+  today: string,
+): VestingStage => {
+  const owned = vestedSharesOn(grant, today)
+  if (owned >= grant.shares) return 'fully-owned'
+  return owned === 0 ? 'before-cliff' : 'vesting'
+}
+
+/** The next date more shares become theirs, and how many; null once all are owned. */
+export const nextVest = (
+  grant: VestingSchedule,
+  today: string,
+): { date: string; shares: number } | null => {
+  const owned = vestedSharesOn(grant, today)
+  if (owned >= grant.shares) return null
+  for (let month = 1; month <= grant.vestingMonths; month++) {
+    const date = addMonths(grant.grantedOn, month)
+    if (date <= today) continue
+    const shares = vestedSharesOn(grant, date) - owned
+    if (shares > 0) return { date, shares }
+  }
+  return null
+}
+
+/** What the Add grant drawer promises: the first lot, the monthly lot and the end. */
+export const vestingPreview = (grant: VestingSchedule) => {
+  const firstMonth = Math.max(grant.cliffMonths, 1)
+  const firstDate = addMonths(grant.grantedOn, firstMonth)
+  return {
+    firstDate,
+    firstShares: vestedSharesOn(grant, firstDate),
+    afterCliff: grant.cliffMonths > 0,
+    monthlyShares:
+      firstMonth < grant.vestingMonths
+        ? Math.round(grant.shares / grant.vestingMonths)
+        : 0,
+    fullyOwnedDate: addMonths(grant.grantedOn, grant.vestingMonths),
+  }
+}

@@ -2,14 +2,18 @@ import React, { useState } from 'react'
 
 import { ShareGrant } from '../types'
 import { formatDateOnly, todayDateOnly } from '../utils/formatDate'
-import { formatCount, formatMoney } from '../utils/formatMoney'
-import { vestedSharesOn, vestingDates } from '../utils/vesting'
+import { formatCount } from '../utils/formatMoney'
+import { nextVest, vestedSharesOn, vestingDates } from '../utils/vesting'
 import styles from './VestingTimeline.module.scss'
 
 interface VestingTimelineProps {
   grant: ShareGrant
   ownerFirstName: string
+  /** Written to the employee themselves ("yours") instead of about them. */
+  mine?: boolean
 }
+
+const DAY_MS = 86_400_000
 
 const dayNumber = (dateOnly: string) => Date.parse(`${dateOnly}T00:00:00Z`)
 
@@ -20,27 +24,58 @@ const positionPercent = (from: string, to: string, at: string) => {
   return Math.min(100, Math.max(0, ratio * 100))
 }
 
+const timeUntil = (from: string, to: string) => {
+  const days = Math.max(
+    0,
+    Math.round((dayNumber(to) - dayNumber(from)) / DAY_MS),
+  )
+  if (days < 14) return `${days} ${days === 1 ? 'day' : 'days'}`
+  const weeks = Math.round(days / 7)
+  return `${weeks} weeks`
+}
+
 export const VestingTimeline: React.FC<VestingTimelineProps> = ({
   grant,
   ownerFirstName,
+  mine = false,
 }) => {
   const today = todayDateOnly()
   const [checkedDate, setCheckedDate] = useState(today)
   const { cliffDate, fullyVestedDate } = vestingDates(grant)
   const ownedToday = vestedSharesOn(grant, today)
+  const next = nextVest(grant, today)
   const ownedOnCheckedDate = checkedDate
     ? vestedSharesOn(grant, checkedDate)
     : null
   const todayPosition = positionPercent(grant.grantedOn, fullyVestedDate, today)
+  const cliffPosition = positionPercent(
+    grant.grantedOn,
+    fullyVestedDate,
+    cliffDate,
+  )
+  const owner = mine ? 'yours' : `${ownerFirstName}'s`
+  const beforeCliff = ownedToday === 0 && grant.cliffMonths > 0 && !!next
+
+  const headline = beforeCliff
+    ? `No shares are ${owner} yet. ${formatCount(
+        next!.shares,
+      )} become ${owner} at the cliff on ${formatDateOnly(cliffDate)}.`
+    : `${formatCount(ownedToday)} of ${formatCount(
+        grant.shares,
+      )} shares are now ${owner}.`
+
+  const note = !next
+    ? null
+    : beforeCliff
+    ? `Cliff in ${timeUntil(today, cliffDate)}`
+    : `Next ${formatCount(next.shares)} shares on ${formatDateOnly(next.date)}`
 
   return (
     <div className={styles.timeline}>
-      <p className={styles.summary}>
-        <strong>
-          {formatCount(ownedToday)} of {formatCount(grant.shares)}
-        </strong>{' '}
-        shares are now {ownerFirstName}&apos;s.
-      </p>
+      <div className={styles.head}>
+        <p className={styles.summary}>{headline}</p>
+        {note && <p className={styles.note}>{note}</p>}
+      </div>
       <div
         className={styles.track}
         role="img"
@@ -52,41 +87,29 @@ export const VestingTimeline: React.FC<VestingTimelineProps> = ({
           style={{ width: `${(ownedToday / grant.shares) * 100}%` }}
         />
         {grant.cliffMonths > 0 && (
-          <span
-            className={styles.cliff}
-            style={{
-              left: `${positionPercent(
-                grant.grantedOn,
-                fullyVestedDate,
-                cliffDate,
-              )}%`,
-            }}
-          />
+          <span className={styles.cliff} style={{ left: `${cliffPosition}%` }}>
+            <span className={styles.cliffLabel}>
+              Cliff · {formatDateOnly(cliffDate)}
+            </span>
+          </span>
         )}
         <span className={styles.today} style={{ left: `${todayPosition}%` }}>
           <span className={styles.todayLabel}>Today</span>
         </span>
       </div>
-      <dl className={styles.dates}>
-        <div>
-          <dt>Granted</dt>
-          <dd>{formatDateOnly(grant.grantedOn)}</dd>
-        </div>
-        {grant.cliffMonths > 0 && (
-          <div>
-            <dt>Cliff</dt>
-            <dd>{formatDateOnly(cliffDate)}</dd>
-          </div>
-        )}
-        <div>
-          <dt>All owned</dt>
-          <dd>{formatDateOnly(fullyVestedDate)}</dd>
-        </div>
-        <div>
-          <dt>Strike price</dt>
-          <dd>{formatMoney(grant.currency, grant.strikePrice)}</dd>
-        </div>
-      </dl>
+      <div className={styles.ends}>
+        <span>
+          {formatDateOnly(grant.grantedOn)}
+          <span className={styles.muted}> · Granted</span>
+        </span>
+        <span>
+          {formatDateOnly(fullyVestedDate)}
+          <span className={styles.muted}>
+            {' '}
+            · All {formatCount(grant.shares)} owned
+          </span>
+        </span>
+      </div>
       <label className={styles.check}>
         <span>Shares owned on</span>
         <input

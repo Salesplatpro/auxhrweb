@@ -45,6 +45,8 @@ export interface StaffMember {
   status: StaffStatus
   hiredThroughAuxhr: boolean
   isExecutive: boolean
+  phone: string | null
+  homeAddress: string | null
   hasAccount: boolean
   invite: StaffInvite
   createdAt: string
@@ -175,6 +177,8 @@ export interface StaffFormValues {
   managerId: string
   startDate: string
   isExecutive: boolean
+  phone: string
+  homeAddress: string
   sendInvite: boolean
   applicationId?: string
 }
@@ -187,11 +191,16 @@ export interface CreateStaffPayload {
   managerId?: string | null
   startDate: string
   isExecutive: boolean
+  phone?: string | null
+  homeAddress?: string | null
   sendInvite: boolean
 }
 
 export interface UpdateStaffPayload {
   fullName?: string
+  email?: string
+  phone?: string | null
+  homeAddress?: string | null
   jobTitle?: string
   department?: string | null
   managerId?: string | null
@@ -210,7 +219,16 @@ export interface InviteStaffResult {
 }
 
 export type StaffInvitePreview =
-  | { status: 'expired' | 'accepted' }
+  | { status: 'accepted' }
+  | {
+      status: 'expired'
+      organizationName: string
+      organizationLogoUrl: string | null
+      invitedEmail: string
+      invitedAt: string | null
+      expiresAt: string | null
+      contactEmail: string | null
+    }
   | {
       status: 'pending'
       organizationName: string
@@ -235,6 +253,10 @@ export interface JoinedStaff {
   organizationName: string
   jobTitle: string
   joinedAt: string
+  documentsToSign: number
+  openTasks: number
+  hasPay: boolean
+  hasShareOptions: boolean
 }
 
 export interface Envelope<T> {
@@ -258,6 +280,7 @@ export interface BenefitPayload {
   description: string | null
 }
 
+/** Salary follows the period; bonus and commission target are always per year. */
 export interface PayTerms {
   currency: PayCurrency
   period: PayPeriod
@@ -267,13 +290,20 @@ export interface PayTerms {
   startsOn: string
 }
 
-export interface PayPackagePayload extends PayTerms {
+export interface PayPackagePayload {
+  currency: PayCurrency
+  period: PayPeriod
+  baseSalary: number
+  bonusPerYear: number
+  commissionTargetPerYear: number
+  startsOn: string
   benefitIds: string[]
   commissionPlanId: string | null
 }
 
 export interface PayPackage extends PayTerms {
   id: string
+  totalYearly: number
   commissionPlanId: string | null
   benefits: { id: string; name: string }[]
   paragraph: string
@@ -291,6 +321,9 @@ export interface ShareGrantPayload {
 
 export interface ShareGrant extends ShareGrantPayload {
   id: string
+  /** Null on grants added before this was recorded. */
+  createdByName?: string | null
+  createdAt?: string
 }
 
 export interface PayData {
@@ -313,6 +346,8 @@ export interface CommissionPlanPayload {
 
 export interface CommissionPlan extends CommissionPlanPayload {
   id: string
+  /** Only the plan list counts people; a freshly saved plan has none yet. */
+  peopleCount?: number
 }
 
 export interface HeadcountCostRow {

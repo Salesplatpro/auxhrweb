@@ -17,11 +17,7 @@ import {
   downloadMySignedDocument,
   MY_WORK_KEY,
 } from '@/features/people/services/peopleService'
-import {
-  CompletionRequest,
-  MyWorkRecord,
-  PayPackage,
-} from '@/features/people/types'
+import { CompletionRequest, MyWorkRecord } from '@/features/people/types'
 import {
   formatDateOnly,
   todayDateOnly,
@@ -40,10 +36,6 @@ import styles from './MyWork.module.scss'
 import { PendingInvites } from './PendingInvites'
 
 const PER_PERIOD = { monthly: 'per month', yearly: 'per year' } as const
-
-export const yearlyTotal = (
-  pkg: Pick<PayPackage, 'period' | 'baseSalary' | 'bonus'>,
-) => (pkg.baseSalary + (pkg.bonus ?? 0)) * (pkg.period === 'monthly' ? 12 : 1)
 
 const usePayView = (staffId: string) => {
   const { pay, isLoading, hasError } = useMyPay(staffId)
@@ -75,7 +67,7 @@ const PaySummary: React.FC<{ staffId: string; onOpen: () => void }> = ({
         </div>
         <div>
           <dt>Total yearly</dt>
-          <dd>{formatMoney(current.currency, yearlyTotal(current))}</dd>
+          <dd>{formatMoney(current.currency, current.totalYearly)}</dd>
         </div>
         {grant && (
           <div>
@@ -130,7 +122,7 @@ const PayAndShares: React.FC<{ staffId: string; firstName: string }> = ({
               <StatCard
                 label="Bonus"
                 value={formatMoney(current.currency, current.bonus)}
-                caption={PER_PERIOD[current.period]}
+                caption="per year"
               />
               <StatCard
                 label="Commission target"
@@ -140,13 +132,13 @@ const PayAndShares: React.FC<{ staffId: string; firstName: string }> = ({
                     : '—'
                 }
                 caption={
-                  current.commissionTarget > 0 ? undefined : 'not on a plan'
+                  current.commissionTarget > 0 ? 'per year' : 'not on a plan'
                 }
               />
               <StatCard
                 label="Total yearly"
-                value={formatMoney(current.currency, yearlyTotal(current))}
-                caption="base + bonus"
+                value={formatMoney(current.currency, current.totalYearly)}
+                caption="base + bonus + commission target"
               />
             </StatGrid>
             {current.benefits.length > 0 && (
@@ -169,13 +161,11 @@ const PayAndShares: React.FC<{ staffId: string; firstName: string }> = ({
         <PagePanel
           key={grant.id}
           title="My share options"
-          hint={`Grant ${index + 1} · ${formatCount(
+          hint={`Grant ${pay.grants.length - index} · ${formatCount(
             grant.shares,
-          )} shares · strike ${formatMoney(
-            grant.currency,
-            grant.strikePrice,
-          )} · read only`}>
-          <VestingTimeline grant={grant} ownerFirstName={firstName} />
+          )} shares · strike ${formatMoney(grant.currency, grant.strikePrice)}`}
+          action={<Pill tone="neutral">Read only</Pill>}>
+          <VestingTimeline grant={grant} ownerFirstName={firstName} mine />
         </PagePanel>
       ))}
     </div>

@@ -129,13 +129,17 @@ export const useStaffActions = (organizationId: string | null) => {
     return result
   }
 
-  const saveStaff = async (staffId: string, payload: UpdateStaffPayload) => {
+  const saveStaff = async (
+    staffId: string,
+    payload: UpdateStaffPayload,
+    description?: string,
+  ) => {
     const staff = await run(async (orgId) => {
       const updated = await updateStaff(orgId, staffId, payload)
       await cacheChange(orgId, updated)
       return updated
     }, 'Could not save these changes')
-    if (staff) notify('success', 'Details saved')
+    if (staff) notify('success', 'Changes saved', { description })
     return staff
   }
 
@@ -190,6 +194,7 @@ export const useStaffActions = (organizationId: string | null) => {
   const savePayPackage = async (
     staffId: string,
     payload: PayPackagePayload,
+    firstName: string,
   ) => {
     const pay = await run(async (orgId) => {
       const saved = await savePay(orgId, staffId, payload)
@@ -197,11 +202,19 @@ export const useStaffActions = (organizationId: string | null) => {
       await mutate(staffActivityKey(orgId, staffId))
       return saved
     }, 'Could not save pay')
-    if (pay) notify('success', 'Pay saved')
+    if (pay) {
+      notify('success', 'Pay saved', {
+        description: `${firstName} can see it read-only in My work.`,
+      })
+    }
     return pay
   }
 
-  const addGrant = async (staffId: string, payload: ShareGrantPayload) => {
+  const addGrant = async (
+    staffId: string,
+    payload: ShareGrantPayload,
+    firstName: string,
+  ) => {
     const grant = await run(async (orgId) => {
       const created = await addShareGrant(orgId, staffId, payload)
       await updatePayCache(orgId, staffId, (pay) => ({
@@ -211,7 +224,11 @@ export const useStaffActions = (organizationId: string | null) => {
       await mutate(staffActivityKey(orgId, staffId))
       return created
     }, 'Could not add this grant')
-    if (grant) notify('success', 'Share grant added')
+    if (grant) {
+      notify('success', 'Grant added', {
+        description: `${firstName} can see it read-only in My work.`,
+      })
+    }
     return grant
   }
 

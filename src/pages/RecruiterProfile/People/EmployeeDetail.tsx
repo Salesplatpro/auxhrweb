@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { HiOutlineUserMinus } from 'react-icons/hi2'
+import { HiOutlineEnvelope, HiOutlineUserMinus } from 'react-icons/hi2'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
 import { HeroGhost, PageHero } from '@/components/layout/PageHero'
@@ -14,6 +14,10 @@ import { useStaffMember } from '@/features/people/hooks/useStaffData'
 import { peoplePaths } from '@/features/people/paths'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
 import { nameParts } from '@/features/people/utils/nameParts'
+import {
+  canSendInvite,
+  inviteActionLabel,
+} from '@/features/people/utils/staffInvite'
 
 import styles from './EmployeeDetail.module.scss'
 import { employeeTabsFor } from './employeeTabs'
@@ -69,6 +73,7 @@ export const EmployeeDetail = () => {
       label: 'Hired through',
       value: staff.hiredThroughAuxhr ? 'AuxHR' : 'Outside',
     },
+    { label: 'Executive', value: staff.isExecutive ? 'Yes' : 'No' },
     ...(staff.invite.invitedByName
       ? [{ label: 'Invited by', value: staff.invite.invitedByName }]
       : []),
@@ -91,20 +96,26 @@ export const EmployeeDetail = () => {
         actions={
           !isEnded &&
           canEdit && (
-            <HeroGhost onClick={() => setEndOpen(true)}>
-              <HiOutlineUserMinus aria-hidden /> End employment
-            </HeroGhost>
+            <>
+              {canSendInvite(staff) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  icon={<HiOutlineEnvelope aria-hidden />}
+                  loading={isSaving}
+                  onClick={() => void sendInvite(staff.id)}>
+                  {inviteActionLabel(staff)}
+                </Button>
+              )}
+              <HeroGhost onClick={() => setEndOpen(true)}>
+                <HiOutlineUserMinus aria-hidden /> End employment
+              </HeroGhost>
+            </>
           )
         }
       />
 
-      {canEdit && (
-        <InviteBanner
-          staff={staff}
-          isSaving={isSaving}
-          onInvite={() => void sendInvite(staff.id)}
-        />
-      )}
+      {canEdit && <InviteBanner staff={staff} />}
 
       <Tabs
         tabs={tabs.map(({ key, label }) => ({ key, label }))}

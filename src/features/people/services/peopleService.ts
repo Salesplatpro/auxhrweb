@@ -1,4 +1,5 @@
 import { httpClient } from '@/features/auth/services/httpClient'
+import type { AuthUser } from '@/features/auth/types'
 import { withBlobError } from '@/utils/blobError'
 import { downloadBlobResponse } from '@/utils/downloadBlob'
 
@@ -186,6 +187,11 @@ export const acceptStaffInvite = (token: string) =>
     httpClient.post(`/staff-invites/${token}/accept`),
   ).then((data) => data.joined)
 
+export const joinStaffWithPassword = (token: string, password: string) =>
+  unwrap<{ user: AuthUser; token: string; joined: JoinedStaff }>(
+    httpClient.post(`/staff-invites/${token}/password`, { password }),
+  )
+
 export const MY_STAFF_INVITES_KEY = '/staff-invites/mine'
 
 export const fetchMyStaffInvites = () =>
@@ -209,14 +215,6 @@ export const savePay = (
   unwrap<PayData>(
     httpClient.put(`${staffBase(organizationId)}/${staffId}/pay`, payload),
   )
-
-export const previewPayParagraph = (
-  organizationId: string,
-  payload: PayPackagePayload,
-) =>
-  unwrap<{ paragraph: string }>(
-    httpClient.post(`${staffBase(organizationId)}/pay/preview`, payload),
-  ).then((data) => data.paragraph)
 
 export const addShareGrant = (
   organizationId: string,

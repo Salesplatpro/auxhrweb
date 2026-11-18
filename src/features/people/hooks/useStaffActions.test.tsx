@@ -41,6 +41,8 @@ const staff = (overrides: Partial<StaffMember> = {}): StaffMember => ({
   status: 'active',
   hiredThroughAuxhr: false,
   isExecutive: false,
+  phone: null,
+  homeAddress: null,
   hasAccount: false,
   invite: {
     state: 'none',

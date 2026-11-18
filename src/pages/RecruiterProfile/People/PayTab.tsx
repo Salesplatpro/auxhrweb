@@ -1,74 +1,118 @@
 import React, { useState } from 'react'
 import { HiOutlineBanknotes } from 'react-icons/hi2'
+import { LuCheck, LuPencil } from 'react-icons/lu'
 
 import { Alert } from '@/components/feedback/Alert'
-import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
+import { PagePanel } from '@/components/layout/PagePanel'
 import { Button } from '@/components/ui/Button'
+import { ColumnDef, DataTable } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { useBenefits, usePay } from '@/features/people/hooks/useStaffData'
 import { PayPackage } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
-import { formatMoney } from '@/features/people/utils/formatMoney'
+import { firstNameOf } from '@/features/people/utils/nameParts'
+import { formatAmount, perPeriod } from '@/features/people/utils/payPlan'
 
 import type { EmployeeTabProps } from './employeeTabs'
 import { PayPackageForm } from './PayPackageForm'
 import styles from './PayTab.module.scss'
 import { ShareOptionsCard } from './ShareOptionsCard'
 
-const PER_PERIOD = { monthly: 'per month', yearly: 'per year' } as const
+const dayBefore = (dateOnly: string) => {
+  const date = new Date(`${dateOnly}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() - 1)
+  return date.toISOString().slice(0, 10)
+}
 
-const yearly = (pkg: PayPackage, amount: number) =>
-  pkg.period === 'monthly' ? amount * 12 : amount
+interface PastRow {
+  pkg: PayPackage
+  endsOn: string
+}
 
-const PaySummary: React.FC<{
-  current: PayPackage
-  history: PayPackage[]
-}> = ({ current, history }) => (
+/** Packages that started before the current one, each ending the day before the next began. */
+export const pastPackages = (
+  packages: PayPackage[],
+  current: PayPackage,
+): PastRow[] => {
+  const byStart = [...packages].sort((a, b) =>
+    a.startsOn.localeCompare(b.startsOn),
+  )
+  return byStart
+    .map((pkg, index) => ({ pkg, next: byStart[index + 1] }))
+    .filter(({ pkg, next }) => pkg.startsOn < current.startsOn && next)
+    .map(({ pkg, next }) => ({ pkg, endsOn: dayBefore(next!.startsOn) }))
+    .reverse()
+}
+
+const PAST_COLUMNS: ColumnDef<PastRow>[] = [
+  {
+    key: 'dates',
+    header: 'Dates',
+    render: ({ pkg, endsOn }) =>
+      `${formatDateOnly(pkg.startsOn)} – ${formatDateOnly(endsOn)}`,
+  },
+  {
+    key: 'base',
+    header: 'Base salary',
+    render: ({ pkg }) =>
+      `${formatAmount(pkg.currency, pkg.baseSalary)} / ${
+        pkg.period === 'monthly' ? 'month' : 'year'
+      }`,
+  },
+  {
+    key: 'bonus',
+    header: 'Bonus',
+    render: ({ pkg }) => formatAmount(pkg.currency, pkg.bonus),
+  },
+  {
+    key: 'total',
+    header: 'Total yearly',
+    render: ({ pkg }) => formatAmount(pkg.currency, pkg.totalYearly),
+  },
+]
+
+const CurrentPackage: React.FC<{ current: PayPackage }> = ({ current }) => (
   <>
-    <StatGrid>
-      <StatCard
-        label="Yearly pay"
-        value={formatMoney(
-          current.currency,
-          yearly(current, current.baseSalary + current.bonus),
-        )}
-        caption="Base salary and bonus"
-      />
-      <StatCard
-        label="Commission target"
-        value={
-          current.commissionTarget
-            ? `${formatMoney(current.currency, current.commissionTarget)} ${
-                PER_PERIOD[current.period]
-              }`
-            : 'None'
-        }
-      />
-      <StatCard label="Starts on" value={formatDateOnly(current.startsOn)} />
-    </StatGrid>
-    <blockquote className={styles.paragraph}>{current.paragraph}</blockquote>
+    <div className={styles.tiles}>
+      <div className={`${styles.tile} ${styles.totalTile}`}>
+        <span className={styles.tileLabel}>Total yearly pay</span>
+        <span className={styles.tileValue}>
+          {formatAmount(current.currency, current.totalYearly)}
+        </span>
+        <span className={styles.tileCaption}>
+          Base + bonus + commission target
+        </span>
+      </div>
+      <div className={styles.tile}>
+        <span className={styles.tileLabel}>Base salary</span>
+        <span className={styles.tileValue}>
+          {formatAmount(current.currency, current.baseSalary)}
+        </span>
+        <span className={styles.tileCaption}>{perPeriod(current.period)}</span>
+      </div>
+      <div className={styles.tile}>
+        <span className={styles.tileLabel}>Bonus</span>
+        <span className={styles.tileValue}>
+          {formatAmount(current.currency, current.bonus)}
+        </span>
+        <span className={styles.tileCaption}>per year</span>
+      </div>
+      <div className={styles.tile}>
+        <span className={styles.tileLabel}>Commission target</span>
+        <span className={styles.tileValue}>
+          {formatAmount(current.currency, current.commissionTarget)}
+        </span>
+        <span className={styles.tileCaption}>per year</span>
+      </div>
+    </div>
     {current.benefits.length > 0 && (
-      <ul className={styles.pills} aria-label="Benefits">
-        {current.benefits.map((benefit) => (
-          <li key={benefit.id}>{benefit.name}</li>
-        ))}
-      </ul>
-    )}
-    {history.length > 1 && (
-      <div className={styles.history}>
-        <h4>All packages</h4>
-        <ul>
-          {history.map((pkg) => (
-            <li key={pkg.id} aria-current={pkg.id === current.id || undefined}>
-              <span>{formatDateOnly(pkg.startsOn)}</span>
-              <span>
-                {formatMoney(pkg.currency, pkg.baseSalary)}{' '}
-                {PER_PERIOD[pkg.period]}
-              </span>
-              {pkg.id === current.id && (
-                <span className={styles.currentTag}>Current</span>
-              )}
+      <div className={styles.benefitRow}>
+        <span className={styles.benefitLabel}>Benefits</span>
+        <ul className={styles.chips} aria-label="Benefits">
+          {current.benefits.map((benefit) => (
+            <li key={benefit.id}>
+              <LuCheck aria-hidden /> {benefit.name}
             </li>
           ))}
         </ul>
@@ -85,6 +129,7 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
   const { benefits } = useBenefits(organizationId)
   const [isEditing, setIsEditing] = useState(false)
   const isEnded = staff.status === 'ended'
+  const firstName = firstNameOf(staff.fullName)
 
   if (isLoading) return <Spinner />
   if (hasError || !pay) {
@@ -97,16 +142,23 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
 
   const current =
     pay.packages.find((pkg) => pkg.id === pay.currentPackageId) ?? null
+  const past = current ? pastPackages(pay.packages, current) : []
+  const upcoming = current
+    ? pay.packages
+        .filter((pkg) => pkg.startsOn > current.startsOn)
+        .sort((a, b) => a.startsOn.localeCompare(b.startsOn))[0]
+    : undefined
 
   return (
     <div className={styles.stack}>
       {isEditing ? (
         <PagePanel
           title={current ? 'Change pay' : 'Set up pay'}
-          hint="Saved pay is recorded in the Activity tab.">
+          hint={`For ${staff.fullName} · ${staff.jobTitle}`}>
           <PayPackageForm
             organizationId={organizationId}
             staffId={staff.id}
+            staffName={staff.fullName}
             current={current}
             benefits={benefits}
             onDone={() => setIsEditing(false)}
@@ -114,18 +166,27 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
         </PagePanel>
       ) : current ? (
         <PagePanel
-          title="Pay"
+          title="Current package"
+          hint={`Since ${formatDateOnly(current.startsOn)} · ${
+            current.period === 'monthly' ? 'Monthly' : 'Yearly'
+          } · ${current.currency}`}
           action={
             !isEnded && (
               <Button
                 size="sm"
                 variant="outline"
+                icon={<LuPencil aria-hidden />}
                 onClick={() => setIsEditing(true)}>
                 Edit
               </Button>
             )
           }>
-          <PaySummary current={current} history={pay.packages} />
+          <CurrentPackage current={current} />
+          {upcoming && (
+            <Alert variant="info">
+              A new package starts on {formatDateOnly(upcoming.startsOn)}.
+            </Alert>
+          )}
         </PagePanel>
       ) : isEnded ? (
         <Alert variant="info">No pay was set up for this person.</Alert>
@@ -133,8 +194,8 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
         <PagePanel title="Pay">
           <EmptyState
             icon={<HiOutlineBanknotes size={28} />}
-            title="No pay set up yet"
-            description={`Set ${staff.fullName}'s salary, bonus and benefits. The pay paragraph goes into their contracts.`}
+            title={`No pay set up for ${firstName} yet`}
+            description={`Add ${firstName}'s salary, bonus and benefits. Only you can see it here, and ${firstName} sees it read-only in My work.`}
             action={
               <Button onClick={() => setIsEditing(true)}>Set up pay</Button>
             }
@@ -146,6 +207,17 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
         staff={staff}
         grants={pay.grants}
       />
+      {past.length > 0 && !isEditing && (
+        <PagePanel title="Past packages" hint="Kept when pay changes">
+          <DataTable
+            variant="plain"
+            columns={PAST_COLUMNS}
+            data={past}
+            getRowKey={(row) => row.pkg.id}
+            ariaLabel="Past packages"
+          />
+        </PagePanel>
+      )}
     </div>
   )
 }

@@ -6,3 +6,6 @@ export const nameParts = (fullName: string) => {
     lastName: words.length > 1 ? words[words.length - 1]! : '',
   }
 }
+
+export const firstNameOf = (fullName: string) =>
+  nameParts(fullName).firstName || 'They'

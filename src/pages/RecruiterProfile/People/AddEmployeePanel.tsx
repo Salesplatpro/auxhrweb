@@ -48,6 +48,8 @@ export const AddEmployeePanel: React.FC<AddEmployeePanelProps> = ({
       managerId: values.managerId || null,
       startDate: values.startDate,
       isExecutive: values.isExecutive,
+      phone: values.phone.trim() || null,
+      homeAddress: values.homeAddress.trim() || null,
       sendInvite: values.sendInvite,
       ...(applicant ? { applicationId: applicant.applicationId } : {}),
     })

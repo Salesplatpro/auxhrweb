@@ -73,6 +73,8 @@
 
 .draftHeader {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-2);

@@ -192,6 +192,8 @@
 
 .planHead {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   align-items: center;
   justify-content: space-between;
 }
@@ -213,6 +215,8 @@
 
 .meterRow {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   justify-content: space-between;
   font-size: var(--text-sm);
   margin-bottom: var(--space-1);

@@ -280,6 +280,7 @@ export interface BenefitPayload {
   description: string | null
 }
 
+/** Salary follows the period; bonus and commission target are always per year. */
 export interface PayTerms {
   currency: PayCurrency
   period: PayPeriod
@@ -289,13 +290,20 @@ export interface PayTerms {
   startsOn: string
 }
 
-export interface PayPackagePayload extends PayTerms {
+export interface PayPackagePayload {
+  currency: PayCurrency
+  period: PayPeriod
+  baseSalary: number
+  bonusPerYear: number
+  commissionTargetPerYear: number
+  startsOn: string
   benefitIds: string[]
   commissionPlanId: string | null
 }
 
 export interface PayPackage extends PayTerms {
   id: string
+  totalYearly: number
   commissionPlanId: string | null
   benefits: { id: string; name: string }[]
   paragraph: string
@@ -335,6 +343,8 @@ export interface CommissionPlanPayload {
 
 export interface CommissionPlan extends CommissionPlanPayload {
   id: string
+  /** Only the plan list counts people; a freshly saved plan has none yet. */
+  peopleCount?: number
 }
 
 export interface HeadcountCostRow {

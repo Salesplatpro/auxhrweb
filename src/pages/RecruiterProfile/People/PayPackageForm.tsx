@@ -1,5 +1,6 @@
 import { Form, useFormikContext } from 'formik'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { LuInfo } from 'react-icons/lu'
 import { Link } from 'react-router-dom'
 import * as Yup from 'yup'
 
@@ -12,7 +13,6 @@ import { Button } from '@/components/ui/Button'
 import { useStaffActions } from '@/features/people/hooks/useStaffActions'
 import { useCommissionPlans } from '@/features/people/hooks/useStaffData'
 import { peoplePaths } from '@/features/people/paths'
-import { previewPayParagraph } from '@/features/people/services/peopleService'
 import {
   Benefit,
   PayCurrency,
@@ -20,8 +20,18 @@ import {
   PayPackagePayload,
   PayPeriod,
 } from '@/features/people/types'
-import { todayDateOnly } from '@/features/people/utils/formatDate'
-import { useDebouncedValue } from '@/hooks'
+import {
+  formatDateOnly,
+  todayDateOnly,
+} from '@/features/people/utils/formatDate'
+import { firstNameOf } from '@/features/people/utils/nameParts'
+import {
+  currencySymbol,
+  formatAmount,
+  perPeriod,
+  planSummary,
+  yearlyTotal,
+} from '@/features/people/utils/payPlan'
 
 import styles from './PayTab.module.scss'
 
@@ -61,12 +71,12 @@ const paySchema = Yup.object({
   startsOn: Yup.string().required('Pick the date this package starts'),
 })
 
-const toPayload = (values: PayFormValues): PayPackagePayload => ({
+export const toPayload = (values: PayFormValues): PayPackagePayload => ({
   currency: values.currency,
   period: values.period,
   baseSalary: Number(values.baseSalary || 0),
-  bonus: Number(values.bonus || 0),
-  commissionTarget: Number(values.commissionTarget || 0),
+  bonusPerYear: Number(values.bonus || 0),
+  commissionTargetPerYear: Number(values.commissionTarget || 0),
   startsOn: values.startsOn,
   benefitIds: values.benefitIds,
   commissionPlanId: values.commissionPlanId || null,
@@ -95,49 +105,48 @@ const initialValuesFrom = (current: PayPackage | null): PayFormValues =>
         commissionPlanId: '',
       }
 
-const ParagraphPreview: React.FC<{ organizationId: string }> = ({
-  organizationId,
-}) => {
+export const paySentence = (name: string, values: PayFormValues) => {
+  const payload = toPayload(values)
+  const money = (amount: number) => formatAmount(values.currency, amount)
+  const extras = [
+    payload.bonusPerYear > 0 && `a ${money(payload.bonusPerYear)} yearly bonus`,
+    payload.commissionTargetPerYear > 0 &&
+      `a ${money(payload.commissionTargetPerYear)} commission target`,
+  ].filter(Boolean)
+  const total = yearlyTotal(
+    payload.period,
+    payload.baseSalary,
+    payload.bonusPerYear,
+    payload.commissionTargetPerYear,
+  )
+  return {
+    lead: `${name} will be paid `,
+    base: `${money(payload.baseSalary)} ${values.period}`,
+    rest: ` from ${formatDateOnly(values.startsOn)}${
+      extras.length ? `, plus ${extras.join(' and ')}` : ''
+    }. Total yearly pay: `,
+    total: money(total),
+  }
+}
+
+const PaySummaryLine: React.FC<{ name: string }> = ({ name }) => {
   const { values } = useFormikContext<PayFormValues>()
-  const debouncedValues = useDebouncedValue(values, 400)
-  const [paragraph, setParagraph] = useState<string | null>(null)
-  const isPreviewable = paySchema.isValidSync(debouncedValues)
-  const payloadKey = JSON.stringify(toPayload(debouncedValues))
-
-  useEffect(() => {
-    if (!isPreviewable) {
-      setParagraph(null)
-      return
-    }
-    let isCurrent = true
-    previewPayParagraph(organizationId, JSON.parse(payloadKey))
-      .then((text) => isCurrent && setParagraph(text))
-      .catch(() => isCurrent && setParagraph(null))
-    return () => {
-      isCurrent = false
-    }
-  }, [organizationId, payloadKey, isPreviewable])
-
+  if (values.baseSalary === '' || !values.startsOn) return null
+  const sentence = paySentence(name, values)
   return (
-    <aside className={styles.preview} aria-live="polite">
-      <h4>Pay paragraph</h4>
-      <p className={styles.previewHint}>This text goes into their contracts.</p>
-      {paragraph ? (
-        <blockquote className={styles.paragraph}>{paragraph}</blockquote>
-      ) : (
-        <p className={styles.previewEmpty}>
-          Enter the base salary and start date to see the paragraph.
-        </p>
-      )}
-    </aside>
+    <p className={styles.summaryLine} aria-live="polite">
+      <LuInfo aria-hidden className={styles.summaryIcon} />
+      <span>
+        {sentence.lead}
+        <strong>{sentence.base}</strong>
+        {sentence.rest}
+        <strong>{sentence.total}</strong>.
+      </span>
+    </p>
   )
 }
 
-interface BenefitPickerProps {
-  benefits: Benefit[]
-}
-
-const BenefitPicker: React.FC<BenefitPickerProps> = ({ benefits }) => {
+const BenefitPicker: React.FC<{ benefits: Benefit[] }> = ({ benefits }) => {
   const { values, setFieldValue } = useFormikContext<PayFormValues>()
 
   const toggle = (benefitId: string, checked: boolean) =>
@@ -152,21 +161,41 @@ const BenefitPicker: React.FC<BenefitPickerProps> = ({ benefits }) => {
     <fieldset className={styles.benefits}>
       <legend>Benefits</legend>
       {benefits.length === 0 ? (
-        <p className={styles.previewEmpty}>
+        <p className={styles.hint}>
           Your company has no benefits yet.{' '}
           <Link to={peoplePaths.benefits}>Add benefits</Link>
         </p>
       ) : (
-        benefits.map((benefit) => (
-          <CheckBox
-            key={benefit.id}
-            name="benefitIds"
-            value={benefit.id}
-            label={benefit.name}
-            checked={values.benefitIds.includes(benefit.id)}
-            onChange={(event) => toggle(benefit.id, event.target.checked)}
-          />
-        ))
+        <>
+          <div className={styles.benefitGrid}>
+            {benefits.map((benefit) => {
+              const checked = values.benefitIds.includes(benefit.id)
+              return (
+                <div
+                  key={benefit.id}
+                  className={
+                    checked
+                      ? `${styles.benefitTile} ${styles.benefitChecked}`
+                      : styles.benefitTile
+                  }>
+                  <CheckBox
+                    name="benefitIds"
+                    value={benefit.id}
+                    label={benefit.name}
+                    checked={checked}
+                    onChange={(event) =>
+                      toggle(benefit.id, event.target.checked)
+                    }
+                  />
+                </div>
+              )
+            })}
+          </div>
+          <p className={styles.hint}>
+            Manage the list in{' '}
+            <Link to={peoplePaths.benefits}>People › Benefits</Link>.
+          </p>
+        </>
       )}
     </fieldset>
   )
@@ -175,6 +204,7 @@ const BenefitPicker: React.FC<BenefitPickerProps> = ({ benefits }) => {
 interface PayPackageFormProps {
   organizationId: string
   staffId: string
+  staffName: string
   current: PayPackage | null
   benefits: Benefit[]
   onDone: () => void
@@ -183,19 +213,24 @@ interface PayPackageFormProps {
 export const PayPackageForm: React.FC<PayPackageFormProps> = ({
   organizationId,
   staffId,
+  staffName,
   current,
   benefits,
   onDone,
 }) => {
   const { savePayPackage } = useStaffActions(organizationId)
   const { plans } = useCommissionPlans(organizationId)
+  const firstName = firstNameOf(staffName)
   const planOptions = [
-    { value: '', label: 'No commission plan' },
-    ...plans.map((plan) => ({ value: plan.id, label: plan.name })),
+    { value: '', label: 'No commission · Base and bonus only' },
+    ...plans.map((plan) => ({
+      value: plan.id,
+      label: `${plan.name} · ${planSummary(plan)}`,
+    })),
   ]
 
   const handleSubmit = async (values: PayFormValues) => {
-    if (await savePayPackage(staffId, toPayload(values))) onDone()
+    if (await savePayPackage(staffId, toPayload(values), firstName)) onDone()
   }
 
   return (
@@ -206,71 +241,81 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
       {({ isSubmitting, values, setFieldValue }) => (
         <Form className={styles.payForm} noValidate>
           <FormikFocusOnError />
-          <div className={styles.fields}>
-            <div className={styles.row}>
-              <Select
-                name="currency"
-                label="Currency"
-                options={PROFILE_CURRENCY_OPTIONS}
-                value={values.currency}
-                onChange={(value) => setFieldValue('currency', value)}
-              />
-              <Select
-                name="period"
-                label="Paid"
-                options={PERIOD_OPTIONS}
-                value={values.period}
-                onChange={(value) => setFieldValue('period', value)}
-              />
-            </div>
+          <div className={styles.grid}>
             <TextField
               name="baseSalary"
               label="Base salary"
               type="number"
-              placeholder="400000"
+              placeholder="350000"
+              prefix={currencySymbol(values.currency)}
+              suffix={perPeriod(values.period)}
             />
-            <div className={styles.row}>
-              <TextField
-                name="bonus"
-                label="Bonus"
-                type="number"
-                placeholder="0"
-              />
-              <TextField
-                name="commissionTarget"
-                label="Commission target"
-                type="number"
-                placeholder="0"
-              />
-            </div>
             <Select
-              name="commissionPlanId"
-              label="Commission plan"
-              options={planOptions}
-              value={values.commissionPlanId}
-              onChange={(value) => setFieldValue('commissionPlanId', value)}
+              name="period"
+              label="Pay frequency"
+              options={PERIOD_OPTIONS}
+              value={values.period}
+              onChange={(value) => setFieldValue('period', value)}
             />
             <TextField
               name="startsOn"
-              label="Package starts on"
+              label="Starts from"
               type="date"
               hint={
                 current
-                  ? 'Keep the same date to correct this package, or pick a new date to record a change in pay.'
+                  ? 'Keep the date to correct this package, or pick a new one to record a pay change.'
                   : undefined
               }
             />
-            <BenefitPicker benefits={benefits} />
-            <div className={styles.actions}>
-              <Button type="submit" loading={isSubmitting}>
-                Save pay
-              </Button>
-              <Button type="button" variant="outline" onClick={onDone}>
-                Cancel
-              </Button>
+            <TextField
+              name="bonus"
+              label="Bonus"
+              type="number"
+              placeholder="0"
+              prefix={currencySymbol(values.currency)}
+              suffix="per year"
+            />
+            <div className={styles.planField}>
+              <Select
+                name="commissionPlanId"
+                label="Commission plan"
+                options={planOptions}
+                value={values.commissionPlanId}
+                onChange={(value) => setFieldValue('commissionPlanId', value)}
+              />
+              <p className={styles.hint}>
+                Plans are set up in People › Commission.{' '}
+                <Link to={peoplePaths.commissionPlans}>
+                  + New commission plan
+                </Link>
+              </p>
             </div>
+            <TextField
+              name="commissionTarget"
+              label="Commission target"
+              type="number"
+              placeholder="0"
+              prefix={currencySymbol(values.currency)}
+              suffix="per year"
+            />
+            <Select
+              name="currency"
+              label="Currency"
+              options={PROFILE_CURRENCY_OPTIONS}
+              value={values.currency}
+              onChange={(value) => setFieldValue('currency', value)}
+            />
           </div>
-          <ParagraphPreview organizationId={organizationId} />
+          <BenefitPicker benefits={benefits} />
+          <PaySummaryLine name={firstName} />
+          <div className={styles.actions}>
+            <Button type="button" variant="outline" onClick={onDone}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={isSubmitting}>
+              Save pay
+            </Button>
+          </div>
         </Form>
       )}
     </ValidatedForm>

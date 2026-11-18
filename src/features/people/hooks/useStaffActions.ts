@@ -194,6 +194,7 @@ export const useStaffActions = (organizationId: string | null) => {
   const savePayPackage = async (
     staffId: string,
     payload: PayPackagePayload,
+    firstName: string,
   ) => {
     const pay = await run(async (orgId) => {
       const saved = await savePay(orgId, staffId, payload)
@@ -201,7 +202,11 @@ export const useStaffActions = (organizationId: string | null) => {
       await mutate(staffActivityKey(orgId, staffId))
       return saved
     }, 'Could not save pay')
-    if (pay) notify('success', 'Pay saved')
+    if (pay) {
+      notify('success', 'Pay saved', {
+        description: `${firstName} can see it read-only in My work.`,
+      })
+    }
     return pay
   }
 

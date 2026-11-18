@@ -216,14 +216,6 @@ export const savePay = (
     httpClient.put(`${staffBase(organizationId)}/${staffId}/pay`, payload),
   )
 
-export const previewPayParagraph = (
-  organizationId: string,
-  payload: PayPackagePayload,
-) =>
-  unwrap<{ paragraph: string }>(
-    httpClient.post(`${staffBase(organizationId)}/pay/preview`, payload),
-  ).then((data) => data.paragraph)
-
 export const addShareGrant = (
   organizationId: string,
   staffId: string,

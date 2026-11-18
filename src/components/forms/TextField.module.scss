@@ -32,6 +32,36 @@
   @extend %form-input;
 }
 
+.affixed {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.prefix,
+.suffix {
+  position: absolute;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.prefix {
+  left: var(--space-4);
+}
+
+.suffix {
+  right: var(--space-4);
+}
+
+.input.withPrefix {
+  padding-left: calc(var(--space-4) + 1.5em);
+}
+
+.input.withSuffix {
+  padding-right: 6.5em;
+}
+
 .invalid {
   @extend %form-input-invalid;
 }

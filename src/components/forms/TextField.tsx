@@ -18,6 +18,8 @@ interface TextFieldProps {
   disabled?: boolean
   hint?: string
   tooltip?: string
+  prefix?: string
+  suffix?: string
 }
 
 const TextField = ({
@@ -30,6 +32,8 @@ const TextField = ({
   disabled,
   hint,
   tooltip,
+  prefix,
+  suffix,
 }: TextFieldProps) => {
   const isRequired = useFieldRequired(name, required)
   const tooltipId = `${name}-field-tooltip`
@@ -81,7 +85,7 @@ const TextField = ({
         <Field name={name}>
           {({ field, meta }: FieldProps<string>) => {
             const hasError = meta.touched && !!meta.error
-            return (
+            const input = (
               <input
                 {...field}
                 type={type || 'text'}
@@ -100,10 +104,24 @@ const TextField = ({
                   styles.input,
                   disabled ? styles.disabled : '',
                   hasError ? styles.invalid : '',
+                  prefix ? styles.withPrefix : '',
+                  suffix ? styles.withSuffix : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
               />
+            )
+            if (!prefix && !suffix) return input
+            return (
+              <div className={styles.affixed}>
+                {prefix && (
+                  <span className={styles.prefix} aria-hidden>
+                    {prefix}
+                  </span>
+                )}
+                {input}
+                {suffix && <span className={styles.suffix}>{suffix}</span>}
+              </div>
             )
           }}
         </Field>

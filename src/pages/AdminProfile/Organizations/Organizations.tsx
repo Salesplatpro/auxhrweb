@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pagination } from '@/components/ui/Pagination'
 import {
   deleteAdminOrganization,
   fetchAdminOrganizations,
@@ -24,7 +25,6 @@ import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOr
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { Pagination } from '../../RecruiterProfile/MyJobPosts/Pagination'
 import styles from './Organizations.module.scss'
 
 type SortDirection = 'asc' | 'desc'

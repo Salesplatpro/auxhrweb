@@ -12,6 +12,7 @@ import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
 
 import { DisplayError } from '../../../components'
 import { useFetchAllApplicationsQuery } from '../../../redux/api/recruiter'
+import styles from './AllApplications.module.scss'
 import { ApplicationColumnRow, buildApplicationColumns } from './columns'
 
 interface RawApplicationRow {
@@ -104,7 +105,7 @@ const AllApplications: React.FC = () => {
         title="Applications"
         lead="Every application across your jobs, with search and sort."
       />
-      <div className="flex flex-col gap-3">
+      <div className={styles.list}>
         <FilterBar
           fields={APPLICATIONS_FILTER_FIELDS}
           filters={filters}
@@ -124,6 +125,7 @@ const AllApplications: React.FC = () => {
         <DataTable
           columns={columns}
           data={applications}
+          pageSize={10}
           isLoading={isLoading}
           ariaLabel="All applications"
         />

@@ -390,6 +390,7 @@ export const DocumentsTab: React.FC<EmployeeTabProps> = ({
         <DataTable
           columns={columns}
           data={documents}
+          pageSize={10}
           isLoading={isLoading}
           getRowKey={(document) => document.id}
           ariaLabel="Documents"

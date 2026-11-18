@@ -8,10 +8,12 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { useScreenWidth } from '../../../hooks'
+import { BREAKPOINTS } from '../../../styles/breakpoints'
 import { EmptyState } from '../EmptyState'
+import { Pagination } from '../Pagination'
 import { Spinner } from '../Spinner'
 import styles from './DataTable.module.scss'
 
@@ -57,7 +59,14 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void
   /** `plain`: light header and no outer frame, for a table that sits inside a panel. */
   variant?: 'hero' | 'plain'
+  /** On phones each row becomes a stacked card. Set to false to keep a sideways-scrolling table. */
+  stackOnMobile?: boolean
+  /** Pages already-loaded rows on the client, after sorting. Leave unset when the server pages. */
+  pageSize?: number
 }
+
+const isActionsColumn = <T,>(col: ColumnDef<T>) =>
+  col.key === 'actions' || col.header === '' || col.header == null
 
 const PLAIN_HEAD = {
   backgroundColor: 'transparent',
@@ -176,6 +185,8 @@ export function DataTable<T>({
   onSortChange,
   onRowClick,
   variant = 'hero',
+  stackOnMobile = true,
+  pageSize,
 }: DataTableProps<T>) {
   const plain = variant === 'plain'
   const screenWidth = useScreenWidth()
@@ -197,6 +208,32 @@ export function DataTable<T>({
 
     return sortByAccessor(data, column.sortAccessor, sort.direction)
   }, [data, sort, columns])
+
+  const [page, setPage] = useState(1)
+  const pageCount = pageSize
+    ? Math.max(1, Math.ceil(sortedData.length / pageSize))
+    : 1
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount)
+  }, [page, pageCount])
+  const pageOffset = pageSize ? (page - 1) * pageSize : 0
+  const pageRows = useMemo(
+    () =>
+      pageSize
+        ? sortedData.slice(pageOffset, pageOffset + pageSize)
+        : sortedData,
+    [sortedData, pageSize, pageOffset],
+  )
+  const pager =
+    pageSize && sortedData.length > pageSize ? (
+      <Pagination
+        variant="simple"
+        totalItems={sortedData.length}
+        itemsPerPage={pageSize}
+        currentPage={page}
+        onPageChange={setPage}
+      />
+    ) : null
 
   const handleSort = (key: string) => {
     const nextDirection: SortDirection =
@@ -257,7 +294,7 @@ export function DataTable<T>({
     key: '__rowNumber',
     header: 'S/N',
     align: 'center',
-    render: (_row, index) => rowNumberOffset + index + 1,
+    render: (_row, index) => rowNumberOffset + pageOffset + index + 1,
   }
 
   const allColumns = [
@@ -271,7 +308,101 @@ export function DataTable<T>({
 
   if (isLoading) return <>{loadingSkeleton ?? <Spinner fullPage />}</>
 
-  return (
+  const empty = emptyState ?? (
+    <EmptyState
+      title="Nothing here yet"
+      description="When records arrive, they will show up in this table."
+    />
+  )
+
+  if (stackOnMobile && screenWidth < BREAKPOINTS.md) {
+    const [titleColumn, ...detailColumns] = columns.filter(
+      (col) => !isActionsColumn(col),
+    )
+    const actionColumns = columns.filter(isActionsColumn)
+
+    if (sortedData.length === 0) {
+      return <div className={styles.cardsEmpty}>{empty}</div>
+    }
+
+    return (
+      <div className={styles.cards} role="list" aria-label={ariaLabel}>
+        {selectable && (
+          <div className={styles.selectAll}>
+            <Checkbox
+              size="small"
+              checked={allSelected}
+              indeterminate={someSelected}
+              onChange={() => onToggleAll?.(allSelected ? [] : allKeys)}
+              inputProps={{ 'aria-label': 'Select all rows' }}
+            />
+            <span aria-hidden>Select all</span>
+          </div>
+        )}
+        {pageRows.map((row, index) => {
+          const key = getRowKey ? getRowKey(row, index) : index
+          const open = onRowClick ? () => onRowClick(row) : undefined
+          return (
+            <div key={key} role="listitem">
+              <div
+                className={[
+                  styles.card,
+                  onRowClick ? styles.cardClickable : '',
+                  getRowClassName ? getRowClassName(row, index) : '',
+                ].join(' ')}
+                {...(open
+                  ? {
+                      role: 'button',
+                      tabIndex: 0,
+                      onClick: open,
+                      onKeyDown: (event: React.KeyboardEvent) => {
+                        if (event.target !== event.currentTarget) return
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          open()
+                        }
+                      },
+                    }
+                  : {})}>
+                <div className={styles.cardHead}>
+                  {selectionColumn?.render(row, index)}
+                  {titleColumn && (
+                    <div className={styles.cardTitle}>
+                      {titleColumn.render(row, index)}
+                    </div>
+                  )}
+                </div>
+                {detailColumns.length > 0 && (
+                  <dl className={styles.cardFields}>
+                    {detailColumns.map((col) => (
+                      <div key={col.key} className={styles.cardField}>
+                        <dt>{col.header}</dt>
+                        <dd>{col.render(row, index)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {actionColumns.length > 0 && (
+                  <div
+                    className={styles.cardActions}
+                    onClick={(event) => event.stopPropagation()}>
+                    {actionColumns.map((col) => (
+                      <React.Fragment key={col.key}>
+                        {col.render(row, index)}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+        {pager}
+      </div>
+    )
+  }
+
+  const table = (
     <TableContainer
       component={Paper}
       className={styles.root}
@@ -322,16 +453,11 @@ export function DataTable<T>({
           {sortedData.length === 0 ? (
             <TableRow>
               <StyledTableCell colSpan={visibleColumns.length}>
-                {emptyState ?? (
-                  <EmptyState
-                    title="Nothing here yet"
-                    description="When records arrive, they will show up in this table."
-                  />
-                )}
+                {empty}
               </StyledTableCell>
             </TableRow>
           ) : (
-            sortedData.map((row, index) => (
+            pageRows.map((row, index) => (
               <StyledTableRow
                 key={getRowKey ? getRowKey(row, index) : index}
                 className={
@@ -350,5 +476,14 @@ export function DataTable<T>({
         </TableBody>
       </Table>
     </TableContainer>
+  )
+
+  if (!pager) return table
+
+  return (
+    <div className={styles.paged}>
+      {table}
+      {pager}
+    </div>
   )
 }

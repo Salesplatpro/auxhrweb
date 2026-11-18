@@ -102,6 +102,7 @@ export const ApplicationPipeline = () => {
           variant="plain"
           columns={COLUMNS}
           data={data?.applications ?? []}
+          pageSize={10}
           isLoading={isLoading}
           getRowKey={(row) => row.id}
           ariaLabel="Your applications"

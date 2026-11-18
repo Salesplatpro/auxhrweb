@@ -126,6 +126,7 @@ const Roles = () => {
       <DataTable
         columns={columns}
         data={roles}
+        pageSize={10}
         isLoading={isLoading}
         getRowKey={(role) => role.id}
         ariaLabel="Roles table"

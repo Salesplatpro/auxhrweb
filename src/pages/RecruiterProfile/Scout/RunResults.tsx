@@ -354,6 +354,7 @@ export const RunResults = () => {
               <DataTable
                 columns={candidateColumns}
                 data={rowsForTab}
+                pageSize={10}
                 sortKey={sortKey}
                 sortDirection={sortDirection}
                 onSortChange={setSort}

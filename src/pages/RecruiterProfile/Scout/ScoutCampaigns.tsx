@@ -17,6 +17,7 @@ import { Dropdown, DropdownItem } from '@/components/ui/Dropdown'
 import { FilterBar } from '@/components/ui/FilterBar'
 import type { FilterFieldConfig } from '@/components/ui/FilterPanel'
 import { MatchScoreRing } from '@/components/ui/MatchScoreRing'
+import { Pagination } from '@/components/ui/Pagination'
 import { scoutPaths } from '@/features/scout/paths'
 import type { ScoutCampaignRow } from '@/features/scout/types'
 import {
@@ -26,7 +27,6 @@ import {
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { Pagination } from '../MyJobPosts/Pagination'
 import styles from './ScoutCampaigns.module.scss'
 
 const ROWS_PER_PAGE = 10

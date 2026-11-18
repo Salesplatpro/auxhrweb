@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .container {
   display: flex;
   align-items: center;
@@ -11,6 +13,7 @@
 .summary {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-3);
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -20,7 +23,62 @@
 .pages {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.pageList {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.gap {
+  padding: 0 var(--space-1);
+  color: var(--color-text-muted);
+}
+
+.pageOf {
+  display: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-heading);
+}
+
+@include bp.below(bp.$bp-sm) {
+  .container {
+    min-height: 0;
+    justify-content: center;
+  }
+
+  .summary {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pages {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pageList,
+  .navLabel {
+    display: none;
+  }
+
+  .pageOf {
+    display: inline;
+  }
+
+  .navButton {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .simple {
+    flex-wrap: wrap;
+    padding: var(--space-3) var(--space-4);
+  }
 }
 
 .navButton {

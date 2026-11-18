@@ -98,6 +98,7 @@ export const PlanHistory: React.FC = () => {
           ariaLabel="Plan history"
           columns={buildColumns(catalog)}
           data={history}
+          pageSize={10}
           isLoading={isLoading}
           loadingSkeleton={
             <div className={styles.loading}>

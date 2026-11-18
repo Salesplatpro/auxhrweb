@@ -175,6 +175,7 @@ export const CompanyMembersPanel: React.FC<CompanyMembersPanelProps> = ({
         allowOverflow
         columns={columns}
         data={members}
+        pageSize={10}
         isLoading={isLoading}
         getRowKey={(member) => member.id}
         ariaLabel="Company members"

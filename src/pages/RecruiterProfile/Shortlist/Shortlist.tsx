@@ -233,6 +233,7 @@ export const Shortlist = () => {
         <DataTable
           columns={columns}
           data={applications}
+          pageSize={10}
           isLoading={isLoading}
           getRowKey={(row) => row.id}
           selectedRowKeys={selectedRowKeys}

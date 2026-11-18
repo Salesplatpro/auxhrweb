@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui'
 import { ColumnDef, DataTable } from '@/components/ui/DataTable'
 import { FilterBar } from '@/components/ui/FilterBar'
 import type { FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pagination } from '@/components/ui/Pagination'
 import { useOrganizationMembers } from '@/features/organizations/hooks/useOrganizationMembers'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import {
@@ -17,7 +18,6 @@ import {
 import { AccessLogEntry } from '@/features/people/types'
 import { formatDateTime, toDateOnly } from '@/features/people/utils/formatDate'
 
-import { Pagination } from '../MyJobPosts/Pagination'
 import styles from './AccessLog.module.scss'
 
 const ROWS_PER_PAGE = 15

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pagination } from '@/components/ui/Pagination'
 import {
   FOLLOW_UP_OPTIONS,
   STUCK_STAGE_OPTIONS,
@@ -25,7 +26,6 @@ import {
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { Pagination } from '../../RecruiterProfile/MyJobPosts/Pagination'
 import { ApplicationFollowUpDrawer } from './ApplicationFollowUpDrawer'
 import styles from './Applications.module.scss'
 import { StuckApplicationBadge } from './StuckApplicationBadge'

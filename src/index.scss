@@ -719,7 +719,8 @@ $deep-gray: var(--color-grey-600);
 
     .jobs {
       max-width: 932px;
-      width: 932px;
+      width: 100%;
+      min-width: 0;
 
       .content {
         display: flex;

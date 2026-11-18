@@ -5,7 +5,25 @@
   display: flex;
   flex-direction: column;
   gap: 64px;
-  padding: 64px 0;
+  padding: 64px var(--space-5);
+
+  @include bp.from(bp.$bp-md) {
+    padding-inline: var(--space-4);
+  }
+
+  @include bp.from(bp.$bp-xl) {
+    padding-inline: 80px;
+  }
+
+  @include bp.below(bp.$bp-md) {
+    gap: var(--space-8);
+    padding-block: var(--space-10);
+  }
+}
+
+.stars {
+  display: flex;
+  gap: var(--space-2);
 }
 
 .container {

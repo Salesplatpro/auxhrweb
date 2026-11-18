@@ -99,3 +99,41 @@
   gap: 27px;
   @extend %pad;
 }
+
+.heading {
+  font-family: var(--font-heading);
+}
+
+.centeredHeading {
+  font-family: var(--font-heading);
+  text-align: center;
+}
+
+.justified {
+  font-family: var(--font-heading);
+  text-align: justify;
+
+  @include bp.below(bp.$bp-sm) {
+    text-align: left;
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--space-4);
+  min-width: 0;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

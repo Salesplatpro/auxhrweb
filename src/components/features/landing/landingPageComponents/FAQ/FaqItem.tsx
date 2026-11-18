@@ -2,6 +2,8 @@ import { CCollapse } from '@coreui/react'
 import React, { useState } from 'react'
 import { IoIosArrowDropdown, IoIosArrowDropup } from 'react-icons/io'
 
+import styles from './Faq.module.scss'
+
 type FaqData = {
   id: string
   question: string
@@ -16,33 +18,30 @@ const FaqItem: React.FC<FaqsProp> = ({ faqs }) => {
   const [visible, setVisible] = useState<string | null>(null)
 
   return (
-    <div className="w-full max-w-[350px] lg:max-w-[650px] md:max-w-[550px] sm:max-w-[400px] space-y-3">
+    <div className={styles.list}>
       {faqs.map((faq) => {
         const isOpen = visible === faq.id
         return (
-          <div key={faq.id} className="py-2">
+          <div key={faq.id} className={styles.item}>
             <button
+              type="button"
               onClick={() => setVisible(isOpen ? null : faq.id)}
-              className="w-full bg-brand-800 rounded-lg px-3 py-3 flex justify-between items-center">
-              <span className="text-white font-normal font-poppins lg:text-lg">
-                {faq.question}
-              </span>
+              className={styles.question}>
+              <span className={styles.questionText}>{faq.question}</span>
 
-              <span className="flex justify-end items-end text-right">
+              <span className={styles.toggleIcon}>
                 {isOpen ? (
-                  <IoIosArrowDropup size={20} className="text-white" />
+                  <IoIosArrowDropup size={20} />
                 ) : (
-                  <IoIosArrowDropdown size={20} className="text-white" />
+                  <IoIosArrowDropdown size={20} />
                 )}
               </span>
             </button>
 
             <CCollapse visible={isOpen}>
-              <div className="w-full my-4 border-1 border-primary-strong"></div>
+              <div className={styles.divider} />
 
-              <div className="p-3 bg-white text-black font-normal font-poppins lg:text-lg">
-                {faq.answer}
-              </div>
+              <div className={styles.answer}>{faq.answer}</div>
             </CCollapse>
           </div>
         )

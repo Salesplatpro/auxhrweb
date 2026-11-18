@@ -11,8 +11,20 @@
 }
 
 .container {
-  padding-top: 96px;
-  padding-bottom: 96px;
+  padding: 96px var(--space-5);
+
+  @include bp.from(bp.$bp-md) {
+    padding-inline: var(--space-4);
+  }
+
+  @include bp.from(bp.$bp-xl) {
+    padding-inline: 80px;
+  }
+
+  @include bp.below(bp.$bp-md) {
+    padding-block: var(--space-12);
+  }
+
   display: flex;
   flex-direction: column;
   gap: 48px;
@@ -25,6 +37,14 @@
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 24px;
+}
+
+.itemText {
+  padding: var(--space-6);
+
+  @include bp.below(bp.$bp-md) {
+    padding: var(--space-4);
+  }
 }
 
 .gridItem1,

@@ -67,9 +67,13 @@
 
 .value {
   font-weight: 600;
-  font-size: 48px;
+  font-size: 36px;
   line-height: 1;
   color: t.$nl-blue-800;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 48px;
+  }
 }
 
 .label {

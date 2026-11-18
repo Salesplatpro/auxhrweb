@@ -1,0 +1,72 @@
+@use '../../../styles/breakpoints' as bp;
+
+.section {
+  max-width: 1024px;
+  margin: 112px auto;
+  padding: 0 var(--space-4);
+
+  @include bp.below(bp.$bp-md) {
+    margin: var(--space-12) auto;
+  }
+}
+
+.title {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-4xl);
+  color: var(--color-text-heading);
+}
+
+.lede {
+  margin: 0 0 var(--space-8);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
+
+  @include bp.from(bp.$bp-md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.post {
+  width: 100%;
+  max-width: 529px;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 309px;
+  margin-bottom: 36px;
+  object-fit: cover;
+
+  @include bp.below(bp.$bp-sm) {
+    height: 200px;
+    margin-bottom: var(--space-5);
+  }
+}
+
+.postTitle {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+}
+
+.postBody {
+  margin-bottom: var(--space-6);
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.postAction {
+  font-size: var(--text-lg);
+  color: var(--color-primary-strong);
+}
+
+.pager {
+  margin: var(--space-5) auto;
+}

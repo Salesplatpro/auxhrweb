@@ -210,7 +210,11 @@ export const useStaffActions = (organizationId: string | null) => {
     return pay
   }
 
-  const addGrant = async (staffId: string, payload: ShareGrantPayload) => {
+  const addGrant = async (
+    staffId: string,
+    payload: ShareGrantPayload,
+    firstName: string,
+  ) => {
     const grant = await run(async (orgId) => {
       const created = await addShareGrant(orgId, staffId, payload)
       await updatePayCache(orgId, staffId, (pay) => ({
@@ -220,7 +224,11 @@ export const useStaffActions = (organizationId: string | null) => {
       await mutate(staffActivityKey(orgId, staffId))
       return created
     }, 'Could not add this grant')
-    if (grant) notify('success', 'Share grant added')
+    if (grant) {
+      notify('success', 'Grant added', {
+        description: `${firstName} can see it read-only in My work.`,
+      })
+    }
     return grant
   }
 

@@ -6,14 +6,25 @@
   gap: var(--space-4);
 }
 
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+}
+
 .summary {
   margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
 
-  strong {
-    color: var(--color-text-heading);
-  }
+.note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .track {
@@ -39,6 +50,18 @@
   background: var(--color-warning);
 }
 
+.cliffLabel {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-warning);
+  white-space: nowrap;
+}
+
 .today {
   position: absolute;
   top: -6px;
@@ -59,23 +82,18 @@
   white-space: nowrap;
 }
 
-.dates {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: var(--space-3);
-  margin: 0;
+.ends {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-body);
+}
 
-  dt {
-    font-size: var(--text-xs);
-    color: var(--color-text-muted);
-  }
-
-  dd {
-    margin: 0;
-    font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
-    color: var(--color-text-heading);
-  }
+.muted {
+  color: var(--color-text-muted);
 }
 
 .check {

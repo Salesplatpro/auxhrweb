@@ -321,6 +321,9 @@ export interface ShareGrantPayload {
 
 export interface ShareGrant extends ShareGrantPayload {
   id: string
+  /** Null on grants added before this was recorded. */
+  createdByName?: string | null
+  createdAt?: string
 }
 
 export interface PayData {

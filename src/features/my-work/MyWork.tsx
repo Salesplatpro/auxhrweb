@@ -161,13 +161,11 @@ const PayAndShares: React.FC<{ staffId: string; firstName: string }> = ({
         <PagePanel
           key={grant.id}
           title="My share options"
-          hint={`Grant ${index + 1} · ${formatCount(
+          hint={`Grant ${pay.grants.length - index} · ${formatCount(
             grant.shares,
-          )} shares · strike ${formatMoney(
-            grant.currency,
-            grant.strikePrice,
-          )} · read only`}>
-          <VestingTimeline grant={grant} ownerFirstName={firstName} />
+          )} shares · strike ${formatMoney(grant.currency, grant.strikePrice)}`}
+          action={<Pill tone="neutral">Read only</Pill>}>
+          <VestingTimeline grant={grant} ownerFirstName={firstName} mine />
         </PagePanel>
       ))}
     </div>

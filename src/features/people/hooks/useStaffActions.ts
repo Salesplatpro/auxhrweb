@@ -129,13 +129,17 @@ export const useStaffActions = (organizationId: string | null) => {
     return result
   }
 
-  const saveStaff = async (staffId: string, payload: UpdateStaffPayload) => {
+  const saveStaff = async (
+    staffId: string,
+    payload: UpdateStaffPayload,
+    description?: string,
+  ) => {
     const staff = await run(async (orgId) => {
       const updated = await updateStaff(orgId, staffId, payload)
       await cacheChange(orgId, updated)
       return updated
     }, 'Could not save these changes')
-    if (staff) notify('success', 'Details saved')
+    if (staff) notify('success', 'Changes saved', { description })
     return staff
   }
 

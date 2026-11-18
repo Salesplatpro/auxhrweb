@@ -85,7 +85,7 @@ describe('AddEmployeePanel', () => {
     renderPanel()
 
     type(/Full name/, ' Ada Obi ')
-    type(/Email address/, 'ada@example.com')
+    type(/Work email/, 'ada@example.com')
     type(/Job title/, 'Product Designer')
     fireEvent.click(screen.getByText('No department'))
     fireEvent.click(screen.getByText('Design'))
@@ -101,6 +101,8 @@ describe('AddEmployeePanel', () => {
       managerId: null,
       startDate: '2026-01-05',
       isExecutive: false,
+      phone: null,
+      homeAddress: null,
       sendInvite: true,
     })
     await waitFor(() => expect(onClose).toHaveBeenCalled())
@@ -111,7 +113,7 @@ describe('AddEmployeePanel', () => {
     renderPanel()
 
     type(/Full name/, 'Ada Obi')
-    type(/Email address/, 'ada@example.com')
+    type(/Work email/, 'ada@example.com')
     type(/Job title/, 'Product Designer')
     type(/Start date/, '2026-01-05')
     fireEvent.click(screen.getByLabelText('Send an invite email'))
@@ -126,7 +128,7 @@ describe('AddEmployeePanel', () => {
     renderPanel()
 
     type(/Full name/, 'Ada Obi')
-    type(/Email address/, 'ada@example.com')
+    type(/Work email/, 'ada@example.com')
     type(/Job title/, 'Product Designer')
     type(/Start date/, '2026-01-05')
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
@@ -143,7 +145,7 @@ describe('AddEmployeePanel', () => {
     renderPanel()
 
     type(/Full name/, 'Ada Obi')
-    type(/Email address/, 'ada@example.com')
+    type(/Work email/, 'ada@example.com')
     type(/Job title/, 'Chief of Staff')
     type(/Start date/, '2026-01-05')
     fireEvent.click(screen.getByRole('button', { name: 'Yes' }))
@@ -176,7 +178,7 @@ describe('AddEmployeePanel', () => {
     expect(name.value).toBe('Kelechi Okoro')
     expect(name.readOnly).toBe(true)
     expect(
-      (screen.getByLabelText(/Email address/) as HTMLInputElement).readOnly,
+      (screen.getByLabelText(/Work email/) as HTMLInputElement).readOnly,
     ).toBe(true)
     type(/Start date/, '2026-12-01')
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))

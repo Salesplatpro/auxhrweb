@@ -7,6 +7,7 @@ import { FieldLabel } from '@/components/forms/FieldLabel'
 import { Select } from '@/components/forms/Select'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { StaffFormValues, StaffOption } from '@/features/people/types'
+import { firstNameOf } from '@/features/people/utils/nameParts'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
 import styles from './StaffForm.module.scss'
@@ -16,9 +17,6 @@ const EXECUTIVE_OPTIONS = [
   { value: 'no', label: 'No' },
 ]
 
-const firstNameOf = (fullName: string) =>
-  fullName.trim().split(/\s+/)[0] || 'They'
-
 export const EMPTY_STAFF_FORM: StaffFormValues = {
   fullName: '',
   email: '',
@@ -27,6 +25,8 @@ export const EMPTY_STAFF_FORM: StaffFormValues = {
   managerId: '',
   startDate: '',
   isExecutive: false,
+  phone: '',
+  homeAddress: '',
   sendInvite: true,
 }
 
@@ -36,13 +36,14 @@ export const staffSchema = (mode: 'create' | 'edit') =>
       .trim()
       .required('Enter their full name')
       .max(120, 'Keep the name under 120 characters'),
-    email:
-      mode === 'create'
-        ? Yup.string()
-            .trim()
-            .required('Enter their email address')
-            .email('Enter a valid email address')
-        : Yup.string(),
+    email: Yup.string()
+      .trim()
+      .required(
+        mode === 'create'
+          ? 'Enter their email address'
+          : 'Enter their work email',
+      )
+      .email('Enter a valid email address'),
     jobTitle: Yup.string()
       .trim()
       .required('Enter their job title')
@@ -52,6 +53,16 @@ export const staffSchema = (mode: 'create' | 'edit') =>
       .max(120, 'Keep the department under 120 characters'),
     managerId: Yup.string(),
     startDate: Yup.string().required('Pick their start date'),
+    phone: Yup.string()
+      .trim()
+      .matches(/^\+[1-9][\d\s()-]{6,20}$/, {
+        message:
+          'Enter the number with its country code, like +234 803 555 0198',
+        excludeEmptyString: true,
+      }),
+    homeAddress: Yup.string()
+      .trim()
+      .max(300, 'Keep the address under 300 characters'),
   })
 
 interface TextFieldProps {
@@ -61,6 +72,7 @@ interface TextFieldProps {
   type?: string
   readOnly?: boolean
   hint?: string
+  wide?: boolean
 }
 
 const TextField: React.FC<TextFieldProps> = ({
@@ -70,8 +82,11 @@ const TextField: React.FC<TextFieldProps> = ({
   type = 'text',
   readOnly,
   hint,
+  wide,
 }) => (
-  <div className={styles.field} data-field={name}>
+  <div
+    className={wide ? `${styles.field} ${styles.wide}` : styles.field}
+    data-field={name}>
     <FieldLabel htmlFor={name} className={styles.label}>
       {label}
     </FieldLabel>
@@ -99,6 +114,20 @@ const TextField: React.FC<TextFieldProps> = ({
   </div>
 )
 
+const emailHint = (
+  mode: 'create' | 'edit',
+  emailLocked: boolean,
+  changed: boolean,
+) => {
+  if (mode === 'create') return undefined
+  if (emailLocked) {
+    return 'They joined with this email, so it can’t be changed here.'
+  }
+  return changed
+    ? 'Saving cancels the invite sent to the old address. Send a new invite afterwards.'
+    : undefined
+}
+
 interface StaffFieldsProps {
   mode: 'create' | 'edit'
   managers: StaffOption[]
@@ -107,6 +136,8 @@ interface StaffFieldsProps {
   readOnly?: boolean
   /** Name and email come from the applicant's account and can't be typed over. */
   lockIdentity?: boolean
+  /** The person joined with this email, so it can no longer change. */
+  emailLocked?: boolean
 }
 
 export const StaffFields: React.FC<StaffFieldsProps> = ({
@@ -116,8 +147,10 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
   currentManager,
   readOnly = false,
   lockIdentity = false,
+  emailLocked = false,
 }) => {
-  const { values, setFieldValue } = useFormikContext<StaffFormValues>()
+  const { values, initialValues, setFieldValue } =
+    useFormikContext<StaffFormValues>()
   const { profile } = useProfile()
 
   const managerOptions = useMemo(() => {
@@ -158,7 +191,10 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
   const companyName = profile?.activeOrganization?.name ?? 'your company'
 
   return (
-    <div className={styles.fields}>
+    <div
+      className={
+        mode === 'edit' ? `${styles.fields} ${styles.grid}` : styles.fields
+      }>
       <TextField
         name="fullName"
         label="Full name"
@@ -167,15 +203,15 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
       />
       <TextField
         name="email"
-        label="Email address"
+        label="Work email"
         type="email"
         placeholder="ada@company.com"
-        readOnly={readOnly || lockIdentity || mode === 'edit'}
-        hint={
-          mode === 'edit'
-            ? 'The email can’t be changed. End this record and add them again if it’s wrong.'
-            : undefined
-        }
+        readOnly={readOnly || lockIdentity || emailLocked}
+        hint={emailHint(
+          mode,
+          emailLocked,
+          values.email !== initialValues.email,
+        )}
       />
       <TextField
         name="jobTitle"
@@ -214,7 +250,20 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         type="date"
         readOnly={readOnly}
       />
-      <div className={styles.field}>
+      <TextField
+        name="phone"
+        label="Phone"
+        type="tel"
+        placeholder="+234 803 555 0198"
+        readOnly={readOnly}
+      />
+      <TextField
+        name="homeAddress"
+        label="Home address"
+        placeholder="12 Akin Adesola St, Victoria Island, Lagos"
+        readOnly={readOnly}
+      />
+      <div className={`${styles.field} ${styles.wide}`}>
         <SegmentedControl
           label="Is this person an executive?"
           options={EXECUTIVE_OPTIONS}
@@ -229,7 +278,7 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         </p>
       </div>
       {mode === 'create' && (
-        <div className={styles.inviteBox}>
+        <div className={`${styles.inviteBox} ${styles.wide}`}>
           <CheckBox
             name="sendInvite"
             label="Send an invite email"

@@ -10,6 +10,8 @@ import { useStaffActions } from '@/features/people/hooks/useStaffActions'
 import { useStaffOptions } from '@/features/people/hooks/useStaffData'
 import { StaffFormValues } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
+import { firstNameOf } from '@/features/people/utils/nameParts'
+import { describeStaffChange } from '@/features/people/utils/staffChanges'
 
 import { AssignedHrPanel } from './AssignedHrPanel'
 import styles from './DetailsTab.module.scss'
@@ -38,20 +40,35 @@ export const DetailsTab: React.FC<EmployeeTabProps> = ({
       managerId: staff.managerId ?? '',
       startDate: staff.startDate,
       isExecutive: staff.isExecutive,
+      phone: staff.phone ?? '',
+      homeAddress: staff.homeAddress ?? '',
       sendInvite: false,
     }),
     [staff],
   )
+  const emailLocked = staff.invite.state === 'accepted'
 
   const handleSubmit = async (values: StaffFormValues) => {
-    await saveStaff(staff.id, {
-      fullName: values.fullName.trim(),
-      jobTitle: values.jobTitle.trim(),
-      department: values.department.trim() || null,
-      managerId: values.managerId || null,
-      startDate: values.startDate,
-      isExecutive: values.isExecutive,
-    })
+    const email = values.email.trim()
+    await saveStaff(
+      staff.id,
+      {
+        fullName: values.fullName.trim(),
+        ...(emailLocked || email === staff.email ? {} : { email }),
+        jobTitle: values.jobTitle.trim(),
+        department: values.department.trim() || null,
+        managerId: values.managerId || null,
+        startDate: values.startDate,
+        isExecutive: values.isExecutive,
+        phone: values.phone.trim() || null,
+        homeAddress: values.homeAddress.trim() || null,
+      },
+      describeStaffChange(
+        initialValues,
+        values,
+        (id) => managers.find((manager) => manager.id === id)?.fullName,
+      ),
+    )
   }
 
   return (
@@ -61,7 +78,9 @@ export const DetailsTab: React.FC<EmployeeTabProps> = ({
         hint={
           isReadOnly
             ? undefined
-            : 'Changes are saved to their record and recorded in the Activity tab.'
+            : `Edit and save. Changes show on ${firstNameOf(
+                staff.fullName,
+              )}'s My work page.`
         }>
         {isEnded && (
           <Alert variant="info">
@@ -74,7 +93,7 @@ export const DetailsTab: React.FC<EmployeeTabProps> = ({
           enableReinitialize
           validationSchema={staffSchema('edit')}
           onSubmit={handleSubmit}>
-          {({ isSubmitting, dirty }) => (
+          {({ isSubmitting, dirty, resetForm }) => (
             <Form className={styles.form} noValidate>
               <FormikFocusOnError />
               <StaffFields
@@ -90,9 +109,17 @@ export const DetailsTab: React.FC<EmployeeTabProps> = ({
                     : null
                 }
                 readOnly={isReadOnly}
+                emailLocked={emailLocked}
               />
               {!isReadOnly && (
                 <div className={styles.footer}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!dirty || isSubmitting}
+                    onClick={() => resetForm()}>
+                    Cancel
+                  </Button>
                   <Button
                     type="submit"
                     loading={isSubmitting}

@@ -45,6 +45,8 @@ export interface StaffMember {
   status: StaffStatus
   hiredThroughAuxhr: boolean
   isExecutive: boolean
+  phone: string | null
+  homeAddress: string | null
   hasAccount: boolean
   invite: StaffInvite
   createdAt: string
@@ -175,6 +177,8 @@ export interface StaffFormValues {
   managerId: string
   startDate: string
   isExecutive: boolean
+  phone: string
+  homeAddress: string
   sendInvite: boolean
   applicationId?: string
 }
@@ -187,11 +191,16 @@ export interface CreateStaffPayload {
   managerId?: string | null
   startDate: string
   isExecutive: boolean
+  phone?: string | null
+  homeAddress?: string | null
   sendInvite: boolean
 }
 
 export interface UpdateStaffPayload {
   fullName?: string
+  email?: string
+  phone?: string | null
+  homeAddress?: string | null
   jobTitle?: string
   department?: string | null
   managerId?: string | null

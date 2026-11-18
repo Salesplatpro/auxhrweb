@@ -123,8 +123,12 @@ export const AiMessageComposer = ({
   }
 
   return (
-    <Modal open={open} onClose={onClose} center>
-      <div style={{ minWidth: 480, maxWidth: 640 }}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      center
+      classNames={{ overlay: 'dashboard-modal-overlay', modal: styles.modal }}>
+      <div className={styles.content}>
         <h2 className={styles.title}>
           Message {targets.length} talent{targets.length === 1 ? '' : 's'} with
           AI
@@ -158,8 +162,7 @@ export const AiMessageComposer = ({
         )}
 
         {isDrafting && !drafts && (
-          <div
-            style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>
+          <div className={styles.loading}>
             <Spinner />
           </div>
         )}

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .root {
   z-index: var(--z-modal);
 }
@@ -30,6 +32,14 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: var(--space-3);
+
+  @include bp.below(bp.$bp-sm) {
+    flex-direction: column-reverse;
+
+    > button {
+      width: 100%;
+    }
+  }
 }
 
 .dangerButton {

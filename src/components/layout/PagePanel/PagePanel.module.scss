@@ -33,7 +33,7 @@
 
 .title {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--color-text-heading);
 
@@ -44,7 +44,7 @@
 
 .hint {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 
   :global(html[data-theme='dark']) & {
@@ -53,7 +53,7 @@
 }
 
 .link {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
@@ -65,14 +65,20 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
+
+  @include bp.from(bp.$bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include bp.from(bp.$bp-lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .statsGridFour {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-
-  @include bp.from(bp.$bp-md) {
+  @include bp.from(bp.$bp-lg) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
@@ -101,7 +107,7 @@
 
 .statValue {
   display: block;
-  font-size: 26px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-heading);
   letter-spacing: -0.03em;
@@ -111,7 +117,7 @@
 .statCaption {
   display: block;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--text-sm);
   line-height: 1.4;
   color: var(--color-text-heading);
 }
@@ -119,13 +125,12 @@
 .statLabel {
   display: block;
   margin-top: 4px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
-@include bp.below(bp.$bp-lg) {
-  .statsGrid,
-  .statsGridFour {
-    grid-template-columns: 1fr;
+@include bp.below(bp.$bp-md) {
+  .statValue {
+    font-size: var(--text-2xl);
   }
 }

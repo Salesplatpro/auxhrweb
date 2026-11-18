@@ -1,13 +1,22 @@
 .group {
   display: flex;
   gap: var(--space-1);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
   padding: var(--space-1);
   border-radius: var(--radius-lg);
   background: var(--color-bg-subtle);
 }
 
 .option {
-  flex: 1;
+  flex: 1 0 auto;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;

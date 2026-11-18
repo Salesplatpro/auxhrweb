@@ -1669,3 +1669,12 @@ select.custom-select {
   appearance: none;
   -webkit-appearance: none;
 }
+
+// react-responsive-modal sizes its panel for desktop; keep every modal inside a phone screen.
+@include bp.below(bp.$bp-sm) {
+  .react-responsive-modal-modal {
+    max-width: calc(100vw - 24px);
+    margin: 12px;
+    padding: 16px;
+  }
+}

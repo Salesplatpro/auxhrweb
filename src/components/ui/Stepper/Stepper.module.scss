@@ -22,6 +22,10 @@
 .item {
   flex: 1 1 0;
   min-width: 150px;
+
+  @include bp.below(bp.$bp-md) {
+    min-width: 120px;
+  }
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background-color: var(--color-bg-page);

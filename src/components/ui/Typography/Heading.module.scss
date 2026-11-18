@@ -1,7 +1,10 @@
+@use '../../../styles/breakpoints' as bp;
+
 .heading {
   font-family: var(--font-heading);
   color: var(--color-text-heading);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .h1 {
@@ -38,4 +41,18 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   line-height: var(--leading-normal);
+}
+
+@include bp.below(bp.$bp-md) {
+  .h1 {
+    font-size: 22px;
+  }
+
+  .h2 {
+    font-size: var(--text-xl);
+  }
+
+  .h3 {
+    font-size: var(--text-lg);
+  }
 }

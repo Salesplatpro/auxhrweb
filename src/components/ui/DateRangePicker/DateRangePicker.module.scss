@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .container {
   position: relative;
   display: inline-block;
@@ -25,6 +27,17 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   color: var(--color-text-heading);
+  max-width: calc(100vw - 32px);
+  overflow-x: auto;
+
+  @include bp.below(bp.$bp-sm) {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: var(--z-modal);
+    box-shadow: var(--shadow-lg);
+  }
 
   --rdp-accent-color: var(--color-primary);
   --rdp-accent-background-color: var(--color-primary-tint);

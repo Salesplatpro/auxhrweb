@@ -1,4 +1,5 @@
 @use '../../../styles/form-field' as *;
+@use '../../../styles/breakpoints' as bp;
 
 // ── Outer wrapper ────────────────────────────────────────────────────────────
 .container {
@@ -170,6 +171,11 @@
   padding: var(--space-5);
   background: var(--color-bg-elevated);
   border-radius: var(--radius-lg);
+
+  @include bp.below(bp.$bp-sm) {
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
   animation: dropdownIn 0.15s ease;
@@ -198,6 +204,11 @@
   min-width: 160px;
   flex: 1;
   max-width: 280px;
+
+  @include bp.below(bp.$bp-sm) {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
 .fieldLabel {
@@ -235,6 +246,11 @@
   cursor: pointer;
   transition: border-color 0.12s, color 0.12s;
 
+  @include bp.below(bp.$bp-md) {
+    min-height: 36px;
+    font-size: var(--text-sm);
+  }
+
   &:hover {
     border-color: var(--color-primary);
     color: var(--color-primary);
@@ -254,6 +270,11 @@
   font-size: var(--text-xs);
   color: var(--color-primary-strong);
   cursor: pointer;
+
+  @include bp.below(bp.$bp-md) {
+    min-height: 36px;
+    font-size: var(--text-sm);
+  }
 }
 
 // ── Compact: a toolbar button with a popover panel ──────────────────────────
@@ -274,7 +295,8 @@
     left: 0;
     z-index: var(--z-dropdown);
     flex-direction: column;
-    min-width: 260px;
+    min-width: min(260px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
     margin-top: var(--space-2);
   }
 }

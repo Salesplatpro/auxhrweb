@@ -8,6 +8,7 @@ export interface DropdownItem {
   label: React.ReactNode
   onClick: () => void
   disabled?: boolean
+  danger?: boolean
 }
 
 interface DropdownProps {
@@ -17,6 +18,8 @@ interface DropdownProps {
   /** Set to false for checkbox-style menus (e.g. a column picker) where the menu should stay open after each selection. */
   closeOnSelect?: boolean
 }
+
+const VIEWPORT_GUTTER = 8
 
 export const Dropdown = ({
   trigger,
@@ -33,15 +36,22 @@ export const Dropdown = ({
     const triggerEl = containerRef.current
     if (!triggerEl) return
     const rect = triggerEl.getBoundingClientRect()
+    const menuHeight = menuRef.current?.offsetHeight ?? 0
+    const spaceBelow = window.innerHeight - rect.bottom
+    const openUp = menuHeight > 0 && spaceBelow < menuHeight + VIEWPORT_GUTTER
     const next: React.CSSProperties = {
       position: 'fixed',
-      top: rect.bottom + 4,
-      zIndex: 1200,
+      maxWidth: `calc(100vw - ${VIEWPORT_GUTTER * 2}px)`,
+    }
+    if (openUp) {
+      next.bottom = Math.max(window.innerHeight - rect.top + 4, VIEWPORT_GUTTER)
+    } else {
+      next.top = rect.bottom + 4
     }
     if (align === 'left') {
-      next.left = rect.left
+      next.left = Math.max(rect.left, VIEWPORT_GUTTER)
     } else {
-      next.right = window.innerWidth - rect.right
+      next.right = Math.max(window.innerWidth - rect.right, VIEWPORT_GUTTER)
     }
     setMenuStyle(next)
   }
@@ -49,6 +59,8 @@ export const Dropdown = ({
   useLayoutEffect(() => {
     if (!isOpen) return
     updatePosition()
+    const frame = window.requestAnimationFrame(updatePosition)
+    return () => window.cancelAnimationFrame(frame)
   }, [isOpen, align])
 
   useEffect(() => {
@@ -100,7 +112,7 @@ export const Dropdown = ({
               <button
                 key={item.key ?? index}
                 type="button"
-                className={styles.item}
+                className={`${styles.item} ${item.danger ? styles.danger : ''}`}
                 role="menuitem"
                 disabled={item.disabled}
                 onClick={() => handleItemClick(item)}>

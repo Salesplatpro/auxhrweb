@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .container {
   position: relative;
   display: inline-flex;
@@ -45,6 +47,8 @@
 .menu {
   z-index: var(--z-dropdown);
   min-width: 180px;
+  max-height: 60vh;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: var(--space-1);
@@ -67,6 +71,26 @@
 
   :global(html[data-theme='dark']) & {
     color: var(--color-white);
+  }
+}
+
+.danger {
+  color: var(--color-danger);
+
+  :global(html[data-theme='dark']) & {
+    color: var(--color-danger);
+  }
+}
+
+@include bp.below(bp.$bp-md) {
+  .trigger {
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .item {
+    min-height: 44px;
+    font-size: var(--text-md);
   }
 }
 

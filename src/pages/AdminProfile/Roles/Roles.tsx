@@ -133,7 +133,11 @@ const Roles = () => {
         showRowNumber
       />
 
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} center>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        center
+        classNames={{ overlay: 'dashboard-modal-overlay' }}>
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <h3 className={styles.modalTitle}>
             {editingRole ? 'Edit Role' : 'Create Role'}

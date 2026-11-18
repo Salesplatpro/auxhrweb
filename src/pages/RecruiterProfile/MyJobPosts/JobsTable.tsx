@@ -5,7 +5,11 @@ import { StatusBadge } from '@/components/ui/Badge'
 import { ColumnDef, DataTable } from '@/components/ui/DataTable'
 import { RecruiterJob } from '@/utils/recruiterJobPostsTypes'
 
-import { getStatusBadge, getStatusLabel } from '../getJobStatus'
+import {
+  getStatusBadge,
+  getStatusLabel,
+  jobDisplayStatus,
+} from '../getJobStatus'
 import {
   isDraftLike,
   jobLocation,
@@ -73,8 +77,8 @@ export const JobsTable = ({ data, emptyState }: JobsTableProps) => {
         header: 'Status',
         render: (job) => (
           <StatusBadge
-            status={getStatusLabel(job.status)}
-            {...getStatusBadge(job.status)}
+            status={getStatusLabel(jobDisplayStatus(job))}
+            {...getStatusBadge(jobDisplayStatus(job))}
             showDot
           />
         ),

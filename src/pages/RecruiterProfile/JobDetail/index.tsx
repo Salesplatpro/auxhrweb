@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react'
 import {
   LuBriefcase,
   LuCalendar,
+  LuCreditCard,
   LuFilter,
   LuMapPin,
   LuPencil,
   LuSend,
   LuSparkles,
   LuStar,
+  LuTrash2,
   LuUsers,
 } from 'react-icons/lu'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -29,6 +31,7 @@ import { fetchJobApplications } from '@/features/applications/services/applicati
 import {
   getStatusBadge,
   getStatusLabel,
+  jobDisplayStatus,
 } from '@/pages/RecruiterProfile/getJobStatus'
 import { useIndividualJobQuery } from '@/redux/api/talent'
 import { getErrorMessage } from '@/utils/getErrorMessage'
@@ -39,6 +42,7 @@ import {
   AiMessageComposerTarget,
 } from '../MyJobPosts/Messaging/AiMessageComposer'
 import listStyles from '../MyJobPosts/MyJobPosts.module.scss'
+import { useJobActions } from '../MyJobPosts/useJobActions'
 import { CandidatePanel } from './CandidatePanel/CandidatePanel'
 import { CandidatesTab } from './CandidatesTab'
 import styles from './JobDetail.module.scss'
@@ -124,6 +128,17 @@ const JobDetail = () => {
     }
   }
 
+  const loadedJob = data?.data?.job
+  const actions = useJobActions(
+    {
+      id: jobId,
+      status: loadedJob?.status ?? 'draft',
+      paymentStatus: loadedJob?.paymentStatus ?? null,
+      title: loadedJob?.role?.name ?? 'Job post',
+    },
+    { onDeleted: () => navigate('/recruiterDashboard/myJobPosts') },
+  )
+
   if (isLoading) return <Spinner fullPage />
 
   const job = data?.data?.job
@@ -154,8 +169,12 @@ const JobDetail = () => {
         title={title}
         titleAddon={
           <StatusBadge
-            status={status === 'active' ? 'Open' : getStatusLabel(status)}
-            {...getStatusBadge(status)}
+            status={
+              status === 'active'
+                ? 'Open'
+                : getStatusLabel(jobDisplayStatus(job))
+            }
+            {...getStatusBadge(jobDisplayStatus(job))}
             showDot
           />
         }
@@ -171,6 +190,15 @@ const JobDetail = () => {
         }
         actions={
           <>
+            {actions.needsPayment && (
+              <Button
+                variant="ink"
+                icon={<LuCreditCard size={16} />}
+                loading={actions.isPaying}
+                onClick={actions.pay}>
+                {actions.payLabel}
+              </Button>
+            )}
             <Button
               variant="outline"
               icon={<LuPencil size={16} />}
@@ -190,6 +218,13 @@ const JobDetail = () => {
               onClick={() => void messageShortlist()}>
               Message Shortlist
             </Button>
+            <Button
+              variant="outline"
+              icon={<LuTrash2 size={16} />}
+              onClick={actions.askDelete}>
+              Delete
+            </Button>
+            {actions.dialogs}
           </>
         }
       />

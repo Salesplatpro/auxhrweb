@@ -80,4 +80,20 @@ describe('useJobPayment', () => {
     expect(result.current.payingJobId).toBeNull()
     expect(notifyMock).toHaveBeenCalledWith('error', expect.any(String))
   })
+
+  it('reports a job that was already paid for instead of opening checkout again', async () => {
+    activateJobPaymentMock.mockReturnValue({
+      unwrap: () => Promise.resolve({ data: { alreadyPaid: true } }),
+    })
+    const { result } = renderHook(() => useJobPayment())
+
+    await act(() => result.current.payForJob('job-1'))
+
+    expect(assignMock).not.toHaveBeenCalled()
+    expect(notifyMock).toHaveBeenCalledWith(
+      'success',
+      'This job was already paid for and is now live.',
+    )
+    expect(result.current.payingJobId).toBeNull()
+  })
 })

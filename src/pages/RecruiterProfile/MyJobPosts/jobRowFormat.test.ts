@@ -70,4 +70,10 @@ describe('job post rows', () => {
     )
     expect(jobEditPath(job())).toBe('/recruiterDashboard/editJob/job-1')
   })
+
+  it('sends a job awaiting payment back to the review step to pay', () => {
+    expect(
+      jobEditPath(job({ status: 'pending_payment', aiConfigId: 'cfg-1' })),
+    ).toBe('/recruiterDashboard/postjob/job-1/review')
+  })
 })

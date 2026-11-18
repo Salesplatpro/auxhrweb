@@ -402,13 +402,34 @@ export const recruiterApi = createApi({
         { type: 'RecruiterJob', id: jobId },
         { type: 'RecruiterJob', id: 'LIST' },
       ],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+          const { talentApi } = await import('../talent')
+          dispatch(talentApi.util.invalidateTags(['Jobs']))
+        } catch {
+          // mutation failed — leave caches alone
+        }
+      },
     }),
     activateJobPayment: builder.mutation({
       query: (jobId: string) => ({
         url: `/jobs/${jobId}/activate-payment`,
         method: 'POST',
       }),
-      invalidatesTags: [{ type: 'RecruiterJob', id: 'LIST' }],
+      invalidatesTags: (_result, _error, jobId) => [
+        { type: 'RecruiterJob', id: jobId },
+        { type: 'RecruiterJob', id: 'LIST' },
+      ],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+          const { talentApi } = await import('../talent')
+          dispatch(talentApi.util.invalidateTags(['Jobs']))
+        } catch {
+          // mutation failed — leave caches alone
+        }
+      },
     }),
     fetchPersonalityQuestions: builder.query({
       query: (jobId: string) => ({

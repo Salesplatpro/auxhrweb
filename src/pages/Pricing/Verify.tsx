@@ -16,7 +16,15 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import { Button, DisplayError } from '../../components'
+import { useJobPayment } from '../RecruiterProfile/MyJobPosts/useJobPayment'
 import styles from './Verify.module.scss'
+
+const failedJobIdOf = (err: unknown): string | null => {
+  const fields = (
+    err as { response?: { data?: { error?: { fields?: { jobId?: string } } } } }
+  )?.response?.data?.error?.fields
+  return fields?.jobId ?? null
+}
 
 const VerifyPaymentPage: React.FC = () => {
   const [searchParams] = useSearchParams()
@@ -25,6 +33,8 @@ const VerifyPaymentPage: React.FC = () => {
   const { mutate: globalMutate } = useSWRConfig()
   const dispatch = useDispatch()
   const [error, setError] = useState<string | null>(null)
+  const [failedJobId, setFailedJobId] = useState<string | null>(null)
+  const { payForJob, payingJobId } = useJobPayment()
 
   const reference = searchParams.get('reference') || searchParams.get('trxref')
 
@@ -73,6 +83,16 @@ const VerifyPaymentPage: React.FC = () => {
           err,
           'Payment verification failed. Please try again.',
         )
+        const jobId = failedJobIdOf(err)
+        if (jobId) {
+          dispatch(
+            recruiterApi.util.invalidateTags([
+              { type: 'RecruiterJob', id: 'LIST' },
+              { type: 'RecruiterJob', id: jobId },
+            ]),
+          )
+        }
+        setFailedJobId(jobId)
         setError(message)
         notify('error', message)
       }
@@ -86,9 +106,24 @@ const VerifyPaymentPage: React.FC = () => {
       {error ? (
         <div className={styles.failure}>
           <DisplayError message={error} />
-          <Button onClick={() => navigate('/recruiterDashboard/plan')}>
-            Go to Plan
-          </Button>
+          {failedJobId ? (
+            <div className={styles.actions}>
+              <Button
+                loading={payingJobId === failedJobId}
+                onClick={() => void payForJob(failedJobId)}>
+                Retry payment
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/recruiterDashboard/myJobPosts')}>
+                Back to my jobs
+              </Button>
+            </div>
+          ) : (
+            <Button onClick={() => navigate('/recruiterDashboard/plan')}>
+              Go to Plan
+            </Button>
+          )}
         </div>
       ) : (
         <Spinner fullPage />

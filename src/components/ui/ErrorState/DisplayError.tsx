@@ -3,22 +3,22 @@ import React from 'react'
 
 import animationData from '@/assets/Animation2.json'
 
+import styles from './DisplayError.module.scss'
+
 type DisplayErrorType = {
   message: string
 }
 
 export const DisplayError = ({ message }: DisplayErrorType) => (
-  <div className="flex justify-center items-center flex-col w-full h-full">
+  <div className={styles.container}>
     <div>
       <Lottie
         animationData={animationData}
         loop={false}
-        className="w-28 h-28 lg:w-44 lg:h-44 md:w-36 md:h-36"
+        className={styles.animation}
       />
     </div>
 
-    <h2 className="font-raleway font-semibold text-center text-lg lg:text-2xl md:text-xl text-charcoal pt-4">
-      {message}
-    </h2>
+    <h2 className={styles.message}>{message}</h2>
   </div>
 )

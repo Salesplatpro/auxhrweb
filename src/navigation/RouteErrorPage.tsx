@@ -5,7 +5,10 @@ import {
   useRouteError,
 } from 'react-router-dom'
 
+import { Button } from '@/components/ui/Button'
 import PageNotFound from '@/PageNotFound'
+
+import styles from './RouteErrorPage.module.scss'
 
 /**
  * Root error boundary. Unmatched splat / 404 responses stay on PageNotFound.
@@ -28,17 +31,12 @@ export const RouteErrorPage = () => {
       : 'Something went wrong'
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
-      <h1 className="font-raleway font-semibold text-3xl">
-        Something went wrong
-      </h1>
-      <p className="font-raleway text-lg text-grey-700 max-w-lg">{message}</p>
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        className="bg-primary text-white font-raleway font-semibold rounded-lg px-4 py-3">
+    <div className={styles.page}>
+      <h1 className={styles.title}>Something went wrong</h1>
+      <p className={styles.message}>{message}</p>
+      <Button type="button" size="lg" onClick={() => navigate(-1)}>
         Previous page
-      </button>
+      </Button>
     </div>
   )
 }

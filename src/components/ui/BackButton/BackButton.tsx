@@ -2,6 +2,8 @@ import React from 'react'
 import { MdOutlineArrowBackIosNew } from 'react-icons/md'
 import { useNavigate } from 'react-router-dom'
 
+import styles from './BackButton.module.scss'
+
 interface BackButtonProps {
   /** Defaults to browser-back (navigate(-1)) when omitted. */
   onClick?: () => void
@@ -18,7 +20,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
     <button
       type="button"
       onClick={onClick ?? (() => navigate(-1))}
-      className={`flex items-center gap-2 text-sm font-bold text-grey-700 mb-2 ${className}`}>
+      className={`${styles.button} ${className}`.trim()}>
       <MdOutlineArrowBackIosNew />
       Back
     </button>

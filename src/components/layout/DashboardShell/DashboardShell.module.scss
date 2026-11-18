@@ -1,0 +1,151 @@
+@use '../../../styles/breakpoints' as bp;
+
+$sidebar-width: 256px;
+$top-bar-height: 64px;
+
+// Modals opened from a dashboard page cover the content area only, not the sidebar.
+:global(.dashboard-modal-overlay) {
+  left: $sidebar-width !important;
+
+  @include bp.below(bp.$bp-xl) {
+    left: 0 !important;
+  }
+}
+
+.shell {
+  display: grid;
+  grid-template-areas:
+    'sidebar header'
+    'sidebar body';
+  grid-template-columns: $sidebar-width minmax(0, 1fr);
+  grid-template-rows: $top-bar-height minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.topBar {
+  grid-area: header;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: $top-bar-height;
+  padding: 0 var(--space-4);
+  background: var(--color-bg-page);
+  box-shadow: rgba(0, 0, 0, 0.09) 0 3px 5px;
+}
+
+.menuButton {
+  display: none;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.content {
+  grid-area: body;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  padding: var(--space-6);
+  background: var(--color-bg-subtle);
+
+  @include bp.below(bp.$bp-md) {
+    padding: var(--space-4) var(--space-3);
+  }
+}
+
+.backdrop {
+  display: none;
+}
+
+.closeButton {
+  display: none;
+}
+
+@include bp.below(bp.$bp-xl) {
+  .shell {
+    grid-template-areas:
+      'header'
+      'body';
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .topBar {
+    padding: 0 var(--space-3);
+  }
+
+  .menuButton {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-page);
+    color: var(--color-brand-500);
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: var(--z-drawer);
+    width: min($sidebar-width, 86vw);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.3s ease, visibility 0.3s;
+  }
+
+  .open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: calc(var(--z-drawer) - 1);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(16, 24, 40, 0.4);
+    cursor: pointer;
+  }
+
+  .closeButton {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: none;
+    color: var(--color-text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+}

@@ -32,11 +32,15 @@ const defaultValues: LoginFormValues = {
 type LoginFormProps = {
   lockedEmail?: string
   hideSignupLink?: boolean
+  submitLabel?: string
+  onSuccess?: () => Promise<void> | void
 }
 
 export const LoginForm = ({
   lockedEmail,
   hideSignupLink = false,
+  submitLabel = 'Log in',
+  onSuccess,
 }: LoginFormProps) => {
   const { submitLogin, clearError, invalidCredentials, isLoading } = useLogin()
   const error = useAuthStore((state) => state.error)
@@ -55,6 +59,7 @@ export const LoginForm = ({
       } catch {
         return
       }
+      await onSuccess?.()
     },
   })
 
@@ -140,7 +145,7 @@ export const LoginForm = ({
             stretch
             loading={isLoading}
             iconEnd={<LuArrowRight />}>
-            Log in
+            {submitLabel}
           </Button>
 
           {!hideSignupLink && (

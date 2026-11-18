@@ -210,7 +210,16 @@ export interface InviteStaffResult {
 }
 
 export type StaffInvitePreview =
-  | { status: 'expired' | 'accepted' }
+  | { status: 'accepted' }
+  | {
+      status: 'expired'
+      organizationName: string
+      organizationLogoUrl: string | null
+      invitedEmail: string
+      invitedAt: string | null
+      expiresAt: string | null
+      contactEmail: string | null
+    }
   | {
       status: 'pending'
       organizationName: string
@@ -235,6 +244,10 @@ export interface JoinedStaff {
   organizationName: string
   jobTitle: string
   joinedAt: string
+  documentsToSign: number
+  openTasks: number
+  hasPay: boolean
+  hasShareOptions: boolean
 }
 
 export interface Envelope<T> {

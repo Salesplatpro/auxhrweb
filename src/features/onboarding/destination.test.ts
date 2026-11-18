@@ -89,3 +89,28 @@ describe('onboardingGate', () => {
     expect(onboardingGate({ userRole: 'admin' })).toBeNull()
   })
 })
+
+describe('joined staff', () => {
+  const noProfile = {
+    userRole: 'talent' as const,
+    emailVerifiedAt: '2026-11-18T00:00:00Z',
+    profileCompletion: {
+      percentage: 0,
+      isProfileComplete: false,
+      canProceedToPlatform: false,
+    },
+  }
+
+  it('lets staff who joined by invite use the dashboard before their profile is filled in', () => {
+    expect(onboardingGate({ ...noProfile, hasJoinedStaff: true })).toBeNull()
+    expect(
+      onboardingDestination({ ...noProfile, hasJoinedStaff: true }),
+    ).toBeNull()
+  })
+
+  it('still sends other talents to the profile builder', () => {
+    expect(onboardingGate({ ...noProfile, hasJoinedStaff: false })).toBe(
+      '/onboarding/profile',
+    )
+  })
+})

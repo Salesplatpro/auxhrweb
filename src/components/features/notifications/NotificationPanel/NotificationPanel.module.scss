@@ -12,10 +12,12 @@
   display: flex;
   flex-direction: column;
   max-height: min(520px, calc(100vh - 96px));
+  max-height: min(520px, calc(100dvh - 96px));
 }
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);

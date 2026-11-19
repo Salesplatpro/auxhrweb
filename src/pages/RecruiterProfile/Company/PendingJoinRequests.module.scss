@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .pendingList {
   display: flex;
   flex-direction: column;
@@ -57,7 +59,7 @@
   line-height: 1.5;
 }
 
-@media (max-width: 720px) {
+@include bp.below(bp.$bp-md) {
   .requestCard {
     flex-direction: column;
   }

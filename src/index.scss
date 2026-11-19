@@ -1,6 +1,7 @@
 @use 'tailwindcss/base' as *;
 @use 'tailwindcss/components' as *;
 @use 'tailwindcss/utilities' as *;
+@use 'styles/breakpoints' as bp;
 
 // SCSS variables resolve to the design tokens in src/styles/tokens.css.
 // New styles should use var(--*) tokens directly; these aliases exist so
@@ -718,7 +719,8 @@ $deep-gray: var(--color-grey-600);
 
     .jobs {
       max-width: 932px;
-      width: 932px;
+      width: 100%;
+      min-width: 0;
 
       .content {
         display: flex;
@@ -1118,7 +1120,7 @@ $deep-gray: var(--color-grey-600);
   }
 }
 
-@media (min-width: 320px) and (max-width: 980px) {
+@include bp.below(bp.$bp-xl) {
   .navi {
     justify-content: space-between;
   }
@@ -1667,4 +1669,13 @@ $deep-gray: var(--color-grey-600);
 select.custom-select {
   appearance: none;
   -webkit-appearance: none;
+}
+
+// react-responsive-modal sizes its panel for desktop; keep every modal inside a phone screen.
+@include bp.below(bp.$bp-sm) {
+  .react-responsive-modal-modal {
+    max-width: calc(100vw - 24px);
+    margin: 12px;
+    padding: 16px;
+  }
 }

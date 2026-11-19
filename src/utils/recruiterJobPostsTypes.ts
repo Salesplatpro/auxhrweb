@@ -51,6 +51,7 @@ export type RecruiterJob = {
   noOfApplicants?: number
   aiConfigId?: string | null
   status: JobPostStatus
+  paymentStatus?: 'pending' | 'failed' | null
   createdAt: string
   updatedAt: string
 }

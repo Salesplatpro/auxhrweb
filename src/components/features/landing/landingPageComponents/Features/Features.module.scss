@@ -1,4 +1,5 @@
 @use '../styles/index' as *;
+@use '../../../../../styles/breakpoints' as bp;
 
 .container {
   padding: 32px 0;
@@ -18,7 +19,7 @@
   text-align: center;
   border-radius: 20px;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     padding: 16px;
     gap: 24px;
   }
@@ -29,14 +30,93 @@
   height: 60px;
   object-fit: cover;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     width: 54px;
     height: 30px;
   }
 }
 
 .wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-8);
   background: $landing-bg-how-it-works;
+
+  @include bp.below(bp.$bp-sm) {
+    padding: var(--space-10) var(--space-5);
+  }
+
+  @include bp.from(bp.$bp-md) {
+    gap: 36px;
+    padding: 96px 96px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  gap: var(--space-6);
+  width: 100%;
+
+  @include bp.from(bp.$bp-md) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    place-items: stretch;
+  }
+}
+
+.centered {
+  text-align: center;
+}
+
+.ctas {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+
+  @include bp.from(bp.$bp-md) {
+    flex-direction: row;
+  }
+}
+
+.showcase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8);
+
+  @include bp.below(bp.$bp-sm) {
+    padding: var(--space-6) var(--space-5);
+  }
+
+  @include bp.from(bp.$bp-md) {
+    flex-direction: row;
+    gap: 28px;
+    padding: 144px 80px;
+  }
+}
+
+.showcaseCentered {
+  @include bp.from(bp.$bp-md) {
+    align-items: center;
+  }
+}
+
+.showcaseCopy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: var(--space-12);
+  min-width: 0;
+
+  @include bp.from(bp.$bp-md) {
+    row-gap: 96px;
+  }
 }
 
 .moreFeatures {
@@ -45,10 +125,11 @@
   gap: 32px;
   padding: 38px 22px;
   max-width: 360px;
+  width: 100%;
   border-radius: 10px;
   background: $landing-bg-card;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     max-width: 100%;
   }
 }

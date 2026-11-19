@@ -56,8 +56,12 @@
 .amount {
   font-family: t.$nl-font-general-sans;
   font-weight: 500;
-  font-size: 40px;
+  font-size: 32px;
   letter-spacing: -0.8px;
+
+  @include bp.from(bp.$bp-md) {
+    font-size: 40px;
+  }
 }
 
 .suffix {

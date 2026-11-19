@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { ColumnDef, DataTable } from './DataTable'
 
@@ -155,5 +155,50 @@ describe('DataTable row selection', () => {
       />,
     )
     expect(screen.queryAllByRole('checkbox')).toHaveLength(0)
+  })
+})
+
+describe('DataTable on phones and with client paging', () => {
+  const setWidth = (width: number) => {
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      writable: true,
+      value: width,
+    })
+  }
+
+  afterEach(() => setWidth(1024))
+
+  it('stacks each row into a card with labelled fields on a phone', () => {
+    setWidth(375)
+    render(<DataTable columns={columns} data={rows} ariaLabel="Scores" />)
+
+    expect(screen.queryByRole('table')).toBeNull()
+    const cards = within(
+      screen.getByRole('list', { name: 'Scores' }),
+    ).getAllByRole('listitem')
+    expect(cards).toHaveLength(3)
+    expect(within(cards[0]).getByText('Bravo')).toBeTruthy()
+    expect(within(cards[0]).getByText('Score')).toBeTruthy()
+  })
+
+  it('keeps a scrolling table on a phone when stacking is turned off', () => {
+    setWidth(375)
+    render(<DataTable columns={columns} data={rows} stackOnMobile={false} />)
+
+    expect(screen.getByRole('table')).toBeTruthy()
+  })
+
+  it('pages loaded rows after sorting them', () => {
+    render(<DataTable columns={columns} data={rows} pageSize={2} />)
+
+    fireEvent.click(screen.getByText('Name'))
+    expect(screen.getByText('Alpha')).toBeTruthy()
+    expect(screen.getByText('Bravo')).toBeTruthy()
+    expect(screen.queryByText('Charlie')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    expect(screen.getByText('Charlie')).toBeTruthy()
+    expect(screen.queryByText('Alpha')).toBeNull()
   })
 })

@@ -1,7 +1,10 @@
+@use '../../../../styles/breakpoints' as bp;
+
 .layout {
   display: grid;
   grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
   min-height: min(640px, calc(100vh - 200px));
+  min-height: min(640px, calc(100dvh - 200px));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -65,6 +68,7 @@
 
 .rowTop {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-2);
@@ -226,10 +230,11 @@
   display: none;
 }
 
-@media (max-width: 768px) {
+@include bp.below(bp.$bp-md) {
   .layout {
     grid-template-columns: 1fr;
     min-height: min(560px, calc(100vh - 160px));
+    min-height: min(560px, calc(100dvh - 160px));
   }
 
   .listPane {

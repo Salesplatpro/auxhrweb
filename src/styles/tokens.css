@@ -328,10 +328,12 @@
   /* Breakpoints. Media queries were hand-written per file and ColumnDef.hideBelow
      takes raw pixels, so these keep the two in step. Use the breakpoints.scss
      mixins in SCSS; the raw values are here for hideBelow and JS. */
+  --bp-xs: 480px;
   --bp-sm: 640px;
   --bp-md: 768px;
   --bp-lg: 900px;
   --bp-xl: 1000px;
+  --bp-wide: 1100px;
 
   --z-sticky: 100;
   --z-dropdown: 1000;
@@ -414,4 +416,19 @@
 
   --chart-1: #3987e5;
   --chart-2: #d95926;
+}
+
+/* Phone type scale. Mirrors $bp-sm in styles/breakpoints.scss (plain CSS cannot
+   use the SCSS mixins). The smallest step is lifted so labels stay readable and
+   the large and display steps shrink so headings fit a narrow screen. */
+@media (max-width: 639px) {
+  :root {
+    --text-xs: 0.6875rem; /* 11px */
+    --text-3xl: 1.5rem; /* 24px */
+    --text-4xl: 1.75rem; /* 28px */
+    --text-5xl: 2.25rem; /* 36px */
+    --text-6xl: 2.5rem; /* 40px */
+    --text-7xl: 2.75rem; /* 44px */
+    --text-8xl: 3.5rem; /* 56px */
+  }
 }

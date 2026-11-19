@@ -12,6 +12,11 @@ export const useJobPayment = () => {
     setPayingJobId(jobId)
     try {
       const response = await activateJobPayment(jobId).unwrap()
+      if (response?.data?.alreadyPaid) {
+        notify('success', 'This job was already paid for and is now live.')
+        setPayingJobId(null)
+        return
+      }
       const link = response?.data?.link
       if (!link) {
         throw new Error('No payment link returned')

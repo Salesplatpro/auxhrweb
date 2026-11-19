@@ -126,13 +126,18 @@ const Roles = () => {
       <DataTable
         columns={columns}
         data={roles}
+        pageSize={10}
         isLoading={isLoading}
         getRowKey={(role) => role.id}
         ariaLabel="Roles table"
         showRowNumber
       />
 
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} center>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        center
+        classNames={{ overlay: 'dashboard-modal-overlay' }}>
         <form className={styles.form} onSubmit={handleSubmit} noValidate>
           <h3 className={styles.modalTitle}>
             {editingRole ? 'Edit Role' : 'Create Role'}

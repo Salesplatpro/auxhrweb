@@ -1,11 +1,27 @@
+@use '../../../styles/breakpoints' as bp;
+
 .tabs {
   display: flex;
   gap: var(--space-6);
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
   border-bottom: 1px solid var(--color-border);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @include bp.below(bp.$bp-md) {
+    gap: var(--space-4);
+  }
 }
 
 .tab {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) 0;
@@ -16,6 +32,8 @@
   font-size: var(--text-md);
   font-weight: var(--weight-medium);
   color: var(--color-text-muted);
+  white-space: nowrap;
+  scroll-snap-align: start;
   cursor: pointer;
 }
 

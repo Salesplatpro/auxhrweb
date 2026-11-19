@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -22,6 +24,7 @@
   flex-direction: column;
   width: min(480px, 100%);
   height: 100%;
+  max-width: 100%;
   background: var(--color-bg-elevated, #ffffff);
   box-shadow: var(--shadow-lg, -8px 0 32px rgba(16, 24, 40, 0.18));
   animation: slideIn 180ms var(--ease-enter, ease-out);
@@ -104,6 +107,30 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6, 1.5rem);
+}
+
+@include bp.below(bp.$bp-md) {
+  .header {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+  }
+
+  .title {
+    font-size: var(--text-xl);
+  }
+
+  .close {
+    width: 44px;
+    height: 44px;
+  }
+
+  .body {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .footer {
+    padding: var(--space-3) var(--space-4);
+  }
 }
 
 @keyframes slideIn {

@@ -74,7 +74,11 @@ export const MessageCandidateModal = ({
   }
 
   return (
-    <Modal open onClose={onClose} center classNames={{ modal: styles.modal }}>
+    <Modal
+      open
+      onClose={onClose}
+      center
+      classNames={{ overlay: 'dashboard-modal-overlay', modal: styles.modal }}>
       <h2 className={styles.title}>Message {target.name}</h2>
       <p className={styles.subtitle}>
         We&apos;ve drafted an opener from what their CV says. Edit it before you

@@ -1,4 +1,20 @@
 @use '../../../../styles/form-field' as *;
+@use '../../../../styles/breakpoints' as bp;
+
+.modal {
+  width: min(640px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+}
+
+.content {
+  min-width: 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6);
+}
 
 .title {
   font-family: var(--font-heading);
@@ -19,10 +35,16 @@
   gap: var(--space-3);
   align-items: flex-end;
   margin-bottom: var(--space-4);
+
+  @include bp.below(bp.$bp-sm) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .intentField {
   flex: 1;
+  min-width: 0;
 }
 
 .label {
@@ -51,6 +73,8 @@
 
 .draftHeader {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-2);
@@ -98,6 +122,7 @@
 
 .actionButtons {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-3);
 }
 

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -5,8 +7,11 @@
   gap: 8px;
   cursor: pointer;
   border: none;
+  max-width: 100%;
   border-radius: 10px;
   font-family: var(--font-body);
+  line-height: 1.25;
+  text-align: center;
   font-weight: 600;
   letter-spacing: 0.01em;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease,
@@ -70,14 +75,11 @@
   padding: 10px 16px;
   width: max-content;
 
-  @media (max-width: 768px) {
-    width: 100%;
-    margin: 0 auto;
+  @include bp.below(bp.$bp-md) {
+    min-height: 40px;
 
-    :global(td) &,
-    :global(th) & {
-      width: max-content;
-      margin: 0;
+    :global(td) & {
+      min-height: 0;
     }
   }
 }
@@ -118,7 +120,7 @@
   width: 100%;
   max-width: 20rem;
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     max-width: 28rem;
   }
 }

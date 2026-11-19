@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .page {
   padding: 0;
   display: flex;
@@ -16,7 +18,7 @@
   flex-direction: column;
   gap: var(--space-5);
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     flex-direction: row;
     align-items: flex-start;
   }

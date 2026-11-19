@@ -3,6 +3,8 @@ import React from 'react'
 
 import ResourceImage from '@/assets/resource.png'
 
+import styles from './Resources.module.scss'
+
 export const Resources = () => {
   const resourcePost = {
     title: 'How to boost sales',
@@ -28,26 +30,20 @@ export const Resources = () => {
           </p>
         </div>
       </div>
-      <div className="max-w-screen-lg mx-auto px-4 my-28">
-        <div className="text-4xl text-grey-900 mb-4">Business Resources</div>
-        <p className="text-sm text-grey-500 mb-8">
+      <div className={styles.section}>
+        <div className={styles.title}>Business Resources</div>
+        <p className={styles.lede}>
           Build your tech stack with confidence and guidance, selecting from our
           resources
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className={styles.grid}>
           {resourcePosts.map((item, index) => (
-            <div key={index} className="w-full max-w-[529px]">
-              <img
-                src={item.image}
-                alt="Resource"
-                className="w-full h-[309px] mb-9"
-              />
-              <div className="text-2xl font-semibold mb-3">{item.title}</div>
-              <div className="flex-grow text-base text-grey-500 mb-6">
-                {item.description}
-              </div>
-              <div className="text-base text-primary-strong">{item.action}</div>
+            <div key={index} className={styles.post}>
+              <img src={item.image} alt="Resource" className={styles.image} />
+              <div className={styles.postTitle}>{item.title}</div>
+              <div className={styles.postBody}>{item.description}</div>
+              <div className={styles.postAction}>{item.action}</div>
             </div>
           ))}
         </div>
@@ -57,7 +53,7 @@ export const Resources = () => {
           count={10}
           shape="rounded"
           color="primary"
-          className="m-auto my-5"
+          className={styles.pager}
         />
       </Stack>
     </>

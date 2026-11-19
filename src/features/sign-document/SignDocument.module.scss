@@ -2,6 +2,7 @@
 
 .page {
   min-height: 100vh;
+  min-height: 100dvh;
   padding: var(--space-8) var(--space-4);
   background-color: var(--color-bg-page);
 }
@@ -15,7 +16,7 @@
   background: var(--color-bg-elevated);
   box-shadow: var(--shadow-panel);
 
-  @media (max-width: $bp-sm) {
+  @include below($bp-sm) {
     padding: var(--space-5);
   }
 }

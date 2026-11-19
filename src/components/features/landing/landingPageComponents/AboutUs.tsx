@@ -38,11 +38,11 @@ export const AboutUs = () => {
   return (
     <div>
       <div className={styles.header}>
-        <div className="flex flex-col gap-y-4">
-          <Text size="fs-4xl" weight="bold" className="font-raleway">
+        <div className={styles.stack}>
+          <Text size="fs-4xl" weight="bold" className={styles.heading}>
             We are AuxHR Creating exceptional HR software.
           </Text>
-          <Text size="fs-2xl" className="font-raleway">
+          <Text size="fs-2xl" className={styles.heading}>
             Hiring is tough for both SMEs and large enterprises, which is why we
             built a people first HR solution that makes recruitment faster,
             smarter
@@ -56,11 +56,11 @@ export const AboutUs = () => {
       </div>
       <div className={styles.whatwedo}>
         <img src={Jobs} alt="Jobs" className={styles.jobImg} />
-        <div className="flex flex-col gap-y-4">
-          <Text size="fs-3xl" weight="bold" className="font-raleway">
+        <div className={styles.stack}>
+          <Text size="fs-3xl" weight="bold" className={styles.heading}>
             What We Do
           </Text>
-          <Text size="fs-2xl" weight="normal" className="font-raleway">
+          <Text size="fs-2xl" weight="normal" className={styles.heading}>
             AUXHR is more than just recruitment software it’s a complete
             solution designed to solve common hiring challenges. It simplifies
             the recruitment process from job posting to offer, aligns talent
@@ -77,10 +77,10 @@ export const AboutUs = () => {
           size="fs-3xl"
           weight="bold"
           color="white"
-          className="font-raleway text-center">
+          className={styles.centeredHeading}>
           Who We Help
         </Text>
-        <Text size="fs-2xl" color="white" className="text-justify font-raleway">
+        <Text size="fs-2xl" color="white" className={styles.justified}>
           AUXHR is built to adapt to businesses of any size or stage. For micro
           and small teams, it acts as a ready-made recruitment partner, making
           early hires simple and affordable. For medium-sized companies, it
@@ -91,7 +91,7 @@ export const AboutUs = () => {
           more efficient hiring cycles, allowing HR teams to focus on strategy
           over admin.
         </Text>
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className={styles.stats}>
           {stats.map((item) => (
             <StatCard
               key={item.value}
@@ -102,15 +102,15 @@ export const AboutUs = () => {
         </div>
       </div>
       <div className={styles.tryoutauxhr}>
-        <Text size="fs-3xl" weight="bold" className="text-center font-raleway">
+        <Text size="fs-3xl" weight="bold" className={styles.centeredHeading}>
           Try Out AuxHR
         </Text>
-        <Text size="fs-xl" className="font-raleway">
+        <Text size="fs-xl" className={styles.heading}>
           Explore our full platform with a 15-day free trial. No credit card
           required. Post jobs, hire faster, and manage your people effortlessly
           with our all-in-one platform.
         </Text>
-        <div className="flex gap-2">
+        <div className={styles.ctas}>
           <LandingButton
             title="Get a Demo"
             variant="tertiary"

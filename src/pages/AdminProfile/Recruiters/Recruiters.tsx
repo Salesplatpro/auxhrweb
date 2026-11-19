@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pagination } from '@/components/ui/Pagination'
 import {
   FOLLOW_UP_OPTIONS,
   RECRUITER_STAGE_OPTIONS,
@@ -28,7 +29,6 @@ import {
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { Pagination } from '../../RecruiterProfile/MyJobPosts/Pagination'
 import { OnboardingBadge } from '../Onboarding/OnboardingBadge'
 import { OnboardingDrawer } from '../Onboarding/OnboardingDrawer'
 import styles from './Recruiters.module.scss'

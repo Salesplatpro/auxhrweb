@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 .stepper {
   display: flex;
   align-items: flex-start;
@@ -11,7 +13,7 @@
   -webkit-overflow-scrolling: touch;
   gap: 0;
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     justify-content: center;
     padding: var(--space-6) var(--space-4);
   }
@@ -49,11 +51,11 @@
   color: var(--color-text-muted);
   text-align: center;
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     font-size: var(--text-sm);
   }
 
-  @media (max-width: 479px) {
+  @include bp.below(bp.$bp-xs) {
     position: absolute;
     width: 1px;
     height: 1px;

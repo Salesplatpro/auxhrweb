@@ -1,11 +1,7 @@
-import '../TalentProfile/TalentProfileSidebar.scss'
-
-import React, { useState } from 'react'
-import { AiOutlineCloseCircle } from 'react-icons/ai'
-import { IoMdMenu } from 'react-icons/io'
-import { Outlet } from 'react-router-dom'
+import React from 'react'
 
 import { recruiterNavSections } from '@/components/features/recruiter/SideBar/sidebarData'
+import { DashboardShell } from '@/components/layout/DashboardShell'
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader/DashboardHeader'
 import { PlanPromoCard } from '@/features/dashboard/components/PlanPromoCard/PlanPromoCard'
 import { useRecruiterNavCounts } from '@/features/dashboard/hooks/useRecruiterNavCounts'
@@ -17,31 +13,13 @@ import { SidebarUserCard } from '../LoggedInUserBadge'
 import { CompanyBanner } from './CompanyBanner/CompanyBanner'
 
 const RecruiterProfileSidebar = () => {
-  const [isOpen, setIsOpen] = useState(false)
   const { counts, showPeople } = useRecruiterNavCounts()
-  const close = () => setIsOpen(false)
 
   return (
     <ThemeProvider>
-      <div className="dashboard">
-        <div className="dashboard-nav">
-          <button
-            className="menu"
-            aria-label="Open menu"
-            onClick={() => setIsOpen(!isOpen)}>
-            {!isOpen && <IoMdMenu className="menu-icon" />}
-          </button>
-          <DashboardHeader audience="recruiter" />
-        </div>
-        {isOpen && (
-          <button
-            type="button"
-            className="sidebar-backdrop"
-            aria-label="Close menu"
-            onClick={close}
-          />
-        )}
-        <div className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
+      <DashboardShell
+        header={<DashboardHeader audience="recruiter" />}
+        sidebar={(close) => (
           <SideBar
             sections={recruiterNavSections(counts, showPeople)}
             handleClick={close}
@@ -49,15 +27,9 @@ const RecruiterProfileSidebar = () => {
             promoSlot={<PlanPromoCard onNavigate={close} />}
             footerSlot={<SidebarUserCard />}
           />
-          <button className="close" aria-label="Close menu" onClick={close}>
-            {isOpen && <AiOutlineCloseCircle className="close-icon" />}
-          </button>
-        </div>
-        <div className="outlet">
-          <Outlet />
-        </div>
+        )}>
         <ProductTourHost audience="recruiter" />
-      </div>
+      </DashboardShell>
     </ThemeProvider>
   )
 }

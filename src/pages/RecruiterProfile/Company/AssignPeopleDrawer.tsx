@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { Drawer } from '@/components/ui/Drawer/Drawer'
+import { Pagination } from '@/components/ui/Pagination'
 import { Spinner } from '@/components/ui/Spinner'
 import {
   useAssignedStaffIds,
@@ -12,7 +13,6 @@ import { useDebouncedValue } from '@/hooks'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
-import { Pagination } from '../MyJobPosts/Pagination'
 import styles from './CompanyMembersPanel.module.scss'
 
 const PEOPLE_PER_PAGE = 20

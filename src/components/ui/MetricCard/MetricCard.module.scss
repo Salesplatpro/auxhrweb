@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .link {
   display: block;
   color: inherit;
@@ -56,6 +58,10 @@
   line-height: 1.1;
   color: var(--color-text-heading);
   overflow-wrap: anywhere;
+
+  @include bp.below(bp.$bp-md) {
+    font-size: var(--text-2xl);
+  }
 }
 
 .hint {

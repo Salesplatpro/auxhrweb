@@ -489,6 +489,7 @@ export const SingleJobTable = ({
       <DataTable
         columns={columns}
         data={applications}
+        pageSize={10}
         getRowKey={(item) => item.id}
         ariaLabel="Job applications table"
         selectedRowKeys={selectedRowKeys}

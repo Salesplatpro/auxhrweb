@@ -78,11 +78,11 @@ export const Features = () => {
         <Text size="fs-5xl" color="hero" weight="bold">
           AuxHR is your all in one solution for HR and hiring
         </Text>
-        <Text size="fs-2xl" weight="bold" className="text-center">
+        <Text size="fs-2xl" weight="bold" className={styles.centered}>
           AuxHR brings every HR function together hiring, data management, and
           attendance tracking in one simple system of record.
         </Text>
-        <div className="flex flex-col md:flex-row justify-center gap-3 pt-4">
+        <div className={styles.ctas}>
           <LandingButton
             title="Try it free"
             variant="primary"
@@ -102,8 +102,8 @@ export const Features = () => {
       />
       <FeaturesSection data={featureData} header="Features" />
 
-      <div className="flex flex-col gap-4 p-8 md:flex md:px-20 md:py-36 md:flex-row md:gap-7">
-        <div className="flex flex-col items-start gap-y-12 md:gap-y-24">
+      <div className={styles.showcase}>
+        <div className={styles.showcaseCopy}>
           <div className={styles.logo}>
             <img src={auxHrPink} alt="aux hr" />
           </div>
@@ -115,7 +115,7 @@ export const Features = () => {
         <img src={cypress} alt="job oppurtunity" className={styles.pics} />
       </div>
       <FeaturesSection data={moreFeatureData} header="More Features" />
-      <div className="flex flex-col gap-4 p-8 md:items-center md:px-20 md:py-36 md:flex-row md:gap-7">
+      <div className={`${styles.showcase} ${styles.showcaseCentered}`}>
         <img src={aiConfig} alt="job oppurtunity" className={styles.pics} />
         <Text weight="bold" size="fs-2xl">
           Smart Recruitment Engine Post jobs, track applicants, and manage the

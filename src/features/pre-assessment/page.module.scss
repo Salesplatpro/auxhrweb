@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 .centeredState {
   display: flex;
   align-items: center;
@@ -40,11 +42,11 @@
   padding: 0 var(--space-4);
   box-sizing: border-box;
 
-  @media (min-width: 768px) {
+  @include bp.from(bp.$bp-md) {
     width: 75%;
   }
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     width: 60%;
   }
 }
@@ -128,7 +130,7 @@
   background: var(--color-bg-page);
   flex-shrink: 0;
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     padding: var(--space-4) var(--space-6);
   }
 }
@@ -189,7 +191,7 @@
   overflow: auto;
   padding: var(--space-4);
 
-  @media (min-width: 640px) {
+  @include bp.from(bp.$bp-sm) {
     padding: var(--space-6);
   }
 }
@@ -200,6 +202,8 @@
 
 .progressRow {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   justify-content: space-between;
   font-size: var(--text-sm);
   font-family: var(--font-heading);
@@ -227,7 +231,7 @@
   flex-direction: column;
   gap: var(--space-6);
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     flex-direction: row;
   }
 }
@@ -306,7 +310,7 @@
   flex-direction: column;
   gap: var(--space-4);
 
-  @media (min-width: 1024px) {
+  @include bp.from(bp.$bp-xl) {
     width: 256px;
   }
 }

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { ColumnDef, DataTable, TableToolbar } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterBar, FilterFieldConfig } from '@/components/ui/FilterPanel'
+import { Pagination } from '@/components/ui/Pagination'
 import { Tabs } from '@/components/ui/Tabs'
 import { SupportStatusBadge } from '@/features/support/components/SupportStatusBadge'
 import {
@@ -25,7 +26,6 @@ import {
 } from '@/features/support/types'
 import { formatTimeAgo } from '@/utils/calculateDaysFromCreation'
 
-import { Pagination } from '../../RecruiterProfile/MyJobPosts/Pagination'
 import styles from './Support.module.scss'
 
 const PAGE_SIZE = 20

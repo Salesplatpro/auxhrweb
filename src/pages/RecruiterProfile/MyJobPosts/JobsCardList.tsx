@@ -4,7 +4,11 @@ import { Link } from 'react-router-dom'
 import { StatusBadge } from '@/components/ui/Badge'
 import { RecruiterJob } from '@/utils/recruiterJobPostsTypes'
 
-import { getStatusBadge, getStatusLabel } from '../getJobStatus'
+import {
+  getStatusBadge,
+  getStatusLabel,
+  jobDisplayStatus,
+} from '../getJobStatus'
 import {
   isDraftLike,
   jobLocation,
@@ -44,8 +48,8 @@ export const JobsCardList = ({ data, emptyState }: JobsCardListProps) => {
           </p>
           <div className={styles.rowBottom}>
             <StatusBadge
-              status={getStatusLabel(job.status)}
-              {...getStatusBadge(job.status)}
+              status={getStatusLabel(jobDisplayStatus(job))}
+              {...getStatusBadge(jobDisplayStatus(job))}
               showDot
             />
             <span className={styles.subtext}>

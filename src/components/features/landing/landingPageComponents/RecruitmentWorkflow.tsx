@@ -3,7 +3,6 @@ import React from 'react'
 
 import { Text } from '@/components/ui/Typography'
 
-import { containerPadding } from './landingData'
 import { SectionHeader } from './SectionHeader'
 import styles from './styles/RecruitmentWorkflow.module.scss'
 import { HowItWorksType } from './utils'
@@ -24,15 +23,15 @@ export const RecruitmentWorkflow = ({
   const bgStyle = styles[variant]
 
   return (
-    <div className={cn(containerPadding, styles.container, bgStyle)}>
+    <div className={cn(styles.container, bgStyle)}>
       <SectionHeader title={title} subTitle={subTitle} variant={variant} />
       <div className={styles.gridContainer}>
-        {data.map(({ text, image, alt, style, imgClass }, index) => (
+        {data.map(({ text, image, alt, style }, index) => (
           <div key={index} className={style}>
-            <Text size="fs-2xl" weight="bold" className="p-6">
+            <Text size="fs-2xl" weight="bold" className={styles.itemText}>
               {text}
             </Text>
-            <img src={image} alt={alt} className={imgClass} />
+            <img src={image} alt={alt} />
           </div>
         ))}
       </div>

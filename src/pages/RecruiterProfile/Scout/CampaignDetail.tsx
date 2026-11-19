@@ -205,6 +205,7 @@ export const CampaignDetail = () => {
           <DataTable
             columns={columns}
             data={runs}
+            pageSize={10}
             isLoading={isLoadingRuns}
             getRowKey={(row) => row.id}
             ariaLabel="Upload history"

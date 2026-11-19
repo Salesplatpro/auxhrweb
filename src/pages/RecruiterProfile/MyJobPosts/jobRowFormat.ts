@@ -49,6 +49,9 @@ export const jobPostedLabel = (job: RecruiterJob) =>
 /** Where Edit goes: a draft continues the post-a-job flow; a published job opens the edit page. */
 export const jobEditPath = (job: RecruiterJob) => {
   if (!isDraftLike(job)) return `/recruiterDashboard/editJob/${job.id}`
+  if (job.status === 'pending_payment' && job.aiConfigId) {
+    return `/recruiterDashboard/postjob/${job.id}/review`
+  }
   return job.aiConfigId
     ? `/recruiterDashboard/postjob/${job.id}/details`
     : `/recruiterDashboard/postjob/${job.id}`

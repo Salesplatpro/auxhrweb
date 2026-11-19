@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
 import { Message } from '@/features/messaging/types'
 import { DisplayMessage } from '@/pages/RecruiterProfile/MyJobPosts/Messaging/DisplayMessage'
+import { BREAKPOINTS, isBelow } from '@/styles/breakpoints'
 import { formatTimeAgo } from '@/utils'
 
 import styles from './InboxLayout.module.scss'
@@ -65,12 +66,11 @@ export const InboxLayout = ({
   const selected = conversations.find(
     (item) => item.applicationId === selectedApplicationId,
   )
-  const isNarrow =
-    typeof window !== 'undefined' ? window.innerWidth <= 768 : false
+  const isNarrow = isBelow(BREAKPOINTS.md)
   const [narrow, setNarrow] = useState(isNarrow)
 
   useEffect(() => {
-    const onResize = () => setNarrow(window.innerWidth <= 768)
+    const onResize = () => setNarrow(isBelow(BREAKPOINTS.md))
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])

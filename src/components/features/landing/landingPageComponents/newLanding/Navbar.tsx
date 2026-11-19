@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { HiOutlineBars3, HiOutlineXMark } from 'react-icons/hi2'
 
 import { paths } from '@/paths'
+import { BREAKPOINTS, isBelow } from '@/styles/breakpoints'
 
 import chevronDown from './assets/chevron-down.svg'
 import logoMark from './assets/logo-mark.png'
@@ -13,7 +14,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 900 && isMenuOpen) setIsMenuOpen(false)
+      if (!isBelow(BREAKPOINTS.lg) && isMenuOpen) setIsMenuOpen(false)
     }
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)

@@ -1,21 +1,25 @@
-import cn from 'classnames'
 import React, { ReactNode } from 'react'
 
 import { Text } from '@/components/ui/Typography'
 
+import styles from './styles/SectionHeader.module.scss'
+
 type SectionHeaderProps = {
   title?: string | ReactNode
   subTitle: string | ReactNode
-  className?: string
+  centered?: boolean
   variant?: 'primary' | 'secondary'
 }
 export const SectionHeader = ({
   title,
   subTitle,
-  className,
+  centered = false,
   variant = 'primary',
 }: SectionHeaderProps) => (
-  <div className={cn('flex flex-col', className)}>
+  <div
+    className={
+      centered ? `${styles.header} ${styles.centered}` : styles.header
+    }>
     <Text
       size="fs-md"
       color={variant === 'secondary' ? 'white' : 'tag'}

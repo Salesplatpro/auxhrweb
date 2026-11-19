@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .card {
   display: flex;
   flex-direction: column;
@@ -59,8 +61,16 @@
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
+
+  @include bp.from(bp.$bp-sm) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include bp.from(bp.$bp-lg) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .factLabel {
@@ -182,6 +192,8 @@
 
 .planHead {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   align-items: center;
   justify-content: space-between;
 }
@@ -203,6 +215,8 @@
 
 .meterRow {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
   justify-content: space-between;
   font-size: var(--text-sm);
   margin-bottom: var(--space-1);

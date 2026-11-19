@@ -17,6 +17,8 @@ export const getStatusBadge = (status: string) => {
       return { backgroundColor: '#fff8e1', color: '#c99a06' }
     case 'active':
       return { backgroundColor: '#edfeee', color: '#2e9e4f' }
+    case 'payment_failed':
+      return { backgroundColor: '#fff0ef', color: '#d64541' }
     case 'suspended':
     case 'pending_payment':
       return { backgroundColor: '#fff4e2', color: '#c17600' }
@@ -39,8 +41,21 @@ export const statusSavedMessage = (status: string) =>
     ? 'Saved. Pay for this job to put it live.'
     : 'Job status updated'
 
+export type JobPaymentStatus = 'pending' | 'failed' | null
+
+/** A pay-per-use job whose last checkout failed is shown apart from one never paid for. */
+export const jobDisplayStatus = (job: {
+  status: string
+  paymentStatus?: JobPaymentStatus
+}) =>
+  job.status === 'pending_payment' && job.paymentStatus === 'failed'
+    ? 'payment_failed'
+    : job.status
+
 export const getStatusLabel = (status: string) =>
-  status === 'pending_payment'
+  status === 'payment_failed'
+    ? 'Payment failed'
+    : status === 'pending_payment'
     ? 'Awaiting payment'
     : JOB_STATUS_OPTIONS.find((option) => option.value === status)?.label ??
       status

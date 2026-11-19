@@ -1,0 +1,11 @@
+.header {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.centered {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}

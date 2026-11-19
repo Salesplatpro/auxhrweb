@@ -1,9 +1,29 @@
 import React from 'react'
 import { FaGreaterThan, FaLessThan } from 'react-icons/fa6'
 
-import { Select } from '../../../components/forms/Select/Select'
-import { Button } from '../../../components/ui/Button'
+import { Select } from '../../forms/Select/Select'
+import { Button } from '../Button'
 import styles from './Pagination.module.scss'
+
+const ELLIPSIS = 'ellipsis' as const
+
+/** First, last and the pages around the current one, with gaps marked so long lists fit. */
+export const pageItems = (
+  currentPage: number,
+  totalPages: number,
+): Array<number | typeof ELLIPSIS> => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+  const start = Math.max(2, currentPage - 1)
+  const end = Math.min(totalPages - 1, currentPage + 1)
+  const items: Array<number | typeof ELLIPSIS> = [1]
+  if (start > 2) items.push(ELLIPSIS)
+  for (let page = start; page <= end; page++) items.push(page)
+  if (end < totalPages - 1) items.push(ELLIPSIS)
+  items.push(totalPages)
+  return items
+}
 
 export type PaginationProps = {
   totalItems: number
@@ -26,12 +46,7 @@ export const Pagination = ({
   onItemsPerPageChange,
   variant = 'pages',
 }: PaginationProps) => {
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
-
-  const pages = []
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i)
-  }
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage))
 
   const handlePrevious = () => {
     if (currentPage > 1) onPageChange(currentPage - 1)
@@ -91,28 +106,47 @@ export const Pagination = ({
       </div>
       <div className={styles.pages}>
         <button
+          type="button"
           onClick={handlePrevious}
           disabled={currentPage === 1}
+          aria-label="Previous page"
           className={styles.navButton}>
-          <FaLessThan size={14} />
-          <span>Previous</span>
+          <FaLessThan size={14} aria-hidden />
+          <span className={styles.navLabel}>Previous</span>
         </button>
 
-        {pages.map((page) => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={page === currentPage ? styles.pageActive : styles.page}>
-            {page}
-          </button>
-        ))}
+        <div className={styles.pageList}>
+          {pageItems(currentPage, totalPages).map((page, index) =>
+            page === ELLIPSIS ? (
+              <span key={`gap-${index}`} className={styles.gap} aria-hidden>
+                …
+              </span>
+            ) : (
+              <button
+                type="button"
+                key={page}
+                onClick={() => onPageChange(page)}
+                aria-current={page === currentPage ? 'page' : undefined}
+                className={
+                  page === currentPage ? styles.pageActive : styles.page
+                }>
+                {page}
+              </button>
+            ),
+          )}
+        </div>
+        <span className={styles.pageOf}>
+          Page {currentPage} of {totalPages}
+        </span>
 
         <button
+          type="button"
           onClick={handleNext}
-          disabled={currentPage === totalPages}
+          disabled={currentPage >= totalPages}
+          aria-label="Next page"
           className={styles.navButton}>
-          <span>Next</span>
-          <FaGreaterThan size={14} />
+          <span className={styles.navLabel}>Next</span>
+          <FaGreaterThan size={14} aria-hidden />
         </button>
       </div>
     </div>

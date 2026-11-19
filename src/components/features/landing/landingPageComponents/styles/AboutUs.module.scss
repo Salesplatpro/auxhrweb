@@ -1,9 +1,10 @@
 @use 'index' as *;
+@use '../../../../../styles/breakpoints' as bp;
 
 %pad {
   padding: 98px 72px;
 
-  @media (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     padding: 32px 24px;
   }
 }
@@ -15,7 +16,7 @@
   gap: 70px;
   padding: 109px 88px;
 
-  @media (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     flex-direction: column;
     padding: 60px 20px;
     gap: 32px;
@@ -26,7 +27,7 @@
   position: relative;
   flex-shrink: 0;
 
-  @media (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     width: 100%;
   }
 }
@@ -38,7 +39,7 @@
   height: auto;
   object-fit: cover;
 
-  @media (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     max-width: 100%;
   }
 }
@@ -51,7 +52,7 @@
   position: absolute;
   z-index: -20;
 
-  @media (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     display: none;
   }
 }
@@ -76,7 +77,7 @@
   @extend %pad;
   background: $landing-bg-card;
 
-  @media screen and (max-width: $small-breakpoint) {
+  @include bp.below(bp.$bp-lg) {
     flex-direction: column-reverse;
     gap: 32px;
   }
@@ -97,4 +98,42 @@
   text-align: center;
   gap: 27px;
   @extend %pad;
+}
+
+.heading {
+  font-family: var(--font-heading);
+}
+
+.centeredHeading {
+  font-family: var(--font-heading);
+  text-align: center;
+}
+
+.justified {
+  font-family: var(--font-heading);
+  text-align: justify;
+
+  @include bp.below(bp.$bp-sm) {
+    text-align: left;
+  }
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--space-4);
+  min-width: 0;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-6);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }

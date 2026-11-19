@@ -1,53 +1,80 @@
-// Breakpoints mirror the landing feature's responsive type scale.
-$small-breakpoint: 868px;
-$mobile-breakpoint: 480px;
+@use '../../../styles/breakpoints' as bp;
 
-@mixin responsive-font($base-size, $small-size, $mobile-size) {
+// Desktop size, tablet size, phone size. Phones never drop below 11px so
+// body copy, labels and hints stay readable on small screens.
+@mixin responsive-font($base-size, $tablet-size, $phone-size, $leading) {
   font-size: $base-size;
+  line-height: $leading;
+  overflow-wrap: anywhere;
 
-  @media screen and (max-width: $small-breakpoint) {
-    font-size: $small-size;
+  @include bp.below(bp.$bp-lg) {
+    font-size: $tablet-size;
   }
 
-  @media screen and (max-width: $mobile-breakpoint) {
-    font-size: $mobile-size;
+  @include bp.below(bp.$bp-sm) {
+    font-size: $phone-size;
   }
 }
 
 .fs-xs {
-  font-size: 10px;
+  @include responsive-font(var(--text-xs), 11px, 11px, var(--leading-normal));
 }
 
 .fs-sm {
-  @include responsive-font(12px, 10px, 9px);
+  @include responsive-font(
+    var(--text-sm),
+    var(--text-sm),
+    var(--text-sm),
+    var(--leading-normal)
+  );
 }
 
 .fs-md {
-  @include responsive-font(14px, 12px, 10px);
+  @include responsive-font(
+    var(--text-md),
+    var(--text-md),
+    var(--text-md),
+    var(--leading-normal)
+  );
 }
 
 .fs-lg {
-  @include responsive-font(16px, 14px, 12px);
+  @include responsive-font(
+    var(--text-lg),
+    var(--text-lg),
+    15px,
+    var(--leading-normal)
+  );
 }
 
 .fs-xl {
-  @include responsive-font(18px, 16px, 14px);
+  @include responsive-font(
+    var(--text-xl),
+    var(--text-xl),
+    var(--text-lg),
+    var(--leading-snug)
+  );
 }
 
 .fs-2xl {
-  @include responsive-font(20px, 18px, 16px);
+  @include responsive-font(
+    var(--text-2xl),
+    var(--text-2xl),
+    var(--text-xl),
+    var(--leading-snug)
+  );
 }
 
 .fs-3xl {
-  @include responsive-font(28px, 20px, 18px);
+  @include responsive-font(var(--text-3xl), 24px, 22px, var(--leading-tight));
 }
 
 .fs-4xl {
-  @include responsive-font(42px, 28px, 18px);
+  @include responsive-font(42px, 32px, 26px, var(--leading-tight));
 }
 
 .fs-5xl {
-  @include responsive-font(52px, 28px, 20px);
+  @include responsive-font(52px, 36px, 28px, var(--leading-tight));
 }
 
 .default {

@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .meta {
   display: flex;
   flex-wrap: wrap;
@@ -82,7 +84,7 @@
   gap: var(--space-2);
 }
 
-@media (max-width: 1024px) {
+@include bp.below(bp.$bp-xl) {
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -93,7 +95,7 @@
   }
 }
 
-@media (max-width: 560px) {
+@include bp.below(bp.$bp-sm) {
   .stats {
     grid-template-columns: 1fr;
   }

@@ -4,6 +4,8 @@ import 'react-circular-progressbar/dist/styles.css'
 import React from 'react'
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar'
 
+import styles from './ProgressBar.module.scss'
+
 interface ProgressBarProps {
   percentage: number
   size?: number // Optional prop to define the size of the progress circle
@@ -24,9 +26,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   const clampedPercentage = Math.max(0, Math.min(percentage, 100))
 
   return (
-    <div
-      style={{ width: size, height: size }}
-      className="font-raleway font-semibold">
+    <div style={{ width: size, height: size }} className={styles.wrap}>
       <CircularProgressbar
         value={clampedPercentage}
         text={`${clampedPercentage.toFixed(0)}%`}

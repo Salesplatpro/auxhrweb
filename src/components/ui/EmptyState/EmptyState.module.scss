@@ -5,8 +5,9 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 40px 20px;
+  padding: var(--space-10) var(--space-5);
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .iconWrap {
@@ -31,7 +32,7 @@
 .title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-text-heading);
   letter-spacing: -0.02em;

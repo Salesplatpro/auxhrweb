@@ -1,3 +1,5 @@
+@use '../../../styles/breakpoints' as bp;
+
 .list {
   display: flex;
   flex-direction: column;
@@ -180,7 +182,7 @@
   border: 1px solid var(--color-brand-200);
 }
 
-@media (max-width: 900px) {
+@include bp.below(bp.$bp-lg) {
   .card {
     flex-direction: column;
   }
@@ -192,7 +194,7 @@
   gap: var(--space-5);
   align-items: start;
 
-  @media (max-width: 1024px) {
+  @include bp.below(bp.$bp-xl) {
     grid-template-columns: minmax(0, 1fr);
   }
 }

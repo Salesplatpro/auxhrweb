@@ -253,16 +253,23 @@ export const useStaffActions = (organizationId: string | null) => {
         : await createBenefit(orgId, payload)
       await mutate<Benefit[]>(
         benefitsKey(orgId),
-        (benefits = []) =>
-          [...benefits.filter((item) => item.id !== saved.id), saved].sort(
-            (a, b) => a.name.localeCompare(b.name),
-          ),
+        (benefits = []) => {
+          const givenTo =
+            benefits.find((item) => item.id === saved.id)?.givenTo ?? 0
+          return [
+            ...benefits.filter((item) => item.id !== saved.id),
+            { ...saved, givenTo },
+          ].sort((a, b) => a.name.localeCompare(b.name))
+        },
         { revalidate: false },
       )
       return saved
     }, 'Could not save this benefit')
-    if (benefit)
-      notify('success', benefitId ? 'Benefit saved' : 'Benefit added')
+    if (benefit) {
+      notify('success', `${benefit.name} ${benefitId ? 'saved' : 'added'}`, {
+        description: "Tick it on anyone's Pay tab.",
+      })
+    }
     return benefit
   }
 

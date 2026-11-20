@@ -2,10 +2,8 @@ import useSWR from 'swr'
 
 import { useProfile } from '@/features/profile/hooks/useProfile'
 
-import { fetchPeopleAccess, staffBase } from '../services/peopleService'
-
-const peopleAccessKey = (organizationId: string) =>
-  `${staffBase(organizationId)}/access`
+import { fetchPeopleAccess } from '../services/peopleService'
+import { peopleAccessKey } from './useStaffData'
 
 export const usePeopleAccess = () => {
   const { profile, isLoading: isProfileLoading } = useProfile()
@@ -25,6 +23,8 @@ export const usePeopleAccess = () => {
     isOwner: data?.isOwner ?? false,
     canManagePeople,
     assignedCount,
+    ownerFirstName: data?.ownerFirstName ?? null,
+    accessRequested: data?.accessRequested ?? false,
     hasPeopleAccess: canManagePeople || assignedCount > 0,
   }
 }

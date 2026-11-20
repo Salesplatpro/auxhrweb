@@ -31,6 +31,8 @@ const access = (overrides: Record<string, unknown>) =>
     canManagePeople: false,
     hasPeopleAccess: false,
     organizationId: 'org-1',
+    ownerFirstName: 'Philip',
+    accessRequested: false,
     ...overrides,
   })
 
@@ -43,9 +45,21 @@ describe('RequirePeopleAccess', () => {
     access({})
     renderGuard()
 
-    expect(screen.getByText("You don't have access to this")).toBeTruthy()
-    expect(screen.getByText("Ask your company's creator.")).toBeTruthy()
+    expect(screen.getByText("You don't have access to People")).toBeTruthy()
+    expect(screen.getByText(/Ask Philip if you need access/)).toBeTruthy()
+    expect(screen.getByText('Ask Philip for access')).toBeTruthy()
     expect(screen.queryByText('People content')).toBeNull()
+  })
+
+  it('shows a sent request as already asked', () => {
+    access({ ownerFirstName: 'Philip', accessRequested: true })
+    renderGuard()
+
+    expect(
+      screen
+        .getByRole('button', { name: 'Request sent' })
+        .hasAttribute('disabled'),
+    ).toBe(true)
   })
 
   it('lets through someone who can manage people', () => {
@@ -60,7 +74,7 @@ describe('RequirePeopleAccess', () => {
     renderGuard()
 
     expect(screen.queryByText('People content')).toBeNull()
-    expect(screen.queryByText("You don't have access to this")).toBeNull()
+    expect(screen.queryByText("You don't have access to People")).toBeNull()
   })
 })
 

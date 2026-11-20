@@ -57,6 +57,9 @@ export interface PeopleAccess {
   canManagePeople: boolean
   /** How many current employees this person has been assigned to track. */
   assignedCount: number
+  ownerFirstName: string | null
+  /** True for a day after this person asked the owner for access. */
+  accessRequested: boolean
 }
 
 export interface HrAssignee {

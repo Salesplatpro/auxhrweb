@@ -289,7 +289,7 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
               footerAction={{
                 label: 'New commission plan',
                 icon: <LuPlus aria-hidden />,
-                onClick: () => navigate(peoplePaths.commissionPlans),
+                onClick: () => navigate(peoplePaths.newCommissionPlan),
               }}
             />
             <TextField

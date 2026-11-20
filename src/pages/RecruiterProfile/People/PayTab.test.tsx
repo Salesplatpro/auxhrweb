@@ -19,10 +19,13 @@ vi.mock('@/features/people/hooks/useStaffData', () => ({
       {
         id: 'plan-1',
         name: 'Product targets 2026',
-        tiers: [
-          { fromPercent: 0, toPercent: 80, ratePercent: 2, boost: null },
-          { fromPercent: 80, toPercent: null, ratePercent: 4, boost: null },
+        paidOn: 'product_revenue',
+        frequency: 'quarterly',
+        bands: [
+          { fromAmount: 0, toAmount: 5000000, ratePercent: 2 },
+          { fromAmount: 5000000, toAmount: null, ratePercent: 4 },
         ],
+        needsBands: false,
         peopleCount: 5,
       },
     ],
@@ -127,7 +130,7 @@ describe('PayTab', () => {
     fireEvent.click(screen.getByRole('button', { name: /No commission/ }))
 
     expect(screen.getByText('Product targets 2026')).toBeTruthy()
-    expect(screen.getByText('2 tiers · 2% to 4% · 5 people')).toBeTruthy()
+    expect(screen.getByText('2 tiers · 2% → 4% · 5 people')).toBeTruthy()
     expect(
       screen.getByRole('button', { name: 'New commission plan' }),
     ).toBeTruthy()

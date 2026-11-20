@@ -5,6 +5,9 @@ export const peoplePaths = {
   accessLog: '/recruiterDashboard/people/access-log',
   benefits: '/recruiterDashboard/people/benefits',
   commissionPlans: '/recruiterDashboard/people/commission-plans',
+  newCommissionPlan: '/recruiterDashboard/people/commission-plans/new',
+  commissionPlan: (planId: string) =>
+    `/recruiterDashboard/people/commission-plans/${planId}`,
   headcountCost: '/recruiterDashboard/people/headcount-cost',
   companyProfile: '/recruiterDashboard/people/company-profile',
   orgChart: '/recruiterDashboard/people/org-chart',

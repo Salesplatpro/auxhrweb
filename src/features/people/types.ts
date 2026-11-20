@@ -337,22 +337,34 @@ export interface PayData {
   grants: ShareGrant[]
 }
 
-export interface CommissionTier {
-  fromPercent: number
-  toPercent: number | null
+export interface CommissionBand {
+  fromAmount: number
+  toAmount: number | null
   ratePercent: number
-  boost: number | null
 }
+
+export type CommissionPaidOn = 'yearly_sales' | 'product_revenue' | 'renewals'
+
+export type CommissionFrequency = 'monthly' | 'quarterly' | 'yearly'
 
 export interface CommissionPlanPayload {
   name: string
-  tiers: CommissionTier[]
+  paidOn: CommissionPaidOn
+  frequency: CommissionFrequency
+  bands: CommissionBand[]
 }
 
-export interface CommissionPlan extends CommissionPlanPayload {
+export interface CommissionPlan {
   id: string
+  name: string
+  paidOn: CommissionPaidOn | null
+  frequency: CommissionFrequency | null
+  bands: CommissionBand[] | null
+  /** Plans from before bands existed keep their people but pay nothing until edited. */
+  needsBands: boolean
   /** Only the plan list counts people; a freshly saved plan has none yet. */
   peopleCount?: number
+  people?: string[]
 }
 
 export interface HeadcountCostRow {

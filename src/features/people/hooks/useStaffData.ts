@@ -20,7 +20,7 @@ import {
   staffBase,
   toQueryString,
 } from '../services/peopleService'
-import { AccessLogQuery, StaffListQuery } from '../types'
+import { AccessLogQuery, HeadcountMonths, StaffListQuery } from '../types'
 import { isForbidden } from '../utils/isForbidden'
 
 const staffListKey = (organizationId: string, query: StaffListQuery) =>
@@ -199,11 +199,16 @@ export const useCommissionPlans = (organizationId: string | null) => {
   return { plans: data ?? [], isLoading, hasError: !!error }
 }
 
-export const useHeadcountCost = (organizationId: string | null) => {
+export const useHeadcountCost = (
+  organizationId: string | null,
+  months: HeadcountMonths,
+) => {
   const { data, error, isLoading } = useSWR(
-    organizationId ? `${staffBase(organizationId)}/headcount-cost` : null,
-    () => (organizationId ? fetchHeadcountCost(organizationId) : null),
-    VIEW_LOGGED_OPTIONS,
+    organizationId
+      ? `${staffBase(organizationId)}/headcount-cost?months=${months}`
+      : null,
+    () => (organizationId ? fetchHeadcountCost(organizationId, months) : null),
+    { ...VIEW_LOGGED_OPTIONS, keepPreviousData: true },
   )
 
   return { cost: data ?? null, isLoading, hasError: !!error }

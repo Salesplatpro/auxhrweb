@@ -365,9 +365,20 @@ export interface HeadcountCostRow {
   total: number
 }
 
+export interface HeadcountPeople {
+  count: number
+  names: string[]
+}
+
+export type HeadcountMonths = 3 | 6 | 12
+
 export interface HeadcountCost {
   totals: HeadcountCostRow[]
   departments: HeadcountCostRow[]
+  headcount: number
+  invited: HeadcountPeople
+  left: HeadcountPeople
+  byMonth: { month: string; headcount: number }[]
 }
 
 export type DocumentTemplate =

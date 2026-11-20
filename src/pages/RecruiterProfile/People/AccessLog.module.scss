@@ -1,4 +1,35 @@
+@use '../../../styles/breakpoints' as *;
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-4);
+
+  > * {
+    min-width: 180px;
+  }
+
+  @include below($bp-sm) {
+    > * {
+      flex: 1 1 100%;
+    }
+  }
+}
+
+.export {
+  margin-left: auto;
+
+  @include below($bp-sm) {
+    margin-left: 0;
+  }
+}
+
 .who {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
   font-weight: var(--weight-semibold);
   color: var(--color-text-heading);
 }

@@ -5,6 +5,7 @@ import { downloadBlobResponse } from '@/utils/downloadBlob'
 
 import {
   AccessLogData,
+  AccessLogEntry,
   AccessLogQuery,
   Benefit,
   BenefitPayload,
@@ -86,6 +87,24 @@ export const fetchPeopleAccess = (organizationId: string) =>
   unwrap<{ access: PeopleAccess }>(
     httpClient.get(`${staffBase(organizationId)}/access`),
   ).then((data) => data.access)
+
+const ACCESS_LOG_EXPORT_PAGE = 100
+
+export const fetchAccessLogRows = async (
+  organizationId: string,
+  query: Omit<AccessLogQuery, 'limit' | 'offset'>,
+) => {
+  const rows: AccessLogEntry[] = []
+  for (;;) {
+    const page = await fetchAccessLog(organizationId, {
+      ...query,
+      limit: ACCESS_LOG_EXPORT_PAGE,
+      offset: rows.length,
+    })
+    rows.push(...page.items)
+    if (page.items.length === 0 || rows.length >= page.total) return rows
+  }
+}
 
 export const requestPeopleAccess = (organizationId: string) =>
   unwrap<undefined>(

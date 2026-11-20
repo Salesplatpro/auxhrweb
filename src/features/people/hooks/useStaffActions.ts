@@ -24,6 +24,7 @@ import {
   fetchStaffExport,
   fillCompanyProfileFromFile,
   inviteStaff,
+  requestPeopleAccess,
   resendStaffDocument,
   retryDocumentCopy,
   saveChecklistDefaults,
@@ -64,6 +65,7 @@ import {
   checklistKey,
   commissionPlansKey,
   companyProfileKey,
+  peopleAccessKey,
   staffActivityKey,
   staffDocumentsKey,
   staffMemberKey,
@@ -244,6 +246,22 @@ export const useStaffActions = (organizationId: string | null) => {
     }, 'Could not remove this grant')
     if (removed) notify('success', 'Share grant removed')
     return removed
+  }
+
+  const requestAccess = async (ownerFirstName: string | null) => {
+    const sent = await run(async (orgId) => {
+      await requestPeopleAccess(orgId)
+      await mutate(peopleAccessKey(orgId))
+      return true
+    }, 'Could not send your request')
+    if (sent) {
+      notify('success', 'Request sent', {
+        description: `${
+          ownerFirstName ?? 'The owner'
+        } will see it in notifications.`,
+      })
+    }
+    return sent
   }
 
   const saveBenefit = async (payload: BenefitPayload, benefitId?: string) => {
@@ -543,6 +561,7 @@ export const useStaffActions = (organizationId: string | null) => {
     savePayPackage,
     addGrant,
     removeGrant,
+    requestAccess,
     saveBenefit,
     removeBenefit,
     saveCommissionPlan,

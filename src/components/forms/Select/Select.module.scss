@@ -114,6 +114,39 @@
   }
 }
 
+.optionLabel {
+  display: block;
+  font-weight: var(--weight-medium);
+}
+
+.optionDescription {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.footerAction {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-bg-subtle);
+  }
+}
+
 .selectedOption {
   background-color: var(--color-bg-subtle);
   font-weight: var(--weight-medium);

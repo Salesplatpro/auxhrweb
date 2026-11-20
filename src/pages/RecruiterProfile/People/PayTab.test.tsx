@@ -119,6 +119,20 @@ describe('PayTab', () => {
     expect(payload).not.toHaveProperty('commissionTarget')
   })
 
+  it('lists commission plans with their summary and a way to add one', () => {
+    usePayMock.mockReturnValue({ pay: emptyPay, isLoading: false })
+    renderTab()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Set up pay' }))
+    fireEvent.click(screen.getByRole('button', { name: /No commission/ }))
+
+    expect(screen.getByText('Product targets 2026')).toBeTruthy()
+    expect(screen.getByText('2 tiers · 2% to 4% · 5 people')).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'New commission plan' }),
+    ).toBeTruthy()
+  })
+
   it('shows the current package with its yearly total and the packages before it', () => {
     usePayMock.mockReturnValue({
       isLoading: false,

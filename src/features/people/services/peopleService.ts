@@ -29,6 +29,7 @@ import {
   Goal,
   GoalPayload,
   HeadcountCost,
+  HeadcountMonths,
   HrAssignee,
   ImportCommitResult,
   ImportRowResult,
@@ -317,9 +318,14 @@ export const updateCommissionPlan = (
 export const deleteCommissionPlan = (organizationId: string, planId: string) =>
   httpClient.delete(`${staffBase(organizationId)}/commission-plans/${planId}`)
 
-export const fetchHeadcountCost = (organizationId: string) =>
+export const fetchHeadcountCost = (
+  organizationId: string,
+  months: HeadcountMonths,
+) =>
   unwrap<HeadcountCost>(
-    httpClient.get(`${staffBase(organizationId)}/headcount-cost`),
+    httpClient.get(`${staffBase(organizationId)}/headcount-cost`, {
+      params: { months },
+    }),
   )
 
 export const fetchStaffDocuments = (organizationId: string, staffId: string) =>

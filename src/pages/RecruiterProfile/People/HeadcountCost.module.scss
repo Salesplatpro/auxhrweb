@@ -1,0 +1,50 @@
+@use '../../../styles/breakpoints' as *;
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+
+  > :first-child {
+    min-width: 160px;
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @include below($bp-lg) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include below($bp-sm) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.chart {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+.department {
+  font-weight: var(--weight-semibold);
+}
+
+.share {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: 8px;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-border);
+  overflow: hidden;
+}
+
+.shareFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-xl);
+  background-color: var(--color-brand-800);
+}

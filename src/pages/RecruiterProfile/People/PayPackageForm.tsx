@@ -1,7 +1,7 @@
 import { Form, useFormikContext } from 'formik'
 import React from 'react'
-import { LuInfo } from 'react-icons/lu'
-import { Link } from 'react-router-dom'
+import { LuInfo, LuPlus } from 'react-icons/lu'
+import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
 import { CheckBox } from '@/components/forms/CheckBox'
@@ -223,11 +223,13 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
   const { benefits } = useBenefits(organizationId)
   const { plans } = useCommissionPlans(organizationId)
   const firstName = firstNameOf(staffName)
+  const navigate = useNavigate()
   const planOptions = [
-    { value: '', label: 'No commission · Base and bonus only' },
+    { value: '', label: 'No commission', description: 'Base and bonus only' },
     ...plans.map((plan) => ({
       value: plan.id,
-      label: `${plan.name} · ${planSummary(plan)}`,
+      label: plan.name,
+      description: planSummary(plan),
     })),
   ]
 
@@ -277,21 +279,18 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
               prefix={currencySymbol(values.currency)}
               suffix="per year"
             />
-            <div className={styles.planField}>
-              <Select
-                name="commissionPlanId"
-                label="Commission plan"
-                options={planOptions}
-                value={values.commissionPlanId}
-                onChange={(value) => setFieldValue('commissionPlanId', value)}
-              />
-              <p className={styles.hint}>
-                Plans are set up in People › Commission.{' '}
-                <Link to={peoplePaths.commissionPlans}>
-                  + New commission plan
-                </Link>
-              </p>
-            </div>
+            <Select
+              name="commissionPlanId"
+              label="Commission plan"
+              options={planOptions}
+              value={values.commissionPlanId}
+              onChange={(value) => setFieldValue('commissionPlanId', value)}
+              footerAction={{
+                label: 'New commission plan',
+                icon: <LuPlus aria-hidden />,
+                onClick: () => navigate(peoplePaths.commissionPlans),
+              }}
+            />
             <TextField
               name="commissionTarget"
               label="Commission target"

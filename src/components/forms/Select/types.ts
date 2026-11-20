@@ -3,6 +3,14 @@ import { ReactNode } from 'react'
 export interface SelectOption {
   value: string
   label: string
+  /** A second, muted line under the label in the option list. */
+  description?: string
+}
+
+export interface SelectFooterAction {
+  label: string
+  icon?: ReactNode
+  onClick: () => void
 }
 
 export interface SelectProps {
@@ -24,6 +32,8 @@ export interface SelectProps {
   /** Renders the option list open immediately on mount instead of requiring a click to expand. */
   defaultOpen?: boolean
   icon?: ReactNode
+  /** A row pinned under the option list, for an action such as creating a new option. */
+  footerAction?: SelectFooterAction
 }
 
 export interface MultiSelectProps {

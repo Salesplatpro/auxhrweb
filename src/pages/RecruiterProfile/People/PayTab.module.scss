@@ -29,13 +29,6 @@
   }
 }
 
-.planField {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-4);
-}
-
 .hint {
   margin: 0;
   font-size: var(--text-xs);

@@ -22,6 +22,7 @@ export const Select: React.FC<SelectProps> = ({
   searchable,
   defaultOpen,
   icon,
+  footerAction,
 }) => {
   const isRequired = useFieldRequired(name, required)
   const [isOpen, setIsOpen] = useState(!!defaultOpen)
@@ -65,6 +66,12 @@ export const Select: React.FC<SelectProps> = ({
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue)
+    setIsOpen(false)
+    setSearch('')
+  }
+
+  const handleFooterAction = () => {
+    footerAction?.onClick()
     setIsOpen(false)
     setSearch('')
   }
@@ -135,7 +142,16 @@ export const Select: React.FC<SelectProps> = ({
               key={option.value}
               className={styles.option}
               onClick={() => handleSelect(option.value)}>
-              {option.label}
+              {option.description ? (
+                <>
+                  <span className={styles.optionLabel}>{option.label}</span>
+                  <span className={styles.optionDescription}>
+                    {option.description}
+                  </span>
+                </>
+              ) : (
+                option.label
+              )}
             </div>
           ))}
           {showCreateOption && (
@@ -145,6 +161,15 @@ export const Select: React.FC<SelectProps> = ({
           )}
           {filteredOptions.length === 0 && !showCreateOption && (
             <div className={styles.empty}>No options found</div>
+          )}
+          {footerAction && (
+            <button
+              type="button"
+              className={styles.footerAction}
+              onClick={handleFooterAction}>
+              {footerAction.icon}
+              {footerAction.label}
+            </button>
           )}
         </div>
       )}

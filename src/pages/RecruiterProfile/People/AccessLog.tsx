@@ -1,56 +1,101 @@
 import React, { useMemo, useState } from 'react'
-import type { DateRange } from 'react-day-picker'
-import { HiOutlineShieldCheck } from 'react-icons/hi2'
+import { HiOutlineArrowDownTray, HiOutlineShieldCheck } from 'react-icons/hi2'
 
-import { PageHero } from '@/components/layout/PageHero'
+import { Select } from '@/components/forms/Select'
+import { PageHeaderTitle } from '@/components/layout/PageHeaderTitle'
+import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
-import { EmptyState } from '@/components/ui'
+import { Button, EmptyState } from '@/components/ui'
+import { Avatar } from '@/components/ui/Avatar'
 import { ColumnDef, DataTable } from '@/components/ui/DataTable'
-import { FilterBar } from '@/components/ui/FilterBar'
-import type { FilterFieldConfig } from '@/components/ui/FilterPanel'
 import { Pagination } from '@/components/ui/Pagination'
+import { Pill } from '@/components/ui/Pill'
 import { useOrganizationMembers } from '@/features/organizations/hooks/useOrganizationMembers'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
+import { useStaffActions } from '@/features/people/hooks/useStaffActions'
 import {
   useAccessLog,
   useStaffOptions,
 } from '@/features/people/hooks/useStaffData'
+import { peoplePaths } from '@/features/people/paths'
 import { AccessLogEntry } from '@/features/people/types'
+import {
+  ACCESS_FILTER_OPTIONS,
+  accessLabel,
+} from '@/features/people/utils/accessLog'
 import { formatDateTime, toDateOnly } from '@/features/people/utils/formatDate'
 
 import styles from './AccessLog.module.scss'
 
 const ROWS_PER_PAGE = 15
 
+const PERIOD_OPTIONS = [
+  { label: 'Last 7 days', value: '7' },
+  { label: 'Last 30 days', value: '30' },
+  { label: 'Last 90 days', value: '90' },
+  { label: 'All time', value: '' },
+]
+
+const PERIOD_HINTS: Record<string, string> = {
+  '7': 'in the last 7 days',
+  '30': 'in the last 30 days',
+  '90': 'in the last 90 days',
+  '': 'so far',
+}
+
 type Filters = {
   staffId: string
   actorId: string
-  range: DateRange | undefined
+  resource: string
+  days: string
 }
 
-const DEFAULT_FILTERS: Filters = { staffId: '', actorId: '', range: undefined }
+const DEFAULT_FILTERS: Filters = {
+  staffId: '',
+  actorId: '',
+  resource: '',
+  days: '30',
+}
+
+const periodStart = (days: string) => {
+  if (!days) return ''
+  const date = new Date()
+  date.setDate(date.getDate() - Number(days))
+  return toDateOnly(date)
+}
 
 const COLUMNS: ColumnDef<AccessLogEntry>[] = [
   {
-    key: 'when',
-    header: 'Date and time',
-    render: (entry) => formatDateTime(entry.createdAt),
+    key: 'who',
+    header: 'Who',
+    render: (entry) => {
+      const [firstName = '', ...rest] = entry.actorName.split(' ')
+      return (
+        <span className={styles.who}>
+          <Avatar firstName={firstName} lastName={rest.join(' ')} size="sm" />
+          {entry.actorName}
+        </span>
+      )
+    },
   },
   {
-    key: 'who',
-    header: 'Who looked',
-    render: (entry) => <span className={styles.who}>{entry.actorName}</span>,
+    key: 'whose',
+    header: 'Whose record',
+    render: (entry) => entry.staffName,
   },
   {
     key: 'what',
     header: 'What they opened',
-    render: (entry) => entry.description,
+    render: (entry) => (
+      <Pill tone="neutral" size="sm">
+        {accessLabel(entry.resource)}
+      </Pill>
+    ),
   },
   {
-    key: 'ip',
-    header: 'IP address',
-    hideBelow: 640,
-    render: (entry) => entry.ip ?? '—',
+    key: 'when',
+    header: 'When',
+    render: (entry) => formatDateTime(entry.createdAt),
   },
 ]
 
@@ -58,71 +103,68 @@ export const AccessLog = () => {
   const { organizationId } = usePeopleAccess()
   const [page, setPage] = useState(1)
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
+  const { exportAccessLog, isSaving } = useStaffActions(organizationId)
 
   const { options: people } = useStaffOptions(organizationId, {
     includeEnded: true,
   })
   const { members } = useOrganizationMembers(organizationId)
 
-  const { items, total, isLoading, hasError } = useAccessLog(organizationId, {
+  const query = {
     staffId: filters.staffId,
     actorId: filters.actorId,
-    from: filters.range?.from ? toDateOnly(filters.range.from) : '',
-    to: filters.range?.from
-      ? toDateOnly(filters.range.to ?? filters.range.from)
-      : '',
+    resource: filters.resource,
+    from: periodStart(filters.days),
+    to: filters.days ? toDateOnly(new Date()) : '',
+  }
+
+  const { items, total, isLoading, hasError } = useAccessLog(organizationId, {
+    ...query,
     limit: ROWS_PER_PAGE,
     offset: (page - 1) * ROWS_PER_PAGE,
   })
 
-  const fields: FilterFieldConfig<Filters>[] = useMemo(
+  const change = (key: keyof Filters) => (value: string) => {
+    setFilters((current) => ({ ...current, [key]: value }))
+    setPage(1)
+  }
+
+  const peopleOptions = useMemo(
     () => [
-      {
-        type: 'select',
-        key: 'staffId',
-        label: 'Employee',
-        offValue: '',
-        options: people.map((person) => ({
-          label:
-            person.status === 'ended'
-              ? `${person.fullName} (ended)`
-              : person.fullName,
-          value: person.id,
-        })),
-      },
-      {
-        type: 'select',
-        key: 'actorId',
-        label: 'Looked by',
-        offValue: '',
-        options: members.map((member) => ({
-          label:
-            `${member.user.firstName} ${member.user.lastName}`.trim() ||
-            member.user.email,
-          value: member.userId,
-        })),
-      },
-      {
-        type: 'dateRange',
-        key: 'range',
-        label: 'Dates',
-        quickRanges: [
-          { label: 'Today', days: 0 },
-          { label: 'Last 7 days', days: 7 },
-          { label: 'Last 30 days', days: 30 },
-        ],
-      },
+      { label: 'Employee: Anyone', value: '' },
+      ...people.map((person) => ({
+        label:
+          person.status === 'ended'
+            ? `${person.fullName} (ended)`
+            : person.fullName,
+        value: person.id,
+      })),
     ],
-    [people, members],
+    [people],
+  )
+
+  const memberOptions = useMemo(
+    () => [
+      { label: 'Who: Anyone', value: '' },
+      ...members.map((member) => ({
+        label:
+          `${member.user.firstName} ${member.user.lastName}`.trim() ||
+          member.user.email,
+        value: member.userId,
+      })),
+    ],
+    [members],
   )
 
   return (
     <PageShell wide>
-      <PageHero
-        compact
-        kicker="People"
+      <PageHeaderTitle
+        breadcrumbs={[
+          { label: 'People', to: peoplePaths.employees },
+          { label: 'Access log' },
+        ]}
         title="Access log"
-        lead="Every time someone on your team opens an employee's record, a line is added here. Only you can see it."
+        description="Every time someone opened a staff record. Only the owner sees this page."
       />
 
       {hasError ? (
@@ -131,17 +173,43 @@ export const AccessLog = () => {
           description="Something went wrong on our side. Refresh the page to try again."
         />
       ) : (
-        <>
-          <FilterBar
-            fields={fields}
-            filters={filters}
-            defaultFilters={DEFAULT_FILTERS}
-            onChange={(next) => {
-              setFilters(next)
-              setPage(1)
-            }}
-            ariaLabel="Filter the access log"
-          />
+        <PagePanel
+          flush
+          title="Activity"
+          hint={`${total} ${total === 1 ? 'record' : 'records'} opened ${
+            PERIOD_HINTS[filters.days]
+          }`}>
+          <div className={styles.filters}>
+            <Select
+              options={memberOptions}
+              value={filters.actorId}
+              onChange={change('actorId')}
+            />
+            <Select
+              options={peopleOptions}
+              value={filters.staffId}
+              onChange={change('staffId')}
+              searchable
+            />
+            <Select
+              options={ACCESS_FILTER_OPTIONS}
+              value={filters.resource}
+              onChange={change('resource')}
+            />
+            <Select
+              options={PERIOD_OPTIONS}
+              value={filters.days}
+              onChange={change('days')}
+            />
+            <Button
+              className={styles.export}
+              variant="outline"
+              icon={<HiOutlineArrowDownTray />}
+              loading={isSaving}
+              onClick={() => exportAccessLog(query)}>
+              Export
+            </Button>
+          </div>
           <DataTable
             columns={COLUMNS}
             data={items}
@@ -165,7 +233,7 @@ export const AccessLog = () => {
               onPageChange={setPage}
             />
           )}
-        </>
+        </PagePanel>
       )}
     </PageShell>
   )

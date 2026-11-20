@@ -21,6 +21,7 @@ import {
   downloadNotarizedScan,
   downloadStaffDocument,
   endStaff,
+  fetchAccessLogRows,
   fetchStaffExport,
   fillCompanyProfileFromFile,
   inviteStaff,
@@ -39,6 +40,7 @@ import {
   uploadNotarizedScan,
 } from '../services/peopleService'
 import {
+  AccessLogQuery,
   Benefit,
   BenefitPayload,
   ChecklistItem,
@@ -58,7 +60,8 @@ import {
   StaffMember,
   UpdateStaffPayload,
 } from '../types'
-import { formatDateOnly } from '../utils/formatDate'
+import { accessLabel } from '../utils/accessLog'
+import { formatDateOnly, todayDateOnly } from '../utils/formatDate'
 import {
   benefitsKey,
   checklistDefaultsKey,
@@ -508,6 +511,23 @@ export const useStaffActions = (organizationId: string | null) => {
       return result
     }, 'Could not import these staff')
 
+  const exportAccessLog = (query: Omit<AccessLogQuery, 'limit' | 'offset'>) =>
+    run(async (orgId) => {
+      const rows = await fetchAccessLogRows(orgId, query)
+      exportRowsToCsv(
+        ['Who', 'Whose record', 'What they opened', 'When', 'IP address'],
+        rows.map((entry) => [
+          entry.actorName,
+          entry.staffName,
+          accessLabel(entry.resource),
+          entry.createdAt,
+          entry.ip ?? '',
+        ]),
+        `access-log-${todayDateOnly()}.csv`,
+      )
+      return true
+    }, 'Could not export the access log')
+
   const exportStaffCsv = () =>
     run(async (orgId) => {
       const staff = await fetchStaffExport(orgId)
@@ -578,6 +598,7 @@ export const useStaffActions = (organizationId: string | null) => {
     downloadScan,
     checkImport,
     importStaff,
+    exportAccessLog,
     exportStaffCsv,
     saveProfile,
     fillProfileFromFile,

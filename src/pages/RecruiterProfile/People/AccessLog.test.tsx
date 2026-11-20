@@ -14,6 +14,10 @@ vi.mock('@/features/people/hooks/usePeopleAccess', () => ({
   usePeopleAccess: () => ({ organizationId: 'org-1' }),
 }))
 
+vi.mock('@/features/people/hooks/useStaffActions', () => ({
+  useStaffActions: () => ({ exportAccessLog: vi.fn(), isSaving: false }),
+}))
+
 vi.mock('@/features/people/hooks/useStaffData', () => ({
   useAccessLog: useAccessLogMock,
   useStaffOptions: useStaffOptionsMock,
@@ -45,7 +49,7 @@ beforeEach(() => {
 })
 
 describe('AccessLog', () => {
-  it('shows who opened what, and from where', () => {
+  it('shows who opened what, whose record, and when', () => {
     logState([
       {
         id: 'l-1',
@@ -54,16 +58,17 @@ describe('AccessLog', () => {
         actorName: 'Hana Resources',
         staffId: 's-1',
         staffName: 'Ada Obi',
-        resource: 'staff_record',
-        description: 'Staff record of Ada Obi',
+        resource: 'share_options',
+        description: 'Share options of Ada Obi',
         ip: '203.0.113.9',
       },
     ])
     renderPage()
 
     const row = screen.getByText('Hana Resources').closest('tr')!
-    expect(within(row).getByText('Staff record of Ada Obi')).toBeTruthy()
-    expect(within(row).getByText('203.0.113.9')).toBeTruthy()
+    expect(within(row).getByText('Ada Obi')).toBeTruthy()
+    expect(within(row).getByText('Share options')).toBeTruthy()
+    expect(screen.getByText('1 record opened in the last 30 days')).toBeTruthy()
   })
 
   it('lets the owner filter by anyone who ever worked there, including people who left', () => {
@@ -73,6 +78,7 @@ describe('AccessLog', () => {
     expect(useStaffOptionsMock).toHaveBeenCalledWith('org-1', {
       includeEnded: true,
     })
+    expect(screen.getByText('Employee: Anyone')).toBeTruthy()
   })
 
   it('says so when nobody has opened a record yet', () => {

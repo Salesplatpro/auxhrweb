@@ -290,6 +290,11 @@ export const updateBenefit = (
 export const deleteBenefit = (organizationId: string, benefitId: string) =>
   httpClient.delete(`${staffBase(organizationId)}/benefits/${benefitId}`)
 
+type SavedCommissionPlan = Omit<
+  CommissionPlan,
+  'needsBands' | 'peopleCount' | 'people'
+>
+
 export const fetchCommissionPlans = (organizationId: string) =>
   unwrap<{ plans: CommissionPlan[] }>(
     httpClient.get(`${staffBase(organizationId)}/commission-plans`),
@@ -299,7 +304,7 @@ export const createCommissionPlan = (
   organizationId: string,
   payload: CommissionPlanPayload,
 ) =>
-  unwrap<{ plan: CommissionPlan }>(
+  unwrap<{ plan: SavedCommissionPlan }>(
     httpClient.post(`${staffBase(organizationId)}/commission-plans`, payload),
   ).then((data) => data.plan)
 
@@ -308,7 +313,7 @@ export const updateCommissionPlan = (
   planId: string,
   payload: CommissionPlanPayload,
 ) =>
-  unwrap<{ plan: CommissionPlan }>(
+  unwrap<{ plan: SavedCommissionPlan }>(
     httpClient.put(
       `${staffBase(organizationId)}/commission-plans/${planId}`,
       payload,

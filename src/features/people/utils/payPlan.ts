@@ -25,17 +25,24 @@ export const yearlyTotal = (
       100,
   ) / 100
 
-/** "3 tiers · 5% to 10% · 4 people" for the commission plan picker. */
-export const planSummary = (plan: CommissionPlan) => {
-  const rates = plan.tiers.map((tier) => tier.ratePercent)
-  const min = Math.min(...rates)
-  const max = Math.max(...rates)
-  const parts = [
-    `${plan.tiers.length} ${plan.tiers.length === 1 ? 'tier' : 'tiers'}`,
-    rates.length === 0 ? null : min === max ? `${min}%` : `${min}% to ${max}%`,
+const formatRate = (rate: number) => `${rate}%`
+
+/** "3 tiers · 5% → 7.5% → 10%" for a plan's bands. */
+export const tierSummary = (plan: CommissionPlan) => {
+  const bands = plan.bands ?? []
+  if (bands.length === 0) return 'Needs tiers'
+  return `${bands.length} ${bands.length === 1 ? 'tier' : 'tiers'} · ${bands
+    .map((band) => formatRate(band.ratePercent))
+    .join(' → ')}`
+}
+
+/** "3 tiers · 5% → 10% · 4 people" for the commission plan picker. */
+export const planSummary = (plan: CommissionPlan) =>
+  [
+    tierSummary(plan),
     plan.peopleCount === undefined
       ? null
       : `${plan.peopleCount} ${plan.peopleCount === 1 ? 'person' : 'people'}`,
   ]
-  return parts.filter(Boolean).join(' · ')
-}
+    .filter(Boolean)
+    .join(' · ')

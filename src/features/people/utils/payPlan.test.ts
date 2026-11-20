@@ -11,27 +11,37 @@ describe('yearlyTotal', () => {
 })
 
 describe('planSummary', () => {
-  const tier = (ratePercent: number) => ({
-    fromPercent: 0,
-    toPercent: null,
+  const band = (ratePercent: number) => ({
+    fromAmount: 0,
+    toAmount: null,
     ratePercent,
-    boost: null,
+  })
+  const plan = (rates: number[], peopleCount?: number) => ({
+    id: 'p',
+    name: 'Sales',
+    paidOn: 'yearly_sales' as const,
+    frequency: 'quarterly' as const,
+    bands: rates.map(band),
+    needsBands: false,
+    peopleCount,
   })
 
-  it('names tiers, the rate range and the people on it', () => {
+  it('names tiers, the rates and the people on it', () => {
+    expect(planSummary(plan([5, 7.5, 10], 4))).toBe(
+      '3 tiers · 5% → 7.5% → 10% · 4 people',
+    )
+    expect(planSummary(plan([3], 1))).toBe('1 tier · 3% · 1 person')
+    expect(planSummary(plan([3]))).toBe('1 tier · 3%')
+  })
+
+  it('says when a plan still needs its tiers', () => {
     expect(
       planSummary({
-        id: 'p',
-        name: 'Sales',
-        tiers: [tier(5), tier(7), tier(10)],
-        peopleCount: 4,
+        ...plan([]),
+        bands: null,
+        needsBands: true,
+        peopleCount: 2,
       }),
-    ).toBe('3 tiers · 5% to 10% · 4 people')
-    expect(
-      planSummary({ id: 'p', name: 'Flat', tiers: [tier(3)], peopleCount: 1 }),
-    ).toBe('1 tier · 3% · 1 person')
-    expect(planSummary({ id: 'p', name: 'New', tiers: [tier(3)] })).toBe(
-      '1 tier · 3%',
-    )
+    ).toBe('Needs tiers · 2 people')
   })
 })

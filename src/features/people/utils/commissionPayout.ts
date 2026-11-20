@@ -1,27 +1,28 @@
-import { CommissionTier } from '../types'
+import { CommissionBand } from '../types'
 
-export const commissionPayout = (
-  tiers: CommissionTier[],
-  target: number,
-  actual: number,
-) => {
-  if (target <= 0)
-    return { attainmentPercent: null, tierIndex: null, payout: 0 }
-  const attainmentPercent = (actual / target) * 100
-  if (actual <= 0) return { attainmentPercent, tierIndex: null, payout: 0 }
+export interface PayoutLine {
+  inside: number
+  ratePercent: number
+  amount: number
+}
 
-  const tierIndex = tiers.findIndex(
-    (tier) =>
-      attainmentPercent >= tier.fromPercent &&
-      (tier.toPercent === null || attainmentPercent < tier.toPercent),
-  )
-  const tier = tiers[tierIndex]
-  if (!tier) return { attainmentPercent, tierIndex: null, payout: 0 }
+const round = (value: number) => Math.round(value * 100) / 100
 
-  const payout = (actual * tier.ratePercent * (tier.boost ?? 1)) / 100
-  return {
-    attainmentPercent,
-    tierIndex,
-    payout: Math.round(payout * 100) / 100,
-  }
+/** Each band pays its rate on the sales that fall inside it. */
+export const commissionPayout = (bands: CommissionBand[], sales: number) => {
+  const lines: PayoutLine[] = bands
+    .map((band) => {
+      const inside = Math.max(
+        0,
+        Math.min(sales, band.toAmount ?? Infinity) - band.fromAmount,
+      )
+      return {
+        inside,
+        ratePercent: band.ratePercent,
+        amount: round((inside * band.ratePercent) / 100),
+      }
+    })
+    .filter((line) => line.inside > 0)
+
+  return { lines, total: round(lines.reduce((sum, l) => sum + l.amount, 0)) }
 }

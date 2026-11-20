@@ -20,17 +20,17 @@ export interface EmployeeTabProps {
 interface EmployeeTab {
   key: string
   label: string
-  creatorOnly?: boolean
+  access?: 'owner' | 'peopleManager'
   Component: ComponentType<EmployeeTabProps>
 }
 
 const EMPLOYEE_TABS: EmployeeTab[] = [
   { key: 'details', label: 'Details', Component: DetailsTab },
-  { key: 'pay', label: 'Pay', creatorOnly: true, Component: PayTab },
+  { key: 'pay', label: 'Pay', access: 'peopleManager', Component: PayTab },
   {
     key: 'documents',
     label: 'Documents',
-    creatorOnly: true,
+    access: 'owner',
     Component: DocumentsTab,
   },
   { key: 'checklist', label: 'Checklist', Component: ChecklistTab },
@@ -38,5 +38,15 @@ const EMPLOYEE_TABS: EmployeeTab[] = [
   { key: 'activity', label: 'Activity', Component: ActivityTab },
 ]
 
-export const employeeTabsFor = (isOwner: boolean): EmployeeTab[] =>
-  EMPLOYEE_TABS.filter((tab) => isOwner || !tab.creatorOnly)
+export const employeeTabsFor = ({
+  isOwner,
+  canManagePeople,
+}: {
+  isOwner: boolean
+  canManagePeople: boolean
+}): EmployeeTab[] =>
+  EMPLOYEE_TABS.filter(
+    (tab) =>
+      !tab.access ||
+      (tab.access === 'owner' ? isOwner : isOwner || canManagePeople),
+  )

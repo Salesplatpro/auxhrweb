@@ -11,7 +11,10 @@ import TextField from '@/components/forms/TextField'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { Button } from '@/components/ui/Button'
 import { useStaffActions } from '@/features/people/hooks/useStaffActions'
-import { useCommissionPlans } from '@/features/people/hooks/useStaffData'
+import {
+  useBenefits,
+  useCommissionPlans,
+} from '@/features/people/hooks/useStaffData'
 import { peoplePaths } from '@/features/people/paths'
 import {
   Benefit,
@@ -206,7 +209,6 @@ interface PayPackageFormProps {
   staffId: string
   staffName: string
   current: PayPackage | null
-  benefits: Benefit[]
   onDone: () => void
 }
 
@@ -215,10 +217,10 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
   staffId,
   staffName,
   current,
-  benefits,
   onDone,
 }) => {
   const { savePayPackage } = useStaffActions(organizationId)
+  const { benefits } = useBenefits(organizationId)
   const { plans } = useCommissionPlans(organizationId)
   const firstName = firstNameOf(staffName)
   const planOptions = [

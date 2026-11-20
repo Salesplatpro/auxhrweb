@@ -223,17 +223,18 @@ interface ShareOptionsCardProps {
   organizationId: string
   staff: StaffMember
   grants: ShareGrant[]
+  canEdit: boolean
 }
 
 export const ShareOptionsCard: React.FC<ShareOptionsCardProps> = ({
   organizationId,
   staff,
   grants,
+  canEdit,
 }) => {
   const { addGrant, removeGrant, isSaving } = useStaffActions(organizationId)
   const [isAdding, setIsAdding] = useState(false)
   const [grantToRemove, setGrantToRemove] = useState<ShareGrant | null>(null)
-  const isEnded = staff.status === 'ended'
   const firstName = firstNameOf(staff.fullName)
 
   const handleAdd = async (values: GrantFormValues) => {
@@ -263,7 +264,7 @@ export const ShareOptionsCard: React.FC<ShareOptionsCardProps> = ({
       title="Share options"
       hint={`Grants of company shares and when they become ${firstName}'s.`}
       action={
-        !isEnded && (
+        canEdit && (
           <Button
             size="sm"
             variant="ink"
@@ -278,7 +279,11 @@ export const ShareOptionsCard: React.FC<ShareOptionsCardProps> = ({
           <EmptyState
             icon={<LuLayers size={22} />}
             title="No share options yet"
-            description={`Add a grant to show ${firstName} how many shares they get and when they become theirs.`}
+            description={
+              canEdit
+                ? `Add a grant to show ${firstName} how many shares they get and when they become theirs.`
+                : `${firstName} has no share grants.`
+            }
           />
         </div>
       ) : (
@@ -289,7 +294,7 @@ export const ShareOptionsCard: React.FC<ShareOptionsCardProps> = ({
               grant={grant}
               number={grants.length - index}
               firstName={firstName}
-              canRemove={!isEnded}
+              canRemove={canEdit}
               onRemove={() => setGrantToRemove(grant)}
             />
           ))}

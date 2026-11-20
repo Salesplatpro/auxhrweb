@@ -1,5 +1,6 @@
 import { ErrorMessage, Field, FieldProps, useFormikContext } from 'formik'
 import React, { useMemo } from 'react'
+import { LuCalendar, LuMail } from 'react-icons/lu'
 import * as Yup from 'yup'
 
 import { CheckBox } from '@/components/forms/CheckBox'
@@ -73,6 +74,7 @@ interface TextFieldProps {
   readOnly?: boolean
   hint?: string
   wide?: boolean
+  icon?: React.ReactNode
 }
 
 const TextField: React.FC<TextFieldProps> = ({
@@ -83,6 +85,7 @@ const TextField: React.FC<TextFieldProps> = ({
   readOnly,
   hint,
   wide,
+  icon,
 }) => (
   <div
     className={wide ? `${styles.field} ${styles.wide}` : styles.field}
@@ -91,17 +94,33 @@ const TextField: React.FC<TextFieldProps> = ({
       {label}
     </FieldLabel>
     <Field name={name}>
-      {({ field, meta }: FieldProps<string>) => (
-        <input
-          {...field}
-          id={name}
-          type={type}
-          placeholder={placeholder}
-          readOnly={readOnly}
-          aria-invalid={meta.touched && meta.error ? true : undefined}
-          className={readOnly ? styles.readOnly : styles.input}
-        />
-      )}
+      {({ field, meta }: FieldProps<string>) => {
+        const input = (
+          <input
+            {...field}
+            id={name}
+            type={type}
+            placeholder={placeholder}
+            readOnly={readOnly}
+            aria-invalid={meta.touched && meta.error ? true : undefined}
+            className={[
+              readOnly ? styles.readOnly : styles.input,
+              icon ? styles.withIcon : '',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          />
+        )
+        if (!icon) return input
+        return (
+          <div className={styles.affixed}>
+            <span className={styles.icon} aria-hidden>
+              {icon}
+            </span>
+            {input}
+          </div>
+        )
+      }}
     </Field>
     {hint && <p className={styles.hint}>{hint}</p>}
     <ErrorMessage name={name}>
@@ -205,6 +224,7 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         name="email"
         label="Work email"
         type="email"
+        icon={<LuMail />}
         placeholder="ada@company.com"
         readOnly={readOnly || lockIdentity || emailLocked}
         hint={emailHint(
@@ -248,6 +268,7 @@ export const StaffFields: React.FC<StaffFieldsProps> = ({
         name="startDate"
         label="Start date"
         type="date"
+        icon={<LuCalendar />}
         readOnly={readOnly}
       />
       <TextField

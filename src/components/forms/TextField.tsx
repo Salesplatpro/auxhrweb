@@ -20,6 +20,7 @@ interface TextFieldProps {
   tooltip?: string
   prefix?: string
   suffix?: string
+  icon?: React.ReactNode
 }
 
 const TextField = ({
@@ -34,6 +35,7 @@ const TextField = ({
   tooltip,
   prefix,
   suffix,
+  icon,
 }: TextFieldProps) => {
   const isRequired = useFieldRequired(name, required)
   const tooltipId = `${name}-field-tooltip`
@@ -106,14 +108,20 @@ const TextField = ({
                   hasError ? styles.invalid : '',
                   prefix ? styles.withPrefix : '',
                   suffix ? styles.withSuffix : '',
+                  icon ? styles.withIcon : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
               />
             )
-            if (!prefix && !suffix) return input
+            if (!prefix && !suffix && !icon) return input
             return (
               <div className={styles.affixed}>
+                {icon && (
+                  <span className={styles.icon} aria-hidden>
+                    {icon}
+                  </span>
+                )}
                 {prefix && (
                   <span className={styles.prefix} aria-hidden>
                     {prefix}

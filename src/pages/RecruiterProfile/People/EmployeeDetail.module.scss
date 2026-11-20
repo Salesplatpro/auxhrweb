@@ -8,3 +8,16 @@
     text-decoration: underline;
   }
 }
+
+button.moreTrigger {
+  height: 38px;
+  min-width: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-text-on-dark);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}

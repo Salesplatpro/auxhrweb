@@ -13,6 +13,8 @@ export interface DropdownItem {
 
 interface DropdownProps {
   trigger: React.ReactNode
+  /** Extra class for the trigger button, for placing it on a surface the default style doesn't suit. */
+  triggerClassName?: string
   items: DropdownItem[]
   align?: 'left' | 'right'
   /** Set to false for checkbox-style menus (e.g. a column picker) where the menu should stay open after each selection. */
@@ -23,6 +25,7 @@ const VIEWPORT_GUTTER = 8
 
 export const Dropdown = ({
   trigger,
+  triggerClassName,
   items,
   align = 'right',
   closeOnSelect = true,
@@ -95,7 +98,7 @@ export const Dropdown = ({
     <div className={styles.container} ref={containerRef}>
       <button
         type="button"
-        className={styles.trigger}
+        className={[styles.trigger, triggerClassName].filter(Boolean).join(' ')}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((prev) => !prev)}>

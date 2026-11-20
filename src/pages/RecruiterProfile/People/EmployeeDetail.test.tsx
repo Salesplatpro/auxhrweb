@@ -143,7 +143,7 @@ describe('EmployeeDetail', () => {
     renderPage()
 
     expect(screen.getByRole('heading', { name: 'Ada Obi' })).toBeTruthy()
-    expect(screen.getByText('Product Designer · Design')).toBeTruthy()
+    expect(screen.getByText('Product Designer · ada@example.com')).toBeTruthy()
     expect(screen.getByText('Invited')).toBeTruthy()
     const banner = screen.getByRole('status')
     expect(banner.textContent).toContain('Invited by Hana Resources')
@@ -200,12 +200,12 @@ describe('EmployeeDetail', () => {
     expect(screen.queryByRole('button', { name: /invite/i })).toBeNull()
   })
 
-  it('shows no invite banner or End button once employment has ended', () => {
+  it('shows no invite banner or actions menu once employment has ended', () => {
     mockStaff(person({ status: 'ended', endDate: '2026-04-01' }))
     renderPage()
 
     expect(screen.queryByRole('status')).toBeNull()
-    expect(screen.queryByRole('button', { name: /End employment/ })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull()
     expect(screen.getByText('1 Apr 2026')).toBeTruthy()
   })
 
@@ -295,7 +295,10 @@ describe('EmployeeDetail', () => {
 
       expect(screen.getByRole('tab', { name: 'Pay' })).toBeTruthy()
       expect(screen.queryByRole('tab', { name: 'Documents' })).toBeNull()
-      expect(screen.getByText('End employment')).toBeTruthy()
+      fireEvent.click(screen.getByRole('button', { name: 'More actions' }))
+      expect(
+        screen.getByRole('menuitem', { name: 'End employment' }),
+      ).toBeTruthy()
       expect(screen.getByText('Save changes')).toBeTruthy()
     })
 

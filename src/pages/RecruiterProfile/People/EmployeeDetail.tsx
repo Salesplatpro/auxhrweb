@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { HiOutlineEnvelope, HiOutlineUserMinus } from 'react-icons/hi2'
+import { BsThreeDots } from 'react-icons/bs'
+import { HiOutlineEnvelope } from 'react-icons/hi2'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 
-import { HeroGhost, PageHero } from '@/components/layout/PageHero'
+import { PageHero } from '@/components/layout/PageHero'
 import { PageShell } from '@/components/layout/PageShell'
 import { Avatar, Button, EmptyState, Tabs } from '@/components/ui'
+import { Dropdown } from '@/components/ui/Dropdown'
 import { Spinner } from '@/components/ui/Spinner'
 import { NoPeopleAccess } from '@/features/people/components/NoPeopleAccess'
 import { StaffStatusBadge } from '@/features/people/components/StaffStatusBadge'
@@ -64,6 +66,8 @@ export const EmployeeDetail = () => {
   const isEnded = staff.status === 'ended'
 
   const meta = [
+    { label: 'Job title', value: staff.jobTitle },
+    { label: 'Department', value: staff.department ?? '—' },
     { label: 'Manager', value: staff.managerName ?? '—' },
     { label: 'Start date', value: formatDateOnly(staff.startDate) },
     ...(isEnded
@@ -90,7 +94,7 @@ export const EmployeeDetail = () => {
         }
         identity={<Avatar {...nameParts(staff.fullName)} size="lg" />}
         title={staff.fullName}
-        lead={[staff.jobTitle, staff.department].filter(Boolean).join(' · ')}
+        lead={`${staff.jobTitle} · ${staff.email}`}
         pills={<StaffStatusBadge status={staff.status} />}
         meta={meta}
         actions={
@@ -107,9 +111,13 @@ export const EmployeeDetail = () => {
                   {inviteActionLabel(staff)}
                 </Button>
               )}
-              <HeroGhost onClick={() => setEndOpen(true)}>
-                <HiOutlineUserMinus aria-hidden /> End employment
-              </HeroGhost>
+              <Dropdown
+                triggerClassName={styles.moreTrigger}
+                trigger={<BsThreeDots aria-label="More actions" />}
+                items={[
+                  { label: 'End employment', onClick: () => setEndOpen(true) },
+                ]}
+              />
             </>
           )
         }

@@ -161,6 +161,7 @@ export interface AccessLogEntry {
 export interface AccessLogQuery {
   staffId: string
   actorId: string
+  resource: string
   from: string
   to: string
   limit: number

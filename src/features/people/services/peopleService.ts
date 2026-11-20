@@ -246,7 +246,7 @@ export const createBenefit = (
   organizationId: string,
   payload: BenefitPayload,
 ) =>
-  unwrap<{ benefit: Benefit }>(
+  unwrap<{ benefit: Omit<Benefit, 'givenTo'> }>(
     httpClient.post(`${staffBase(organizationId)}/benefits`, payload),
   ).then((data) => data.benefit)
 
@@ -255,7 +255,7 @@ export const updateBenefit = (
   benefitId: string,
   payload: BenefitPayload,
 ) =>
-  unwrap<{ benefit: Benefit }>(
+  unwrap<{ benefit: Omit<Benefit, 'givenTo'> }>(
     httpClient.patch(
       `${staffBase(organizationId)}/benefits/${benefitId}`,
       payload,

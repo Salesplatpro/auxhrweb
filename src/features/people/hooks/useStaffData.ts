@@ -38,6 +38,9 @@ export const staffActivityKey = (organizationId: string, staffId: string) =>
 export const staffPayKey = (organizationId: string, staffId: string) =>
   `${staffBase(organizationId)}/${staffId}/pay`
 
+export const peopleAccessKey = (organizationId: string) =>
+  `${staffBase(organizationId)}/access`
+
 export const benefitsKey = (organizationId: string) =>
   `${staffBase(organizationId)}/benefits`
 

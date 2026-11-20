@@ -87,6 +87,11 @@ export const fetchPeopleAccess = (organizationId: string) =>
     httpClient.get(`${staffBase(organizationId)}/access`),
   ).then((data) => data.access)
 
+export const requestPeopleAccess = (organizationId: string) =>
+  unwrap<undefined>(
+    httpClient.post(`${staffBase(organizationId)}/access-request`),
+  )
+
 export const fetchHrAssignees = (organizationId: string, staffId: string) =>
   unwrap<{ assignees: HrAssignee[] }>(
     httpClient.get(`${staffBase(organizationId)}/${staffId}/hr`),

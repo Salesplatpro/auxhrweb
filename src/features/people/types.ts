@@ -273,6 +273,7 @@ export interface Benefit {
   id: string
   name: string
   description: string | null
+  givenTo: number
 }
 
 export interface BenefitPayload {

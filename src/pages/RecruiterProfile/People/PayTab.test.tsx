@@ -68,10 +68,10 @@ const pkg = (overrides: Partial<PayPackage> = {}): PayPackage => ({
   ...overrides,
 })
 
-const renderTab = () =>
+const renderTab = (isOwner = true) =>
   render(
     <MemoryRouter>
-      <PayTab staff={staff} organizationId="org-1" />
+      <PayTab staff={staff} organizationId="org-1" isOwner={isOwner} />
     </MemoryRouter>,
   )
 
@@ -157,5 +157,25 @@ describe('PayTab', () => {
     renderTab()
     expect(screen.queryByText('Past packages')).toBeNull()
     expect(screen.getByRole('button', { name: 'Edit' })).toBeTruthy()
+  })
+
+  it('shows pay read-only to someone who is not the creator', () => {
+    usePayMock.mockReturnValue({
+      isLoading: false,
+      pay: { currentPackageId: 'p-1', grants: [], packages: [pkg()] },
+    })
+    renderTab(false)
+
+    expect(screen.getByText('₦5,400,000')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Add grant' })).toBeNull()
+  })
+
+  it('offers no way to set up pay to someone who is not the creator', () => {
+    usePayMock.mockReturnValue({ pay: emptyPay, isLoading: false })
+    renderTab(false)
+
+    expect(screen.getByText('No pay set up for Ada yet')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Set up pay' })).toBeNull()
   })
 })

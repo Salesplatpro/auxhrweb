@@ -58,7 +58,7 @@ export const EmployeeDetail = () => {
     )
   }
 
-  const tabs = employeeTabsFor(isOwner)
+  const tabs = employeeTabsFor({ isOwner, canManagePeople: canEdit })
   const activeTab =
     tabs.find((tab) => tab.key === searchParams.get('tab')) ?? tabs[0]!
   const isEnded = staff.status === 'ended'

@@ -33,10 +33,15 @@ const grant: ShareGrant = {
   createdAt: '2026-05-02T10:00:00.000Z',
 }
 
-const renderCard = (grants: ShareGrant[]) =>
+const renderCard = (grants: ShareGrant[], canEdit = true) =>
   render(
     <MemoryRouter>
-      <ShareOptionsCard organizationId="org-1" staff={staff} grants={grants} />
+      <ShareOptionsCard
+        organizationId="org-1"
+        staff={staff}
+        grants={grants}
+        canEdit={canEdit}
+      />
     </MemoryRouter>,
   )
 

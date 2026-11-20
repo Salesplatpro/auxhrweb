@@ -288,12 +288,12 @@ describe('EmployeeDetail', () => {
       expect(screen.queryByText('Assigned HR')).toBeNull()
     })
 
-    it('hides Pay and Documents from a member who can manage people', () => {
+    it('shows Pay but hides Documents from a member who can manage people', () => {
       asAssignedHr()
       access.canManagePeople = true
       renderPage()
 
-      expect(screen.queryByRole('tab', { name: 'Pay' })).toBeNull()
+      expect(screen.getByRole('tab', { name: 'Pay' })).toBeTruthy()
       expect(screen.queryByRole('tab', { name: 'Documents' })).toBeNull()
       expect(screen.getByText('End employment')).toBeTruthy()
       expect(screen.getByText('Save changes')).toBeTruthy()

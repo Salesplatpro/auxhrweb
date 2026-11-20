@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { ColumnDef, DataTable } from '@/components/ui/DataTable'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
-import { useBenefits, usePay } from '@/features/people/hooks/useStaffData'
+import { usePay } from '@/features/people/hooks/useStaffData'
 import { PayPackage } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
 import { firstNameOf } from '@/features/people/utils/nameParts'
@@ -124,11 +124,12 @@ const CurrentPackage: React.FC<{ current: PayPackage }> = ({ current }) => (
 export const PayTab: React.FC<EmployeeTabProps> = ({
   staff,
   organizationId,
+  isOwner,
 }) => {
   const { pay, isLoading, hasError } = usePay(organizationId, staff.id)
-  const { benefits } = useBenefits(organizationId)
   const [isEditing, setIsEditing] = useState(false)
   const isEnded = staff.status === 'ended'
+  const canChange = !!isOwner && !isEnded
   const firstName = firstNameOf(staff.fullName)
 
   if (isLoading) return <Spinner />
@@ -160,7 +161,6 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
             staffId={staff.id}
             staffName={staff.fullName}
             current={current}
-            benefits={benefits}
             onDone={() => setIsEditing(false)}
           />
         </PagePanel>
@@ -171,7 +171,7 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
             current.period === 'monthly' ? 'Monthly' : 'Yearly'
           } · ${current.currency}`}
           action={
-            !isEnded && (
+            canChange && (
               <Button
                 size="sm"
                 variant="outline"
@@ -195,9 +195,15 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
           <EmptyState
             icon={<HiOutlineBanknotes size={28} />}
             title={`No pay set up for ${firstName} yet`}
-            description={`Add ${firstName}'s salary, bonus and benefits. Only you can see it here, and ${firstName} sees it read-only in My work.`}
+            description={
+              isOwner
+                ? `Add ${firstName}'s salary, bonus and benefits. Only you and people with “Can manage people” can see it. ${firstName} sees it read-only in My work.`
+                : `The company's creator hasn't set up ${firstName}'s pay yet.`
+            }
             action={
-              <Button onClick={() => setIsEditing(true)}>Set up pay</Button>
+              isOwner && (
+                <Button onClick={() => setIsEditing(true)}>Set up pay</Button>
+              )
             }
           />
         </PagePanel>
@@ -206,6 +212,7 @@ export const PayTab: React.FC<EmployeeTabProps> = ({
         organizationId={organizationId}
         staff={staff}
         grants={pay.grants}
+        canEdit={canChange}
       />
       {past.length > 0 && !isEditing && (
         <PagePanel title="Past packages" hint="Kept when pay changes">

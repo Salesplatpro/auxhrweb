@@ -1,6 +1,6 @@
 import { Form, useFormikContext } from 'formik'
 import React from 'react'
-import { LuInfo, LuPlus } from 'react-icons/lu'
+import { LuCalendar, LuInfo, LuPlus } from 'react-icons/lu'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
@@ -265,6 +265,7 @@ export const PayPackageForm: React.FC<PayPackageFormProps> = ({
               name="startsOn"
               label="Starts from"
               type="date"
+              icon={<LuCalendar />}
               hint={
                 current
                   ? 'Keep the date to correct this package, or pick a new one to record a pay change.'

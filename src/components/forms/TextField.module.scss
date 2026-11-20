@@ -54,6 +54,27 @@
   right: var(--space-4);
 }
 
+.icon {
+  position: absolute;
+  left: var(--space-4);
+  display: flex;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.input.withIcon {
+  padding-left: calc(var(--space-4) + 1.75em);
+
+  &[type='date']::-webkit-calendar-picker-indicator {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
+
 .input.withPrefix {
   padding-left: calc(var(--space-4) + 1.5em);
 }

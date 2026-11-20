@@ -1,7 +1,7 @@
 import { Form, useFormikContext } from 'formik'
 import React, { useState } from 'react'
 import { BsThreeDots } from 'react-icons/bs'
-import { LuCheck, LuLayers, LuPlus } from 'react-icons/lu'
+import { LuCalendar, LuCheck, LuLayers, LuPlus } from 'react-icons/lu'
 import * as Yup from 'yup'
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
@@ -320,7 +320,12 @@ export const ShareOptionsCard: React.FC<ShareOptionsCardProps> = ({
                 placeholder="10000"
               />
               <div className={styles.row}>
-                <TextField name="grantedOn" label="Grant date" type="date" />
+                <TextField
+                  name="grantedOn"
+                  label="Grant date"
+                  type="date"
+                  icon={<LuCalendar />}
+                />
                 <TextField
                   name="strikePrice"
                   label="Strike price"

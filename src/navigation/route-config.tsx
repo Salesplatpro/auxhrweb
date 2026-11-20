@@ -86,6 +86,7 @@ import JobDetail from '@/pages/RecruiterProfile/JobDetail'
 import { ApplicantsRedirect } from '@/pages/RecruiterProfile/JobDetail/ApplicantsRedirect'
 import { AccessLog } from '@/pages/RecruiterProfile/People/AccessLog'
 import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
+import { CommissionPlanEditor } from '@/pages/RecruiterProfile/People/CommissionPlanEditor'
 import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
 import { CompanyProfile } from '@/pages/RecruiterProfile/People/CompanyProfile'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
@@ -593,6 +594,14 @@ export const routeConfig: RouteObject[] = [
                               {
                                 path: 'commission-plans',
                                 element: <CommissionPlans />,
+                              },
+                              {
+                                path: 'commission-plans/new',
+                                element: <CommissionPlanEditor />,
+                              },
+                              {
+                                path: 'commission-plans/:planId',
+                                element: <CommissionPlanEditor />,
                               },
                               {
                                 path: 'headcount-cost',

@@ -318,15 +318,27 @@ export const useStaffActions = (organizationId: string | null) => {
         : await createCommissionPlan(orgId, payload)
       await mutate<CommissionPlan[]>(
         commissionPlansKey(orgId),
-        (plans = []) =>
-          [...plans.filter((item) => item.id !== saved.id), saved].sort(
-            (a, b) => a.name.localeCompare(b.name),
-          ),
+        (plans = []) => {
+          const known = plans.find((item) => item.id === saved.id)
+          return [
+            ...plans.filter((item) => item.id !== saved.id),
+            {
+              ...saved,
+              needsBands: false,
+              peopleCount: known?.peopleCount,
+              people: known?.people,
+            },
+          ].sort((a, b) => a.name.localeCompare(b.name))
+        },
         { revalidate: false },
       )
       return saved
     }, 'Could not save this plan')
-    if (plan) notify('success', 'Commission plan saved')
+    if (plan) {
+      notify('success', `${plan.name} saved`, {
+        description: "Pick it on anyone's Pay tab.",
+      })
+    }
     return plan
   }
 

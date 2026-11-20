@@ -12,7 +12,7 @@ import { useStaffActions } from '@/features/people/hooks/useStaffActions'
 import { useChecklistDefaults } from '@/features/people/hooks/useStaffData'
 import { ChecklistItem } from '@/features/people/types'
 
-import styles from './CommissionPlans.module.scss'
+import styles from './DefaultChecklistDrawer.module.scss'
 import payStyles from './PayTab.module.scss'
 
 const MAX_TASKS = 30

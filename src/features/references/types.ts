@@ -36,3 +36,18 @@ export type RefereeRequest = {
   expiresAt: string
   questions: RefereeQuestion[]
 }
+
+export type RefereeAnswer = {
+  key: string
+  question: string
+  answer: string
+}
+
+export type RefereeWithAnswers = Referee & {
+  answers: RefereeAnswer[] | null
+}
+
+export type CompanyReferences = {
+  applicationId: string
+  references: RefereeWithAnswers[]
+}

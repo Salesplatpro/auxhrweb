@@ -1,0 +1,100 @@
+@use '../../../../styles/breakpoints' as bp;
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+
+  @include bp.below(bp.$bp-sm) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.side {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.title,
+.rowTitle {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.rowTitle {
+  font-size: var(--text-sm);
+}
+
+.body,
+.muted {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.body {
+  color: var(--color-text-body);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.back {
+  align-self: flex-start;
+}
+
+.result {
+  width: 100%;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+
+  p {
+    margin: 0 0 var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--color-text-body);
+    overflow-wrap: anywhere;
+  }
+}
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-4);
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+}
+
+.modalFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

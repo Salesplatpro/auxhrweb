@@ -33,8 +33,16 @@ import styles from './CandidatePanel.module.scss'
 import { MoveForwardModal, RejectModal } from './DecisionModals'
 import { InterviewTab } from './InterviewTab'
 import { PanelOverview } from './PanelOverview'
+import { ReferencesTab } from './ReferencesTab'
+import { VerificationTab } from './VerificationTab'
 
-type PanelTab = 'overview' | 'answers' | 'interview' | 'messages'
+type PanelTab =
+  | 'overview'
+  | 'answers'
+  | 'interview'
+  | 'references'
+  | 'verification'
+  | 'messages'
 type Decision = 'forward' | 'reject' | null
 
 const appliedOn = (value: string) =>
@@ -188,6 +196,8 @@ export const CandidatePanel = ({
           { key: 'overview', label: 'Overview' },
           { key: 'answers', label: 'Answers' },
           { key: 'interview', label: 'Interview' },
+          { key: 'references', label: 'References' },
+          { key: 'verification', label: 'Verification' },
           { key: 'messages', label: 'Messages' },
         ]}
       />
@@ -220,6 +230,13 @@ export const CandidatePanel = ({
           interview={application.interview}
           nextStep={application.nextStep}
           candidate={talent}
+        />
+      )}
+      {tab === 'references' && <ReferencesTab applicationId={application.id} />}
+      {tab === 'verification' && (
+        <VerificationTab
+          applicationId={application.id}
+          candidateName={fullName}
         />
       )}
       {tab === 'messages' && (

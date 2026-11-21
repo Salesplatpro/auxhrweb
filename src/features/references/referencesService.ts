@@ -1,7 +1,13 @@
 import { httpClient } from '@/features/auth/services/httpClient'
 
 import type { RefereeFormValues } from './referenceRules'
-import type { Envelope, RefereeList, RefereeRequest } from './types'
+import type {
+  CompanyReferences,
+  Envelope,
+  Referee,
+  RefereeList,
+  RefereeRequest,
+} from './types'
 
 const applicationReferencesPath = (applicationId: string) =>
   `/references/applications/${applicationId}`
@@ -37,3 +43,16 @@ export const submitRefereeAnswers = (
   httpClient
     .post(`/references/respond/${token}`, { answers })
     .then(() => undefined)
+
+export const companyReferencesKey = (applicationId: string) =>
+  `${applicationReferencesPath(applicationId)}/answers`
+
+export const fetchCompanyReferences = (applicationId: string) =>
+  httpClient
+    .get<Envelope<CompanyReferences>>(companyReferencesKey(applicationId))
+    .then((response) => response.data.data)
+
+export const resendReferenceRequest = (referenceId: string) =>
+  httpClient
+    .post<Envelope<Referee>>(`/references/${referenceId}/resend`)
+    .then((response) => response.data.data)

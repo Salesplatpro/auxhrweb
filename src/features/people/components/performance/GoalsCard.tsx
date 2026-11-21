@@ -12,6 +12,7 @@ import { usePerformanceChange } from '../../hooks/usePerformance'
 import {
   addGoal,
   approveGoal,
+  approveGoals,
   completeGoal,
   editGoal,
   removeGoal,
@@ -102,6 +103,8 @@ interface GoalsCardProps {
   canReview: boolean
   /** Used in "Writing goals for Ada…" while the AI works. */
   firstName?: string
+  /** A manager approves everything they read in one go. */
+  approveAll?: boolean
 }
 
 export const GoalsCard: React.FC<GoalsCardProps> = ({
@@ -110,6 +113,7 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
   readOnly,
   canReview,
   firstName,
+  approveAll = false,
 }) => {
   const { run, updateCache, pending } =
     usePerformanceChange<ManagedPerformance>(base)
@@ -156,6 +160,24 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
         await replaceGoal(await approveGoal(base, goal.id, goal.version))
       },
       'Could not approve this goal.',
+    )
+
+  const approveEvery = (waiting: Goal[]) =>
+    run(
+      'approve-all',
+      async () => {
+        const approved = await approveGoals(
+          base,
+          waiting.map((goal) => ({ id: goal.id, version: goal.version })),
+        )
+        await updateCache((current) => ({
+          ...current,
+          goals: current.goals.map(
+            (item) => approved.find((goal) => goal.id === item.id) ?? item,
+          ),
+        }))
+      },
+      'Could not approve these goals.',
     )
 
   const review = (goal: Goal, action: () => Promise<CompletionReviewResult>) =>
@@ -381,6 +403,19 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
               </li>
             ))}
           </ul>
+        )}
+        {approveAll && !readOnly && drafts.length > 1 && (
+          <div className={styles.actions}>
+            <Button
+              variant="ink"
+              pill
+              loading={pending === 'approve-all'}
+              onClick={() => void approveEvery(drafts)}>
+              {drafts.length === 2
+                ? 'Approve both goals'
+                : `Approve all ${drafts.length} goals`}
+            </Button>
+          </div>
         )}
       </div>
     </PagePanel>

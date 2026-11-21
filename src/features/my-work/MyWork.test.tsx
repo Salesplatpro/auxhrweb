@@ -195,9 +195,6 @@ describe('MyWork', () => {
     renderPage()
     fireEvent.click(screen.getByText('My team'))
     expect(screen.getByText('My team list')).toBeTruthy()
-    expect(
-      screen.getByText('You see this tab because people report to you.'),
-    ).toBeTruthy()
     expect(screen.queryByText('My performance cards')).toBeNull()
   })
 

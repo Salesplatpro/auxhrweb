@@ -37,6 +37,7 @@ import { EditCompanyDrawer } from './EditCompanyDrawer'
 import { InviteTeamPanel } from './InviteTeamPanel'
 import { JoinCompanyModal } from './JoinCompanyModal'
 import { PendingJoinRequests } from './PendingJoinRequests'
+import { ReferenceQuestionsCard } from './ReferenceQuestionsCard'
 
 const titleCase = (value?: string | null) => {
   if (!value) return '—'
@@ -154,6 +155,7 @@ const Company = () => {
               organization={activeOrg}
               canEdit={canManagePeople}
             />
+            <ReferenceQuestionsCard organizationId={activeOrg.id} />
             {isCompanyCreator && teamOrg && (
               <CompanyMembersPanel
                 organization={teamOrg}

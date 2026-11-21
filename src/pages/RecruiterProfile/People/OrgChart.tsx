@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { Alert } from '@/components/feedback/Alert'
+import { Select } from '@/components/forms/Select'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button, EmptyState } from '@/components/ui'
-import { Drawer } from '@/components/ui/Drawer/Drawer'
+import { Pill } from '@/components/ui/Pill'
 import { Spinner } from '@/components/ui/Spinner'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import { useOrgChart } from '@/features/people/hooks/usePerformance'
@@ -22,37 +23,73 @@ import {
 import styles from './OrgChart.module.scss'
 
 const OPEN_LEVELS = 2
+const NO_MANAGER = '__none__'
 
-const PersonRow: React.FC<{
+type ChangeManager = (person: OrgChartPerson, managerId: string | null) => void
+
+const PersonCard: React.FC<{
   person: OrgChartPerson
-  onChange: (person: OrgChartPerson) => void
+  people: OrgChartPerson[]
+  isSaving: boolean
+  onChange: ChangeManager
   children?: React.ReactNode
-}> = ({ person, onChange, children }) => (
-  <div className={styles.person}>
-    {children}
-    <div className={styles.who}>
-      <Link to={peoplePaths.employee(person.id)}>{person.fullName}</Link>
-      <span className={styles.muted}>{person.jobTitle}</span>
-      {person.managerLeft && (
-        <span className={styles.muted}>Their manager has left</span>
-      )}
+}> = ({ person, people, isSaving, onChange, children }) => {
+  const options = useMemo(
+    () => [
+      ...(person.managerId ? [{ value: NO_MANAGER, label: 'No manager' }] : []),
+      ...managerChoices(people, person.id).map((choice) => ({
+        value: choice.id,
+        label: choice.fullName,
+        description: choice.jobTitle,
+      })),
+    ],
+    [people, person],
+  )
+  return (
+    <div className={styles.person}>
+      {children}
+      <div className={styles.who}>
+        <Link to={peoplePaths.employee(person.id)}>{person.fullName}</Link>
+        <span className={styles.muted}>{person.jobTitle}</span>
+        {person.managerLeft && (
+          <Pill tone="warning" size="sm">
+            Their manager has left
+          </Pill>
+        )}
+      </div>
+      <div className={styles.reportsTo}>
+        <Select
+          label="Reports to"
+          name={`reports-to-${person.id}`}
+          placeholder="Choose a manager"
+          options={options}
+          value={person.managerId}
+          disabled={isSaving}
+          onChange={(value) =>
+            onChange(person, value === NO_MANAGER ? null : value)
+          }
+        />
+      </div>
     </div>
-    <Button size="sm" variant="outline" onClick={() => onChange(person)}>
-      Reports to
-    </Button>
-  </div>
-)
+  )
+}
 
 const TreeNode: React.FC<{
   node: OrgNode
   level: number
-  onChange: (person: OrgChartPerson) => void
-}> = ({ node, level, onChange }) => {
+  people: OrgChartPerson[]
+  isSaving: boolean
+  onChange: ChangeManager
+}> = ({ node, level, people, isSaving, onChange }) => {
   const [isOpen, setIsOpen] = useState(level < OPEN_LEVELS)
   const hasReports = node.reports.length > 0
   return (
-    <li>
-      <PersonRow person={node.person} onChange={onChange}>
+    <li className={styles.node}>
+      <PersonCard
+        person={node.person}
+        people={people}
+        isSaving={isSaving}
+        onChange={onChange}>
         {hasReports && (
           <button
             type="button"
@@ -65,7 +102,7 @@ const TreeNode: React.FC<{
             {isOpen ? '−' : '+'}
           </button>
         )}
-      </PersonRow>
+      </PersonCard>
       {hasReports && isOpen && (
         <ul className={styles.tree}>
           {node.reports.map((report) => (
@@ -73,6 +110,8 @@ const TreeNode: React.FC<{
               key={report.person.id}
               node={report}
               level={level + 1}
+              people={people}
+              isSaving={isSaving}
               onChange={onChange}
             />
           ))}
@@ -82,59 +121,17 @@ const TreeNode: React.FC<{
   )
 }
 
-const ChangeManager: React.FC<{
-  person: OrgChartPerson | null
-  people: OrgChartPerson[]
-  isSaving: boolean
-  onSave: (managerId: string | null) => void
-  onClose: () => void
-}> = ({ person, people, isSaving, onSave, onClose }) => {
-  const [managerId, setManagerId] = useState(person?.managerId ?? '')
-  const choices = useMemo(
-    () => (person ? managerChoices(people, person.id) : []),
-    [people, person],
-  )
-  return (
-    <Drawer
-      open={!!person}
-      onClose={onClose}
-      title={person ? `Who does ${person.fullName} report to?` : ''}
-      actions={
-        <Button loading={isSaving} onClick={() => onSave(managerId || null)}>
-          Save
-        </Button>
-      }>
-      {person && (
-        <label className={styles.field}>
-          <span>Reports to</span>
-          <select
-            value={managerId}
-            onChange={(event) => setManagerId(event.target.value)}>
-            <option value="">No manager</option>
-            {choices.map((choice) => (
-              <option key={choice.id} value={choice.id}>
-                {choice.fullName} · {choice.jobTitle}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
-    </Drawer>
-  )
-}
-
 export const OrgChart = () => {
+  const navigate = useNavigate()
   const { organizationId } = usePeopleAccess()
   const { chart, isLoading, hasError, reload } = useOrgChart(organizationId)
   const { saveStaff, isSaving } = useStaffActions(organizationId)
-  const [changing, setChanging] = useState<OrgChartPerson | null>(null)
-  const tree = useMemo(() => buildOrgTree(chart?.people ?? []), [chart])
+  const people = useMemo(() => chart?.people ?? [], [chart])
+  const tree = useMemo(() => buildOrgTree(people), [people])
 
-  const save = async (managerId: string | null) => {
-    if (!changing) return
-    const saved = await saveStaff(changing.id, { managerId })
+  const change: ChangeManager = async (person, managerId) => {
+    await saveStaff(person.id, { managerId })
     await reload()
-    if (saved) setChanging(null)
   }
 
   return (
@@ -143,19 +140,25 @@ export const OrgChart = () => {
         compact
         kicker="People"
         title="Org chart"
-        lead="Who reports to whom, from the manager on each staff record."
+        lead="Everyone in the company by who they report to. Change someone's manager with the Reports to box."
       />
       {isLoading ? (
         <Spinner />
       ) : hasError ? (
         <EmptyState
-          title="Couldn't load the org chart"
-          description="Something went wrong on our side. Refresh the page to try again."
+          title="We could not load the org chart"
+          description="Check your connection and try again. Nothing was lost."
+          action={<Button onClick={() => void reload()}>Try again</Button>}
         />
       ) : chart?.people.length === 0 ? (
         <EmptyState
-          title="No staff yet"
-          description="Add people on the Employees page to see your org chart."
+          title="No people yet"
+          description="Add your first employee and they will appear here."
+          action={
+            <Button onClick={() => navigate(peoplePaths.employees)}>
+              Add employee
+            </Button>
+          }
         />
       ) : (
         <>
@@ -165,11 +168,23 @@ export const OrgChart = () => {
             </Alert>
           )}
           {tree.noManager.length > 0 && (
-            <PagePanel title="No manager set">
+            <PagePanel
+              title="No manager set"
+              action={
+                <Pill tone="warning" size="sm">
+                  {tree.noManager.length}{' '}
+                  {tree.noManager.length === 1 ? 'person' : 'people'}
+                </Pill>
+              }>
               <ul className={styles.flat}>
                 {tree.noManager.map((person) => (
                   <li key={person.id}>
-                    <PersonRow person={person} onChange={setChanging} />
+                    <PersonCard
+                      person={person}
+                      people={people}
+                      isSaving={isSaving}
+                      onChange={change}
+                    />
                   </li>
                 ))}
               </ul>
@@ -183,7 +198,9 @@ export const OrgChart = () => {
                     key={node.person.id}
                     node={node}
                     level={0}
-                    onChange={setChanging}
+                    people={people}
+                    isSaving={isSaving}
+                    onChange={change}
                   />
                 ))}
               </ul>
@@ -191,14 +208,6 @@ export const OrgChart = () => {
           )}
         </>
       )}
-      <ChangeManager
-        key={changing?.id ?? 'none'}
-        person={changing}
-        people={chart?.people ?? []}
-        isSaving={isSaving}
-        onSave={(managerId) => void save(managerId)}
-        onClose={() => setChanging(null)}
-      />
     </PageShell>
   )
 }

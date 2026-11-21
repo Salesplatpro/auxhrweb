@@ -801,6 +801,14 @@ export const approveGoal = (base: string, goalId: string, version: number) =>
     httpClient.post(`${base}/goals/${goalId}/approve`, { version }),
   ).then((data) => data.goal)
 
+export const approveGoals = (
+  base: string,
+  goals: { id: string; version: number }[],
+) =>
+  unwrap<{ goals: Goal[] }>(
+    httpClient.post(`${base}/goals/approve`, { goals }),
+  ).then((data) => data.goals)
+
 export const removeGoal = (base: string, goalId: string) =>
   httpClient.delete(`${base}/goals/${goalId}`)
 

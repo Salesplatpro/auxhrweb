@@ -8,7 +8,17 @@ const { useMyTeam } = vi.hoisted(() => ({ useMyTeam: vi.fn() }))
 
 vi.mock('@/features/people/hooks/usePerformance', () => ({ useMyTeam }))
 vi.mock('@/features/people/components/performance/PerformanceCards', () => ({
-  PerformanceCards: ({ base }: { base: string }) => <div>Cards for {base}</div>,
+  PerformanceCards: ({
+    base,
+    firstName,
+  }: {
+    base: string
+    firstName?: string
+  }) => (
+    <div>
+      Cards for {base} ({firstName})
+    </div>
+  ),
 }))
 
 const members = [
@@ -26,6 +36,13 @@ const members = [
     reportId: null,
     goalsWaiting: 0,
   },
+  {
+    staffId: 's-4',
+    fullName: 'Hauwa Sani',
+    jobTitle: 'Researcher',
+    reportId: 'r-9',
+    goalsWaiting: 1,
+  },
 ]
 
 describe('MyTeam', () => {
@@ -33,19 +50,50 @@ describe('MyTeam', () => {
     vi.clearAllMocks()
   })
 
-  it('shows who has submitted and which goals wait, then opens one person', () => {
+  it('says why the tab is there and lists direct reports with their week and goals', () => {
     useMyTeam.mockReturnValue({
       team: { weekStart: '2026-11-02', members },
       isLoading: false,
     })
     render(<MyTeam managerStaffId="m-1" />)
 
-    expect(screen.getByText(/Submitted · 2 goals waiting/)).toBeTruthy()
-    expect(screen.getByText(/Engineer · Not yet/)).toBeTruthy()
+    expect(
+      screen.getByText('You see this tab because 3 people report to you.'),
+    ).toBeTruthy()
+    expect(screen.getByText('Direct reports')).toBeTruthy()
+    expect(screen.getAllByText("This week's report")).toHaveLength(3)
+    expect(screen.getAllByText('Submitted')).toHaveLength(2)
+    expect(screen.getByText('Not yet')).toBeTruthy()
+    expect(screen.getByText('2 goals waiting for approval')).toBeTruthy()
+    expect(screen.getByText('1 goal waiting for approval')).toBeTruthy()
+    expect(screen.getByText('Goals approved')).toBeTruthy()
+  })
+
+  it('opens one person with the goals to approve, and comes back with either Back to team button', () => {
+    useMyTeam.mockReturnValue({
+      team: { weekStart: '2026-11-02', members },
+      isLoading: false,
+    })
+    render(<MyTeam managerStaffId="m-1" />)
+
     fireEvent.click(screen.getAllByRole('button', { name: 'Open' })[0]!)
-    expect(screen.getByText('Cards for /my-work/m-1/team/s-2')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '← My team' }))
-    expect(screen.getByText('Ada Obi')).toBeTruthy()
+    expect(
+      screen.getByText('Ada Obi · 2 goals waiting for approval'),
+    ).toBeTruthy()
+    expect(
+      screen.getByText(
+        'Read each goal. Change anything you want, then approve.',
+      ),
+    ).toBeTruthy()
+    expect(
+      screen.getByText('Cards for /my-work/m-1/team/s-2 (Ada)'),
+    ).toBeTruthy()
+    expect(
+      screen.getAllByRole('button', { name: 'Back to team' }),
+    ).toHaveLength(2)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Back to team' })[1]!)
+    expect(screen.getByText('Direct reports')).toBeTruthy()
   })
 
   it('handles an empty team and a failed load', () => {
@@ -55,6 +103,7 @@ describe('MyTeam', () => {
     })
     const first = render(<MyTeam managerStaffId="m-1" />)
     expect(screen.getByText('Nobody reports to you right now.')).toBeTruthy()
+    expect(screen.queryByText(/You see this tab/)).toBeNull()
     first.unmount()
 
     useMyTeam.mockReturnValue({ team: null, hasError: true })

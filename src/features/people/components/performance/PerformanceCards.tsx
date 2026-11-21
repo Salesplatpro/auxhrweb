@@ -54,7 +54,12 @@ export const PerformanceCards: React.FC<PerformanceCardsProps> = ({
       )}
       <EfficiencyCard {...props} />
       <JobDescriptionCard {...props} hr={hr} />
-      <GoalsCard {...props} canReview={canReview} firstName={firstName} />
+      <GoalsCard
+        {...props}
+        canReview={canReview}
+        firstName={firstName}
+        approveAll={showTasks}
+      />
       {showTasks && <TeamTasksCard base={base} />}
       <ReportsCard {...props} />
       <DevelopmentCard {...props} />

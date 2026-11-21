@@ -10,6 +10,7 @@ import { PerformanceCards } from './PerformanceCards'
 const mocks = vi.hoisted(() => ({
   fetchPerformance: vi.fn(),
   approveGoal: vi.fn(),
+  approveGoals: vi.fn(),
   addGoal: vi.fn(),
   addDevelopmentItem: vi.fn(),
   suggestGoals: vi.fn(),
@@ -417,6 +418,50 @@ describe('PerformanceCards', () => {
         'Leads design',
         null,
       ),
+    )
+  })
+
+  it('lets a manager approve every goal they read with one button', async () => {
+    const second = {
+      ...performance.goals[0]!,
+      id: 'g-2',
+      title: 'Run user tests',
+      version: 1,
+    }
+    const approved = (goal: (typeof performance.goals)[number]) => ({
+      ...goal,
+      status: 'approved' as const,
+      approvedAt: 'now',
+      approvedByName: 'Mo',
+    })
+    mocks.approveGoals.mockResolvedValue([
+      approved(performance.goals[0]!),
+      approved(second),
+    ])
+    mocks.fetchPerformance.mockResolvedValue({
+      ...performance,
+      goals: [performance.goals[0]!, second],
+    })
+    render(
+      <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+        <MemoryRouter>
+          <PerformanceCards base="/base" readOnly={false} showTasks />
+        </MemoryRouter>
+      </SWRConfig>,
+    )
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Approve both goals' }),
+    )
+    await waitFor(() =>
+      expect(mocks.approveGoals).toHaveBeenCalledWith('/base', [
+        { id: 'g-1', version: 3 },
+        { id: 'g-2', version: 1 },
+      ]),
+    )
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Approve both goals' }),
+      ).toBeNull(),
     )
   })
 

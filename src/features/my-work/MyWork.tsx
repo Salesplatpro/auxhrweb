@@ -3,7 +3,6 @@ import { HiOutlineBriefcase } from 'react-icons/hi2'
 import { Link } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
 
-import { Alert } from '@/components/feedback/Alert'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel, StatCard, StatGrid } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
@@ -391,12 +390,7 @@ const RecordViews: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
     <div className={styles.stack}>
       <Tabs tabs={tabs} activeKey={activeView} onChange={setView} />
       {activeView === 'team' ? (
-        <>
-          <Alert variant="info">
-            You see this tab because people report to you.
-          </Alert>
-          <MyTeam managerStaffId={record.staffId} />
-        </>
+        <MyTeam managerStaffId={record.staffId} />
       ) : activeView === 'pay' ? (
         <PayAndShares staffId={record.staffId} firstName={firstName} />
       ) : (

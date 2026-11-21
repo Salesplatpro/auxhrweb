@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import { PagePanel } from '@/components/layout/PagePanel'
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge'
 import { Button } from '@/components/ui/Button'
 
 import { usePerformanceChange } from '../../hooks/usePerformance'
@@ -133,6 +134,82 @@ export const ReportsCard: React.FC<ReportsCardProps> = ({
       },
       'Could not load more reports.',
     )
+
+  const weeks = performance.weeks ?? []
+  const [openWeek, setOpenWeek] = useState<string | null>(null)
+
+  if (weeks.length > 0) {
+    return (
+      <PagePanel
+        title="Weekly reports"
+        hint="Every report this person sends, newest first.">
+        <ul className={styles.list}>
+          {weeks.map(({ weekStart, state, report }) => (
+            <li key={weekStart} className={styles.item}>
+              <div className={styles.itemHead}>
+                <strong>Week of {formatDateOnly(weekStart)}</strong>
+                <StatusBadge
+                  status={state === 'submitted' ? 'Submitted' : 'Not yet'}
+                  backgroundColor={
+                    state === 'submitted'
+                      ? 'var(--color-positive-tint)'
+                      : 'var(--color-bg-subtle)'
+                  }
+                  color={
+                    state === 'submitted'
+                      ? 'var(--color-positive)'
+                      : 'var(--color-text-muted)'
+                  }
+                  showDot
+                />
+              </div>
+              {report ? (
+                <>
+                  <p className={styles.muted}>
+                    {report.did.length > 90
+                      ? `${report.did.slice(0, 90)}…`
+                      : report.did}
+                  </p>
+                  <div className={styles.itemHead}>
+                    <span className={styles.muted}>
+                      {report.managerNote
+                        ? `${
+                            report.managerNoteByName ?? 'A manager'
+                          } added a note`
+                        : 'No note'}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setOpenWeek(openWeek === weekStart ? null : weekStart)
+                      }>
+                      {openWeek === weekStart ? 'Close' : 'Open'}
+                    </Button>
+                  </div>
+                  {openWeek === weekStart && (
+                    <>
+                      <ReportBody report={report} />
+                      {!readOnly && (
+                        <NoteForm
+                          key={`${report.id}-${report.noteVersion}`}
+                          report={report}
+                          isSaving={pending === report.id}
+                          onSave={(note) => saveNote(report, note)}
+                        />
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <p className={styles.muted}>Not sent</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </PagePanel>
+    )
+  }
 
   return (
     <PagePanel title="Weekly reports">

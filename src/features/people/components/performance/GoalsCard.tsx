@@ -6,6 +6,7 @@ import TextField from '@/components/forms/TextField'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
 
 import { usePerformanceChange } from '../../hooks/usePerformance'
 import {
@@ -99,6 +100,8 @@ interface GoalsCardProps {
   performance: ManagedPerformance
   readOnly: boolean
   canReview: boolean
+  /** Used in "Writing goals for Ada…" while the AI works. */
+  firstName?: string
 }
 
 export const GoalsCard: React.FC<GoalsCardProps> = ({
@@ -106,9 +109,11 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
   performance,
   readOnly,
   canReview,
+  firstName,
 }) => {
   const { run, updateCache, pending } =
     usePerformanceChange<ManagedPerformance>(base)
+  const [suggestFailed, setSuggestFailed] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -176,8 +181,9 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
       'Could not remove this goal.',
     )
 
-  const suggest = () =>
-    run(
+  const suggest = async () => {
+    setSuggestFailed(false)
+    const result = await run(
       'suggest',
       async () => {
         const drafts = await suggestGoals(base)
@@ -193,21 +199,51 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
       },
       'Could not suggest goals. Please try again.',
     )
+    if (result === null) setSuggestFailed(true)
+  }
+
+  const needsJobDescription = !performance.jobDescription
+  const drafts = performance.goals.filter((goal) => goal.status === 'draft')
+
+  if (pending === 'suggest') {
+    return (
+      <PagePanel
+        title={`Writing goals${firstName ? ` for ${firstName}` : ''}…`}
+        hint="This takes a few seconds. You can keep editing the job description.">
+        <Pill tone="warning" size="sm">
+          Reading
+        </Pill>
+      </PagePanel>
+    )
+  }
 
   return (
     <PagePanel
       title="Goals"
+      hint={
+        needsJobDescription && performance.goals.length === 0
+          ? 'Write the job description first, then we can suggest goals.'
+          : drafts.length > 0
+          ? `${drafts.length} goal${
+              drafts.length === 1 ? '' : 's'
+            } suggested for the next quarter. Edit them, delete any you do not want, or add your own.`
+          : undefined
+      }
       action={
         !readOnly && (
           <div className={styles.actions}>
             <Button
               size="sm"
-              variant="outline"
-              loading={pending === 'suggest'}
+              variant="ink"
+              pill
+              disabled={needsJobDescription}
               onClick={() => void suggest()}>
               Suggest goals
             </Button>
-            <Button size="sm" onClick={() => setIsAdding(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setIsAdding(true)}>
               Add goal
             </Button>
           </div>
@@ -221,7 +257,26 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
             onCancel={() => setIsAdding(false)}
           />
         )}
-        {performance.goals.length === 0 && !isAdding ? (
+        {suggestFailed && (
+          <div className={styles.stack}>
+            <strong>We could not suggest goals</strong>
+            <p className={styles.muted}>
+              Try again, or add goals yourself. Your job description is saved.
+            </p>
+            <div className={styles.actions}>
+              <Pill tone="danger" size="sm">
+                Error
+              </Pill>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void suggest()}>
+                Try again
+              </Button>
+            </div>
+          </div>
+        )}
+        {performance.goals.length === 0 && !isAdding && !suggestFailed ? (
           <p className={styles.muted}>No goals yet.</p>
         ) : (
           <ul className={styles.list}>
@@ -254,11 +309,9 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
                       <span className={styles.muted}>AI suggestion</span>
                     )}
                     {goal.keyResults.length > 0 && (
-                      <ul className={styles.tips}>
-                        {goal.keyResults.map((result, index) => (
-                          <li key={index}>{result}</li>
-                        ))}
-                      </ul>
+                      <p className={styles.body}>
+                        Key results: {goal.keyResults.join(', ')}
+                      </p>
                     )}
                     <p className={styles.muted}>
                       {goal.target ? `Target: ${goal.target}. ` : ''}Due{' '}

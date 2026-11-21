@@ -17,6 +17,7 @@ import { TeamTasksCard } from './TeamTasksCard'
 interface PerformanceCardsProps {
   base: string
   readOnly: boolean
+  firstName?: string
   hr?: { organizationId: string; staffId: string }
   /** Reviewing completion needs less than editing, so an assigned HR can do it while read-only. */
   canReview?: boolean
@@ -28,6 +29,7 @@ interface PerformanceCardsProps {
 export const PerformanceCards: React.FC<PerformanceCardsProps> = ({
   base,
   readOnly,
+  firstName,
   hr,
   canReview = !readOnly,
   showTasks = false,
@@ -52,7 +54,7 @@ export const PerformanceCards: React.FC<PerformanceCardsProps> = ({
       )}
       <EfficiencyCard {...props} />
       <JobDescriptionCard {...props} hr={hr} />
-      <GoalsCard {...props} canReview={canReview} />
+      <GoalsCard {...props} canReview={canReview} firstName={firstName} />
       {showTasks && <TeamTasksCard base={base} />}
       <ReportsCard {...props} />
       <DevelopmentCard {...props} />

@@ -235,7 +235,14 @@ describe('PerformanceCards', () => {
 
   it('re-fetches after a network failure in case the AI saved anyway', async () => {
     mocks.suggestGoals.mockRejectedValue(new Error('Network Error'))
-    renderCards()
+    renderCards({
+      jobDescription: {
+        body: 'Leads design work.',
+        version: 1,
+        updatedByName: 'H',
+        updatedAt: '',
+      },
+    })
     fireEvent.click(
       await screen.findByRole('button', { name: 'Suggest goals' }),
     )
@@ -258,7 +265,14 @@ describe('PerformanceCards', () => {
 
   it('merges suggested drafts without duplicating ones on screen', async () => {
     mocks.suggestGoals.mockResolvedValue([performance.goals[0]])
-    renderCards()
+    renderCards({
+      jobDescription: {
+        body: 'Leads design work.',
+        version: 1,
+        updatedByName: 'H',
+        updatedAt: '',
+      },
+    })
     fireEvent.click(
       await screen.findByRole('button', { name: 'Suggest goals' }),
     )
@@ -392,7 +406,8 @@ describe('PerformanceCards', () => {
     fireEvent.click(
       await screen.findByRole('button', { name: 'Write with AI' }),
     )
-    expect(await screen.findByDisplayValue('Leads design')).toBeTruthy()
+    expect(await screen.findByText('Leads design')).toBeTruthy()
+    expect(screen.getByText('Written by AI')).toBeTruthy()
     expect(mocks.saveJobDescription).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
     await waitFor(() =>
@@ -403,6 +418,79 @@ describe('PerformanceCards', () => {
         null,
       ),
     )
+  })
+
+  it('keeps Suggest goals off until there is a job description, and says why', async () => {
+    renderCards({ goals: [] })
+    expect(
+      await screen.findByText(
+        'Write the job description first, then we can suggest goals.',
+      ),
+    ).toBeTruthy()
+    expect(
+      screen
+        .getByRole('button', { name: 'Suggest goals' })
+        .hasAttribute('disabled'),
+    ).toBe(true)
+  })
+
+  it('shows the writing state while suggesting, then the failure with Try again', async () => {
+    mocks.suggestGoals.mockRejectedValue({ response: { status: 502 } })
+    renderCards({
+      jobDescription: {
+        body: 'Leads design work.',
+        version: 1,
+        updatedByName: 'H',
+        updatedAt: '',
+      },
+    })
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Suggest goals' }),
+    )
+    expect(await screen.findByText('We could not suggest goals')).toBeTruthy()
+    expect(
+      screen.getByText(
+        'Try again, or add goals yourself. Your job description is saved.',
+      ),
+    ).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
+    await waitFor(() => expect(mocks.suggestGoals).toHaveBeenCalledTimes(2))
+  })
+
+  it('offers Write with AI and Write it myself when there is no job description', async () => {
+    renderCards({}, { hr: true })
+    expect(
+      await screen.findByText(
+        'What this person is hired to do. We use it to suggest goals.',
+      ),
+    ).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Write with AI' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Write it myself' }))
+    expect(await screen.findByLabelText('Job description')).toBeTruthy()
+  })
+
+  it('lists every week, with missed ones as Not yet and the note flag on sent ones', async () => {
+    renderCards({
+      weeks: [
+        {
+          weekStart: '2026-11-02',
+          state: 'submitted',
+          report: {
+            ...performance.reports.items[0]!,
+            managerNote: 'Good week',
+            managerNoteByName: 'Tunde',
+          },
+        },
+        { weekStart: '2026-10-26', state: 'not_yet', report: null },
+      ],
+    })
+    expect(await screen.findByText('Week of 2 Nov 2026')).toBeTruthy()
+    expect(screen.getByText('Submitted')).toBeTruthy()
+    expect(screen.getByText('Tunde added a note')).toBeTruthy()
+    expect(screen.getByText('Not yet')).toBeTruthy()
+    expect(screen.getByText('Not sent')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    expect(screen.getByLabelText('Your note')).toBeTruthy()
   })
 
   describe('completion requests', () => {

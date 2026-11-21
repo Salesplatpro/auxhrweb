@@ -30,7 +30,6 @@ import { useProfile } from '@/features/profile/hooks/useProfile'
 import { useDebouncedValue } from '@/hooks'
 
 import { AddEmployeePanel } from './AddEmployeePanel'
-import { DefaultChecklistDrawer } from './DefaultChecklistDrawer'
 import styles from './Employees.module.scss'
 import { EndEmploymentDialog } from './EndEmploymentDialog'
 import { ImportStaffDrawer } from './ImportStaffDrawer'
@@ -124,7 +123,6 @@ export const Employees = () => {
   })
   const { sendInvite, exportStaffCsv } = useStaffActions(organizationId)
   const [importOpen, setImportOpen] = useState(false)
-  const [checklistOpen, setChecklistOpen] = useState(false)
 
   const filterFields: FilterFieldConfig<Filters>[] = useMemo(
     () => [
@@ -274,7 +272,7 @@ export const Employees = () => {
               <HeroGhost onClick={() => void exportStaffCsv()}>
                 Export
               </HeroGhost>
-              <HeroGhost onClick={() => setChecklistOpen(true)}>
+              <HeroGhost onClick={() => navigate(peoplePaths.defaultChecklist)}>
                 Default checklist
               </HeroGhost>
             </>
@@ -356,11 +354,6 @@ export const Employees = () => {
             organizationId={organizationId}
             open={importOpen}
             onClose={() => setImportOpen(false)}
-          />
-          <DefaultChecklistDrawer
-            organizationId={organizationId}
-            open={checklistOpen}
-            onClose={() => setChecklistOpen(false)}
           />
         </>
       )}

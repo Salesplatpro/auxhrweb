@@ -61,6 +61,7 @@ import {
   ShareGrantPayload,
   StaffDocument,
   StaffMember,
+  TaskOwner,
   UpdateStaffPayload,
 } from '../types'
 import { accessLabel } from '../utils/accessLog'
@@ -468,7 +469,12 @@ export const useStaffActions = (organizationId: string | null) => {
 
   const addTask = async (
     staffId: string,
-    task: { title: string; dueOn: string | null },
+    task: {
+      title: string
+      dueOn: string | null
+      description?: string | null
+      owner?: TaskOwner | null
+    },
   ) => {
     const created = await run(async (orgId) => {
       const saved = await addChecklistTask(orgId, staffId, task)

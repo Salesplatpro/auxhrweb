@@ -169,6 +169,17 @@ const Company = () => {
               organization={activeOrg}
               canEdit={activeOrg.ownerId === profile?.id}
             />
+            {activeOrg.ownerId === profile?.id && (
+              <PagePanel
+                title="Activity log"
+                hint="See who changed what in your company."
+                actionTo="/recruiterDashboard/company/activity"
+                actionLabel="Open">
+                <p className={styles.muted}>
+                  Only you, as the owner, can see it.
+                </p>
+              </PagePanel>
+            )}
             <PlanCard organization={activeOrg} />
           </div>
         </div>

@@ -6,6 +6,7 @@ import type {
   BoardColumn,
   InterviewProgress,
   ProgressStage,
+  VerificationState,
 } from '@/utils/recruiterJobPostsTypes'
 
 export const BOARD_COLUMNS: { key: BoardColumn; label: string }[] = [
@@ -47,6 +48,42 @@ export const INTERVIEW_FILTERS: {
   { value: 'in_progress', label: 'In progress' },
   { value: 'not_started', label: 'Not started' },
 ]
+
+const VERIFICATION: Record<
+  VerificationState,
+  { label: string; tone: PillTone }
+> = {
+  verified: { label: 'Verified', tone: 'success' },
+  pending: { label: 'Pending', tone: 'warning' },
+  flagged: { label: 'Flagged', tone: 'warning' },
+  failed: { label: 'Failed', tone: 'danger' },
+  none: { label: 'Not ordered', tone: 'neutral' },
+}
+
+export const VERIFICATION_FILTERS: {
+  value: VerificationState | ''
+  label: string
+}[] = [
+  { value: '', label: 'All' },
+  { value: 'verified', label: 'Verified' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'flagged', label: 'Flagged' },
+  { value: 'failed', label: 'Failed' },
+  { value: 'none', label: 'Not ordered' },
+]
+
+export const VerificationPill = ({
+  status,
+}: {
+  status?: VerificationState
+}) => {
+  const config = VERIFICATION[status ?? 'none']
+  return (
+    <Pill tone={config.tone} size="sm">
+      {config.label}
+    </Pill>
+  )
+}
 
 export const InterviewPill = ({ status }: { status?: InterviewProgress }) => {
   const config = INTERVIEW[status ?? 'not_started']

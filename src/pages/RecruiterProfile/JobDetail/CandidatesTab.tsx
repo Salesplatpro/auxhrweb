@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
-import { LuFilter, LuVideo } from 'react-icons/lu'
+import { LuFilter, LuShieldCheck, LuVideo } from 'react-icons/lu'
 
 import { Button } from '@/components/ui/Button'
 import { Dropdown } from '@/components/ui/Dropdown'
@@ -23,6 +23,7 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 import type {
   InterviewProgress,
   SingleJobDetails,
+  VerificationState,
 } from '@/utils/recruiterJobPostsTypes'
 import { notify } from '@/utils/toastNotifications'
 
@@ -32,7 +33,11 @@ import {
 } from '../MyJobPosts/Messaging/AiMessageComposer'
 import listStyles from '../MyJobPosts/MyJobPosts.module.scss'
 import { ToolbarTrigger } from '../MyJobPosts/ToolbarTrigger'
-import { INTERVIEW_FILTERS, SOURCE_FILTERS } from './candidateLabels'
+import {
+  INTERVIEW_FILTERS,
+  SOURCE_FILTERS,
+  VERIFICATION_FILTERS,
+} from './candidateLabels'
 import styles from './Candidates.module.scss'
 import { CandidatesBoard } from './CandidatesBoard'
 import { CandidatesList } from './CandidatesList'
@@ -104,6 +109,7 @@ export const CandidatesTab = ({
   const [moreFilters, setMoreFilters] = useState(DEFAULT_MORE_FILTERS)
   const [source, setSource] = useState('')
   const [interview, setInterview] = useState<InterviewProgress | ''>('')
+  const [verification, setVerification] = useState<VerificationState | ''>('')
   const [sort, setSort] = useState<Sort>('cvSimilarity')
   const [page, setPage] = useState(1)
   const [selected, setSelected] = useState<Set<string | number>>(new Set())
@@ -131,6 +137,7 @@ export const CandidatesTab = ({
     {
       ...query,
       interview: interview || undefined,
+      verification: verification || undefined,
       limit: PAGE_SIZE,
       offset: (page - 1) * PAGE_SIZE,
     },
@@ -199,6 +206,9 @@ export const CandidatesTab = ({
   const sortLabel = SORTS.find((option) => option.value === sort)?.label
   const sourceText =
     SOURCE_FILTERS.find((option) => option.value === source)?.label ?? 'All'
+  const verificationText =
+    VERIFICATION_FILTERS.find((option) => option.value === verification)
+      ?.label ?? 'All'
   const interviewText =
     INTERVIEW_FILTERS.find((option) => option.value === interview)?.label ??
     'All'
@@ -239,6 +249,20 @@ export const CandidatesTab = ({
                 key: option.value || 'all',
                 label: option.label,
                 onClick: () => withPageReset(setSource)(option.value),
+              }))}
+            />
+            <Dropdown
+              align="left"
+              trigger={
+                <ToolbarTrigger
+                  icon={<LuShieldCheck size={14} aria-hidden />}
+                  label={`Verification: ${verificationText}`}
+                />
+              }
+              items={VERIFICATION_FILTERS.map((option) => ({
+                key: option.value || 'all',
+                label: option.label,
+                onClick: () => withPageReset(setVerification)(option.value),
               }))}
             />
             <Dropdown

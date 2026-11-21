@@ -3,7 +3,13 @@ import React, { ReactNode } from 'react'
 
 import styles from './Pill.module.scss'
 
-export type PillTone = 'brand' | 'neutral' | 'success' | 'warning' | 'violet'
+export type PillTone =
+  | 'brand'
+  | 'neutral'
+  | 'success'
+  | 'warning'
+  | 'violet'
+  | 'danger'
 
 type PillProps = {
   tone?: PillTone

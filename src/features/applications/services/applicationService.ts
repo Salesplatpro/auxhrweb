@@ -6,6 +6,7 @@ import {
   JobSummary,
   NextStep,
   SingleJobDetails,
+  VerificationState,
 } from '@/utils/recruiterJobPostsTypes'
 
 export type ApplicationDecision = 'rejected' | 'shortlisted'
@@ -73,6 +74,7 @@ export interface JobApplicationsQuery {
   sort?: 'aiMatch' | 'dateApplied' | 'cvSimilarity'
   boardColumn?: BoardColumn
   interview?: InterviewProgress
+  verification?: VerificationState
   applicationStatus?: string
   matchVerdict?: string
 }

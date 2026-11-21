@@ -12,6 +12,7 @@ export const PerformanceTab: React.FC<EmployeeTabProps> = ({
 }) => (
   <PerformanceCards
     base={hrPerformanceBase(organizationId, staff.id)}
+    firstName={staff.fullName.split(' ')[0]}
     readOnly={!canEdit || staff.status === 'ended'}
     hr={canEdit ? { organizationId, staffId: staff.id } : undefined}
     canReview={staff.status !== 'ended'}

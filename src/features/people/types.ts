@@ -669,7 +669,14 @@ export interface Performance {
   feedback: MonthlyFeedback[]
 }
 
+export interface ReportWeek {
+  weekStart: string
+  state: 'submitted' | 'not_yet'
+  report: WeeklyReport | null
+}
+
 export interface ManagedPerformance extends Performance {
+  weeks?: ReportWeek[]
   completionRequests: CompletionRequest[]
   efficiency: Efficiency
   efficiencyTip: EfficiencyTip | null

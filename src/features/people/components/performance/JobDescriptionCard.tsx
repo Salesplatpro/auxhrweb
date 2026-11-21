@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Button } from '@/components/ui/Button'
+import { Pill } from '@/components/ui/Pill'
 
 import { usePerformanceChange } from '../../hooks/usePerformance'
 import {
@@ -21,6 +22,8 @@ interface JobDescriptionCardProps {
   hr?: { organizationId: string; staffId: string }
 }
 
+type Draft = { text: string; fromAi: boolean; editing: boolean }
+
 export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
   base,
   performance,
@@ -30,7 +33,7 @@ export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
   const { jobDescription } = performance
   const { run, updateCache, pending } =
     usePerformanceChange<ManagedPerformance>(base)
-  const [draft, setDraft] = useState<string | null>(null)
+  const [draft, setDraft] = useState<Draft | null>(null)
   const canEdit = !!hr && !readOnly
 
   const writeWithAi = () =>
@@ -39,7 +42,7 @@ export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
       'write',
       async () => {
         const written = await writeJobDescription(hr.organizationId, hr.staffId)
-        setDraft(written.body)
+        setDraft({ text: written.body, fromAi: true, editing: false })
       },
       'Could not write the job description. Please try again.',
     )
@@ -53,7 +56,7 @@ export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
         const saved = await saveJobDescription(
           hr.organizationId,
           hr.staffId,
-          draft,
+          draft.text,
           jobDescription?.version ?? null,
         )
         await updateCache((current) => ({ ...current, jobDescription: saved }))
@@ -63,27 +66,56 @@ export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
     )
 
   return (
-    <PagePanel title="Job description">
+    <PagePanel
+      title="Job description"
+      hint={
+        !jobDescription && !draft
+          ? 'What this person is hired to do. We use it to suggest goals.'
+          : undefined
+      }
+      action={
+        draft?.fromAi && (
+          <Pill tone="warning" size="sm">
+            Written by AI
+          </Pill>
+        )
+      }>
       {draft !== null ? (
         <div className={styles.form}>
-          <label className={styles.field}>
-            <span>Job description</span>
-            <textarea
-              rows={12}
-              maxLength={MAX_LENGTH}
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-            />
-          </label>
+          {draft.editing ? (
+            <label className={styles.field}>
+              <span>Job description</span>
+              <textarea
+                rows={12}
+                maxLength={MAX_LENGTH}
+                value={draft.text}
+                onChange={(event) =>
+                  setDraft({ ...draft, text: event.target.value })
+                }
+              />
+            </label>
+          ) : (
+            <p className={styles.body}>{draft.text}</p>
+          )}
           <div className={styles.actions}>
+            {!draft.editing && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setDraft({ ...draft, editing: true })}>
+                Edit
+              </Button>
+            )}
             <Button
               size="sm"
+              variant="ink"
+              pill
               loading={pending === 'save'}
-              disabled={!draft.trim()}
+              disabled={!draft.text.trim()}
               onClick={() => void save()}>
               Save
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setDraft(null)}>
+            <Button size="sm" variant="ghost" onClick={() => setDraft(null)}>
               Cancel
             </Button>
           </div>
@@ -97,21 +129,38 @@ export const JobDescriptionCard: React.FC<JobDescriptionCardProps> = ({
           )}
           {canEdit && (
             <div className={styles.actions}>
-              {jobDescription && (
+              {jobDescription ? (
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setDraft(jobDescription.body)}>
+                  onClick={() =>
+                    setDraft({
+                      text: jobDescription.body,
+                      fromAi: false,
+                      editing: true,
+                    })
+                  }>
                   Edit
                 </Button>
-              )}
+              ) : null}
               <Button
                 size="sm"
-                variant="outline"
+                variant="ink"
+                pill
                 loading={pending === 'write'}
                 onClick={() => void writeWithAi()}>
                 Write with AI
               </Button>
+              {!jobDescription && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() =>
+                    setDraft({ text: '', fromAi: false, editing: true })
+                  }>
+                  Write it myself
+                </Button>
+              )}
             </div>
           )}
         </div>

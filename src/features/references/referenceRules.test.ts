@@ -12,7 +12,7 @@ import {
 describe('reference rules', () => {
   it('names the four statuses in plain words', () => {
     expect(REFERENCE_STATUS_LABEL).toEqual({
-      not_sent: 'Not sent',
+      not_sent: 'Waiting for company questions',
       sent: 'Sent',
       answered: 'Answered',
       expired: 'Link expired',

@@ -155,18 +155,21 @@ export const ReferencesTab = ({ applicationId }: { applicationId: string }) => {
               {...STATUS_COLOURS[referee.status]}
             />
             <span className={styles.muted}>
-              {shortDate(
-                referee.answeredAt ?? referee.sentAt ?? referee.expiresAt,
-              )}
+              {referee.status === 'not_sent'
+                ? 'Send questions from the Company page'
+                : shortDate(
+                    referee.answeredAt ?? referee.sentAt ?? referee.expiresAt,
+                  )}
             </span>
-            {referee.status === 'answered' ? (
+            {referee.status === 'answered' && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setOpenId(referee.id)}>
                 View answers
               </Button>
-            ) : (
+            )}
+            {(referee.status === 'sent' || referee.status === 'expired') && (
               <Button
                 variant="outline"
                 size="sm"

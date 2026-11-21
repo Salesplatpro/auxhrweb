@@ -5,7 +5,7 @@ export type ReferenceStatus = 'not_sent' | 'sent' | 'answered' | 'expired'
 export const MAX_REFEREES = 3
 
 export const REFERENCE_STATUS_LABEL: Record<ReferenceStatus, string> = {
-  not_sent: 'Not sent',
+  not_sent: 'Waiting for company questions',
   sent: 'Sent',
   answered: 'Answered',
   expired: 'Link expired',

@@ -92,13 +92,13 @@ export const RefereesPage = () => {
       const result = await addReferees(applicationId, rows)
       await mutate(result, { revalidate: false })
       reset()
-      notify('success', 'We emailed your referees')
+      notify('success', 'Your referees were saved')
     } catch (submitError) {
       notify(
         'error',
         getErrorMessage(
           submitError,
-          "We couldn't send the requests. Try again.",
+          "We couldn't save your referees. Try again.",
         ),
         { autoClose: 4000 },
       )
@@ -109,8 +109,8 @@ export const RefereesPage = () => {
     <PublicShell {...shell}>
       <h1 className={styles.title}>Add your referees</h1>
       <p className={styles.lead}>
-        Add up to {MAX_REFEREES} people who can speak about your work. We email
-        them once you click Send requests.
+        Add up to {MAX_REFEREES} people who can speak about your work. The
+        company emails them its questions when it is ready.
       </p>
 
       {existing.map((referee, index) => (
@@ -237,7 +237,7 @@ export const RefereesPage = () => {
                           pill
                           loading={isSubmitting}
                           className={styles.send}>
-                          Send requests
+                          Save referees
                         </Button>
                       )}
                     </div>
@@ -251,8 +251,8 @@ export const RefereesPage = () => {
 
       {firstSentAt && (
         <p className={styles.note}>
-          We emailed your referees on {longDate(firstSentAt)}. We will tell you
-          when they answer.
+          The company emailed your referees on {longDate(firstSentAt)}. We will
+          tell you when they answer.
         </p>
       )}
     </PublicShell>

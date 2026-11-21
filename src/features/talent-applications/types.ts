@@ -8,6 +8,7 @@ export type PipelineStepKey =
   | 'personality'
   | 'ai_interview'
   | 'references'
+  | 'checks'
   | 'company_review'
 
 export type PipelineStepState = 'done' | 'current' | 'upcoming'

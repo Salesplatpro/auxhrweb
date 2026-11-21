@@ -1,0 +1,122 @@
+@use '../../../styles/breakpoints' as bp;
+@use '../../../styles/brand-scope' as *;
+
+.page {
+  @include brand-scope;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-bg-page);
+  font-family: var(--font-body);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-10);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+
+  @include bp.below(bp.$bp-md) {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.logo {
+  height: 32px;
+  width: auto;
+}
+
+.context {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+  min-width: 0;
+
+  @include bp.below(bp.$bp-md) {
+    display: none;
+  }
+}
+
+.companyMark {
+  border-radius: var(--radius-md);
+}
+
+.contextText {
+  min-width: 0;
+}
+
+.contextTitle {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.contextSub {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.help {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+  text-decoration: none;
+}
+
+.helpShort {
+  display: none;
+}
+
+@include bp.below(bp.$bp-md) {
+  .helpLong {
+    display: none;
+  }
+
+  .helpShort {
+    display: inline;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4) var(--space-12);
+  box-sizing: border-box;
+
+  @include bp.below(bp.$bp-md) {
+    padding: var(--space-4);
+  }
+}
+
+.narrow {
+  max-width: 34rem;
+}
+
+.medium {
+  max-width: 50rem;
+}
+
+.wide {
+  max-width: 62rem;
+}

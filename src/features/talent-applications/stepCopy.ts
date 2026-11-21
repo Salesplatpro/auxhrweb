@@ -57,6 +57,10 @@ export const stepDescription = (
       return current
         ? `Add up to ${step.maxReferees} people who can vouch for you`
         : `You'll add up to ${step.maxReferees} referees later`
+    case 'checks':
+      if (done)
+        return step.doneAt ? `Answered ${dayMonth(step.doneAt)}` : 'Answered'
+      return `${company} asks for your permission to check your identity, past jobs and education`
     case 'company_review':
       if (step.outcome === 'shortlisted') return 'Shortlisted'
       if (step.outcome === 'not_proceeding') return 'Not proceeding'
@@ -79,6 +83,8 @@ export const stepDescription = (
 export const actionLabel = (step: PipelineStep): string | null => {
   if (step.key === 'ai_interview') return 'Start interview'
   if (step.key === 'skills_test') return 'Take skills test'
+  if (step.key === 'references') return 'Add referees'
+  if (step.key === 'checks') return 'Review and answer'
   return TEST_KIND_BY_STEP[step.key] ? 'Start test' : null
 }
 
@@ -108,6 +114,8 @@ export const nextStepCopy = (pipeline: CandidatePipeline): string => {
       return 'We’re checking your CV against the role. Nothing to do yet.'
     case 'references':
       return `Add up to ${step.maxReferees} referees who can vouch for you.`
+    case 'checks':
+      return `${company} would like to check your identity, past jobs and education. It takes about 2 minutes, and you can say no.`
     case 'company_review':
       return `${company} is reviewing your application. We’ll let you know when they decide.`
     default:

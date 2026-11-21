@@ -6,7 +6,6 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
-import { RefereesSection } from '@/features/references/RefereesSection'
 import {
   initialsOf,
   jobPlace,
@@ -15,6 +14,7 @@ import {
 import { PipelineSteps } from '@/features/talent-applications/PipelineSteps/PipelineSteps'
 import { nextStepCopy } from '@/features/talent-applications/stepCopy'
 import {
+  applicationPath,
   STEP_TITLE,
   stepActionPath,
 } from '@/features/talent-applications/steps'
@@ -39,6 +39,8 @@ const scoreValue = (step: PipelineStep) => {
 const nextButtonLabel = (step: PipelineStep) => {
   if (step.key === 'ai_interview') return 'Start interview'
   if (step.key === 'skills_test') return 'Take skills test'
+  if (step.key === 'references') return 'Add referees'
+  if (step.key === 'checks') return 'Review and answer'
   return `Start ${STEP_TITLE[step.key].toLowerCase()}`
 }
 
@@ -113,9 +115,15 @@ const ApplicationDetail = () => {
             company={company}
             steps={steps}
           />
-          {references && references.state !== 'upcoming' && (
+          {references && references.state === 'done' && (
             <div className={styles.referees}>
-              <RefereesSection applicationId={applicationId} />
+              <Button
+                variant="outline"
+                onClick={() =>
+                  navigate(`${applicationPath(applicationId)}/references`)
+                }>
+                View your referees
+              </Button>
             </div>
           )}
         </section>

@@ -10,6 +10,7 @@ export const STEP_TITLE: Record<PipelineStepKey, string> = {
   personality: 'Personality check',
   ai_interview: 'Recorded AI interview',
   references: 'References',
+  checks: 'Background checks',
   company_review: 'Company review',
 }
 
@@ -36,6 +37,10 @@ export const stepActionPath = (
   const kind = TEST_KIND_BY_STEP[step.key]
   if (kind) return `${applicationPath(applicationId)}/test/${kind}`
   if (step.key === 'skills_test') return '/talentDashboard/talentQuiz'
+  if (step.key === 'references') {
+    return `${applicationPath(applicationId)}/references`
+  }
+  if (step.key === 'checks') return `${applicationPath(applicationId)}/checks`
   if (step.key === 'ai_interview' && step.interviewId) {
     return `/talentDashboard/interview/${step.interviewId}`
   }

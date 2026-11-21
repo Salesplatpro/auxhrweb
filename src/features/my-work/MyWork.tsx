@@ -225,10 +225,11 @@ const MyDocuments: React.FC<{ documents: MyWorkRecord['signedDocuments'] }> = ({
   )
 }
 
-const Overview: React.FC<{ record: MyWorkRecord; onOpenPay: () => void }> = ({
-  record,
-  onOpenPay,
-}) => {
+const Overview: React.FC<{
+  record: MyWorkRecord
+  firstName: string
+  onOpenPay: () => void
+}> = ({ record, firstName, onOpenPay }) => {
   const { mutate } = useSWRConfig()
   const doneTasks = record.tasks.filter((task) => task.doneAt).length
 
@@ -265,6 +266,15 @@ const Overview: React.FC<{ record: MyWorkRecord; onOpenPay: () => void }> = ({
             className={styles.logo}
           />
         )}
+        <div className={styles.welcomeText}>
+          <h2>
+            Welcome to {record.companyName}, {firstName}
+          </h2>
+          <p className={styles.muted}>
+            You&apos;ve been added as staff. Here&apos;s everything for your
+            first weeks.
+          </p>
+        </div>
         <dl>
           <div>
             <dt>Job title</dt>
@@ -281,7 +291,7 @@ const Overview: React.FC<{ record: MyWorkRecord; onOpenPay: () => void }> = ({
         </dl>
       </section>
 
-      <PagePanel title="To do">
+      <PagePanel title="To do" hint="Documents waiting for your signature">
         {record.documentsToSign.length === 0 ? (
           <p className={styles.muted}>Nothing waiting for your signature.</p>
         ) : (
@@ -355,7 +365,10 @@ const Overview: React.FC<{ record: MyWorkRecord; onOpenPay: () => void }> = ({
         )}
       </PagePanel>
 
-      <MyPerformance staffId={record.staffId} />
+      <MyPerformance
+        staffId={record.staffId}
+        managerName={record.managerName}
+      />
 
       <PaySummary staffId={record.staffId} onOpen={onOpenPay} />
     </div>
@@ -387,7 +400,11 @@ const RecordViews: React.FC<{ record: MyWorkRecord; firstName: string }> = ({
       ) : activeView === 'pay' ? (
         <PayAndShares staffId={record.staffId} firstName={firstName} />
       ) : (
-        <Overview record={record} onOpenPay={() => setView('pay')} />
+        <Overview
+          record={record}
+          firstName={firstName}
+          onOpenPay={() => setView('pay')}
+        />
       )}
     </div>
   )
@@ -406,8 +423,12 @@ export const MyWork = () => {
       <PageHero
         compact
         kicker="My work"
-        title={active ? `Welcome to ${active.companyName}` : 'My work'}
-        lead="Your documents to sign, your first-week tasks and your pay, in one place."
+        title="My work"
+        lead={
+          active
+            ? `${active.companyName} · ${active.jobTitle}`
+            : 'Your documents to sign, your first-week tasks and your pay, in one place.'
+        }
       />
       <PendingInvites />
       {isLoading ? (

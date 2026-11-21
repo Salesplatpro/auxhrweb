@@ -113,6 +113,24 @@ describe('MyPerformance', () => {
     expect(screen.getByText('AI suggestion')).toBeTruthy()
     expect(screen.queryByText('What I did:')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Get advice' })).toBeNull()
+    expect(screen.getByText('Advice for your week')).toBeTruthy()
+    expect(
+      screen.getByText('AI can be wrong. Use what helps you.'),
+    ).toBeTruthy()
+    expect(
+      screen.getByRole('button', { name: 'Get advice again' }),
+    ).toBeTruthy()
+  })
+
+  it('explains that advice failed and offers to try again, keeping the report sent', async () => {
+    mocks.requestMyAdvice.mockRejectedValue({ response: { status: 502 } })
+    renderPage({ reports: { items: [report], total: 1 } })
+    fireEvent.click(await screen.findByRole('button', { name: 'Get advice' }))
+    expect(await screen.findByText('We could not get advice')).toBeTruthy()
+    expect(
+      screen.getByText('Your report was sent. Tap Get advice to try again.'),
+    ).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Get advice' })).toBeTruthy()
   })
 
   it('locks the form once the manager has added a note', async () => {
@@ -185,6 +203,9 @@ describe('MyPerformance', () => {
         },
       ],
     })
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Update progress' }),
+    )
     const input = await screen.findByLabelText('Percent done on Ship it')
     const save = screen.getByRole('button', { name: 'Save' })
     expect((save as HTMLButtonElement).disabled).toBe(true)

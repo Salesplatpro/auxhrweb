@@ -141,7 +141,10 @@ describe('MyWork', () => {
     useMyWorkMock.mockReturnValue({ records: [record], isLoading: false })
     renderPage()
 
-    expect(screen.getByText('Welcome to Acme Ltd')).toBeTruthy()
+    expect(screen.getByText(/Welcome to Acme Ltd, /)).toBeTruthy()
+    expect(
+      screen.getByText(/Here.s everything for your first weeks/),
+    ).toBeTruthy()
     expect(screen.getByText('Olu Owner')).toBeTruthy()
     expect(
       screen.getByRole('link', { name: 'Sign' }).getAttribute('href'),

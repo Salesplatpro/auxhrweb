@@ -10,7 +10,12 @@ import { humanStatus } from '@/pages/TalentProfile/Job/jobPipeline'
 import type { SingleJobDetails } from '@/utils/recruiterJobPostsTypes'
 
 import { getStatusBadge } from '../getJobStatus'
-import { InterviewPill, sourceLabel, stageLabel } from './candidateLabels'
+import {
+  InterviewPill,
+  sourceLabel,
+  stageLabel,
+  VerificationPill,
+} from './candidateLabels'
 import styles from './Candidates.module.scss'
 import { CvMatch } from './CvMatch'
 
@@ -88,6 +93,11 @@ export const CandidatesList = ({
         key: 'interview',
         header: 'Interview',
         render: (row) => <InterviewPill status={row.interview?.status} />,
+      },
+      {
+        key: 'verification',
+        header: 'Verification',
+        render: (row) => <VerificationPill status={row.verification} />,
       },
       {
         key: 'source',

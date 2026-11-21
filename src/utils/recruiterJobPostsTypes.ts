@@ -150,6 +150,8 @@ export type SingleJobDetails = {
   stage?: ProgressStage
   boardColumn?: BoardColumn | null
   interview?: { id: string | null; status: InterviewProgress } | null
+  /** One status over every background check ordered on the application. */
+  verification?: VerificationState
   /** Company only, on the single application. */
   nextStep?: NextStep
 }
@@ -172,6 +174,13 @@ export type ProgressStage =
   | 'pre_screened'
   | 'personality_test'
   | 'interview'
+
+export type VerificationState =
+  | 'none'
+  | 'pending'
+  | 'flagged'
+  | 'failed'
+  | 'verified'
 
 export type InterviewProgress =
   | 'not_started'

@@ -79,6 +79,7 @@ import {
   Shortlist,
 } from '@/pages/RecruiterProfile'
 import { ComingSoonPage } from '@/pages/RecruiterProfile/ComingSoon/ComingSoonPage'
+import { ActivityLog } from '@/pages/RecruiterProfile/Company/ActivityLog'
 import Company from '@/pages/RecruiterProfile/Company/Company'
 import AllApplications from '@/pages/RecruiterProfile/Dashboard/AllApplications'
 import Dashboard from '@/pages/RecruiterProfile/Dashboard/Dashboard'
@@ -488,6 +489,10 @@ export const routeConfig: RouteObject[] = [
                   {
                     path: 'company',
                     element: <Company />,
+                  },
+                  {
+                    path: 'company/activity',
+                    element: <ActivityLog />,
                   },
                   {
                     path: 'company/new',

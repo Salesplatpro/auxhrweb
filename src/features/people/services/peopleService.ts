@@ -452,6 +452,16 @@ export const checkSignedDocumentFile = (file: File) => {
   ).then((data) => data.check)
 }
 
+export const declineDocumentWithLink = (token: string) =>
+  unwrap<Record<string, never>>(
+    httpClient.post(`/staff-documents/${token}/decline`),
+  ).then(() => undefined)
+
+export const declineMyDocument = (documentId: string) =>
+  unwrap<Record<string, never>>(
+    httpClient.post(`/my-work/documents/${documentId}/decline`),
+  ).then(() => undefined)
+
 export const fetchSigningDocument = (token: string) =>
   unwrap<{ document: SigningDocument }>(
     httpClient.get(`/staff-documents/${token}`),

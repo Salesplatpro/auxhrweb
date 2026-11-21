@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
 
 import {
+  declineMyDocument,
   fetchMyDocument,
   MY_WORK_KEY,
   signMyDocument,
@@ -18,6 +19,7 @@ export const MyWorkDocument = () => {
       cacheKey={`${MY_WORK_KEY}/documents/${documentId}`}
       loadDocument={() => fetchMyDocument(documentId)}
       submitSignature={(fullName) => signMyDocument(documentId, fullName)}
+      submitDecline={() => declineMyDocument(documentId)}
       onSigned={() => void mutate(MY_WORK_KEY)}
     />
   )

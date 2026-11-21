@@ -247,6 +247,10 @@ export const routeConfig: RouteObject[] = [
         element: <RefereePage />,
       },
       {
+        path: '/verify',
+        element: <Navigate to="/verify-document" replace />,
+      },
+      {
         path: '/verify-document',
         element: <VerifyDocument />,
       },

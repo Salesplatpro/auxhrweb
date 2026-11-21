@@ -1,16 +1,16 @@
-import { FieldArray, Form } from 'formik'
+import { Form } from 'formik'
 import React, { useState } from 'react'
-import { HiOutlineSparkles, HiOutlineTrash } from 'react-icons/hi2'
 import * as Yup from 'yup'
 
 import { FormikFocusOnError } from '@/components/forms/FormikFocusOnError'
-import TextField from '@/components/forms/TextField'
+import { TextArea } from '@/components/forms/TextArea'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PageHero } from '@/components/layout/PageHero'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { PageShell } from '@/components/layout/PageShell'
 import { Button, EmptyState } from '@/components/ui'
 import { Dropzone } from '@/components/ui/Dropzone/Dropzone'
+import { Pill } from '@/components/ui/Pill'
 import { Spinner } from '@/components/ui/Spinner'
 import { usePeopleAccess } from '@/features/people/hooks/usePeopleAccess'
 import { useStaffActions } from '@/features/people/hooks/useStaffActions'
@@ -19,52 +19,64 @@ import { CompanyProfile as Profile } from '@/features/people/types'
 import { notify } from '@/utils/toastNotifications'
 
 import styles from './CompanyProfile.module.scss'
-import payStyles from './PayTab.module.scss'
 
-const MAX_FILE_BYTES = 25 * 1024 * 1024
+const MAX_FILE_BYTES = 20 * 1024 * 1024
+const MAX_GOALS = 10
 const DOCUMENT_EXTENSIONS = ['.pdf', '.docx']
 
 interface ProfileFormValues {
   mission: string
   vision: string
-  yearlyGoals: string[]
+  yearlyGoals: string
 }
+
+const goalLines = (text: string) =>
+  text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
 
 const profileSchema = Yup.object({
   mission: Yup.string().trim().max(2000, 'Keep it under 2000 characters'),
   vision: Yup.string().trim().max(2000, 'Keep it under 2000 characters'),
-  yearlyGoals: Yup.array()
-    .max(10, 'Add at most 10 goals')
-    .of(
-      Yup.string()
-        .trim()
-        .required('Write the goal or remove it')
-        .max(500, 'Keep each goal under 500 characters'),
+  yearlyGoals: Yup.string()
+    .test(
+      'goal-count',
+      `Add at most ${MAX_GOALS} goals, one on each line`,
+      (value) => goalLines(value ?? '').length <= MAX_GOALS,
+    )
+    .test('goal-length', 'Keep each goal under 500 characters', (value) =>
+      goalLines(value ?? '').every((line) => line.length <= 500),
     ),
 })
 
 const toValues = (profile: Profile): ProfileFormValues => ({
   mission: profile.mission ?? '',
   vision: profile.vision ?? '',
-  yearlyGoals: profile.yearlyGoals,
+  yearlyGoals: profile.yearlyGoals.join('\n'),
 })
 
 const isEmpty = (profile: Profile) =>
   !profile.mission && !profile.vision && profile.yearlyGoals.length === 0
 
-const AiNote = () => (
-  <span className={styles.aiNote}>
-    <HiOutlineSparkles aria-hidden /> Filled by AI, please check
-  </span>
-)
+const FIELD_TITLES = {
+  mission: 'Mission',
+  vision: 'Vision',
+  yearlyGoals: 'Yearly goals',
+} as const
+
+const FIELD_PLACEHOLDERS = {
+  mission: 'What you do and for whom',
+  vision: 'Where you want to be in the long run',
+  yearlyGoals: 'One goal on each line',
+} as const
 
 export const CompanyProfile = () => {
   const { organizationId } = usePeopleAccess()
   const { profile, isLoading, hasError } = useCompanyProfile(organizationId)
   const { saveProfile, fillProfileFromFile } = useStaffActions(organizationId)
   const [draft, setDraft] = useState<Profile | null>(null)
-  const [isReading, setIsReading] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+  const [readingFile, setReadingFile] = useState<string | null>(null)
 
   const readDocument = async ([file]: File[]) => {
     if (!file) return
@@ -74,12 +86,12 @@ export const CompanyProfile = () => {
       return
     }
     if (file.size > MAX_FILE_BYTES) {
-      notify('error', 'The file must be 25 MB or smaller')
+      notify('error', 'The file must be 20 MB or smaller')
       return
     }
-    setIsReading(true)
+    setReadingFile(file.name)
     const filled = await fillProfileFromFile(file)
-    setIsReading(false)
+    setReadingFile(null)
     if (filled) setDraft(filled)
   }
 
@@ -87,29 +99,12 @@ export const CompanyProfile = () => {
     const saved = await saveProfile({
       mission: values.mission.trim() || null,
       vision: values.vision.trim() || null,
-      yearlyGoals: values.yearlyGoals.map((goal) => goal.trim()),
+      yearlyGoals: goalLines(values.yearlyGoals),
     })
-    if (saved) {
-      setDraft(null)
-      setIsEditing(false)
-    }
+    if (saved) setDraft(null)
   }
 
-  const uploadBox = (
-    <Dropzone
-      files={[]}
-      onAdd={readDocument}
-      onRemove={() => undefined}
-      accept=".pdf,.docx"
-      maxFiles={1}
-      disabled={isReading}
-      label="Drop a PDF or Word file here"
-      hint="Up to 25 MB. Only the text is read; the file is not kept."
-    />
-  )
-
   const shown = draft ?? profile
-  const showForm = !!shown && (!!draft || isEditing || !isEmpty(shown))
 
   return (
     <PageShell wide>
@@ -117,122 +112,116 @@ export const CompanyProfile = () => {
         compact
         kicker="People"
         title="Company profile"
-        lead="Your mission, vision and goals for the year. Later features use them to write job descriptions and suggest goals."
+        lead={
+          draft
+            ? 'Check what we filled in, change anything that is wrong, then save.'
+            : 'Tell AuxHR about the company. We use it when we write job descriptions and goals.'
+        }
       />
 
       {isLoading ? (
         <Spinner />
       ) : hasError || !shown ? (
         <EmptyState
-          title="Couldn't load the company profile"
-          description="Something went wrong on our side. Refresh the page to try again."
+          title="We could not load the company profile"
+          description="Check your connection and refresh the page to try again."
         />
-      ) : isReading ? (
-        <PagePanel>
+      ) : readingFile ? (
+        <PagePanel title="Reading your document…">
           <div className={styles.reading}>
             <Spinner />
-            <p>Reading your document…</p>
-          </div>
-        </PagePanel>
-      ) : !showForm ? (
-        <PagePanel>
-          <div className={styles.empty}>
-            <p>
-              Upload your company profile, pitch deck or annual report and
-              we&apos;ll fill this in for you.
-            </p>
-            {uploadBox}
-            <Button variant="outline" onClick={() => setIsEditing(true)}>
-              Fill it in myself
-            </Button>
+            <p>{readingFile}. This takes about a minute.</p>
+            <Pill tone="warning" size="sm">
+              Reading
+            </Pill>
           </div>
         </PagePanel>
       ) : (
-        <PagePanel
-          title={draft ? 'Check and save' : 'Profile'}
-          hint={
-            draft
-              ? 'Nothing is saved until you click Save.'
-              : 'Upload a new document to fill these in again.'
-          }>
+        <>
+          {!draft && isEmpty(shown) && (
+            <PagePanel
+              title="Upload your company profile"
+              hint="Upload your company profile, pitch deck or annual report and we'll fill this in for you.">
+              <Dropzone
+                files={[]}
+                onAdd={readDocument}
+                onRemove={() => undefined}
+                accept=".pdf,.docx"
+                maxFiles={1}
+                label="Drop a PDF or Word file here"
+                hint="PDF or Word, up to 20 MB"
+              />
+              <p className={styles.or}>Or fill the form yourself below.</p>
+            </PagePanel>
+          )}
           <ValidatedForm
             initialValues={toValues(shown)}
             enableReinitialize
             validationSchema={profileSchema}
             onSubmit={handleSave}>
-            {({ values, isSubmitting, dirty }) => (
-              <Form className={payStyles.fields} noValidate>
+            {({ values, handleChange, isSubmitting, dirty }) => (
+              <Form className={styles.form} noValidate>
                 <FormikFocusOnError />
-                <div className={styles.field}>
-                  <TextField
-                    name="mission"
-                    label="Mission"
-                    placeholder="What you do and for whom"
-                  />
-                  {draft && <AiNote />}
-                </div>
-                <div className={styles.field}>
-                  <TextField
-                    name="vision"
-                    label="Vision"
-                    placeholder="Where you want to be in the long run"
-                  />
-                  {draft && <AiNote />}
-                </div>
-                <FieldArray name="yearlyGoals">
-                  {({ push, remove }) => (
-                    <fieldset className={styles.goals}>
-                      <legend>Goals for this year {draft && <AiNote />}</legend>
-                      {values.yearlyGoals.map((_, index) => (
-                        <div key={index} className={styles.goal}>
-                          <TextField
-                            name={`yearlyGoals.${index}`}
-                            label={`Goal ${index + 1}`}
-                          />
-                          <button
-                            type="button"
-                            className={styles.remove}
-                            aria-label={`Remove goal ${index + 1}`}
-                            onClick={() => remove(index)}>
-                            <HiOutlineTrash />
-                          </button>
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        disabled={values.yearlyGoals.length >= 10}
-                        onClick={() => push('')}>
-                        Add goal
-                      </Button>
-                    </fieldset>
+                {(Object.keys(FIELD_TITLES) as (keyof ProfileFormValues)[]).map(
+                  (field) => (
+                    <PagePanel
+                      key={field}
+                      title={FIELD_TITLES[field]}
+                      action={
+                        draft ? (
+                          <Pill tone="warning" size="sm">
+                            Filled by AI, please check
+                          </Pill>
+                        ) : undefined
+                      }>
+                      <TextArea
+                        title={FIELD_TITLES[field]}
+                        name={field}
+                        value={values[field]}
+                        rows={field === 'yearlyGoals' ? 5 : 3}
+                        placeholder={FIELD_PLACEHOLDERS[field]}
+                        onChange={handleChange}
+                      />
+                    </PagePanel>
+                  ),
+                )}
+                <div className={styles.actions}>
+                  {draft && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setDraft(null)}>
+                      Cancel
+                    </Button>
                   )}
-                </FieldArray>
-                <div className={payStyles.actions}>
                   <Button
                     type="submit"
+                    variant="ink"
+                    pill
                     loading={isSubmitting}
                     disabled={!draft && !dirty}>
                     Save
                   </Button>
-                  {(draft || isEditing) && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setDraft(null)
-                        setIsEditing(false)
-                      }}>
-                      Cancel
-                    </Button>
-                  )}
                 </div>
-                {!draft && uploadBox}
               </Form>
             )}
           </ValidatedForm>
-        </PagePanel>
+          {!draft && !isEmpty(shown) && (
+            <PagePanel
+              title="Upload a new document"
+              hint="Upload a new document to fill these in again.">
+              <Dropzone
+                files={[]}
+                onAdd={readDocument}
+                onRemove={() => undefined}
+                accept=".pdf,.docx"
+                maxFiles={1}
+                label="Drop a PDF or Word file here"
+                hint="PDF or Word, up to 20 MB"
+              />
+            </PagePanel>
+          )}
+        </>
       )}
     </PageShell>
   )

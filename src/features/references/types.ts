@@ -28,12 +28,6 @@ export type RefereeQuestion = {
   type: 'text' | 'yesno'
 }
 
-export type LinkGoneDetails = {
-  jobTitle: string | null
-  companyName: string | null
-  companyEmail: string | null
-}
-
 export type RefereeRequest = {
   refereeName: string
   candidateName: string

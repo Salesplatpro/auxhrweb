@@ -5,6 +5,7 @@ import {
   ANSWER_MAX_LENGTH,
   answersComplete,
   answersWithinLimit,
+  goneDetailsFrom,
   linkProblemFor,
 } from './referenceResponse'
 
@@ -56,6 +57,19 @@ describe('reference response rules', () => {
     expect(ANSWER_MAX_LENGTH).toBe(2000)
     expect(answersWithinLimit({ strengths: 'x'.repeat(2000) })).toBe(true)
     expect(answersWithinLimit({ strengths: 'x'.repeat(2001) })).toBe(false)
+  })
+
+  it('reads the company details the backend adds to an expired link', () => {
+    const details = {
+      jobTitle: 'Product Designer',
+      companyName: 'Kosana Tech Ltd',
+      companyEmail: 'hello@kosanatech.ng',
+    }
+    expect(
+      goneDetailsFrom({ response: { data: { error: { details } } } }),
+    ).toEqual(details)
+    expect(goneDetailsFrom({ response: { data: { error: {} } } })).toBeNull()
+    expect(goneDetailsFrom(new Error('network'))).toBeNull()
   })
 
   it('tells an expired or used link from a missing one', () => {

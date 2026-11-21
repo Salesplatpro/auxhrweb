@@ -37,6 +37,7 @@ import {
   SignupPage,
 } from '@/features/auth/pages'
 import { VERIFY_EMAIL_PATH } from '@/features/auth/utils/dashboardPath'
+import { ChecksConsentPage } from '@/features/checks/ChecksConsentPage'
 import AccountEmailVerification from '@/features/email-verification/pages/AccountEmailVerification'
 import JoinStaffPage from '@/features/join-staff/JoinStaffPage'
 import { MyWork } from '@/features/my-work/MyWork'
@@ -305,6 +306,10 @@ export const routeConfig: RouteObject[] = [
               {
                 path: 'applications/:applicationId/references',
                 element: <RefereesPage />,
+              },
+              {
+                path: 'applications/:applicationId/checks',
+                element: <ChecksConsentPage />,
               },
               {
                 path: '',

@@ -32,7 +32,6 @@ import { useDebouncedValue } from '@/hooks'
 import { AddEmployeePanel } from './AddEmployeePanel'
 import styles from './Employees.module.scss'
 import { EndEmploymentDialog } from './EndEmploymentDialog'
-import { ImportStaffDrawer } from './ImportStaffDrawer'
 
 const ROWS_PER_PAGE = 10
 
@@ -122,7 +121,6 @@ export const Employees = () => {
     offset: (page - 1) * ROWS_PER_PAGE,
   })
   const { sendInvite, exportStaffCsv } = useStaffActions(organizationId)
-  const [importOpen, setImportOpen] = useState(false)
 
   const filterFields: FilterFieldConfig<Filters>[] = useMemo(
     () => [
@@ -266,7 +264,7 @@ export const Employees = () => {
               <HeroAction onClick={() => setAddOpen(true)}>
                 Add employee
               </HeroAction>
-              <HeroGhost onClick={() => setImportOpen(true)}>
+              <HeroGhost onClick={() => navigate(peoplePaths.importStaff)}>
                 Import from file
               </HeroGhost>
               <HeroGhost onClick={() => void exportStaffCsv()}>
@@ -293,7 +291,9 @@ export const Employees = () => {
           action={
             canEdit && (
               <div className={styles.emptyActions}>
-                <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(peoplePaths.importStaff)}>
                   Import from file
                 </Button>
                 <Button onClick={() => setAddOpen(true)}>Add employee</Button>
@@ -348,15 +348,7 @@ export const Employees = () => {
         </>
       )}
 
-      {organizationId && canEdit && (
-        <>
-          <ImportStaffDrawer
-            organizationId={organizationId}
-            open={importOpen}
-            onClose={() => setImportOpen(false)}
-          />
-        </>
-      )}
+      {organizationId && canEdit && <></>}
 
       {organizationId && canEdit && (
         <AddEmployeePanel

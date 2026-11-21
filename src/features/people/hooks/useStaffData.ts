@@ -12,6 +12,7 @@ import {
   fetchMyWork,
   fetchPay,
   fetchStaffActivity,
+  fetchStaffDocument,
   fetchStaffDocuments,
   fetchStaffList,
   fetchStaffMember,
@@ -226,6 +227,31 @@ export const useStaffDocuments = (
   )
 
   return { documents: data ?? [], isLoading, hasError: !!error }
+}
+
+export const staffDocumentKey = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) => `${staffDocumentsKey(organizationId, staffId)}/${documentId}`
+
+export const useStaffDocument = (
+  organizationId: string | null,
+  staffId: string,
+  documentId: string,
+) => {
+  const { data, error, isLoading } = useSWR(
+    organizationId
+      ? staffDocumentKey(organizationId, staffId, documentId)
+      : null,
+    () =>
+      organizationId
+        ? fetchStaffDocument(organizationId, staffId, documentId)
+        : null,
+    VIEW_LOGGED_OPTIONS,
+  )
+
+  return { draft: data ?? null, isLoading, hasError: !!error }
 }
 
 export const useChecklist = (

@@ -18,6 +18,7 @@ import {
   deleteChecklistTask,
   deleteCommissionPlan,
   deleteShareGrant,
+  deleteStaffDocumentDraft,
   downloadNotarizedScan,
   downloadStaffDocument,
   endStaff,
@@ -31,7 +32,8 @@ import {
   saveChecklistDefaults,
   saveCompanyProfile,
   savePay,
-  sendStaffDocument,
+  saveStaffDocumentDraft,
+  sendStaffDocumentDraft,
   setDocumentNotarization,
   staffBase,
   updateBenefit,
@@ -49,6 +51,7 @@ import {
   CommissionPlanPayload,
   CompanyProfile,
   CreateStaffPayload,
+  DocumentFields,
   DocumentTemplate,
   EndReason,
   ImportStaffRow,
@@ -70,6 +73,7 @@ import {
   companyProfileKey,
   peopleAccessKey,
   staffActivityKey,
+  staffDocumentKey,
   staffDocumentsKey,
   staffMemberKey,
   staffOptionsKeyPrefix,
@@ -385,18 +389,47 @@ export const useStaffActions = (organizationId: string | null) => {
     }
   }
 
-  const sendDocument = async (
+  const saveDraft = (
     staff: StaffMember,
     template: DocumentTemplate,
-  ) => {
+    fields: DocumentFields,
+  ) =>
+    run(async (orgId) => {
+      const saved = await saveStaffDocumentDraft(
+        orgId,
+        staff.id,
+        template,
+        fields,
+      )
+      await cacheDocument(orgId, staff.id, saved.document)
+      await mutate(
+        staffDocumentKey(orgId, staff.id, saved.document.id),
+        saved,
+        { revalidate: false },
+      )
+      return saved
+    }, 'Could not save this document')
+
+  const sendDraft = async (staff: StaffMember, documentId: string) => {
     const result = await run(async (orgId) => {
-      const sent = await sendStaffDocument(orgId, staff.id, template)
+      const sent = await sendStaffDocumentDraft(orgId, staff.id, documentId)
       await cacheDocument(orgId, staff.id, sent.document)
       return sent
     }, 'Could not send this document')
     notifySent(result, staff.email)
     return result
   }
+
+  const deleteDraft = (staffId: string, documentId: string) =>
+    run(async (orgId) => {
+      await deleteStaffDocumentDraft(orgId, staffId, documentId)
+      await mutate<StaffDocument[]>(
+        staffDocumentsKey(orgId, staffId),
+        (documents = []) => documents.filter((item) => item.id !== documentId),
+        { revalidate: false },
+      )
+      return true
+    }, 'Could not delete this draft')
 
   const resendDocument = async (staff: StaffMember, documentId: string) => {
     const result = await run(async (orgId) => {
@@ -598,7 +631,9 @@ export const useStaffActions = (organizationId: string | null) => {
     removeBenefit,
     saveCommissionPlan,
     removeCommissionPlan,
-    sendDocument,
+    saveDraft,
+    sendDraft,
+    deleteDraft,
     resendDocument,
     retryCopy,
     downloadDocument,

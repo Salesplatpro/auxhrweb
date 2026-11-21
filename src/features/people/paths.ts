@@ -2,6 +2,8 @@ export const peoplePaths = {
   employees: '/recruiterDashboard/people/employees',
   employee: (staffId: string) =>
     `/recruiterDashboard/people/employees/${staffId}`,
+  employeeDocument: (staffId: string, documentId: string) =>
+    `/recruiterDashboard/people/employees/${staffId}/documents/${documentId}`,
   accessLog: '/recruiterDashboard/people/access-log',
   benefits: '/recruiterDashboard/people/benefits',
   commissionPlans: '/recruiterDashboard/people/commission-plans',

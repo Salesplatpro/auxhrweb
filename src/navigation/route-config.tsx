@@ -91,6 +91,7 @@ import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
 import { CommissionPlanEditor } from '@/pages/RecruiterProfile/People/CommissionPlanEditor'
 import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
 import { CompanyProfile } from '@/pages/RecruiterProfile/People/CompanyProfile'
+import { DefaultChecklist } from '@/pages/RecruiterProfile/People/DefaultChecklist'
 import { DocumentPreviewPage } from '@/pages/RecruiterProfile/People/DocumentPreviewPage'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
@@ -584,6 +585,15 @@ export const routeConfig: RouteObject[] = [
                             element: <Navigate to="employees" replace />,
                           },
                           { path: 'employees', element: <Employees /> },
+                          {
+                            element: <RequirePeopleAccess level="manage" />,
+                            children: [
+                              {
+                                path: 'employees/default-checklist',
+                                element: <DefaultChecklist />,
+                              },
+                            ],
+                          },
                           {
                             path: 'employees/:staffId',
                             element: <EmployeeDetail />,

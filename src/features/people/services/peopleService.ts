@@ -65,6 +65,7 @@ import {
   StaffListQuery,
   StaffMember,
   StaffOption,
+  TaskOwner,
   UpdateStaffPayload,
   WeeklyReport,
   WeeklyReportText,
@@ -498,7 +499,12 @@ export const fetchChecklist = (organizationId: string, staffId: string) =>
 export const addChecklistTask = (
   organizationId: string,
   staffId: string,
-  task: { title: string; dueOn: string | null },
+  task: {
+    title: string
+    dueOn: string | null
+    description?: string | null
+    owner?: TaskOwner | null
+  },
 ) =>
   unwrap<{ task: ChecklistTask }>(
     httpClient.post(`${staffBase(organizationId)}/${staffId}/checklist`, task),

@@ -479,14 +479,24 @@ export interface SignedCopy {
   copyPending: boolean
 }
 
+export type TaskOwner = 'it' | 'new_hire' | 'manager' | 'hr'
+
 export interface ChecklistItem {
   title: string
   dueInDays: number
+  description?: string | null
+  owner?: TaskOwner | null
 }
+
+export type TaskStatus = 'done' | 'late' | 'not_done'
 
 export interface ChecklistTask {
   id: string
   title: string
+  description?: string | null
+  owner?: TaskOwner | null
+  ownerName?: string | null
+  status?: TaskStatus
   dueOn: string | null
   doneAt: string | null
   completedByName?: string | null

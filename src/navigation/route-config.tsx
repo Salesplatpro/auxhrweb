@@ -49,6 +49,7 @@ import ProfileDonePage from '@/features/onboarding/profile/ProfileDonePage'
 import JoinWithCodePage from '@/features/organizations/pages/JoinWithCodePage'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { RefereePage } from '@/features/references/RefereePage'
+import { RefereesPage } from '@/features/references/RefereesPage'
 import { SignDocument } from '@/features/sign-document/SignDocument'
 import { Unsubscribe } from '@/features/unsubscribe/Unsubscribe'
 import { VerifyDocument } from '@/features/verify-document/VerifyDocument'
@@ -300,6 +301,10 @@ export const routeConfig: RouteObject[] = [
               {
                 path: 'applications/:applicationId/test/:kind',
                 element: <ApplicationTestPage />,
+              },
+              {
+                path: 'applications/:applicationId/references',
+                element: <RefereesPage />,
               },
               {
                 path: '',

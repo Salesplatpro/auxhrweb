@@ -25,6 +25,13 @@ export type RefereeQuestion = {
   key: string
   question: string
   required: boolean
+  type: 'text' | 'yesno'
+}
+
+export type LinkGoneDetails = {
+  jobTitle: string | null
+  companyName: string | null
+  companyEmail: string | null
 }
 
 export type RefereeRequest = {

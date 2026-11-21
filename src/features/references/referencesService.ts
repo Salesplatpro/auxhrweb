@@ -1,7 +1,7 @@
 import { httpClient } from '@/features/auth/services/httpClient'
 
 import type { RefereeFormValues } from './referenceRules'
-import type { Envelope, Referee, RefereeList, RefereeRequest } from './types'
+import type { Envelope, RefereeList, RefereeRequest } from './types'
 
 const applicationReferencesPath = (applicationId: string) =>
   `/references/applications/${applicationId}`
@@ -11,12 +11,17 @@ export const listReferees = (applicationId: string) =>
     .get<Envelope<RefereeList>>(applicationReferencesPath(applicationId))
     .then((response) => response.data.data)
 
-export const addReferee = (applicationId: string, values: RefereeFormValues) =>
+export const addReferees = (
+  applicationId: string,
+  referees: RefereeFormValues[],
+) =>
   httpClient
-    .post<Envelope<Referee>>(applicationReferencesPath(applicationId), {
-      name: values.name.trim(),
-      email: values.email.trim(),
-      relationship: values.relationship.trim(),
+    .post<Envelope<RefereeList>>(applicationReferencesPath(applicationId), {
+      referees: referees.map((referee) => ({
+        name: referee.name.trim(),
+        email: referee.email.trim(),
+        relationship: referee.relationship,
+      })),
     })
     .then((response) => response.data.data)
 

@@ -399,18 +399,35 @@ export type DocumentTemplate =
   | 'work_ownership'
   | 'pay_agreement'
 
+export type DocumentStatus = 'draft' | 'sent' | 'signed' | 'declined'
+
+export type DocumentDisplayStatus = DocumentStatus | 'to_notarize' | 'notarized'
+
+export interface DocumentFields {
+  startDate?: string
+  jobTitle?: string
+  managerName?: string
+}
+
 export interface StaffDocument {
   id: string
   template: DocumentTemplate
   title: string
-  status: 'sent' | 'signed'
-  sentAt: string
+  status: DocumentStatus
+  displayStatus: DocumentDisplayStatus
+  fields: DocumentFields | null
+  createdAt: string
+  sentAt: string | null
   openedAt: string | null
   signedAt: string | null
+  declinedAt: string | null
   signerName: string | null
+  sentByName: string | null
   linkExpiresAt: string | null
   needsNotarization: boolean
   notarizedAt: string | null
+  notarizedScanName: string | null
+  notarizedByName: string | null
   checkCode: string | null
   copyStatus: 'none' | 'pending' | 'failed' | 'done'
 }
@@ -427,6 +444,17 @@ export interface DocumentPreview {
   title: string
   body: string
   missing: string[]
+  facts: {
+    startDate: string
+    jobTitle: string
+    managerName: string | null
+    monthlyPay: string | null
+  }
+}
+
+export interface DocumentDraft {
+  document: StaffDocument
+  preview: DocumentPreview
 }
 
 export interface SendDocumentResult {
@@ -437,9 +465,12 @@ export interface SendDocumentResult {
 export interface SigningDocument {
   companyName: string
   companyLogoUrl: string | null
+  companyEmail: string | null
   employeeName: string
   title: string
+  dateLabel: string
   body: string
+  signatory: string | null
 }
 
 export interface SignedCopy {

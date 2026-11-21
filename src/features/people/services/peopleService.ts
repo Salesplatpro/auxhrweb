@@ -21,6 +21,8 @@ import {
   DevelopmentItem,
   DevelopmentPayload,
   DocumentCheck,
+  DocumentDraft,
+  DocumentFields,
   DocumentPreview,
   DocumentTemplate,
   EfficiencyTip,
@@ -352,15 +354,50 @@ export const previewStaffDocument = (
     ),
   ).then((data) => data.preview)
 
-export const sendStaffDocument = (
+export const saveStaffDocumentDraft = (
   organizationId: string,
   staffId: string,
   template: DocumentTemplate,
+  fields: DocumentFields,
 ) =>
-  unwrap<SendDocumentResult>(
+  unwrap<DocumentDraft>(
     httpClient.post(`${staffBase(organizationId)}/${staffId}/documents`, {
       template,
+      ...fields,
     }),
+  )
+
+export const fetchStaffDocument = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  unwrap<DocumentDraft>(
+    httpClient.get(
+      `${staffBase(organizationId)}/${staffId}/documents/${documentId}`,
+    ),
+  )
+
+export const sendStaffDocumentDraft = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  unwrap<SendDocumentResult>(
+    httpClient.post(
+      `${staffBase(organizationId)}/${staffId}/documents/${documentId}/send`,
+    ),
+  )
+
+export const deleteStaffDocumentDraft = (
+  organizationId: string,
+  staffId: string,
+  documentId: string,
+) =>
+  unwrap<Record<string, never>>(
+    httpClient.delete(
+      `${staffBase(organizationId)}/${staffId}/documents/${documentId}`,
+    ),
   )
 
 export const resendStaffDocument = (

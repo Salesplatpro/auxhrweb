@@ -91,6 +91,7 @@ import { Benefits } from '@/pages/RecruiterProfile/People/Benefits'
 import { CommissionPlanEditor } from '@/pages/RecruiterProfile/People/CommissionPlanEditor'
 import { CommissionPlans } from '@/pages/RecruiterProfile/People/CommissionPlans'
 import { CompanyProfile } from '@/pages/RecruiterProfile/People/CompanyProfile'
+import { DocumentPreviewPage } from '@/pages/RecruiterProfile/People/DocumentPreviewPage'
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
@@ -582,6 +583,10 @@ export const routeConfig: RouteObject[] = [
                           {
                             path: 'employees/:staffId',
                             element: <EmployeeDetail />,
+                          },
+                          {
+                            path: 'employees/:staffId/documents/:documentId',
+                            element: <DocumentPreviewPage />,
                           },
                           {
                             element: <RequirePeopleAccess level="manage" />,

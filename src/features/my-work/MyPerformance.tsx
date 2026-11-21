@@ -5,12 +5,11 @@ import * as Yup from 'yup'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { Button, EmptyState } from '@/components/ui'
+import { StatusBadge } from '@/components/ui/Badge/StatusBadge'
+import { Pill } from '@/components/ui/Pill'
 import { Spinner } from '@/components/ui/Spinner'
 import { RatingTrendChart } from '@/features/people/components/performance/RatingTrendChart'
-import {
-  ReportAdvice,
-  ReportBody,
-} from '@/features/people/components/performance/ReportsCard'
+import { ReportBody } from '@/features/people/components/performance/ReportsCard'
 import { TextAreaField } from '@/features/people/components/performance/TextAreaField'
 import {
   useMyPerformance,
@@ -79,6 +78,7 @@ const GoalRow: React.FC<{
   onRequestChanged: (request: CompletionRequest | null) => void
 }> = ({ goal, staffId, request, isSaving, onSave, onRequestChanged }) => {
   const [value, setValue] = useState(String(goal.progress))
+  const [editing, setEditing] = useState(false)
   const parsed = Number(value)
   const isValid =
     value !== '' &&
@@ -89,8 +89,14 @@ const GoalRow: React.FC<{
   return (
     <li>
       <span className={styles.goalText}>
-        <strong>{goal.title}</strong>
-        <span className={styles.muted}>Due {formatDateOnly(goal.dueOn)}</span>
+        <span className={styles.goalHead}>
+          <strong>{goal.title}</strong>
+          <span className={styles.muted}>{goal.progress}%</span>
+        </span>
+        <span className={styles.muted}>
+          {goal.target ? `${goal.target} · ` : ''}Due{' '}
+          {formatDateOnly(goal.dueOn)}
+        </span>
         <span
           className={styles.bar}
           role="progressbar"
@@ -111,31 +117,77 @@ const GoalRow: React.FC<{
           onChanged={onRequestChanged}
         />
       </span>
-      {!isComplete && (
-        <span className={styles.progressEdit}>
-          <input
-            type="number"
-            min="0"
-            max={MAX_OWN_PROGRESS}
-            aria-label={`Percent done on ${goal.title}`}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-          />
-          <Button
-            size="sm"
-            variant="outline"
-            loading={isSaving}
-            disabled={!isValid || parsed === goal.progress}
-            onClick={() => onSave(parsed)}>
-            Save
+      {!isComplete &&
+        (editing ? (
+          <span className={styles.progressEdit}>
+            <input
+              type="number"
+              min="0"
+              max={MAX_OWN_PROGRESS}
+              aria-label={`Percent done on ${goal.title}`}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              loading={isSaving}
+              disabled={!isValid || parsed === goal.progress}
+              onClick={() => {
+                onSave(parsed)
+                setEditing(false)
+              }}>
+              Save
+            </Button>
+          </span>
+        ) : (
+          <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
+            Update progress
           </Button>
-        </span>
-      )}
+        ))}
     </li>
   )
 }
 
-export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
+const longDate = (iso: string) =>
+  new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+
+const AdvicePanel: React.FC<{
+  advice: string[]
+  isLoading: boolean
+  onAgain: () => void
+}> = ({ advice, isLoading, onAgain }) => (
+  <section className={styles.advice} aria-label="Advice for your week">
+    <header>
+      <h3>Advice for your week</h3>
+      <Pill tone="warning" size="sm">
+        AI suggestion
+      </Pill>
+    </header>
+    <ol>
+      {advice.map((tip, index) => (
+        <li key={index}>{tip}</li>
+      ))}
+    </ol>
+    <p className={styles.muted}>AI can be wrong. Use what helps you.</p>
+    <div>
+      <Button size="sm" variant="outline" loading={isLoading} onClick={onAgain}>
+        Get advice again
+      </Button>
+    </div>
+  </section>
+)
+
+export const MyPerformance: React.FC<{
+  staffId: string
+  managerName?: string | null
+}> = ({ staffId, managerName }) => {
+  const [adviceFailed, setAdviceFailed] = useState(false)
+  const [openPast, setOpenPast] = useState<string | null>(null)
   const { performance, isLoading, hasError } = useMyPerformance(staffId)
   const { run, updateCache, pending } = usePerformanceChange<MyPerformanceData>(
     myPerformanceKey(staffId),
@@ -182,15 +234,19 @@ export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
     )
   }
 
-  const askForAdvice = (report: WeeklyReport) =>
-    run(
+  const askForAdvice = async (report: WeeklyReport) => {
+    setAdviceFailed(false)
+    const result = await run(
       'advice',
       async () => {
         const updated = await requestMyAdvice(staffId, report.id)
         await updateCache((current) => withReport(current, updated))
+        return true
       },
       'Could not get advice. Please try again.',
     )
+    if (result === null) setAdviceFailed(true)
+  }
 
   const saveProgress = (goal: Goal, progress: number) =>
     run(
@@ -240,7 +296,15 @@ export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
 
   return (
     <div className={styles.stack}>
-      <PagePanel title="My goals">
+      <PagePanel
+        title="My goals"
+        hint={
+          goals.length > 0
+            ? `${
+                managerName ? `Approved by ${managerName} · ` : ''
+              }update your progress every week`
+            : undefined
+        }>
         {goals.length === 0 ? (
           <p className={styles.muted}>No approved goals yet.</p>
         ) : (
@@ -274,7 +338,24 @@ export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
 
       <PagePanel
         title="Weekly report"
-        hint={`Week of ${formatDateOnly(currentWeek)}`}>
+        hint={
+          thisWeek
+            ? `Week of ${formatDateOnly(currentWeek)} · sent${
+                managerName ? ` to ${managerName}` : ''
+              } on ${longDate(thisWeek.submittedAt)}`
+            : `Week of ${formatDateOnly(currentWeek)}${
+                managerName ? ` · goes to ${managerName}` : ''
+              }`
+        }
+        action={
+          thisWeek && (
+            <StatusBadge
+              status="Submitted"
+              backgroundColor="var(--color-positive-tint)"
+              color="var(--color-positive)"
+            />
+          )
+        }>
         <div className={styles.stack}>
           {thisWeek?.managerNote ? (
             <ReportBody report={thisWeek} />
@@ -305,18 +386,48 @@ export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
               )}
             </ValidatedForm>
           )}
-          {thisWeek && !isExecutive && !thisWeek.advice && (
-            <div>
-              <Button
-                variant="outline"
-                loading={pending === 'advice'}
-                onClick={() => void askForAdvice(thisWeek)}>
-                {pending === 'advice' ? 'Thinking…' : 'Get advice'}
+          {thisWeek && !isExecutive && pending === 'advice' && (
+            <div className={styles.thinking}>
+              <Button variant="gradient" disabled>
+                Thinking…
               </Button>
+              <span className={styles.muted}>This takes a few seconds.</span>
             </div>
           )}
-          {thisWeek?.advice && !thisWeek.managerNote && (
-            <ReportAdvice advice={thisWeek.advice} />
+          {thisWeek &&
+            !isExecutive &&
+            pending !== 'advice' &&
+            !thisWeek.advice && (
+              <div className={styles.thinking}>
+                <Button
+                  variant="gradient"
+                  onClick={() => void askForAdvice(thisWeek)}>
+                  Get advice
+                </Button>
+                <span className={styles.muted}>
+                  Get 3 to 5 tips from AI on your week.
+                </span>
+              </div>
+            )}
+          {adviceFailed && thisWeek && pending !== 'advice' && (
+            <div className={styles.stack}>
+              <strong>We could not get advice</strong>
+              <p className={styles.muted}>
+                Your report was sent. Tap Get advice to try again.
+              </p>
+              <div>
+                <Pill tone="danger" size="sm">
+                  Error
+                </Pill>
+              </div>
+            </div>
+          )}
+          {thisWeek?.advice && pending !== 'advice' && (
+            <AdvicePanel
+              advice={thisWeek.advice}
+              isLoading={false}
+              onAgain={() => void askForAdvice(thisWeek)}
+            />
           )}
         </div>
       </PagePanel>
@@ -327,8 +438,26 @@ export const MyPerformance: React.FC<{ staffId: string }> = ({ staffId }) => {
             <ul className={styles.reportList}>
               {past.map((report) => (
                 <li key={report.id}>
-                  <strong>Week of {formatDateOnly(report.weekStart)}</strong>
-                  <ReportBody report={report} />
+                  <span className={styles.goalHead}>
+                    <strong>Week of {formatDateOnly(report.weekStart)}</strong>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setOpenPast(openPast === report.id ? null : report.id)
+                      }>
+                      {openPast === report.id ? 'Close' : 'Open'}
+                    </Button>
+                  </span>
+                  <span className={styles.muted}>
+                    Submitted
+                    {report.managerNote
+                      ? ` · ${
+                          report.managerNoteByName ?? 'Your manager'
+                        } added a note`
+                      : ''}
+                  </span>
+                  {openPast === report.id && <ReportBody report={report} />}
                 </li>
               ))}
             </ul>

@@ -1,0 +1,46 @@
+@use '../../styles/breakpoints' as bp;
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  color: var(--color-text-heading);
+}
+
+.lead {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-bg-elevated);
+  box-sizing: border-box;
+
+  p {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-heading);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+
+  @include bp.below(bp.$bp-sm) {
+    flex-direction: column-reverse;
+  }
+}

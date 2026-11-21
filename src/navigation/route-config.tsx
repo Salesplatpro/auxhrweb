@@ -96,6 +96,7 @@ import { DocumentPreviewPage } from '@/pages/RecruiterProfile/People/DocumentPre
 import { EmployeeDetail } from '@/pages/RecruiterProfile/People/EmployeeDetail'
 import { Employees } from '@/pages/RecruiterProfile/People/Employees'
 import { HeadcountCost } from '@/pages/RecruiterProfile/People/HeadcountCost'
+import { ImportStaff } from '@/pages/RecruiterProfile/People/ImportStaff'
 import { OrgChart } from '@/pages/RecruiterProfile/People/OrgChart'
 import { QuarterlyReview } from '@/pages/RecruiterProfile/People/QuarterlyReview'
 import RecruiterPlanPage from '@/pages/RecruiterProfile/Plan/RecruiterPlanPage'
@@ -591,6 +592,10 @@ export const routeConfig: RouteObject[] = [
                               {
                                 path: 'employees/default-checklist',
                                 element: <DefaultChecklist />,
+                              },
+                              {
+                                path: 'employees/import',
+                                element: <ImportStaff />,
                               },
                             ],
                           },

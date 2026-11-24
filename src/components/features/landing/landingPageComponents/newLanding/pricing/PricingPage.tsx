@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Spinner } from '@/components/ui/Spinner'
+import { useDisplayCurrency } from '@/features/pricing/hooks/useDisplayCurrency'
 import { usePricingCatalog } from '@/features/pricing/hooks/usePricingCatalog'
 import { usePublicPlanSelect } from '@/features/pricing/hooks/usePublicPlanSelect'
 import { BillingInterval } from '@/features/pricing/types'
@@ -18,12 +19,13 @@ import styles from './PricingPage.module.scss'
 
 export const PricingPage = () => {
   const { catalog, isLoading, error } = usePricingCatalog()
+  const { currency, isLoading: isFindingCurrency } = useDisplayCurrency()
   const { selectPlan, checkingOutPlanKey } = usePublicPlanSelect()
   const [audience, setAudience] = useState<Audience>('recruiter')
   const [interval, setInterval] = useState<BillingInterval>('monthly')
   const navigate = useNavigate()
 
-  if (isLoading) return <Spinner fullPage />
+  if (isLoading || isFindingCurrency) return <Spinner fullPage />
   if (error || !catalog) {
     return (
       <p className={styles.unavailable}>Pricing is temporarily unavailable.</p>
@@ -80,7 +82,12 @@ export const PricingPage = () => {
           <>
             <div className={styles.grid}>
               {catalog.plans.map((plan) => {
-                const price = planPrice(plan, interval, catalog.currencySymbol)
+                const price = planPrice(
+                  plan,
+                  interval,
+                  currency,
+                  catalog.currencySymbol,
+                )
                 return (
                   <PlanCard
                     key={plan.key}
@@ -127,7 +134,7 @@ export const PricingPage = () => {
       </section>
 
       {isRecruiter && <ComparisonTable plans={catalog.plans} />}
-      <PricingFaq items={pricingFaqs(catalog)} />
+      <PricingFaq items={pricingFaqs(catalog, currency)} />
       <CtaBanner />
     </>
   )

@@ -1,18 +1,10 @@
 import React from 'react'
 import { FiCheck } from 'react-icons/fi'
 
+import { formatPlanPrice } from '../formatPlanPrice'
+import type { DisplayCurrency } from '../hooks/useDisplayCurrency'
 import { isSubscriptionPlan, PricingFeature, PricingPlan } from '../types'
 import styles from './PricingCard.module.scss'
-
-const formatNgn = (amount: number | null | undefined, symbol: string) => {
-  if (amount == null || Number.isNaN(amount)) return null
-  return `${symbol}${amount.toLocaleString('en-NG')}`
-}
-
-const formatUsd = (amount: number | null | undefined) => {
-  if (amount == null || Number.isNaN(amount)) return null
-  return `$${amount.toLocaleString('en-US')}`
-}
 
 const featureLabel = (feature: PricingFeature) =>
   feature.text ?? feature.label ?? ''
@@ -24,6 +16,7 @@ const planTitle = (name: string) =>
 
 export type PricingCardProps = {
   plan: PricingPlan
+  currency: DisplayCurrency
   currencySymbol: string
   isYearly: boolean
   isCurrent: boolean
@@ -34,6 +27,7 @@ export type PricingCardProps = {
 
 export const PricingCard: React.FC<PricingCardProps> = ({
   plan,
+  currency,
   currencySymbol,
   isYearly,
   isCurrent,
@@ -41,17 +35,14 @@ export const PricingCard: React.FC<PricingCardProps> = ({
   salesHref,
   onSelect,
 }) => {
-  const hasYearly = plan.yearlyAmountNgn != null && plan.yearlyAmountUsd != null
-  const useYearly = isYearly && hasYearly
-  const usd = formatUsd(
-    useYearly ? plan.yearlyAmountUsd : plan.monthlyAmountUsd,
-  )
-  const ngn = formatNgn(
-    useYearly ? plan.yearlyAmountNgn : plan.monthlyAmountNgn,
+  const { amount, yearly } = formatPlanPrice(
+    plan,
+    isYearly ? 'annually' : 'monthly',
+    currency,
     currencySymbol,
   )
   const caption =
-    plan.priceCaption ?? (useYearly ? 'Billed annually' : plan.description)
+    plan.priceCaption ?? (yearly ? 'Billed annually' : plan.description)
   const isMailto = salesHref.startsWith('mailto:')
 
   return (
@@ -65,16 +56,7 @@ export const PricingCard: React.FC<PricingCardProps> = ({
         </span>
       )}
       <p className={styles.planEyebrow}>{planTitle(plan.name)}</p>
-      <p className={styles.price}>
-        {usd && ngn ? (
-          <>
-            <span className={styles.priceUsd}>{usd}</span>
-            <span className={styles.priceNgn}>{ngn}</span>
-          </>
-        ) : (
-          ngn ?? usd ?? '—'
-        )}
-      </p>
+      <p className={styles.price}>{amount ?? '—'}</p>
       <p className={styles.planCaption}>{caption}</p>
 
       <div className={styles.ctaStack}>

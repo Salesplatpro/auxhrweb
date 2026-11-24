@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -8,21 +9,36 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 
 import { AssessmentStatus } from '../TalentAssessment/AssessmentForm'
 import styles from '../TalentAssessment/AssessmentForm.module.scss'
+import pageStyles from './AiInterviewPage.module.scss'
 import { uploadCandidateRecording } from './candidateInterviewApi'
 import {
+  AUDIO_BITS_PER_SECOND,
   chooseRecordingMimeType,
+  elapsedSince,
+  extensionFor,
   formatClock,
   InterviewMode,
   isRecordingLimitReached,
+  mediaErrorMessage,
   nextUnansweredIndex,
   secondsLeft,
   uploadPercent,
+  VIDEO_BITS_PER_SECOND,
 } from './interviewFlow'
 
-type MicState = 'idle' | 'testing' | 'ready' | 'failed'
+type MicState = 'idle' | 'testing' | 'listening' | 'failed'
 type UploadState = 'idle' | 'uploading' | 'failed'
 
-const extensionFor = (type: string) => (type.includes('mp4') ? 'mp4' : 'webm')
+type InterviewQuestion = {
+  id: string
+  position: number
+  question: string
+  answered: boolean
+}
+
+const RECORDING_STOPPED = 'Recording stopped. Record this answer again.'
+const HEARD_LEVEL = 0.04
+const HEARD_FRAMES = 8
 
 const AiInterviewPage = () => {
   const { interviewId } = useParams<{ interviewId: string }>()
@@ -32,130 +48,275 @@ const AiInterviewPage = () => {
   )
   const [phase, setPhase] = useState<'check' | 'answer'>('check')
   const [micState, setMicState] = useState<MicState>('idle')
+  const [micError, setMicError] = useState('')
+  const [level, setLevel] = useState(0)
+  const [heard, setHeard] = useState(false)
+  const [previewPlaying, setPreviewPlaying] = useState(false)
   const [answeredHere, setAnsweredHere] = useState<string[]>([])
   const [recording, setRecording] = useState(false)
+  const [recordError, setRecordError] = useState('')
   const [elapsed, setElapsed] = useState(0)
   const [uploadState, setUploadState] = useState<UploadState>('idle')
   const [uploadPct, setUploadPct] = useState(0)
+  const [uploadProblem, setUploadProblem] = useState({
+    message: '',
+    canRetry: true,
+  })
   const [pending, setPending] = useState<Blob | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const recorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const discardRef = useRef(false)
+  const startedAtRef = useRef(0)
+  const answeringRef = useRef<InterviewQuestion | null>(null)
 
   const interview = data?.data
   const mode: InterviewMode = interview?.mode ?? 'audio'
-  const questions: Array<{
-    id: string
-    position: number
-    question: string
-    answered: boolean
-  }> = interview?.questions ?? []
+  const questions: InterviewQuestion[] = interview?.questions ?? []
   const answeredIds = questions.map(
     (item) => item.answered || answeredHere.includes(item.id),
   )
   const currentIndex = nextUnansweredIndex(answeredIds)
   const current = currentIndex >= 0 ? questions[currentIndex] : undefined
+  const done = questions.length > 0 && current === undefined
+  const inProgress = phase === 'answer' && !done
+
+  const stopTracks = () => {
+    streamRef.current?.getTracks().forEach((track) => track.stop())
+    streamRef.current = null
+  }
 
   useEffect(() => {
     return () => {
-      streamRef.current?.getTracks().forEach((track) => track.stop())
+      discardRef.current = true
+      if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
+      stopTracks()
     }
   }, [])
+
+  useEffect(() => {
+    if (done) stopTracks()
+  }, [done])
 
   useEffect(() => {
     if (videoRef.current && streamRef.current && mode === 'audio_video') {
       videoRef.current.srcObject = streamRef.current
     }
-  }, [micState, mode, phase])
+  }, [micState, mode, phase, current?.id])
+
+  useEffect(() => {
+    if (phase !== 'check' || micState !== 'listening' || !streamRef.current) {
+      return
+    }
+    const AudioCtx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext
+    if (!AudioCtx) {
+      setHeard(true)
+      return
+    }
+    const context = new AudioCtx()
+    const analyser = context.createAnalyser()
+    analyser.fftSize = 512
+    context.createMediaStreamSource(streamRef.current).connect(analyser)
+    const samples = new Uint8Array(analyser.fftSize)
+    let loudFrames = 0
+    let frame = 0
+    const tick = () => {
+      analyser.getByteTimeDomainData(samples)
+      let sum = 0
+      for (const sample of samples) {
+        const centred = (sample - 128) / 128
+        sum += centred * centred
+      }
+      const rms = Math.sqrt(sum / samples.length)
+      setLevel(Math.min(1, rms * 4))
+      loudFrames = rms > HEARD_LEVEL ? loudFrames + 1 : loudFrames
+      if (loudFrames >= HEARD_FRAMES) setHeard(true)
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => {
+      cancelAnimationFrame(frame)
+      void context.close()
+    }
+  }, [micState, phase])
 
   useEffect(() => {
     if (!recording) return
     const timer = window.setInterval(
-      () => setElapsed((value) => value + 1),
-      1000,
+      () => setElapsed(elapsedSince(startedAtRef.current, Date.now())),
+      250,
     )
     return () => window.clearInterval(timer)
   }, [recording])
 
   useEffect(() => {
-    if (recording && isRecordingLimitReached(elapsed)) {
-      stopRecording()
-    }
+    if (recording && isRecordingLimitReached(elapsed)) stopRecording()
   }, [recording, elapsed])
+
+  useEffect(() => {
+    if (!inProgress) return
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', warn)
+    return () => window.removeEventListener('beforeunload', warn)
+  }, [inProgress])
 
   const testMicrophone = async () => {
     setMicState('testing')
+    setMicError('')
+    setHeard(false)
+    setPreviewPlaying(false)
     if (!navigator.mediaDevices?.getUserMedia) {
+      setMicError(mediaErrorMessage(null))
       setMicState('failed')
       return
     }
     try {
+      stopTracks()
       streamRef.current = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: mode === 'audio_video',
       })
-      setMicState('ready')
-    } catch {
+      setMicState('listening')
+    } catch (err) {
+      setMicError(mediaErrorMessage(err))
       setMicState('failed')
     }
   }
 
-  const sendAnswer = async (blob: Blob) => {
-    if (!interviewId || !current) return
+  const markAnswered = (questionId: string) => {
+    setAnsweredHere((ids) => [...ids, questionId])
+    setPending(null)
+    setUploadState('idle')
+    setElapsed(0)
+    void refetch()
+  }
+
+  const sendAnswer = async (blob: Blob, question: InterviewQuestion) => {
+    if (!interviewId) return
     setPending(blob)
     setUploadState('uploading')
     setUploadPct(0)
     try {
       await uploadCandidateRecording({
         interviewId,
-        questionId: current.id,
+        questionId: question.id,
         blob,
-        fileName: `answer-${current.position}.${extensionFor(blob.type)}`,
+        fileName: `answer-${question.position}.${extensionFor(blob.type)}`,
         onProgress: (event) =>
           setUploadPct(uploadPercent(event.loaded, event.total ?? 0)),
       })
-      setAnsweredHere((ids) => [...ids, current.id])
-      setPending(null)
-      setUploadState('idle')
-      setElapsed(0)
-    } catch {
+      markAnswered(question.id)
+    } catch (err) {
+      const status = isAxiosError(err) ? err.response?.status : undefined
+      if (status === 409) {
+        markAnswered(question.id)
+        return
+      }
+      setUploadProblem(
+        status === 413
+          ? {
+              message:
+                'This answer is too large to upload. Record a shorter answer.',
+              canRetry: false,
+            }
+          : {
+              message: getErrorMessage(
+                err,
+                "Your answer didn't upload. Check your connection, then retry.",
+              ),
+              canRetry: status === undefined || status >= 500,
+            },
+      )
       setUploadState('failed')
     }
   }
 
+  const failRecording = () => {
+    discardRef.current = true
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
+    setRecording(false)
+    setRecordError(RECORDING_STOPPED)
+    const deviceGone = streamRef.current
+      ?.getTracks()
+      .some((track) => track.readyState === 'ended')
+    if (deviceGone) {
+      stopTracks()
+      setMicState('idle')
+      setPhase('check')
+    }
+  }
+
   const startRecording = () => {
-    if (!streamRef.current) return
+    const stream = streamRef.current
+    if (!stream || !current || recorderRef.current?.state === 'recording') {
+      return
+    }
     const mimeType = chooseRecordingMimeType(
       mode,
       (type) =>
         typeof MediaRecorder !== 'undefined' &&
         MediaRecorder.isTypeSupported(type),
     )
-    const recorder = new MediaRecorder(
-      streamRef.current,
-      mimeType ? { mimeType } : undefined,
-    )
-    chunksRef.current = []
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) chunksRef.current.push(event.data)
+    let recorder: MediaRecorder
+    try {
+      recorder = new MediaRecorder(stream, {
+        ...(mimeType ? { mimeType } : {}),
+        audioBitsPerSecond: AUDIO_BITS_PER_SECOND,
+        ...(mode === 'audio_video'
+          ? { videoBitsPerSecond: VIDEO_BITS_PER_SECOND }
+          : {}),
+      })
+      recorderRef.current = recorder
+      answeringRef.current = current
+      chunksRef.current = []
+      discardRef.current = false
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data)
+      }
+      recorder.onerror = failRecording
+      stream.getTracks().forEach((track) => {
+        track.onended = failRecording
+      })
+      recorder.onstop = () => {
+        setRecording(false)
+        const question = answeringRef.current
+        if (discardRef.current || !question) {
+          chunksRef.current = []
+          return
+        }
+        const type =
+          recorder.mimeType ||
+          mimeType ||
+          (mode === 'audio_video' ? 'video/webm' : 'audio/webm')
+        void sendAnswer(new Blob(chunksRef.current, { type }), question)
+      }
+      recorder.start(1000)
+    } catch {
+      recorderRef.current = null
+      setRecordError(RECORDING_STOPPED)
+      return
     }
-    recorder.onstop = () => {
-      setRecording(false)
-      const type =
-        recorder.mimeType ||
-        mimeType ||
-        (mode === 'audio_video' ? 'video/webm' : 'audio/webm')
-      void sendAnswer(new Blob(chunksRef.current, { type }))
-    }
-    recorder.start()
-    recorderRef.current = recorder
+    setRecordError('')
+    startedAtRef.current = Date.now()
     setElapsed(0)
     setRecording(true)
   }
 
   function stopRecording() {
     if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
+  }
+
+  const recordAgain = () => {
+    setPending(null)
+    setUploadState('idle')
+    setElapsed(0)
   }
 
   if (!interviewId) return null
@@ -182,7 +343,8 @@ const AiInterviewPage = () => {
   }
 
   const total = questions.length
-  const done = current === undefined
+  const canContinue =
+    micState === 'listening' && heard && (mode === 'audio' || previewPlaying)
 
   return (
     <div className={styles.shell}>
@@ -200,30 +362,56 @@ const AiInterviewPage = () => {
 
       {phase === 'check' && (
         <Card>
-          {mode === 'audio_video' && (
-            <video ref={videoRef} autoPlay muted playsInline />
+          {mode === 'audio_video' && micState === 'listening' && (
+            <video
+              ref={videoRef}
+              className={pageStyles.video}
+              autoPlay
+              muted
+              playsInline
+              onPlaying={() => setPreviewPlaying(true)}
+            />
           )}
           {micState === 'idle' && (
             <Button type="button" onClick={() => void testMicrophone()}>
-              Test microphone
+              {mode === 'audio_video'
+                ? 'Test camera and microphone'
+                : 'Test microphone'}
             </Button>
           )}
           {micState === 'testing' && (
             <AssessmentStatus
               loading
-              message="Listening for your microphone…"
+              message="Waiting for you to allow access…"
             />
           )}
-          {micState === 'ready' && (
+          {micState === 'listening' && (
             <>
+              <div
+                className={pageStyles.meter}
+                role="meter"
+                aria-label="Microphone level"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(level * 100)}>
+                <div
+                  className={pageStyles.meterFill}
+                  style={{ width: `${Math.round(level * 100)}%` }}
+                />
+              </div>
               <AssessmentStatus
                 message={
-                  mode === 'audio_video'
-                    ? 'Microphone is working. Camera is working too.'
-                    : 'Microphone is working.'
+                  canContinue
+                    ? mode === 'audio_video'
+                      ? 'We can hear you and see you.'
+                      : 'We can hear you.'
+                    : 'Say a few words…'
                 }
               />
-              <Button type="button" onClick={() => setPhase('answer')}>
+              <Button
+                type="button"
+                disabled={!canContinue}
+                onClick={() => setPhase('answer')}>
                 Continue
               </Button>
             </>
@@ -231,7 +419,7 @@ const AiInterviewPage = () => {
           {micState === 'failed' && (
             <AssessmentStatus
               error
-              message="Microphone isn't available. Allow access in your browser, then try again."
+              message={micError}
               actionLabel="Try again"
               onAction={() => void testMicrophone()}
             />
@@ -254,12 +442,19 @@ const AiInterviewPage = () => {
           </div>
           <p className={styles.question}>{current.question}</p>
           {mode === 'audio_video' && (
-            <video ref={videoRef} autoPlay muted playsInline />
+            <video
+              ref={videoRef}
+              className={pageStyles.video}
+              autoPlay
+              muted
+              playsInline
+            />
           )}
           <p className={styles.progressMeta}>
             <span>Time left </span>
             <span>{formatClock(secondsLeft(elapsed))}</span>
           </p>
+          {recordError && <AssessmentStatus error message={recordError} />}
           {uploadState === 'uploading' && (
             <>
               <AssessmentStatus
@@ -275,12 +470,24 @@ const AiInterviewPage = () => {
             </>
           )}
           {uploadState === 'failed' && pending && (
-            <AssessmentStatus
-              error
-              message="Your answer didn't upload. Check your connection, then retry."
-              actionLabel="Retry upload"
-              onAction={() => void sendAnswer(pending)}
-            />
+            <>
+              <AssessmentStatus error message={uploadProblem.message} />
+              <div className={pageStyles.actionsRow}>
+                {uploadProblem.canRetry && (
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      answeringRef.current &&
+                      void sendAnswer(pending, answeringRef.current)
+                    }>
+                    Retry upload
+                  </Button>
+                )}
+                <Button type="button" variant="outline" onClick={recordAgain}>
+                  Record again
+                </Button>
+              </div>
+            </>
           )}
           {uploadState === 'idle' && !recording && (
             <Button type="button" onClick={startRecording}>

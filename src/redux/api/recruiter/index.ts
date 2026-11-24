@@ -11,6 +11,7 @@ import type {
 } from '../../../features/scout/types'
 import { customBaseQuery } from '../../../utils/customBaseQuery'
 import type { RecruiterJobsData } from '../../../utils/recruiterJobPostsTypes'
+import { talentApi } from '../talent'
 
 export type RecruiterJobsQuery = {
   limit?: number
@@ -87,6 +88,14 @@ export const recruiterApi = createApi({
         body: data,
       }),
       invalidatesTags: [{ type: 'RecruiterJob', id: 'LIST' }],
+      onQueryStarted: async (_arg, { dispatch, queryFulfilled }) => {
+        try {
+          await queryFulfilled
+          dispatch(talentApi.util.invalidateTags(['Roles']))
+        } catch {
+          return
+        }
+      },
     }),
     generateJobField: builder.mutation({
       query: (data) => ({

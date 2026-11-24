@@ -40,8 +40,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const selectedOptions = options.filter((option) =>
-    value.includes(option.value),
+  const selectedOptions = value.map(
+    (selected) =>
+      options.find((option) => option.value === selected) ?? {
+        value: selected,
+        label: selected,
+      },
   )
   const visibleOptions = selectedOptions.slice(0, MAX_VISIBLE_TAGS)
   const hiddenCount = selectedOptions.length - visibleOptions.length
@@ -152,6 +156,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               className={styles.search}
               value={search}
               onChange={(event) => setSearch(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && showCreateOption) {
+                  event.preventDefault()
+                  handleCreate()
+                }
+              }}
               placeholder="Search..."
             />
           )}

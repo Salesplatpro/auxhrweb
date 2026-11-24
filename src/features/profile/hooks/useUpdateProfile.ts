@@ -1,5 +1,7 @@
 import useSWRMutation from 'swr/mutation'
 
+import { talentApi } from '@/redux/api/talent'
+import { store } from '@/redux/store/store'
 import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
@@ -18,6 +20,9 @@ export const useUpdateProfile = () => {
   const saveProfile = async (payload: Partial<ProfilePatchPayload>) => {
     await trigger(payload)
     const fresh = await mutate()
+    if (payload.newRoles?.length) {
+      store.dispatch(talentApi.util.invalidateTags(['Roles']))
+    }
     if (payload.roleIds !== undefined) {
       // A role change is the only edit that regenerates the assessment
       // server-side, so it's the only case where the cached assessment

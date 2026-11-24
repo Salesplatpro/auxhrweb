@@ -150,9 +150,13 @@ const TalentProfile = ({ formikRef }: TalentProfileProps) => {
                     <RoleMultiSelect
                       name="role"
                       value={values.role}
+                      creatable
                       onChange={(value) => setFieldValue('role', value)}
                       error={fieldError('role')}
                     />
+                    <p className={styles.hint}>
+                      Can&apos;t find your role? Type it and press Enter.
+                    </p>
                   </div>
                 </div>
 

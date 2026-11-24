@@ -48,12 +48,12 @@ export const ReportBody: React.FC<{ report: WeeklyReport }> = ({ report }) => (
   </>
 )
 
-const NoteForm: React.FC<{
-  report: WeeklyReport
+export const NoteForm: React.FC<{
+  saved: string | null
   isSaving: boolean
   onSave: (note: string) => Promise<void>
-}> = ({ report, isSaving, onSave }) => {
-  const [note, setNote] = useState(report.managerNote ?? '')
+}> = ({ saved, isSaving, onSave }) => {
+  const [note, setNote] = useState(saved ?? '')
   return (
     <div className={styles.form}>
       <label className={styles.field}>
@@ -70,7 +70,7 @@ const NoteForm: React.FC<{
           size="sm"
           variant="outline"
           loading={isSaving}
-          disabled={!note.trim() || note.trim() === report.managerNote}
+          disabled={!note.trim() || note.trim() === saved}
           onClick={() => void onSave(note.trim())}>
           Save note
         </Button>
@@ -193,7 +193,7 @@ export const ReportsCard: React.FC<ReportsCardProps> = ({
                       {!readOnly && (
                         <NoteForm
                           key={`${report.id}-${report.noteVersion}`}
-                          report={report}
+                          saved={report.managerNote}
                           isSaving={pending === report.id}
                           onSave={(note) => saveNote(report, note)}
                         />
@@ -225,7 +225,7 @@ export const ReportsCard: React.FC<ReportsCardProps> = ({
                 {!readOnly && (
                   <NoteForm
                     key={`${report.id}-${report.noteVersion}`}
-                    report={report}
+                    saved={report.managerNote}
                     isSaving={pending === report.id}
                     onSave={(note) => saveNote(report, note)}
                   />

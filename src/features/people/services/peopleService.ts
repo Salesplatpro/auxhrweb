@@ -30,6 +30,8 @@ import {
   Envelope,
   Goal,
   GoalPayload,
+  GoalReport,
+  GoalReportsData,
   HeadcountCost,
   HeadcountMonths,
   HrAssignee,
@@ -659,6 +661,46 @@ export const downloadMyEvidence = (
     `${MY_WORK_KEY}/${staffId}/completion-requests/${requestId}/files/${file.id}`,
     file,
   )
+
+export const goalReportsKey = (base: string, goalId: string) =>
+  `${base}/goals/${goalId}/reports`
+
+export const myGoalReportsKey = (staffId: string, goalId: string) =>
+  goalReportsKey(`${MY_WORK_KEY}/${staffId}`, goalId)
+
+export const fetchGoalReports = (key: string) =>
+  unwrap<GoalReportsData>(httpClient.get(key))
+
+export const submitGoalReport = (
+  staffId: string,
+  goalId: string,
+  periodStart: string,
+  form: FormData,
+) =>
+  unwrap<{ report: GoalReport }>(
+    httpClient.put(`${myGoalReportsKey(staffId, goalId)}/${periodStart}`, form),
+  ).then((data) => data.report)
+
+export const saveGoalReportNote = (
+  base: string,
+  goalId: string,
+  report: Pick<GoalReport, 'id' | 'textVersion' | 'noteVersion'>,
+  note: string,
+) =>
+  unwrap<{ report: GoalReport }>(
+    httpClient.put(`${goalReportsKey(base, goalId)}/${report.id}/note`, {
+      note,
+      textVersion: report.textVersion,
+      noteVersion: report.noteVersion,
+    }),
+  ).then((data) => data.report)
+
+/** `reportsKey` is either `goalReportsKey` or `myGoalReportsKey`. */
+export const downloadGoalReportFile = (
+  reportsKey: string,
+  reportId: string,
+  file: { id: string; name: string },
+) => downloadEvidenceFrom(`${reportsKey}/${reportId}/files/${file.id}`, file)
 
 export const downloadEvidence = (
   base: string,

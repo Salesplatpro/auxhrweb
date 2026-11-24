@@ -200,6 +200,7 @@ describe('MyPerformance', () => {
           approvedAt: 'now',
           completedAt: null,
           completedByName: null,
+          reportFrequency: null,
         },
       ],
     })

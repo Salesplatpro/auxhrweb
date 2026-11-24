@@ -2,6 +2,7 @@ import { Form } from 'formik'
 import React, { useState } from 'react'
 import * as Yup from 'yup'
 
+import { Select } from '@/components/forms/Select'
 import TextField from '@/components/forms/TextField'
 import { ValidatedForm } from '@/components/forms/ValidatedForm'
 import { PagePanel } from '@/components/layout/PagePanel'
@@ -24,9 +25,12 @@ import {
   Goal,
   GoalPayload,
   ManagedPerformance,
+  ReportFrequency,
 } from '../../types'
 import { formatDateOnly } from '../../utils/formatDate'
+import { FREQUENCY_OPTIONS, frequencyWord } from '../../utils/goalReports'
 import { applyReviewResult } from './CompletionRequestsCard'
+import { GoalReportsButton } from './GoalReportsDrawer'
 import styles from './Performance.module.scss'
 import { TextAreaField } from './TextAreaField'
 
@@ -37,6 +41,7 @@ interface GoalFormValues {
   keyResults: string
   target: string
   dueOn: string
+  reportFrequency: ReportFrequency | ''
 }
 
 const goalSchema = Yup.object({
@@ -64,6 +69,7 @@ const toPayload = (values: GoalFormValues): GoalPayload => ({
   keyResults: linesOf(values.keyResults),
   target: values.target.trim() || null,
   dueOn: values.dueOn,
+  reportFrequency: values.reportFrequency || null,
 })
 
 const GoalForm: React.FC<{
@@ -75,12 +81,19 @@ const GoalForm: React.FC<{
     initialValues={initial}
     validationSchema={goalSchema}
     onSubmit={(values) => onSubmit(toPayload(values))}>
-    {({ isSubmitting }) => (
+    {({ isSubmitting, values, setFieldValue }) => (
       <Form className={styles.form} noValidate>
         <TextField name="title" label="Goal" />
         <TextAreaField name="keyResults" label="Key results, one per line" />
         <TextField name="target" label="Target" />
         <TextField name="dueOn" label="Due date" type="date" />
+        <Select
+          name="reportFrequency"
+          label="Report"
+          options={FREQUENCY_OPTIONS}
+          value={values.reportFrequency}
+          onChange={(value) => void setFieldValue('reportFrequency', value)}
+        />
         <div className={styles.actions}>
           <Button type="submit" size="sm" loading={isSubmitting}>
             Save
@@ -94,7 +107,13 @@ const GoalForm: React.FC<{
   </ValidatedForm>
 )
 
-const EMPTY_GOAL = { title: '', keyResults: '', target: '', dueOn: '' }
+const EMPTY_GOAL: GoalFormValues = {
+  title: '',
+  keyResults: '',
+  target: '',
+  dueOn: '',
+  reportFrequency: '',
+}
 
 interface GoalsCardProps {
   base: string
@@ -311,6 +330,7 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
                       keyResults: goal.keyResults.join('\n'),
                       target: goal.target ?? '',
                       dueOn: goal.dueOn,
+                      reportFrequency: goal.reportFrequency ?? '',
                     }}
                     onSubmit={(payload) => edit(goal, payload)}
                     onCancel={() => setEditingId(null)}
@@ -344,7 +364,19 @@ export const GoalsCard: React.FC<GoalsCardProps> = ({
                       {goal.completedByName
                         ? ` Marked complete by ${goal.completedByName}.`
                         : ''}
+                      {goal.reportFrequency
+                        ? ` ${frequencyWord(goal.reportFrequency)} reports.`
+                        : ''}
                     </p>
+                    {goal.status === 'approved' && goal.reportFrequency && (
+                      <div className={styles.actions}>
+                        <GoalReportsButton
+                          base={base}
+                          goal={goal}
+                          canNote={!readOnly}
+                        />
+                      </div>
+                    )}
                     {canReview && goal.status === 'approved' && (
                       <div className={styles.actions}>
                         {goal.completedAt ? (

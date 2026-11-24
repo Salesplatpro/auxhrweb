@@ -32,6 +32,7 @@ type UploadState = 'idle' | 'uploading' | 'failed'
 type InterviewQuestion = {
   id: string
   position: number
+  isFollowUp: boolean
   question: string
   answered: boolean
 }
@@ -39,13 +40,16 @@ type InterviewQuestion = {
 const RECORDING_STOPPED = 'Recording stopped. Record this answer again.'
 const HEARD_LEVEL = 0.04
 const HEARD_FRAMES = 8
+const CHECK_EVERY_MS = 3000
+const CHECK_FOR_MS = 90_000
 
 const AiInterviewPage = () => {
   const { interviewId } = useParams<{ interviewId: string }>()
   const { data, isLoading, error, refetch } = useCandidateInterviewQuery(
     interviewId ?? '',
-    { skip: !interviewId },
+    { skip: !interviewId, refetchOnMountOrArgChange: true },
   )
+  const [stoppedChecking, setStoppedChecking] = useState(false)
   const [phase, setPhase] = useState<'check' | 'answer'>('check')
   const [micState, setMicState] = useState<MicState>('idle')
   const [micError, setMicError] = useState('')
@@ -80,7 +84,10 @@ const AiInterviewPage = () => {
   const currentIndex = nextUnansweredIndex(answeredIds)
   const current = currentIndex >= 0 ? questions[currentIndex] : undefined
   const done = questions.length > 0 && current === undefined
-  const inProgress = phase === 'answer' && !done
+  const checking = done && !!interview?.checking && !stoppedChecking
+  const finished = done && !checking
+  const inProgress = phase === 'answer' && !finished
+  const mainTotal = questions.filter((item) => !item.isFollowUp).length
 
   const stopTracks = () => {
     streamRef.current?.getTracks().forEach((track) => track.stop())
@@ -96,8 +103,28 @@ const AiInterviewPage = () => {
   }, [])
 
   useEffect(() => {
-    if (done) stopTracks()
-  }, [done])
+    if (finished) stopTracks()
+  }, [finished])
+
+  useEffect(() => {
+    if (!checking) return
+    const startedAt = Date.now()
+    const timer = window.setInterval(() => {
+      if (Date.now() - startedAt > CHECK_FOR_MS) {
+        setStoppedChecking(true)
+        return
+      }
+      void refetch()
+    }, CHECK_EVERY_MS)
+    return () => window.clearInterval(timer)
+  }, [checking])
+
+  useEffect(() => {
+    if (phase === 'answer' && current && !streamRef.current) {
+      setMicState('idle')
+      setPhase('check')
+    }
+  }, [phase, current?.id])
 
   useEffect(() => {
     if (videoRef.current && streamRef.current && mode === 'audio_video') {
@@ -427,7 +454,11 @@ const AiInterviewPage = () => {
         </Card>
       )}
 
-      {phase === 'answer' && done && (
+      {phase === 'answer' && checking && (
+        <AssessmentStatus loading message="Checking your answers…" />
+      )}
+
+      {phase === 'answer' && finished && (
         <AssessmentStatus
           message={`All ${total} answers are in. The hiring team will review them.`}
         />
@@ -436,9 +467,11 @@ const AiInterviewPage = () => {
       {phase === 'answer' && !done && current && (
         <Card>
           <div className={styles.progress}>
-            <span className={styles.progressMeta}>{`Question ${
-              currentIndex + 1
-            } of ${total}`}</span>
+            <span className={styles.progressMeta}>
+              {current.isFollowUp
+                ? `Follow-up to question ${current.position}`
+                : `Question ${current.position} of ${mainTotal}`}
+            </span>
           </div>
           <p className={styles.question}>{current.question}</p>
           {mode === 'audio_video' && (

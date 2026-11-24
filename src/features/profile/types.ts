@@ -79,6 +79,7 @@ export interface ProfilePatchPayload {
   lastName?: string
   bio?: string
   roleIds?: string[]
+  newRoles?: string[]
   locationCity?: string
   locationState?: string
   locationCountry?: string

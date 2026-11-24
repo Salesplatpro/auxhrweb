@@ -14,6 +14,7 @@ interface RoleMultiSelectProps {
   required?: boolean
   label?: string
   height?: string
+  creatable?: boolean
 }
 
 export const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
@@ -25,6 +26,7 @@ export const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
   required,
   label,
   height,
+  creatable = false,
 }) => {
   const { data, isLoading } = useGetRoleQuery({})
 
@@ -45,6 +47,18 @@ export const RoleMultiSelect: React.FC<RoleMultiSelectProps> = ({
       value={value}
       onChange={onChange}
       options={options}
+      onCreateOption={
+        creatable
+          ? (typed) => {
+              const taken = [...value, ...options.map((option) => option.label)]
+              if (
+                taken.some((item) => item.toLowerCase() === typed.toLowerCase())
+              )
+                return
+              onChange([...value, typed])
+            }
+          : undefined
+      }
       isLoading={isLoading}
       placeholder="Select roles..."
       searchable

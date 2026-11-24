@@ -14,7 +14,7 @@ export type CompanyAssessmentKind = 'problem-solving' | 'culture-fit'
 export const talentApi = createApi({
   reducerPath: 'talentApi',
   baseQuery: customBaseQuery,
-  tagTypes: ['Applications', 'Jobs'],
+  tagTypes: ['Applications', 'Jobs', 'Roles'],
   endpoints: (builder) => ({
     fetchJobs: builder.query({
       query: (params?: {
@@ -187,6 +187,7 @@ export const talentApi = createApi({
         url: `/roles?limit=1000`,
         method: 'GET',
       }),
+      providesTags: ['Roles'],
     }),
   }),
 })

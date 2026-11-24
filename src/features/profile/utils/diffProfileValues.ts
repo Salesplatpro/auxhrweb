@@ -1,5 +1,13 @@
 import { ProfileFormValues, ProfilePatchPayload } from '../types'
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** Picked roles are ids; roles the talent typed are names the server finds or creates. */
+export const splitRoleValues = (values: string[]) => ({
+  roleIds: values.filter((value) => UUID.test(value)),
+  newRoles: values.filter((value) => !UUID.test(value)),
+})
+
 /** Returns only the fields that changed between `initial` and `current`, shaped for PATCH /v1/user/me. */
 export const diffProfileValues = (
   initial: ProfileFormValues,
@@ -27,7 +35,11 @@ export const diffProfileValues = (
     current.role.length !== initial.role.length ||
     current.role.some((role) => !initial.role.includes(role))
 
-  if (roleChanged) patch.roleIds = current.role
+  if (roleChanged) {
+    const { roleIds, newRoles } = splitRoleValues(current.role)
+    patch.roleIds = roleIds
+    if (newRoles.length > 0) patch.newRoles = newRoles
+  }
 
   const workTypeChanged =
     current.workType.length !== initial.workType.length ||

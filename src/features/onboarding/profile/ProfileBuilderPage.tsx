@@ -478,6 +478,7 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
                       <RoleMultiSelect
                         name="role"
                         value={values.role}
+                        creatable
                         disabled={locked}
                         onChange={(next) => {
                           if (next.length > roleCap) return
@@ -488,7 +489,7 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
                       <p className={styles.hint}>
                         {locked
                           ? "You've used all 3 role changes, so your roles are fixed."
-                          : `Pick up to ${ROLE_LIMIT} roles. We match you to jobs for these.`}
+                          : `Pick up to ${ROLE_LIMIT} roles. We match you to jobs for these. Can't find your role? Type it and press Enter.`}
                       </p>
                     </div>
                     <div className={styles.pair}>

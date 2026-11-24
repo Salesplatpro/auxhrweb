@@ -77,7 +77,13 @@ const MemberList: React.FC<{
           <span className={styles.muted}>This week&apos;s report</span>
           <ReportBadge submitted={!!member.reportId} />
         </span>
-        <span className={styles.muted}>{goalsLine(member.goalsWaiting)}</span>
+        <span className={styles.muted}>
+          {goalsLine(member.goalsWaiting)}
+          {member.goalReportsToRead > 0 &&
+            ` · ${member.goalReportsToRead} goal report${
+              member.goalReportsToRead === 1 ? '' : 's'
+            } to read`}
+        </span>
         <Button size="sm" variant="outline" onClick={() => onOpen(member)}>
           Open
         </Button>

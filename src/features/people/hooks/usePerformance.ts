@@ -5,6 +5,7 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import {
+  fetchGoalReports,
   fetchMyPerformance,
   fetchMyTeam,
   fetchOrgChart,
@@ -61,6 +62,16 @@ export const useTeamMemberDetails = (
     VIEW_LOGGED_OPTIONS,
   )
   return { details: data ?? null, isLoading, hasError: !!error }
+}
+
+/** Loaded only while a goal's reports are open, since each read writes an access log line. */
+export const useGoalReports = (key: string | null) => {
+  const { data, error, isLoading, mutate } = useSWR(
+    key,
+    (url: string) => fetchGoalReports(url),
+    VIEW_LOGGED_OPTIONS,
+  )
+  return { reports: data ?? null, isLoading, hasError: !!error, mutate }
 }
 
 export const useOrgChart = (organizationId: string | null) => {

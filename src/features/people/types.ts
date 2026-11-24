@@ -582,11 +582,47 @@ export interface JobDescription {
   updatedAt: string
 }
 
+export type ReportFrequency = 'daily' | 'weekly' | 'monthly'
+
 export interface GoalPayload {
   title: string
   keyResults: string[]
   target: string | null
   dueOn: string
+  /** How often the employee reports on this goal; null means no reports. */
+  reportFrequency: ReportFrequency | null
+}
+
+export interface GoalReport {
+  id: string
+  periodStart: string
+  frequency: ReportFrequency
+  text: string | null
+  links: string[]
+  files: Array<{ id: string; name: string; mimeType: string; size: number }>
+  textVersion: number
+  submittedAt: string
+  reviewerNote: string | null
+  reviewerNoteByName: string | null
+  reviewerNoteAt: string | null
+  noteVersion: number
+}
+
+export interface GoalReportPeriod {
+  periodStart: string
+  state: 'submitted' | 'missed' | 'open'
+  /** A report can still be sent, or changed, for this period. */
+  open: boolean
+  report: GoalReport | null
+}
+
+export interface GoalReportsData {
+  goalId: string
+  frequency: ReportFrequency | null
+  /** Most recent first. */
+  periods: GoalReportPeriod[]
+  submitted: number
+  missed: number
 }
 
 export interface Goal extends GoalPayload {
@@ -696,6 +732,8 @@ export interface TeamMember {
   /** Reports to this person, is in a department they head, or both. */
   relation: 'report' | 'department' | 'both'
   departmentName: string | null
+  /** Goal reports from the last 30 days that nobody has replied to. */
+  goalReportsToRead: number
 }
 
 export interface MyTeamData {

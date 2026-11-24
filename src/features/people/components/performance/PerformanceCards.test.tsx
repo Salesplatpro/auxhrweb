@@ -55,6 +55,7 @@ const performance: ManagedPerformance = {
       approvedAt: null,
       completedAt: null,
       completedByName: null,
+      reportFrequency: null,
     },
   ],
   reports: {

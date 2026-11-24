@@ -32,6 +32,7 @@ import {
 import { formatDateOnly } from '@/features/people/utils/formatDate'
 
 import { CompletionAction } from './CompletionAction'
+import { GoalReportAction } from './GoalReportAction'
 import styles from './MyWork.module.scss'
 
 const MAX_FIELD = 5000
@@ -116,6 +117,7 @@ const GoalRow: React.FC<{
           completedByName={goal.completedByName}
           onChanged={onRequestChanged}
         />
+        <GoalReportAction staffId={staffId} goal={goal} />
       </span>
       {!isComplete &&
         (editing ? (

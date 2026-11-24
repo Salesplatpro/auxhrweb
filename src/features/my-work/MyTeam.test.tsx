@@ -4,9 +4,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MyTeam } from './MyTeam'
 
-const { useMyTeam } = vi.hoisted(() => ({ useMyTeam: vi.fn() }))
+const { useMyTeam, useTeamMemberDetails } = vi.hoisted(() => ({
+  useMyTeam: vi.fn(),
+  useTeamMemberDetails: vi.fn(),
+}))
 
-vi.mock('@/features/people/hooks/usePerformance', () => ({ useMyTeam }))
+vi.mock('@/features/people/hooks/usePerformance', () => ({
+  useMyTeam,
+  useTeamMemberDetails,
+}))
 vi.mock('@/features/people/components/performance/PerformanceCards', () => ({
   PerformanceCards: ({
     base,
@@ -28,6 +34,8 @@ const members = [
     jobTitle: 'Designer',
     reportId: 'r-1',
     goalsWaiting: 2,
+    relation: 'report' as const,
+    departmentName: null,
   },
   {
     staffId: 's-3',
@@ -35,6 +43,8 @@ const members = [
     jobTitle: 'Engineer',
     reportId: null,
     goalsWaiting: 0,
+    relation: 'report' as const,
+    departmentName: null,
   },
   {
     staffId: 's-4',
@@ -42,6 +52,8 @@ const members = [
     jobTitle: 'Researcher',
     reportId: 'r-9',
     goalsWaiting: 1,
+    relation: 'report' as const,
+    departmentName: null,
   },
 ]
 
@@ -52,7 +64,7 @@ describe('MyTeam', () => {
 
   it('says why the tab is there and lists direct reports with their week and goals', () => {
     useMyTeam.mockReturnValue({
-      team: { weekStart: '2026-11-02', members },
+      team: { weekStart: '2026-11-02', members, departments: [] },
       isLoading: false,
     })
     render(<MyTeam managerStaffId="m-1" />)
@@ -60,7 +72,7 @@ describe('MyTeam', () => {
     expect(
       screen.getByText('You see this tab because 3 people report to you.'),
     ).toBeTruthy()
-    expect(screen.getByText('Direct reports')).toBeTruthy()
+    expect(screen.getByText('Your direct reports')).toBeTruthy()
     expect(screen.getAllByText("This week's report")).toHaveLength(3)
     expect(screen.getAllByText('Submitted')).toHaveLength(2)
     expect(screen.getByText('Not yet')).toBeTruthy()
@@ -71,7 +83,7 @@ describe('MyTeam', () => {
 
   it('opens one person with the goals to approve, and comes back with either Back to team button', () => {
     useMyTeam.mockReturnValue({
-      team: { weekStart: '2026-11-02', members },
+      team: { weekStart: '2026-11-02', members, departments: [] },
       isLoading: false,
     })
     render(<MyTeam managerStaffId="m-1" />)
@@ -93,12 +105,12 @@ describe('MyTeam', () => {
     ).toHaveLength(2)
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Back to team' })[1]!)
-    expect(screen.getByText('Direct reports')).toBeTruthy()
+    expect(screen.getByText('Your direct reports')).toBeTruthy()
   })
 
   it('handles an empty team and a failed load', () => {
     useMyTeam.mockReturnValue({
-      team: { weekStart: '2026-11-02', members: [] },
+      team: { weekStart: '2026-11-02', members: [], departments: [] },
       isLoading: false,
     })
     const first = render(<MyTeam managerStaffId="m-1" />)
@@ -109,5 +121,69 @@ describe('MyTeam', () => {
     useMyTeam.mockReturnValue({ team: null, hasError: true })
     render(<MyTeam managerStaffId="m-1" />)
     expect(screen.getByText("Couldn't load your team")).toBeTruthy()
+  })
+
+  it('groups people by the departments the user heads, shows empty ones, and opens their details', () => {
+    useTeamMemberDetails.mockReturnValue({
+      details: {
+        staffId: 's-5',
+        fullName: 'Kemi Ade',
+        jobTitle: 'Analyst',
+        department: 'Sales',
+        managerName: 'Bola Boss',
+        email: 'kemi@example.com',
+        phone: null,
+        startDate: '2026-01-05',
+        status: 'active',
+        joinedAt: '2026-01-06T00:00:00.000Z',
+      },
+      isLoading: false,
+    })
+    useMyTeam.mockReturnValue({
+      team: {
+        weekStart: '2026-11-02',
+        members: [
+          {
+            staffId: 's-5',
+            fullName: 'Kemi Ade',
+            jobTitle: 'Analyst',
+            reportId: null,
+            goalsWaiting: 0,
+            relation: 'department',
+            departmentName: 'Sales',
+          },
+        ],
+        departments: [
+          { id: 'd-1', name: 'Sales' },
+          { id: 'd-2', name: 'Support' },
+        ],
+      },
+      isLoading: false,
+    })
+    render(<MyTeam managerStaffId="m-1" />)
+
+    expect(
+      screen.getByText('You see this tab because you head Sales, Support.'),
+    ).toBeTruthy()
+    expect(screen.queryByText('Your direct reports')).toBeNull()
+    expect(screen.getByText('No one is in Support yet.')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open' }))
+    expect(useTeamMemberDetails).toHaveBeenCalledWith('m-1', 's-5')
+    expect(screen.getByText('kemi@example.com')).toBeTruthy()
+    expect(screen.getByText('Bola Boss')).toBeTruthy()
+  })
+
+  it("doesn't show details for a direct report outside the user's departments", () => {
+    useMyTeam.mockReturnValue({
+      team: { weekStart: '2026-11-02', members, departments: [] },
+      isLoading: false,
+    })
+    render(<MyTeam managerStaffId="m-1" />)
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Open' })[0]!)
+
+    expect(screen.queryByText('Details')).toBeNull()
+    expect(useTeamMemberDetails).not.toHaveBeenCalled()
   })
 })

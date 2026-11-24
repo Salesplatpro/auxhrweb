@@ -274,6 +274,24 @@
   }
 }
 
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+
+  dt {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: var(--weight-semibold);
+    overflow-wrap: anywhere;
+  }
+}
+
 .linkButton {
   padding: 0;
   border: 0;

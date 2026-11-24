@@ -154,6 +154,7 @@ const Company = () => {
             <DepartmentsCard
               organization={activeOrg}
               canEdit={canManagePeople}
+              canAssignHeads={activeOrg.ownerId === profile?.id}
             />
             <ReferenceQuestionsCard organizationId={activeOrg.id} />
             {isCompanyCreator && teamOrg && (

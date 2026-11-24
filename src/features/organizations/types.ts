@@ -38,6 +38,14 @@ export interface Organization {
   updatedAt: string
 }
 
+export interface Department {
+  id: string
+  name: string
+  head: { staffId: string; fullName: string } | null
+  /** Current people in the department. */
+  staffCount: number
+}
+
 export interface UsageMeter {
   key: string
   label: string

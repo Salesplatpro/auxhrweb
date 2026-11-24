@@ -7,9 +7,12 @@ import { notify } from '@/utils/toastNotifications'
 
 import {
   addDepartment,
+  departmentsKey,
+  fetchDepartments,
   fetchJobFeed,
   jobFeedKey,
   removeDepartment,
+  setDepartmentHead,
   updateMember,
   updateOrganization,
 } from '../services/organizationService'
@@ -23,15 +26,24 @@ const useRefreshOrganizations = () => {
   return () => Promise.all([mutateOrganizations(), mutateProfile()])
 }
 
+export const useDepartmentList = (organizationId: string) => {
+  const { data, isLoading, error } = useSWR(
+    departmentsKey(organizationId),
+    () => fetchDepartments(organizationId),
+  )
+  return { departments: data ?? [], isLoading, error }
+}
+
 export const useDepartments = (organizationId: string) => {
   const refresh = useRefreshOrganizations()
+  const { mutate } = useSWRConfig()
   const [isSaving, setIsSaving] = useState(false)
 
   const run = async (action: () => Promise<unknown>, fallback: string) => {
     setIsSaving(true)
     try {
       await action()
-      await refresh()
+      await Promise.all([refresh(), mutate(departmentsKey(organizationId))])
       return true
     } catch (error) {
       notify('error', getErrorMessage(error, fallback))
@@ -52,6 +64,11 @@ export const useDepartments = (organizationId: string) => {
       run(
         () => removeDepartment(organizationId, name),
         "Couldn't remove the department",
+      ),
+    setHead: (departmentId: string, staffId: string | null) =>
+      run(
+        () => setDepartmentHead(organizationId, departmentId, staffId),
+        "Couldn't change the head",
       ),
   }
 }

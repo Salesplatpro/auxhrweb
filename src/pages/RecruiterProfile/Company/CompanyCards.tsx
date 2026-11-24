@@ -6,17 +6,20 @@ import { MdContentCopy } from 'react-icons/md'
 import { Link } from 'react-router-dom'
 
 import { TextInput } from '@/components/forms'
+import { Select } from '@/components/forms/Select'
 import { PagePanel } from '@/components/layout/PagePanel'
 import { StatusBadge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Switch } from '@/components/ui/Switch'
 import {
+  useDepartmentList,
   useDepartments,
   useJobFeed,
 } from '@/features/organizations/hooks/useCompanyDetails'
 import { useOrganizationUsage } from '@/features/organizations/hooks/useOrganizationUsage'
-import { Organization } from '@/features/organizations/types'
+import { Department, Organization } from '@/features/organizations/types'
 import { getOrganizationStatusBadge } from '@/features/organizations/utils/getOrganizationStatusBadge'
+import { useStaffOptions } from '@/features/people/hooks/useStaffData'
 import { usePricingCatalog } from '@/features/pricing/hooks/usePricingCatalog'
 import { getPlanDisplayName } from '@/features/pricing/utils/getPlanDisplayName'
 import { notify } from '@/utils/toastNotifications'
@@ -123,16 +126,31 @@ export const AboutCompanyCard = ({
   </PagePanel>
 )
 
+const NO_HEAD = ''
+
 export const DepartmentsCard = ({
   organization,
   canEdit,
+  canAssignHeads,
 }: {
   organization: Organization
   canEdit: boolean
+  canAssignHeads: boolean
 }) => {
-  const { add, remove, isSaving } = useDepartments(organization.id)
+  const { add, remove, setHead, isSaving } = useDepartments(organization.id)
+  const { departments } = useDepartmentList(organization.id)
+  const { options } = useStaffOptions(organization.id, {
+    enabled: canAssignHeads,
+  })
   const [name, setName] = useState('')
-  const departments = organization.departments ?? []
+  const headOptions = [
+    { value: NO_HEAD, label: 'No head' },
+    ...options.map((person) => ({
+      value: person.id,
+      label: person.fullName,
+      description: person.jobTitle,
+    })),
+  ]
 
   const handleAdd = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -141,23 +159,66 @@ export const DepartmentsCard = ({
     if (await add(clean)) setName('')
   }
 
+  const handleRemove = (department: Department) => {
+    const people = department.staffCount
+    if (
+      people > 0 &&
+      !window.confirm(
+        `${people} ${
+          people === 1 ? 'person' : 'people'
+        } will have no department. Remove ${department.name}?`,
+      )
+    ) {
+      return
+    }
+    void remove(department.name)
+  }
+
   return (
     <PagePanel
       title="Departments"
-      hint="Used when you add employees. Removing one doesn't change anyone already in it.">
+      hint="Used when you add employees. The company's creator picks a head for each department, who manages everyone in it from My work.">
       {departments.length === 0 ? (
         <p className={styles.muted}>No departments yet.</p>
       ) : (
-        <ul className={styles.chips}>
+        <ul className={styles.departmentList}>
           {departments.map((department) => (
-            <li key={department} className={styles.chip}>
-              {department}
+            <li key={department.id} className={styles.departmentRow}>
+              <div className={styles.departmentName}>
+                <strong>{department.name}</strong>
+                <span className={styles.muted}>
+                  {department.staffCount}{' '}
+                  {department.staffCount === 1 ? 'person' : 'people'}
+                </span>
+              </div>
+              {canAssignHeads ? (
+                <div className={styles.departmentHead}>
+                  <Select
+                    name={`head-${department.id}`}
+                    label={`Head of ${department.name}`}
+                    options={headOptions}
+                    value={department.head?.staffId ?? NO_HEAD}
+                    disabled={isSaving}
+                    searchable
+                    onChange={(staffId) =>
+                      void setHead(department.id, staffId || null)
+                    }
+                  />
+                </div>
+              ) : (
+                <span className={styles.muted}>
+                  {department.head
+                    ? `Head: ${department.head.fullName}`
+                    : 'No head yet'}
+                </span>
+              )}
               {canEdit && (
                 <button
                   type="button"
-                  aria-label={`Remove ${department}`}
+                  className={styles.departmentRemove}
+                  aria-label={`Remove ${department.name}`}
                   disabled={isSaving}
-                  onClick={() => void remove(department)}>
+                  onClick={() => handleRemove(department)}>
                   <IoClose aria-hidden />
                 </button>
               )}

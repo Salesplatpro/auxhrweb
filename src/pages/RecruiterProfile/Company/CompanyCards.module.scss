@@ -91,32 +91,46 @@
   border-top: 1px solid var(--color-border);
 }
 
-.chips {
+.departmentList {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  flex-direction: column;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.chip {
-  display: inline-flex;
+.departmentRow {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  border-radius: 999px;
-  background: var(--color-bg-subtle);
-  font-size: var(--text-sm);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
 
-  button {
-    display: inline-flex;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--color-text-muted);
-    cursor: pointer;
+  &:last-child {
+    border-bottom: 0;
   }
+}
+
+.departmentName {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 10rem;
+}
+
+.departmentHead {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.departmentRemove {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
 }
 
 .addRow {

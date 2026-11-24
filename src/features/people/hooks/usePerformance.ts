@@ -10,9 +10,11 @@ import {
   fetchOrgChart,
   fetchPerformance,
   fetchQuarterlyReview,
+  fetchTeamMemberDetails,
   myPerformanceKey,
   orgChartKey,
   quarterlyReviewKey,
+  teamMemberDetailsKey,
 } from '../services/peopleService'
 
 /** Each of these reads writes an access log line, so focus and reconnect don't refetch. */
@@ -47,6 +49,18 @@ export const useMyTeam = (managerStaffId: string) => {
     VIEW_LOGGED_OPTIONS,
   )
   return { team: data ?? null, isLoading, hasError: !!error }
+}
+
+export const useTeamMemberDetails = (
+  managerStaffId: string,
+  staffId: string | null,
+) => {
+  const { data, error, isLoading } = useSWR(
+    staffId ? teamMemberDetailsKey(managerStaffId, staffId) : null,
+    () => fetchTeamMemberDetails(managerStaffId, staffId!),
+    VIEW_LOGGED_OPTIONS,
+  )
+  return { details: data ?? null, isLoading, hasError: !!error }
 }
 
 export const useOrgChart = (organizationId: string | null) => {

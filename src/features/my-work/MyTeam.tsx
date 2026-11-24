@@ -8,9 +8,12 @@ import { Avatar } from '@/components/ui/Avatar'
 import { StatusBadge } from '@/components/ui/Badge/StatusBadge'
 import { Spinner } from '@/components/ui/Spinner'
 import { PerformanceCards } from '@/features/people/components/performance/PerformanceCards'
-import { useMyTeam } from '@/features/people/hooks/usePerformance'
+import {
+  useMyTeam,
+  useTeamMemberDetails,
+} from '@/features/people/hooks/usePerformance'
 import { teamPerformanceBase } from '@/features/people/services/peopleService'
-import { TeamMember } from '@/features/people/types'
+import { MyTeamData, TeamMember } from '@/features/people/types'
 import { formatDateOnly } from '@/features/people/utils/formatDate'
 
 import styles from './MyWork.module.scss'
@@ -25,6 +28,27 @@ const nameParts = (fullName: string) => {
   return { firstName, lastName }
 }
 
+const peopleCount = (count: number) =>
+  `${count} ${count === 1 ? 'person' : 'people'}`
+
+const isReport = (member: TeamMember) => member.relation !== 'department'
+const inDepartment = (member: TeamMember) => member.relation !== 'report'
+
+const whyLine = (team: MyTeamData, reports: number) => {
+  const parts = []
+  if (reports > 0) {
+    parts.push(
+      `${reports} ${reports === 1 ? 'person reports' : 'people report'} to you`,
+    )
+  }
+  if (team.departments.length > 0) {
+    parts.push(
+      `you head ${team.departments.map((item) => item.name).join(', ')}`,
+    )
+  }
+  return parts.length ? `You see this tab because ${parts.join(' and ')}.` : ''
+}
+
 const ReportBadge: React.FC<{ submitted: boolean }> = ({ submitted }) => (
   <StatusBadge
     status={submitted ? 'Submitted' : 'Not yet'}
@@ -34,6 +58,79 @@ const ReportBadge: React.FC<{ submitted: boolean }> = ({ submitted }) => (
     color={submitted ? 'var(--color-positive)' : 'var(--color-caution-text)'}
   />
 )
+
+const MemberList: React.FC<{
+  members: TeamMember[]
+  onOpen: (member: TeamMember) => void
+}> = ({ members, onOpen }) => (
+  <ul className={styles.list}>
+    {members.map((member) => (
+      <li key={member.staffId}>
+        <span className={styles.person}>
+          <Avatar {...nameParts(member.fullName)} size="md" />
+          <span>
+            <strong>{member.fullName}</strong>
+            <span className={styles.muted}>{member.jobTitle}</span>
+          </span>
+        </span>
+        <span className={styles.teamStatus}>
+          <span className={styles.muted}>This week&apos;s report</span>
+          <ReportBadge submitted={!!member.reportId} />
+        </span>
+        <span className={styles.muted}>{goalsLine(member.goalsWaiting)}</span>
+        <Button size="sm" variant="outline" onClick={() => onOpen(member)}>
+          Open
+        </Button>
+      </li>
+    ))}
+  </ul>
+)
+
+const MemberDetails: React.FC<{ managerStaffId: string; staffId: string }> = ({
+  managerStaffId,
+  staffId,
+}) => {
+  const { details, isLoading, hasError } = useTeamMemberDetails(
+    managerStaffId,
+    staffId,
+  )
+  return (
+    <PagePanel title="Details">
+      {isLoading ? (
+        <Spinner />
+      ) : hasError || !details ? (
+        <p className={styles.muted}>Couldn&apos;t load these details.</p>
+      ) : (
+        <dl className={styles.facts}>
+          <div>
+            <dt>Department</dt>
+            <dd>{details.department ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>Manager</dt>
+            <dd>{details.managerName ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{details.email}</dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd>{details.phone ?? '—'}</dd>
+          </div>
+          <div>
+            <dt>Started</dt>
+            <dd>{formatDateOnly(details.startDate)}</dd>
+          </div>
+          <div>
+            <dt>On AuxHR</dt>
+            <dd>{details.joinedAt ? 'Joined' : 'Not joined yet'}</dd>
+          </div>
+        </dl>
+      )}
+    </PagePanel>
+  )
+}
 
 export const MyTeam: React.FC<{ managerStaffId: string }> = ({
   managerStaffId,
@@ -68,6 +165,12 @@ export const MyTeam: React.FC<{ managerStaffId: string }> = ({
             {member.jobTitle} · week of {formatDateOnly(team.weekStart)}
           </p>
         </PagePanel>
+        {inDepartment(member) && (
+          <MemberDetails
+            managerStaffId={managerStaffId}
+            staffId={member.staffId}
+          />
+        )}
         <PerformanceCards
           base={teamPerformanceBase(managerStaffId, member.staffId)}
           firstName={member.fullName.split(' ')[0]}
@@ -83,51 +186,49 @@ export const MyTeam: React.FC<{ managerStaffId: string }> = ({
     )
   }
 
+  const reports = team.members.filter(isReport)
+  const why = whyLine(team, reports.length)
+
   return (
     <div className={styles.stack}>
-      {team.members.length > 0 && (
+      {why && (
         <Alert variant="info" icon={<LuUsers aria-hidden />}>
-          You see this tab because {team.members.length}{' '}
-          {team.members.length === 1 ? 'person reports' : 'people report'} to
-          you.
+          {why}
         </Alert>
       )}
-      <PagePanel
-        title="Direct reports"
-        hint={`${team.members.length} ${
-          team.members.length === 1 ? 'person' : 'people'
-        } · week of ${formatDateOnly(team.weekStart)}`}>
-        {team.members.length === 0 ? (
-          <p className={styles.muted}>Nobody reports to you right now.</p>
-        ) : (
-          <ul className={styles.list}>
-            {team.members.map((member) => (
-              <li key={member.staffId}>
-                <span className={styles.person}>
-                  <Avatar {...nameParts(member.fullName)} size="md" />
-                  <span>
-                    <strong>{member.fullName}</strong>
-                    <span className={styles.muted}>{member.jobTitle}</span>
-                  </span>
-                </span>
-                <span className={styles.teamStatus}>
-                  <span className={styles.muted}>This week&apos;s report</span>
-                  <ReportBadge submitted={!!member.reportId} />
-                </span>
-                <span className={styles.muted}>
-                  {goalsLine(member.goalsWaiting)}
-                </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setOpen(member)}>
-                  Open
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </PagePanel>
+      {(reports.length > 0 || team.departments.length === 0) && (
+        <PagePanel
+          title="Your direct reports"
+          hint={`${peopleCount(reports.length)} · week of ${formatDateOnly(
+            team.weekStart,
+          )}`}>
+          {reports.length === 0 ? (
+            <p className={styles.muted}>Nobody reports to you right now.</p>
+          ) : (
+            <MemberList members={reports} onOpen={setOpen} />
+          )}
+        </PagePanel>
+      )}
+      {team.departments.map((department) => {
+        const members = team.members.filter(
+          (member) =>
+            inDepartment(member) && member.departmentName === department.name,
+        )
+        return (
+          <PagePanel
+            key={department.id}
+            title={department.name}
+            hint={`${peopleCount(members.length)} · you head this department`}>
+            {members.length === 0 ? (
+              <p className={styles.muted}>
+                No one is in {department.name} yet.
+              </p>
+            ) : (
+              <MemberList members={members} onOpen={setOpen} />
+            )}
+          </PagePanel>
+        )
+      })}
     </div>
   )
 }

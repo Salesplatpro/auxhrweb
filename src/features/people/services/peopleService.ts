@@ -66,6 +66,7 @@ import {
   StaffMember,
   StaffOption,
   TaskOwner,
+  TeamMemberDetails,
   UpdateStaffPayload,
   WeeklyReport,
   WeeklyReportText,
@@ -758,6 +759,17 @@ export const fetchMyPerformance = (staffId: string) =>
 
 export const fetchMyTeam = (managerStaffId: string) =>
   unwrap<MyTeamData>(httpClient.get(`${MY_WORK_KEY}/${managerStaffId}/team`))
+
+export const teamMemberDetailsKey = (managerStaffId: string, staffId: string) =>
+  `${teamPerformanceBase(managerStaffId, staffId)}/details`
+
+export const fetchTeamMemberDetails = (
+  managerStaffId: string,
+  staffId: string,
+) =>
+  unwrap<TeamMemberDetails>(
+    httpClient.get(teamMemberDetailsKey(managerStaffId, staffId)),
+  )
 
 export const writeJobDescription = (organizationId: string, staffId: string) =>
   unwrap<{ draft: { body: string } }>(

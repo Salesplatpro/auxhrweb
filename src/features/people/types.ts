@@ -693,11 +693,30 @@ export interface TeamMember {
   jobTitle: string
   reportId: string | null
   goalsWaiting: number
+  /** Reports to this person, is in a department they head, or both. */
+  relation: 'report' | 'department' | 'both'
+  departmentName: string | null
 }
 
 export interface MyTeamData {
   weekStart: string
   members: TeamMember[]
+  /** Departments this person heads, including empty ones. */
+  departments: Array<{ id: string; name: string }>
+}
+
+/** What a department head may see about someone in their department. */
+export interface TeamMemberDetails {
+  staffId: string
+  fullName: string
+  jobTitle: string
+  department: string | null
+  managerName: string | null
+  email: string
+  phone: string | null
+  startDate: string
+  status: StaffStatus
+  joinedAt: string | null
 }
 
 export interface OrgChartPerson {

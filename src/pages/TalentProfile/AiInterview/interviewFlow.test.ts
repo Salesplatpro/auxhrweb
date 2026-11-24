@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 
 import {
   chooseRecordingMimeType,
+  elapsedSince,
+  extensionFor,
   formatClock,
   isRecordingLimitReached,
+  mediaErrorMessage,
   nextUnansweredIndex,
   RECORDING_LIMIT_SECONDS,
   secondsLeft,
@@ -43,11 +46,36 @@ describe('interviewFlow', () => {
     expect(uploadPercent(10, 0)).toBe(0)
   })
 
-  it('asks for video only when the interview is audio and video', () => {
+  it('asks for video only when the interview is audio and video, and never audio for a video stream', () => {
     const supported = (type: string) =>
       type === 'video/webm' || type === 'audio/webm'
     expect(chooseRecordingMimeType('audio_video', supported)).toBe('video/webm')
     expect(chooseRecordingMimeType('audio', supported)).toBe('audio/webm')
     expect(chooseRecordingMimeType('audio', () => false)).toBe('')
+    const safari = (type: string) => type.endsWith('mp4')
+    expect(chooseRecordingMimeType('audio_video', safari)).toBe('video/mp4')
+    expect(chooseRecordingMimeType('audio', safari)).toBe('audio/mp4')
+    const audioOnly = (type: string) => type.startsWith('audio/')
+    expect(chooseRecordingMimeType('audio_video', audioOnly)).toBe('')
+  })
+
+  it('counts elapsed time from the start, not from timer ticks', () => {
+    expect(elapsedSince(1_000, 1_000)).toBe(0)
+    expect(elapsedSince(1_000, 121_500)).toBe(120)
+    expect(elapsedSince(5_000, 1_000)).toBe(0)
+  })
+
+  it('names the file after its real type', () => {
+    expect(extensionFor('video/mp4')).toBe('mp4')
+    expect(extensionFor('audio/ogg;codecs=opus')).toBe('ogg')
+    expect(extensionFor('video/webm;codecs=vp8,opus')).toBe('webm')
+  })
+
+  it('tells camera and microphone problems apart', () => {
+    const named = (name: string) => Object.assign(new Error('x'), { name })
+    expect(mediaErrorMessage(named('NotAllowedError'))).toMatch(/Allow/)
+    expect(mediaErrorMessage(named('NotFoundError'))).toMatch(/couldn’t find/)
+    expect(mediaErrorMessage(named('NotReadableError'))).toMatch(/Another app/)
+    expect(mediaErrorMessage(null)).toMatch(/Chrome or Safari/)
   })
 })

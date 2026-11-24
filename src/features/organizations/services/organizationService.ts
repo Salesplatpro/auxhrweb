@@ -5,6 +5,7 @@ import { httpClient } from '@/features/auth/services/httpClient'
 import {
   AccessCodeApiResponse,
   CreateOrganizationPayload,
+  Department,
   InviteApiResponse,
   InvitePreviewApiResponse,
   InvitesApiResponse,
@@ -147,6 +148,25 @@ export const addDepartment = (organizationId: string, name: string) =>
       { name },
     )
     .then((response) => response.data.data.departments)
+
+export const departmentsKey = (organizationId: string) =>
+  `/organizations/${organizationId}/departments`
+
+export const fetchDepartments = (organizationId: string) =>
+  httpClient
+    .get<{ data: { departments: Department[] } }>(
+      departmentsKey(organizationId),
+    )
+    .then((response) => response.data.data.departments)
+
+export const setDepartmentHead = (
+  organizationId: string,
+  departmentId: string,
+  staffId: string | null,
+) =>
+  httpClient.put(`${departmentsKey(organizationId)}/${departmentId}/head`, {
+    staffId,
+  })
 
 export const removeDepartment = (organizationId: string, name: string) =>
   httpClient

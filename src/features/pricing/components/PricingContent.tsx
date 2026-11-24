@@ -8,6 +8,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { notify } from '@/utils/toastNotifications'
 
+import { useDisplayCurrency } from '../hooks/useDisplayCurrency'
 import { usePaidCheckout } from '../hooks/usePaidCheckout'
 import { usePricingCatalog } from '../hooks/usePricingCatalog'
 import {
@@ -36,6 +37,7 @@ export const PricingContent: React.FC<PricingContentProps> = ({
   currentPlan = DEFAULT_BILLING_PLAN_KEY,
 }) => {
   const { catalog, isLoading, error } = usePricingCatalog()
+  const { currency, isLoading: isFindingCurrency } = useDisplayCurrency()
   const { startCheckout, checkingOutPlanKey } = usePaidCheckout()
   const [interval, setInterval] = useState<BillingInterval>('monthly')
   const [canPrev, setCanPrev] = useState(false)
@@ -76,7 +78,9 @@ export const PricingContent: React.FC<PricingContentProps> = ({
     el.scrollBy({ left: direction * step, behavior: 'smooth' })
   }
 
-  if (isLoading) return <Spinner fullPage={variant === 'public'} />
+  if (isLoading || isFindingCurrency) {
+    return <Spinner fullPage={variant === 'public'} />
+  }
   if (error || !catalog) {
     return (
       <p className={styles.unavailable}>Pricing is temporarily unavailable.</p>
@@ -171,6 +175,7 @@ export const PricingContent: React.FC<PricingContentProps> = ({
             <PricingCard
               key={plan.key}
               plan={plan}
+              currency={currency}
               currencySymbol={catalog.currencySymbol}
               isYearly={isYearly}
               isCurrent={currentPlan === plan.key && variant === 'dashboard'}

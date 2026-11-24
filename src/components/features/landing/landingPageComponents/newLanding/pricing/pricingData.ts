@@ -1,3 +1,4 @@
+import type { DisplayCurrency } from '@/features/pricing/hooks/useDisplayCurrency'
 import { PricingCatalog } from '@/features/pricing/types'
 
 export type Audience = 'recruiter' | 'talent'
@@ -59,7 +60,10 @@ export const comparisonSections: ComparisonSection[] = [
 
 export type PricingFaqItem = { question: string; answer: string }
 
-export const pricingFaqs = (catalog: PricingCatalog): PricingFaqItem[] => [
+export const pricingFaqs = (
+  catalog: PricingCatalog,
+  currency: DisplayCurrency,
+): PricingFaqItem[] => [
   {
     question: 'Is there a free trial?',
     answer: `Yes. SME Basic starts with a 7-day free trial, and every subscription comes with a ${catalog.guarantee.toLowerCase()}.`,
@@ -72,7 +76,9 @@ export const pricingFaqs = (catalog: PricingCatalog): PricingFaqItem[] => [
   {
     question: 'Which payment methods do you accept?',
     answer:
-      'Checkout runs securely through Paystack. Plans are billed in Naira (NGN); USD prices are shown for reference.',
+      currency === 'NGN'
+        ? 'Checkout runs securely through Paystack. Plans are billed in naira.'
+        : 'Checkout runs securely through Paystack. Prices are shown in US dollars. You pay the naira amount at checkout and your bank converts it.',
   },
   {
     question: 'What counts as an active job listing?',

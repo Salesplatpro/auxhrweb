@@ -1,3 +1,5 @@
+import { formatPlanPrice } from '@/features/pricing/formatPlanPrice'
+import type { DisplayCurrency } from '@/features/pricing/hooks/useDisplayCurrency'
 import {
   BillingInterval,
   DEFAULT_BILLING_PLAN_KEY,
@@ -5,43 +7,36 @@ import {
   PricingPlan,
 } from '@/features/pricing/types'
 
-const formatUsd = (amount: number) => `$${amount.toLocaleString('en-US')}`
-
-const formatNgn = (amount: number, symbol: string) =>
-  `${symbol}${amount.toLocaleString('en-NG')}`
-
 export type PlanPrice = { amount: string; suffix: string; caption: string }
 
 export const planPrice = (
   plan: PricingPlan,
   interval: BillingInterval,
+  currency: DisplayCurrency,
   currencySymbol: string,
 ): PlanPrice => {
   if (plan.key === DEFAULT_BILLING_PLAN_KEY) {
     return {
-      amount: formatUsd(plan.monthlyAmountUsd),
+      amount:
+        formatPlanPrice(plan, 'monthly', currency, currencySymbol).amount ??
+        '—',
       suffix: '/job listing',
-      caption: `${formatNgn(
-        plan.monthlyAmountNgn,
-        currencySymbol,
-      )} per listing, no subscription`,
+      caption: 'Per listing, no subscription',
     }
   }
 
-  const useYearly =
-    interval === 'annually' &&
-    plan.yearlyAmountUsd != null &&
-    plan.yearlyAmountNgn != null
-  const ngn = useYearly
-    ? `${formatNgn(plan.yearlyAmountNgn ?? 0, currencySymbol)} billed annually`
-    : `${formatNgn(plan.monthlyAmountNgn, currencySymbol)} billed monthly`
-
+  const { amount, yearly } = formatPlanPrice(
+    plan,
+    interval,
+    currency,
+    currencySymbol,
+  )
   return {
-    amount: formatUsd(
-      useYearly ? plan.yearlyAmountUsd ?? 0 : plan.monthlyAmountUsd,
-    ),
-    suffix: useYearly ? '/year' : '/month',
-    caption: [ngn, plan.priceCaption].filter(Boolean).join(' · '),
+    amount: amount ?? '—',
+    suffix: yearly ? '/year' : '/month',
+    caption: [yearly ? 'Billed annually' : 'Billed monthly', plan.priceCaption]
+      .filter(Boolean)
+      .join(' · '),
   }
 }
 

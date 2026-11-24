@@ -59,20 +59,10 @@
 .price {
   margin: 0;
   font-family: var(--font-heading);
+  font-size: clamp(1.75rem, 3vw, 2.15rem);
   font-weight: var(--weight-bold);
   line-height: 1.15;
   color: var(--color-text-heading);
-}
-
-.priceUsd {
-  font-size: clamp(1.75rem, 3vw, 2.15rem);
-}
-
-.priceNgn {
-  margin-left: var(--space-2);
-  font-size: var(--text-md);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-muted);
 }
 
 .planCaption {

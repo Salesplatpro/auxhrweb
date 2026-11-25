@@ -6,7 +6,12 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 
 import { actionLabel, stepDescription } from '../stepCopy'
-import { STEP_TITLE, stepActionPath, TEST_KIND_BY_STEP } from '../steps'
+import {
+  awaitingChecks,
+  STEP_TITLE,
+  stepActionPath,
+  TEST_KIND_BY_STEP,
+} from '../steps'
 import { PipelineStep } from '../types'
 import styles from './PipelineSteps.module.scss'
 
@@ -27,11 +32,13 @@ export const PipelineSteps = ({
       {steps.map((step) => {
         const path = stepActionPath(applicationId, step)
         const label = actionLabel(step)
+        const checks = awaitingChecks(step)
         const showAction =
           !!label &&
-          (step.state === 'current'
-            ? !!path
-            : step.state === 'upcoming' && !!TEST_KIND_BY_STEP[step.key])
+          (checks ||
+            (step.state === 'current'
+              ? !!path
+              : step.state === 'upcoming' && !!TEST_KIND_BY_STEP[step.key]))
         return (
           <li
             key={step.key}
@@ -49,8 +56,10 @@ export const PipelineSteps = ({
               </span>
               {showAction && (
                 <Button
-                  variant={step.state === 'current' ? 'gradient' : 'outline'}
-                  disabled={step.state !== 'current'}
+                  variant={
+                    step.state === 'current' || checks ? 'gradient' : 'outline'
+                  }
+                  disabled={step.state !== 'current' && !checks}
                   className={styles.action}
                   onClick={() => path && navigate(path)}>
                   {label}

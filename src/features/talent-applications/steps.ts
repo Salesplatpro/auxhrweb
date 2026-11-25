@@ -10,7 +10,6 @@ export const STEP_TITLE: Record<PipelineStepKey, string> = {
   personality: 'Personality check',
   ai_interview: 'Recorded AI interview',
   references: 'References',
-  checks: 'Background checks',
   company_review: 'Company review',
 }
 
@@ -27,6 +26,10 @@ export const TEST_KIND_BY_STEP: Partial<Record<PipelineStepKey, TestKind>> = {
   personality: 'personality',
 }
 
+/** Company review is waiting on the candidate's answer to the background checks. */
+export const awaitingChecks = (step: PipelineStep) =>
+  step.key === 'company_review' && !!step.checks && !step.checks.answeredAt
+
 export const applicationPath = (applicationId: string) =>
   `/talentDashboard/applications/${applicationId}`
 
@@ -40,7 +43,7 @@ export const stepActionPath = (
   if (step.key === 'references') {
     return `${applicationPath(applicationId)}/references`
   }
-  if (step.key === 'checks') return `${applicationPath(applicationId)}/checks`
+  if (awaitingChecks(step)) return `${applicationPath(applicationId)}/checks`
   if (step.key === 'ai_interview' && step.interviewId) {
     return `/talentDashboard/interview/${step.interviewId}`
   }

@@ -8,7 +8,6 @@ export type PipelineStepKey =
   | 'personality'
   | 'ai_interview'
   | 'references'
-  | 'checks'
   | 'company_review'
 
 export type PipelineStepState = 'done' | 'current' | 'upcoming'
@@ -40,6 +39,8 @@ export interface PipelineStep {
   refereeCount: number | null
   maxReferees: number | null
   outcome: 'shortlisted' | 'not_proceeding' | null
+  /** On company review only: the company asked to run background checks. */
+  checks?: { requestedAt: string | null; answeredAt: string | null } | null
 }
 
 export interface PipelineOrganization {

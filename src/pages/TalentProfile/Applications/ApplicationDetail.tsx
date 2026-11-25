@@ -15,6 +15,7 @@ import { PipelineSteps } from '@/features/talent-applications/PipelineSteps/Pipe
 import { nextStepCopy } from '@/features/talent-applications/stepCopy'
 import {
   applicationPath,
+  awaitingChecks,
   STEP_TITLE,
   stepActionPath,
 } from '@/features/talent-applications/steps'
@@ -40,7 +41,6 @@ const nextButtonLabel = (step: PipelineStep) => {
   if (step.key === 'ai_interview') return 'Start interview'
   if (step.key === 'skills_test') return 'Take skills test'
   if (step.key === 'references') return 'Add referees'
-  if (step.key === 'checks') return 'Review and answer'
   return `Start ${STEP_TITLE[step.key].toLowerCase()}`
 }
 
@@ -65,7 +65,19 @@ const ApplicationDetail = () => {
   const { application, steps, nextStep, currentStep, totalSteps } = pipeline
   const { job } = application
   const company = job.organization?.name ?? ''
-  const nextPath = nextStep ? stepActionPath(applicationId, nextStep) : null
+  const checksStep = steps.find(awaitingChecks)
+  const nextAction =
+    nextStep && stepActionPath(applicationId, nextStep)
+      ? {
+          path: stepActionPath(applicationId, nextStep)!,
+          label: nextButtonLabel(nextStep),
+        }
+      : checksStep
+      ? {
+          path: stepActionPath(applicationId, checksStep)!,
+          label: 'Review and answer',
+        }
+      : null
   const scores = SCORE_ROWS.flatMap((row) => {
     const step = steps.find((item) => item.key === row.key)
     return step ? [{ ...row, value: scoreValue(step) }] : []
@@ -132,13 +144,13 @@ const ApplicationDetail = () => {
           <section className={styles.card}>
             <h2 className={styles.cardTitle}>Next step</h2>
             <p className={styles.cardText}>{nextStepCopy(pipeline)}</p>
-            {nextStep && nextPath && (
+            {nextAction && (
               <Button
                 variant="gradient"
                 size="lg"
                 stretch
-                onClick={() => navigate(nextPath)}>
-                {nextButtonLabel(nextStep)}
+                onClick={() => navigate(nextAction.path)}>
+                {nextAction.label}
               </Button>
             )}
           </section>

@@ -80,12 +80,17 @@ describe('step descriptions', () => {
 })
 
 describe('next step copy', () => {
-  const pipeline = (next: PipelineStep | null, status = 'pending') =>
+  const pipeline = (
+    next: PipelineStep | null,
+    status = 'pending',
+    steps: PipelineStep[] = [],
+  ) =>
     ({
       application: {
         status,
         job: { organization: { name: 'Kosana Tech Ltd' } },
       },
+      steps,
       nextStep: next,
     } as unknown as CandidatePipeline)
 
@@ -113,5 +118,30 @@ describe('next step copy', () => {
     expect(nextStepCopy(pipeline(null, 'not_proceeding'))).toBe(
       'Kosana Tech Ltd decided not to move forward with this application.',
     )
+  })
+
+  it('asks a shortlisted candidate to answer the background checks inside company review', () => {
+    const review = step({
+      key: 'company_review',
+      state: 'done',
+      outcome: 'shortlisted',
+      checks: { requestedAt: '2026-11-20T10:00:00Z', answeredAt: null },
+    })
+
+    expect(stepDescription(review, 'Kosana Tech Ltd')).toBe(
+      'Shortlisted · Review and answer background checks',
+    )
+    expect(nextStepCopy(pipeline(null, 'shortlisted', [review]))).toBe(
+      'Kosana Tech Ltd shortlisted you. Kosana Tech Ltd would like to check your identity, past jobs and education. It takes about 2 minutes, and you can say no.',
+    )
+    expect(
+      stepDescription(
+        {
+          ...review,
+          checks: { ...review.checks!, answeredAt: '2026-11-21T10:00:00Z' },
+        },
+        'Kosana Tech Ltd',
+      ),
+    ).toBe('Shortlisted')
   })
 })

@@ -6,6 +6,7 @@ import {
   HiOutlineOfficeBuilding,
 } from 'react-icons/hi'
 import {
+  HiOutlineBanknotes,
   HiOutlineCpuChip,
   HiOutlineLifebuoy,
   HiOutlineUserCircle,
@@ -57,6 +58,11 @@ export const adminSidebarData = [
     name: 'AI Models',
     icon: <HiOutlineCpuChip size={ICON_SIZE} />,
     link: '/adminDashboard/ai-models',
+  },
+  {
+    name: 'AI Usage',
+    icon: <HiOutlineBanknotes size={ICON_SIZE} />,
+    link: '/adminDashboard/ai-usage',
   },
   {
     name: 'Support',

@@ -232,9 +232,13 @@ const AiModels = () => {
               </a>
               <span
                 className={
-                  provider.configured ? styles.configured : styles.missing
+                  provider.configured && !provider.outOfCreditSince
+                    ? styles.configured
+                    : styles.missing
                 }>
-                {provider.configured
+                {provider.outOfCreditSince
+                  ? 'Out of credit'
+                  : provider.configured
                   ? 'Ready'
                   : `Add ${provider.envKey} to the environment`}
               </span>

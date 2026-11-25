@@ -58,6 +58,7 @@ import { LandingPage } from '@/LandingPage'
 import { MainLayout, Resources } from '@/pages'
 import AdminProfileSidebar from '@/pages/AdminProfile/AdminProfileSidebar'
 import AiModels from '@/pages/AdminProfile/AiModels/AiModels'
+import AiUsage from '@/pages/AdminProfile/AiUsage/AiUsage'
 import Applications from '@/pages/AdminProfile/Applications/Applications'
 import AdminJobDetail from '@/pages/AdminProfile/JobDetail/AdminJobDetail'
 import Jobs from '@/pages/AdminProfile/Jobs/Jobs'
@@ -722,6 +723,10 @@ export const routeConfig: RouteObject[] = [
               {
                 path: 'ai-models',
                 element: <AiModels />,
+              },
+              {
+                path: 'ai-usage',
+                element: <AiUsage />,
               },
               {
                 path: 'support',

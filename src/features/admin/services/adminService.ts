@@ -18,6 +18,8 @@ import {
   AiModelsOverview,
   AiPromptPart,
   AiSkill,
+  AiUsageOverview,
+  AiUsageRange,
   ApplicationFollowUp,
   ApplicationFollowUpEmailRecord,
   OnboardingEmailRecord,
@@ -248,6 +250,11 @@ export const deleteAdminOrganization = (id: string) =>
   httpClient
     .delete<ApiEnvelope<null>>(`/admin/organizations/${id}`)
     .then((response) => response.data)
+
+export const fetchAiUsage = (days: AiUsageRange) =>
+  httpClient
+    .get<ApiEnvelope<AiUsageOverview>>('/admin/ai-usage', { params: { days } })
+    .then((response) => response.data.data)
 
 export const fetchAiModels = () =>
   httpClient

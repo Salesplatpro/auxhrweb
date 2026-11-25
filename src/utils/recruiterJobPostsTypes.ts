@@ -158,7 +158,26 @@ export type SingleJobDetails = {
   verification?: VerificationState
   /** Company only, on the single application. */
   nextStep?: NextStep
+  /** Company only: finished every application step, so they can be shortlisted. */
+  readyForReview?: boolean
+  /** Company only: the first step still unfinished, or null once ready for review. */
+  waitingFor?: WaitingFor | null
+  /** Company only: Move forward would start the recorded interview. */
+  canStartInterview?: boolean
+  /** Company only: the CV match score is below the job's minimum CV score. */
+  belowCvMinimum?: boolean
 }
+
+export type WaitingFor =
+  | 'prescreening'
+  | 'cv_similarity'
+  | 'personalized'
+  | 'problem_solving'
+  | 'culture_fit'
+  | 'personality'
+  | 'ai_interview'
+  | 'completed'
+  | 'references'
 
 /** The single application as the company reads it: the interview comes in full. */
 export type ApplicationDetail = Omit<SingleJobDetails, 'interview'> & {

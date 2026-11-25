@@ -28,7 +28,7 @@ import { getStatusBadge } from '../../getJobStatus'
 import { AssessmentChat } from '../../MyJobPosts/AssessmentChat'
 import { CompanyTestResults } from '../../MyJobPosts/CompanyTestResults'
 import { Messaging } from '../../MyJobPosts/Messaging/Messaging'
-import { sourceLabel } from '../candidateLabels'
+import { sourceLabel, waitingForLabel } from '../candidateLabels'
 import styles from './CandidatePanel.module.scss'
 import { MoveForwardModal, RejectModal } from './DecisionModals'
 import { InterviewTab } from './InterviewTab'
@@ -83,6 +83,8 @@ export const CandidatePanel = ({
   const fullName =
     `${talent.firstName} ${talent.lastName}`.trim() || 'Candidate'
   const rejected = application.status === 'rejected'
+  const canMoveForward =
+    !!application.readyForReview || !!application.canStartInterview
 
   const viewCv = async () => {
     setLoadingCv(true)
@@ -145,7 +147,11 @@ export const CandidatePanel = ({
       }
       footer={
         <div className={styles.decision}>
-          <span className={styles.muted}>Decision</span>
+          <span className={styles.muted}>
+            {rejected || canMoveForward
+              ? 'Decision'
+              : waitingForLabel(application.waitingFor)}
+          </span>
           <Button
             variant="outline"
             className={styles.reject}
@@ -157,7 +163,7 @@ export const CandidatePanel = ({
           <Button
             variant="ink"
             icon={<LuCheck size={16} />}
-            disabled={rejected}
+            disabled={rejected || !canMoveForward}
             onClick={() => setDecision('forward')}>
             Move forward
           </Button>
@@ -251,7 +257,9 @@ export const CandidatePanel = ({
         <MoveForwardModal
           open
           {...candidate}
-          nextStep={application.nextStep ?? 'shortlisted'}
+          nextStep={
+            application.canStartInterview ? 'ai_interview' : 'shortlisted'
+          }
           onCancel={() => setDecision(null)}
           onDone={afterDecision}
         />

@@ -7,6 +7,7 @@ import type {
   InterviewProgress,
   ProgressStage,
   VerificationState,
+  WaitingFor,
 } from '@/utils/recruiterJobPostsTypes'
 
 export const BOARD_COLUMNS: { key: BoardColumn; label: string }[] = [
@@ -27,6 +28,22 @@ const STAGE_LABELS: Record<ProgressStage, string> = {
 
 export const stageLabel = (stage?: ProgressStage) =>
   stage ? STAGE_LABELS[stage] : '—'
+
+const WAITING_FOR: Record<WaitingFor, string> = {
+  prescreening: 'the pre-assessment',
+  cv_similarity: 'the CV match',
+  personalized: 'the tailored questions',
+  problem_solving: 'the problem-solving test',
+  culture_fit: 'the culture-fit test',
+  personality: 'the personality test',
+  ai_interview: 'the AI interview',
+  completed: 'the last step',
+  references: 'a referee',
+}
+
+/** Why a candidate can't be shortlisted yet, e.g. "Waiting for a referee". */
+export const waitingForLabel = (waitingFor?: WaitingFor | null) =>
+  `Waiting for ${waitingFor ? WAITING_FOR[waitingFor] : 'their next step'}`
 
 const INTERVIEW: Record<
   InterviewProgress,

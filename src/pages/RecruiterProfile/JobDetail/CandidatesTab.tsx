@@ -168,7 +168,13 @@ export const CandidatesTab = ({
         applicationIds: selectedIds,
         status,
       })
-      notify('success', `${result.data.updated} candidate(s) ${status}`)
+      const { updated, skipped } = result.data
+      notify('success', `${updated} candidate(s) ${status}`, {
+        description: skipped
+          ? `${skipped} skipped because they haven't finished every step yet.`
+          : undefined,
+        autoClose: skipped ? 6000 : undefined,
+      })
       setSelected(new Set())
       await revalidateJob()
     } catch (err) {
@@ -316,6 +322,12 @@ export const CandidatesTab = ({
           <Button
             size="sm"
             loading={isBulkUpdating}
+            disabled={!selectedRows.some((row) => row.readyForReview)}
+            title={
+              selectedRows.some((row) => row.readyForReview)
+                ? undefined
+                : 'None of these candidates has finished every step yet'
+            }
             onClick={() => void handleBulkStatus('shortlisted')}>
             Shortlist
           </Button>

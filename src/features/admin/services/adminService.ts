@@ -17,6 +17,7 @@ import {
   AiFeature,
   AiModelsOverview,
   AiPromptPart,
+  AiSkill,
   ApplicationFollowUp,
   ApplicationFollowUpEmailRecord,
   OnboardingEmailRecord,
@@ -278,3 +279,15 @@ export const saveAiFeaturePrompts = (
       { prompts },
     )
     .then((response) => response.data.data.prompts)
+
+export const fetchAiSkills = () =>
+  httpClient
+    .get<ApiEnvelope<{ skills: AiSkill[] }>>('/admin/ai-models/skills')
+    .then((response) => response.data.data.skills)
+
+export const saveAiSkill = (key: string, text: string) =>
+  httpClient
+    .put<ApiEnvelope<{ skills: AiSkill[] }>>(`/admin/ai-models/skills/${key}`, {
+      text,
+    })
+    .then((response) => response.data.data.skills)

@@ -3,8 +3,10 @@ import useSWR from 'swr'
 import {
   fetchAiFeaturePrompts,
   fetchAiModels,
+  fetchAiSkills,
   saveAiFeatureModel,
   saveAiFeaturePrompts,
+  saveAiSkill,
 } from '../services/adminService'
 import { AiChoice } from '../types'
 
@@ -54,4 +56,19 @@ export const useAiFeaturePrompts = (featureKey: string | null) => {
   }
 
   return { parts: data, error, isLoading, retry: () => mutate(), savePrompts }
+}
+
+export const useAiSkills = () => {
+  const { data, error, isLoading, mutate } = useSWR(
+    `${AI_MODELS_KEY}/skills`,
+    fetchAiSkills,
+    { revalidateOnFocus: false },
+  )
+
+  const saveSkill = async (key: string, text: string) => {
+    const saved = await saveAiSkill(key, text)
+    await mutate(saved, { revalidate: false })
+  }
+
+  return { skills: data, error, isLoading, retry: () => mutate(), saveSkill }
 }

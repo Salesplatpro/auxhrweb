@@ -39,6 +39,13 @@ const PromptPartField: React.FC<{
         </button>
       )}
     </div>
+    {part.skills.length > 0 && (
+      <p className={styles.meta}>
+        Shared skills placed before this text:{' '}
+        {part.skills.map((skill) => skill.label).join(', ')}. Edit them under
+        Skills.
+      </p>
+    )}
     {part.problem && (
       <p className={styles.notice}>
         The app is using the default instead, because {part.problem}.

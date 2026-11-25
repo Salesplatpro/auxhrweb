@@ -7,6 +7,7 @@ import {
   AiFeature,
   AiModelsOverview,
   AiPromptPart,
+  AiSkill,
 } from '@/features/admin/types'
 
 import AiModels from './AiModels'
@@ -16,12 +17,16 @@ const {
   saveAiFeatureModelMock,
   fetchAiFeaturePromptsMock,
   saveAiFeaturePromptsMock,
+  fetchAiSkillsMock,
+  saveAiSkillMock,
   notifyMock,
 } = vi.hoisted(() => ({
   fetchAiModelsMock: vi.fn(),
   saveAiFeatureModelMock: vi.fn(),
   fetchAiFeaturePromptsMock: vi.fn(),
   saveAiFeaturePromptsMock: vi.fn(),
+  fetchAiSkillsMock: vi.fn(),
+  saveAiSkillMock: vi.fn(),
   notifyMock: vi.fn(),
 }))
 
@@ -30,6 +35,8 @@ vi.mock('@/features/admin/services/adminService', () => ({
   saveAiFeatureModel: saveAiFeatureModelMock,
   fetchAiFeaturePrompts: fetchAiFeaturePromptsMock,
   saveAiFeaturePrompts: saveAiFeaturePromptsMock,
+  fetchAiSkills: fetchAiSkillsMock,
+  saveAiSkill: saveAiSkillMock,
 }))
 
 vi.mock('@/utils/toastNotifications', () => ({ notify: notifyMock }))
@@ -134,6 +141,17 @@ const promptPart: AiPromptPart = {
   edited: false,
   problem: null,
   variables: [{ name: 'count', description: 'How many to write or score' }],
+  skills: [{ key: 'fair_assessment', label: 'Fair assessment' }],
+}
+
+const plainWriting: AiSkill = {
+  key: 'plain_writing',
+  label: 'Plain writing',
+  description: 'Short sentences, everyday words and specific detail.',
+  text: 'Write for a busy reader.',
+  defaultText: 'Write for a busy reader.',
+  edited: false,
+  usedBy: [{ key: 'efficiency_tip', name: 'Efficiency tip AI' }],
 }
 
 const renderPage = () =>
@@ -147,6 +165,7 @@ describe('AiModels', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     fetchAiModelsMock.mockResolvedValue(overview)
+    fetchAiSkillsMock.mockResolvedValue([plainWriting])
   })
 
   it('lists each AI job by name, with what it does', async () => {
@@ -333,6 +352,42 @@ describe('AiModels', () => {
 
     expect(
       await screen.findByText("We couldn't load the AI models"),
+    ).toBeTruthy()
+  })
+
+  it('lists shared skills and saves an edit to one', async () => {
+    saveAiSkillMock.mockResolvedValue([
+      { ...plainWriting, text: 'Write warmly.', edited: true },
+    ])
+    renderPage()
+
+    expect(await screen.findByText('Plain writing')).toBeTruthy()
+    expect(screen.getByText('Used by 1 job')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit' }))
+    fireEvent.change(screen.getByLabelText('Skill text'), {
+      target: { value: 'Write warmly.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+
+    await waitFor(() =>
+      expect(saveAiSkillMock).toHaveBeenCalledWith(
+        'plain_writing',
+        'Write warmly.',
+      ),
+    )
+  })
+
+  it("shows a prompt part's shared skills", async () => {
+    fetchAiFeaturePromptsMock.mockResolvedValue([promptPart])
+    renderPage()
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit prompt' }))
+
+    expect(
+      await screen.findByText(
+        /Shared skills placed before this text: Fair assessment/,
+      ),
     ).toBeTruthy()
   })
 })

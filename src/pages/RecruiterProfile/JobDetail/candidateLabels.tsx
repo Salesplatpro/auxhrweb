@@ -41,6 +41,13 @@ const WAITING_FOR: Record<WaitingFor, string> = {
   references: 'a referee',
 }
 
+/** The CV match is under the job's minimum. It only flags the candidate; they still move on. */
+export const BelowCvMinimum = () => (
+  <Pill tone="warning" size="sm">
+    Below your CV minimum
+  </Pill>
+)
+
 /** Why a candidate can't be shortlisted yet, e.g. "Waiting for a referee". */
 export const waitingForLabel = (waitingFor?: WaitingFor | null) =>
   `Waiting for ${waitingFor ? WAITING_FOR[waitingFor] : 'their next step'}`

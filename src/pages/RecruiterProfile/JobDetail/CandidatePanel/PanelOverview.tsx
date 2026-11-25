@@ -13,6 +13,7 @@ import { notify } from '@/utils/toastNotifications'
 
 import { verdictSentence } from '../../MyJobPosts/CandidateDossierPanel'
 import { MBTI_TYPES } from '../../MyJobPosts/mbtiLegend'
+import { BelowCvMinimum } from '../candidateLabels'
 import styles from './CandidatePanel.module.scss'
 
 export const AiSuggestion = () => (
@@ -136,6 +137,7 @@ export const PanelOverview = ({
         <StatCard
           label="CV match"
           value={percent(application.cvSimilarityScore)}
+          caption={application.belowCvMinimum ? <BelowCvMinimum /> : undefined}
         />
         <StatCard
           label="Skills test"

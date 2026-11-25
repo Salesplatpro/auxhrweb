@@ -69,7 +69,12 @@ export const CandidatesList = ({
       {
         key: 'cvMatch',
         header: 'CV match',
-        render: (row) => <CvMatch value={row.cvSimilarityScore} />,
+        render: (row) => (
+          <CvMatch
+            value={row.cvSimilarityScore}
+            belowMinimum={row.belowCvMinimum}
+          />
+        ),
       },
       {
         key: 'stage',

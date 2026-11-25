@@ -9,6 +9,7 @@ import { TipCard } from '@/components/ui/TipCard'
 import type {
   NextStep,
   RecruiterInterview,
+  ScreenLeaveKind,
 } from '@/utils/recruiterJobPostsTypes'
 
 import styles from './CandidatePanel.module.scss'
@@ -20,6 +21,12 @@ const SCORE_ROWS = [
   { key: 'fitForRole', label: 'Fit for the role' },
   { key: 'confidence', label: 'Confidence' },
 ] as const
+
+const LEAVE_LABELS: Record<ScreenLeaveKind, string> = {
+  tab_hidden: 'Switched tab or app',
+  window_blur: 'Clicked away from the window',
+  fullscreen_exit: 'Left full screen',
+}
 
 const timeOfDay = (value: string) =>
   new Date(value).toLocaleTimeString('en-US', {
@@ -188,7 +195,7 @@ export const InterviewTab = ({
     )
   }
 
-  if (interview.status === 'processing') {
+  if (interview.status === 'processing' && !interview.failed) {
     return (
       <>
         <Processing interview={interview} />
@@ -209,6 +216,12 @@ export const InterviewTab = ({
 
   return (
     <>
+      {interview.failed && (
+        <EmptyState
+          title="We couldn't score this interview"
+          description="You can still watch the answers."
+        />
+      )}
       <InterviewPlayer
         interviewId={interview.id}
         mode={interview.mode}
@@ -322,6 +335,26 @@ export const InterviewTab = ({
                 </li>
               )
             })}
+          </ul>
+        </section>
+      )}
+
+      {interview.screenLeaves.count > 0 && (
+        <section>
+          <h3 className={styles.sectionTitle}>Left the interview screen</h3>
+          <ul className={styles.flags}>
+            {interview.screenLeaves.events.map((event, index) => (
+              <li key={`${event.at}-${index}`} className={styles.flag}>
+                <span className={styles.stamp}>{timeOfDay(event.at)}</span>
+                <span className={styles.flagText}>
+                  {LEAVE_LABELS[event.kind]}
+                  {event.position != null &&
+                    ` · during ${
+                      event.isFollowUp ? 'the follow-up to ' : ''
+                    }question ${event.position}`}
+                </span>
+              </li>
+            ))}
           </ul>
         </section>
       )}

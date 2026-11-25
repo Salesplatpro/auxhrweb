@@ -149,7 +149,11 @@ export type SingleJobDetails = {
   source?: string | null
   stage?: ProgressStage
   boardColumn?: BoardColumn | null
-  interview?: { id: string | null; status: InterviewProgress } | null
+  interview?: {
+    id: string | null
+    status: InterviewProgress
+    failed?: boolean
+  } | null
   /** One status over every background check ordered on the application. */
   verification?: VerificationState
   /** Company only, on the single application. */
@@ -195,10 +199,24 @@ export interface InterviewScore {
   reason: string
 }
 
+export type ScreenLeaveKind = 'tab_hidden' | 'window_blur' | 'fullscreen_exit'
+
 export interface RecruiterInterview {
   id: string
   mode: 'audio' | 'audio_video'
   status: InterviewProgress
+  /** It can't be scored, though its answers can still be played. */
+  failed: boolean
+  /** Each time the candidate left the interview screen while answering. */
+  screenLeaves: {
+    count: number
+    events: {
+      kind: ScreenLeaveKind
+      at: string
+      position: number | null
+      isFollowUp: boolean
+    }[]
+  }
   invitedAt: string | null
   startedAt: string | null
   scoringStatus: 'pending' | 'completed' | 'failed' | null

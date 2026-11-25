@@ -2,6 +2,7 @@ import { isAxiosError } from 'axios'
 import React, { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog/ConfirmDialog'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useCandidateInterviewQuery } from '@/redux/api/talent'
@@ -12,6 +13,8 @@ import styles from '../TalentAssessment/AssessmentForm.module.scss'
 import pageStyles from './AiInterviewPage.module.scss'
 import {
   fetchQuestionAudio,
+  reportScreenLeave,
+  ScreenLeaveKind,
   uploadCandidateRecording,
 } from './candidateInterviewApi'
 import {
@@ -43,6 +46,7 @@ type InterviewQuestion = {
 const RECORDING_STOPPED = 'Recording stopped. Record this answer again.'
 const HEARD_LEVEL = 0.04
 const HEARD_FRAMES = 8
+const LEAVE_COUNTS_AFTER_MS = 1000
 const CHECK_EVERY_MS = 3000
 const CHECK_FOR_MS = 90_000
 
@@ -82,6 +86,9 @@ const AiInterviewPage = () => {
   const audioUrlsRef = useRef(new Map<string, string>())
   const playedRef = useRef<string | null>(null)
   const [hasAudio, setHasAudio] = useState(false)
+  const [leftScreen, setLeftScreen] = useState(false)
+  const fullscreenRef = useRef(false)
+  const currentIdRef = useRef<string | null>(null)
 
   const interview = data?.data
   const mode: InterviewMode = interview?.mode ?? 'audio'
@@ -95,6 +102,7 @@ const AiInterviewPage = () => {
   const checking = done && !!interview?.checking && !stoppedChecking
   const finished = done && !checking
   const inProgress = phase === 'answer' && !finished
+  currentIdRef.current = current?.id ?? null
   const mainTotal = questions.filter((item) => !item.isFollowUp).length
 
   const stopTracks = () => {
@@ -153,8 +161,76 @@ const AiInterviewPage = () => {
   }, [phase, current?.id])
 
   useEffect(() => {
-    if (finished) stopTracks()
+    if (!finished) return
+    stopTracks()
+    fullscreenRef.current = false
+    if (document.fullscreenElement) void document.exitFullscreen()
   }, [finished])
+
+  useEffect(() => {
+    if (phase !== 'answer' || finished || !interviewId) return
+    let awayKind: ScreenLeaveKind | null = null
+    let reported = false
+    let warned = false
+    let timer = 0
+    const onPage = () =>
+      document.visibilityState === 'visible' && document.hasFocus()
+    const warn = () => {
+      if (!reported || warned) return
+      warned = true
+      setLeftScreen(true)
+    }
+    const leave = (kind: ScreenLeaveKind) => {
+      if (awayKind) return
+      awayKind = kind
+      reported = false
+      warned = false
+      timer = window.setTimeout(() => {
+        reported = true
+        reportScreenLeave(interviewId, kind, currentIdRef.current)
+        if (kind === 'fullscreen_exit' && onPage()) warn()
+      }, LEAVE_COUNTS_AFTER_MS)
+    }
+    const end = () => {
+      window.clearTimeout(timer)
+      warn()
+      awayKind = null
+    }
+    const onReturn = () => {
+      if (!onPage()) return
+      if (awayKind === 'fullscreen_exit') warn()
+      else end()
+    }
+    const onVisibility = () =>
+      document.visibilityState === 'hidden' ? leave('tab_hidden') : onReturn()
+    const onBlur = () => leave('window_blur')
+    const onFullscreen = () => {
+      if (!fullscreenRef.current) return
+      if (document.fullscreenElement) end()
+      else leave('fullscreen_exit')
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    document.addEventListener('fullscreenchange', onFullscreen)
+    window.addEventListener('blur', onBlur)
+    window.addEventListener('focus', onReturn)
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+      document.removeEventListener('fullscreenchange', onFullscreen)
+      window.removeEventListener('blur', onBlur)
+      window.removeEventListener('focus', onReturn)
+    }
+  }, [phase, finished, interviewId])
+
+  const enterFullscreen = () => {
+    if (!document.fullscreenEnabled || document.fullscreenElement) return
+    document.documentElement
+      .requestFullscreen()
+      .then(() => {
+        fullscreenRef.current = true
+      })
+      .catch(() => undefined)
+  }
 
   useEffect(() => {
     if (!checking) return
@@ -337,6 +413,7 @@ const AiInterviewPage = () => {
       setHasAudio(true)
       playUrl(url)
     }
+    enterFullscreen()
     setPhase('answer')
   }
 
@@ -439,6 +516,22 @@ const AiInterviewPage = () => {
       <audio ref={audioRef} hidden>
         <track kind="captions" />
       </audio>
+      <ConfirmDialog
+        open={leftScreen}
+        title="You left the interview screen"
+        message="This has been recorded and the hiring team will see it. Stay on this screen until you finish."
+        confirmLabel={
+          document.fullscreenEnabled
+            ? 'Back to full screen'
+            : 'Back to the interview'
+        }
+        cancelLabel="Close"
+        onConfirm={() => {
+          setLeftScreen(false)
+          enterFullscreen()
+        }}
+        onCancel={() => setLeftScreen(false)}
+      />
       <section className={`${styles.intro} ${styles.role}`}>
         <p className={styles.kicker}>AI interview</p>
         <h1 className={styles.title}>
@@ -463,6 +556,10 @@ const AiInterviewPage = () => {
               onPlaying={() => setPreviewPlaying(true)}
             />
           )}
+          <p className={styles.progressMeta}>
+            Stay on this screen. Switching tabs, minimizing or leaving full
+            screen is recorded and shown to the hiring team.
+          </p>
           {micState === 'idle' && (
             <Button type="button" onClick={() => void testMicrophone()}>
               {mode === 'audio_video'

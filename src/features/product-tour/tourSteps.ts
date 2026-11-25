@@ -163,7 +163,7 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
       advanceOn: 'stage',
       title: 'Save your profile',
       body: 'Fill in anything still empty, then press Save.',
-      why: 'Your pre-assessment unlocks only when every field is complete.',
+      why: 'Your pre-assessment is ready as soon as your CV and roles are saved.',
     },
   ],
   take_assessment: [

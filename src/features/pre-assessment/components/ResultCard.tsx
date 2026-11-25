@@ -37,17 +37,17 @@ const ResultCard: React.FC<ResultCardProps> = ({
     return (
       <div className={styles.incompleteCard}>
         <h2 className={styles.incompleteTitle}>
-          Complete your profile before taking the pre-assessment.
+          Add your CV and roles to get your pre-assessment.
         </h2>
         <p className={styles.incompleteBody}>
-          Your assessment is generated from your profile, CV, skills,
-          experience, and selected roles.
+          Your questions are written from your CV and the roles you picked, and
+          they&apos;re ready as soon as both are saved.
         </p>
         <button
           type="button"
           onClick={() => navigate(profilePath)}
           className={`${styles.button} ${styles.primaryButton}`}>
-          Complete Profile
+          Add CV and roles
         </button>
       </div>
     )

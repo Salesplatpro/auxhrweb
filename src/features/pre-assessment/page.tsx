@@ -241,10 +241,12 @@ const PreAssessmentPage: React.FC<PreAssessmentPageProps> = ({
       await retakeAssessment()
       reset()
       await refetch()
-    } catch {
-      notify('error', 'Failed to start retake. Please try again.', {
-        autoClose: 2000,
-      })
+    } catch (error) {
+      notify(
+        'error',
+        getErrorMessage(error, 'Failed to start retake. Please try again.'),
+        { autoClose: 4000 },
+      )
     } finally {
       setIsRetaking(false)
     }

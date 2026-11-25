@@ -350,6 +350,52 @@ export interface AiProviderSummary {
   envKey: string
   configured: boolean
   docsUrl: string
+  /** When the provider started refusing calls for billing; null while it works. */
+  outOfCreditSince?: string | null
+}
+
+export type AiUsageRange = 1 | 7 | 30
+
+export interface AiUsageTotals {
+  calls: number
+  failedCalls: number
+  creditFailures: number
+  inputTokens: number
+  outputTokens: number
+  characters: number
+  audioSeconds: number
+  /** Estimated in USD at the catalogue's prices. */
+  costUsd: number
+  /** Calls with no USD price (ElevenLabs), left out of costUsd. */
+  unpricedCalls: number
+}
+
+export interface AiUsageRow extends AiUsageTotals {
+  key: string
+  label: string
+  provider: string | null
+}
+
+export interface AiProviderCredit {
+  key: string
+  name: string
+  configured: boolean
+  outOfCreditSince: string | null
+  creditError: string | null
+  balance: number | null
+  balanceUnit: string | null
+  balanceCheckedAt: string | null
+}
+
+export interface AiUsageOverview {
+  days: AiUsageRange
+  from: string
+  pricesVerifiedOn: string | null
+  providers: AiProviderCredit[]
+  totals: AiUsageTotals
+  byProvider: AiUsageRow[]
+  byModel: AiUsageRow[]
+  byFeature: AiUsageRow[]
 }
 
 export interface AiModelsOverview {

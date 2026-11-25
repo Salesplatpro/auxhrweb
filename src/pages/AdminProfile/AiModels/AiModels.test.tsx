@@ -196,6 +196,20 @@ describe('AiModels', () => {
     ).toBeTruthy()
   })
 
+  it('says when a provider is out of credit', async () => {
+    fetchAiModelsMock.mockResolvedValue({
+      ...overview,
+      providers: overview.providers.map((provider) =>
+        provider.key === 'gemini'
+          ? { ...provider, outOfCreditSince: '2026-11-25T08:00:00Z' }
+          : provider,
+      ),
+    })
+    renderPage()
+
+    expect(await screen.findByText('Out of credit')).toBeTruthy()
+  })
+
   it('disables a provider with no key and says which key to add', async () => {
     renderPage()
 

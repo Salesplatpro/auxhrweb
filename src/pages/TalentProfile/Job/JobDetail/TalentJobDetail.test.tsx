@@ -11,11 +11,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import TalentJobDetail from './TalentJobDetail'
 
-const { jobMock, applyMock, payMock, profileMock } = vi.hoisted(() => ({
-  jobMock: vi.fn(),
-  applyMock: vi.fn(),
-  payMock: vi.fn(),
-  profileMock: vi.fn(),
+const { jobMock, applyMock, payMock, profileMock, assessmentMock } = vi.hoisted(
+  () => ({
+    jobMock: vi.fn(),
+    applyMock: vi.fn(),
+    payMock: vi.fn(),
+    profileMock: vi.fn(),
+    assessmentMock: vi.fn(),
+  }),
+)
+
+vi.mock('@/features/pre-assessment/hooks', () => ({
+  usePreAssessment: () => assessmentMock(),
 }))
 
 vi.mock('@/redux/api/talent', () => ({
@@ -74,6 +81,7 @@ const renderPage = () =>
           path="/talentDashboard/applications/:id"
           element={<p>pipeline page</p>}
         />
+        <Route path="/talentDashboard/talentQuiz" element={<p>quiz page</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -104,6 +112,10 @@ describe('talent job page', () => {
         cvFileName: 'Amaka_CV.pdf',
         cvUploadedAt: '2026-10-12T00:00:00Z',
       },
+    })
+    assessmentMock.mockReturnValue({
+      assessment: { status: 'completed', hasValidScore: true },
+      isLoading: false,
     })
     applyMock.mockReset()
   })
@@ -153,6 +165,52 @@ describe('talent job page', () => {
 
     expect(applyMock).not.toHaveBeenCalled()
     expect(screen.getByText(/before applying/)).toBeTruthy()
+  })
+
+  it('sends a talent without a pre-assessment score to take it instead of applying', () => {
+    assessmentMock.mockReturnValue({
+      assessment: { status: 'pending', hasValidScore: false },
+      isLoading: false,
+    })
+    renderPage()
+
+    expect(screen.queryByRole('button', { name: 'Apply now' })).toBeNull()
+    expect(
+      screen.getByText(/Take the pre-assessment once to apply/),
+    ).toBeTruthy()
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Take your pre-assessment' }),
+    )
+    expect(screen.getByText('quiz page')).toBeTruthy()
+  })
+
+  it('points to the pre-assessment when the server says it is still needed', async () => {
+    applyMock.mockReturnValue({
+      unwrap: () =>
+        Promise.reject({
+          data: { error: { code: 'PRE_ASSESSMENT_REQUIRED', message: 'x' } },
+        }),
+    })
+    renderPage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apply now' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Submit application' }))
+
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'pre-assessment' })).toBeTruthy(),
+    )
+  })
+
+  it('names the first test after the skills test as the next step', () => {
+    renderPage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Apply now' }))
+
+    expect(
+      screen.getByText(
+        /After you apply you'll take a 11-minute problem-solving test/,
+      ),
+    ).toBeTruthy()
   })
 
   it('sends someone who already applied to their application instead', () => {

@@ -18,6 +18,8 @@ export interface Assessment {
   generating?: boolean
   /** True after generation retries are exhausted. */
   generationFailed?: boolean
+  /** The talent has a score from the last 90 days, so they can apply to jobs. */
+  hasValidScore?: boolean
 }
 
 export interface ApiResponse<T> {

@@ -4,11 +4,12 @@ import { Link } from 'react-router-dom'
 import { Alert } from '@/components/feedback/Alert'
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog'
 import { TextArea } from '@/components/forms/TextArea'
+import { PRE_ASSESSMENT_PATH } from '@/features/pre-assessment/constants'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { jobPlace } from '@/features/talent-applications/format'
 import { STEP_TITLE } from '@/features/talent-applications/steps'
 import { useApplyToJobMutation } from '@/redux/api/talent'
-import { getErrorMessage } from '@/utils/getErrorMessage'
+import { getErrorCode, getErrorMessage } from '@/utils/getErrorMessage'
 import { notify } from '@/utils/toastNotifications'
 
 import styles from './ApplyModal.module.scss'
@@ -40,10 +41,14 @@ export const ApplyModal = ({
 }: ApplyModalProps) => {
   const { profile } = useProfile()
   const [note, setNote] = useState('')
+  const [needsAssessment, setNeedsAssessment] = useState(false)
   const [applyToJob, { isLoading }] = useApplyToJobMutation()
   const company = job.organization?.name ?? 'the company'
   const cvName = profile?.cvFileName
-  const first = job.screening[0]
+  // The skills test is taken before applying, so the next step is the first test after it.
+  const first = job.screening.find(
+    (step) => step.key !== 'skills_test' && step.minutes > 0,
+  )
   const nextStep = first
     ? `After you apply you'll take a ${first.minutes}-minute ${STEP_TITLE[
         first.key
@@ -51,7 +56,7 @@ export const ApplyModal = ({
     : ''
 
   const submit = async () => {
-    if (!cvName) return
+    if (!cvName || needsAssessment) return
     try {
       const result = await applyToJob({
         jobId: job.id,
@@ -59,6 +64,10 @@ export const ApplyModal = ({
       }).unwrap()
       onApplied(result.data.application.id)
     } catch (error) {
+      if (getErrorCode(error) === 'PRE_ASSESSMENT_REQUIRED') {
+        setNeedsAssessment(true)
+        return
+      }
       notify(
         'error',
         getErrorMessage(error, 'We couldn’t send your application. Try again.'),
@@ -110,9 +119,16 @@ export const ApplyModal = ({
         maxLength={NOTE_LIMIT}
         onChange={(event) => setNote(event.target.value)}
       />
-      <Alert variant="info">
-        {nextStep}Your answers and CV are shared only with {company}.
-      </Alert>
+      {needsAssessment ? (
+        <Alert variant="warning">
+          Take your <Link to={PRE_ASSESSMENT_PATH}>pre-assessment</Link> first.
+          You only take it once to apply to any job.
+        </Alert>
+      ) : (
+        <Alert variant="info">
+          {nextStep}Your answers and CV are shared only with {company}.
+        </Alert>
+      )}
     </ConfirmDialog>
   )
 }

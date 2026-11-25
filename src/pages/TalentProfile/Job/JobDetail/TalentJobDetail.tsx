@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/Button'
 import { CheckList } from '@/components/ui/CheckList'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Spinner } from '@/components/ui/Spinner'
+import { canApplyToJobs } from '@/features/pre-assessment/canApply'
+import { PRE_ASSESSMENT_PATH } from '@/features/pre-assessment/constants'
+import { usePreAssessment } from '@/features/pre-assessment/hooks'
 import {
   experienceLabelWithYears,
   formatPayShort,
@@ -117,6 +120,8 @@ const TalentJobDetail = () => {
   const job: TalentJob | undefined = data?.data?.job
   const { saved, toggle, pending } = useSaveJob(jobId, !!job?.isSaved)
   const [applying, setApplying] = useState(false)
+  const { assessment, isLoading: assessmentLoading } = usePreAssessment()
+  const needsAssessment = !assessmentLoading && !canApplyToJobs(assessment)
 
   if (isLoading) return <Spinner fullPage />
   if (!job) {
@@ -250,13 +255,22 @@ const TalentJobDetail = () => {
                 onClick={() => navigate(applicationPath(job.applicationId!))}>
                 View application
               </Button>
+            ) : needsAssessment ? (
+              <Button
+                variant="gradient"
+                size="lg"
+                stretch
+                data-tour="apply-job"
+                onClick={() => navigate(PRE_ASSESSMENT_PATH)}>
+                Take your pre-assessment
+              </Button>
             ) : (
               <Button
                 variant="gradient"
                 size="lg"
                 stretch
                 data-tour="apply-job"
-                disabled={job.status !== 'active'}
+                disabled={job.status !== 'active' || assessmentLoading}
                 onClick={() => setApplying(true)}>
                 Apply now
               </Button>
@@ -272,7 +286,9 @@ const TalentJobDetail = () => {
               {saved ? 'Saved' : 'Save job'}
             </Button>
             <p className={styles.hint}>
-              Takes about 2 minutes. Your profile CV is used.
+              {needsAssessment
+                ? 'Take the pre-assessment once to apply to any job. It takes about 20 minutes.'
+                : 'Takes about 2 minutes. Your profile CV is used.'}
             </p>
           </div>
           <PayCard jobId={job.id} title={job.role.name} />

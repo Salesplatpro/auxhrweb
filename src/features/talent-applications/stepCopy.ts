@@ -1,5 +1,5 @@
 import { dayMonth, weekdayDayMonth } from './format'
-import { STEP_TITLE, TEST_KIND_BY_STEP } from './steps'
+import { awaitingChecks, STEP_TITLE, TEST_KIND_BY_STEP } from './steps'
 import { CandidatePipeline, PipelineStep } from './types'
 
 const questions = (step: PipelineStep) =>
@@ -51,14 +51,17 @@ export const stepDescription = (
       return current
         ? `Add up to ${step.maxReferees} people who can vouch for you`
         : `You'll add up to ${step.maxReferees} referees later`
-    case 'checks':
-      if (done)
-        return step.doneAt ? `Answered ${dayMonth(step.doneAt)}` : 'Answered'
-      return `${company} asks for your permission to check your identity, past jobs and education`
-    case 'company_review':
-      if (step.outcome === 'shortlisted') return 'Shortlisted'
-      if (step.outcome === 'not_proceeding') return 'Not proceeding'
-      return `${company} decides`
+    case 'company_review': {
+      const outcome =
+        step.outcome === 'shortlisted'
+          ? 'Shortlisted'
+          : step.outcome === 'not_proceeding'
+          ? 'Not proceeding'
+          : `${company} decides`
+      return awaitingChecks(step)
+        ? join([outcome, 'Review and answer background checks'])
+        : outcome
+    }
     default:
       if (done) {
         if (step.key === 'problem_solving' || step.key === 'culture_fit') {
@@ -78,15 +81,19 @@ export const actionLabel = (step: PipelineStep): string | null => {
   if (step.key === 'ai_interview') return 'Start interview'
   if (step.key === 'skills_test') return 'Take skills test'
   if (step.key === 'references') return 'Add referees'
-  if (step.key === 'checks') return 'Review and answer'
+  if (awaitingChecks(step)) return 'Review and answer'
   return TEST_KIND_BY_STEP[step.key] ? 'Start test' : null
 }
 
 export const nextStepCopy = (pipeline: CandidatePipeline): string => {
   const company = pipeline.application.job.organization?.name ?? 'The company'
   const { status } = pipeline.application
+  const checksAsk = `${company} would like to check your identity, past jobs and education. It takes about 2 minutes, and you can say no.`
+  const checksWaiting = pipeline.steps.some(awaitingChecks)
   if (status === 'shortlisted')
-    return `${company} shortlisted you. They'll be in touch about what comes next.`
+    return checksWaiting
+      ? `${company} shortlisted you. ${checksAsk}`
+      : `${company} shortlisted you. They'll be in touch about what comes next.`
   if (status === 'rejected' || status === 'not_proceeding') {
     return `${company} decided not to move forward with this application.`
   }
@@ -108,9 +115,8 @@ export const nextStepCopy = (pipeline: CandidatePipeline): string => {
       return 'We’re checking your CV against the role. Nothing to do yet.'
     case 'references':
       return `Add up to ${step.maxReferees} referees who can vouch for you.`
-    case 'checks':
-      return `${company} would like to check your identity, past jobs and education. It takes about 2 minutes, and you can say no.`
     case 'company_review':
+      if (checksWaiting) return checksAsk
       return `${company} is reviewing your application. We’ll let you know when they decide.`
     default:
       return `Take the ${STEP_TITLE[step.key].toLowerCase()}${

@@ -81,3 +81,41 @@ describe('candidate panel decision', () => {
     ).toBeTruthy()
   })
 })
+
+describe('candidate panel answers', () => {
+  afterEach(cleanup)
+  beforeEach(() => appMock.mockReset())
+
+  it('shows each skills test question and the option the talent chose', () => {
+    renderPanel({
+      talent: {
+        id: 't1',
+        firstName: 'Amaka',
+        lastName: 'Obi',
+        cvUrl: null,
+        prescreeningScore: 75,
+      },
+      preAssessmentAnswers: [
+        {
+          question: 'Two deadlines clash. What do you do?',
+          answer: 'Pick one',
+          score: 5,
+          maxScore: 10,
+          feedback: 'Defensible, but slow.',
+          options: ['Work late', 'Ask your manager', 'Pick one', 'Skip both'],
+          selectedOption: 2,
+          correctOption: 1,
+        },
+      ],
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Answers' }))
+
+    expect(screen.getByText('Skills test')).toBeTruthy()
+    expect(
+      screen.getByText('Two deadlines clash. What do you do?'),
+    ).toBeTruthy()
+    expect(screen.getByText('C. Pick one')).toBeTruthy()
+    expect(screen.getByText(/correct answer B\. Ask your manager/)).toBeTruthy()
+  })
+})

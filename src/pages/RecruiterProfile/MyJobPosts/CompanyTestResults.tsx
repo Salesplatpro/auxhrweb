@@ -29,7 +29,7 @@ export type CompanyTestResultsApplication = {
   cultureFitAnswers?: GradedAnswer[] | null
 }
 
-const TestPanel = ({
+export const TestPanel = ({
   title,
   score,
   answers,

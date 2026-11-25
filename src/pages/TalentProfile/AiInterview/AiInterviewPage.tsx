@@ -10,7 +10,10 @@ import { getErrorMessage } from '@/utils/getErrorMessage'
 import { AssessmentStatus } from '../TalentAssessment/AssessmentForm'
 import styles from '../TalentAssessment/AssessmentForm.module.scss'
 import pageStyles from './AiInterviewPage.module.scss'
-import { uploadCandidateRecording } from './candidateInterviewApi'
+import {
+  fetchQuestionAudio,
+  uploadCandidateRecording,
+} from './candidateInterviewApi'
 import {
   AUDIO_BITS_PER_SECOND,
   chooseRecordingMimeType,
@@ -74,6 +77,11 @@ const AiInterviewPage = () => {
   const discardRef = useRef(false)
   const startedAtRef = useRef(0)
   const answeringRef = useRef<InterviewQuestion | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioLoadsRef = useRef(new Map<string, Promise<string | null>>())
+  const audioUrlsRef = useRef(new Map<string, string>())
+  const playedRef = useRef<string | null>(null)
+  const [hasAudio, setHasAudio] = useState(false)
 
   const interview = data?.data
   const mode: InterviewMode = interview?.mode ?? 'audio'
@@ -94,13 +102,55 @@ const AiInterviewPage = () => {
     streamRef.current = null
   }
 
+  const loadAudio = (questionId: string) => {
+    const known = audioLoadsRef.current.get(questionId)
+    if (known || !interviewId) return known ?? Promise.resolve(null)
+    const load = fetchQuestionAudio(interviewId, questionId).then((blob) => {
+      if (!blob) return null
+      const url = URL.createObjectURL(blob)
+      audioUrlsRef.current.set(questionId, url)
+      return url
+    })
+    audioLoadsRef.current.set(questionId, load)
+    return load
+  }
+
+  const playUrl = (url: string) => {
+    const audio = audioRef.current
+    if (!audio) return
+    if (audio.src !== url) audio.src = url
+    audio.currentTime = 0
+    void audio.play().catch(() => undefined)
+  }
+
+  const playQuestion = async (questionId: string) => {
+    const url = await loadAudio(questionId)
+    setHasAudio(!!url)
+    if (url && answeringRef.current?.id !== questionId) playUrl(url)
+  }
+
   useEffect(() => {
+    const urls = audioUrlsRef.current
     return () => {
       discardRef.current = true
       if (recorderRef.current?.state === 'recording') recorderRef.current.stop()
       stopTracks()
+      urls.forEach((url) => URL.revokeObjectURL(url))
     }
   }, [])
+
+  useEffect(() => {
+    if (!current) return
+    if (phase === 'check') {
+      void loadAudio(current.id)
+      return
+    }
+    const next = questions[currentIndex + 1]
+    if (next) void loadAudio(next.id)
+    if (playedRef.current === current.id) return
+    playedRef.current = current.id
+    void playQuestion(current.id)
+  }, [phase, current?.id])
 
   useEffect(() => {
     if (finished) stopTracks()
@@ -280,7 +330,18 @@ const AiInterviewPage = () => {
     }
   }
 
+  const startInterview = () => {
+    const url = current && audioUrlsRef.current.get(current.id)
+    if (current && url) {
+      playedRef.current = current.id
+      setHasAudio(true)
+      playUrl(url)
+    }
+    setPhase('answer')
+  }
+
   const startRecording = () => {
+    audioRef.current?.pause()
     const stream = streamRef.current
     if (!stream || !current || recorderRef.current?.state === 'recording') {
       return
@@ -375,6 +436,9 @@ const AiInterviewPage = () => {
 
   return (
     <div className={styles.shell}>
+      <audio ref={audioRef} hidden>
+        <track kind="captions" />
+      </audio>
       <section className={`${styles.intro} ${styles.role}`}>
         <p className={styles.kicker}>AI interview</p>
         <h1 className={styles.title}>
@@ -438,8 +502,8 @@ const AiInterviewPage = () => {
               <Button
                 type="button"
                 disabled={!canContinue}
-                onClick={() => setPhase('answer')}>
-                Continue
+                onClick={startInterview}>
+                {answeredIds.some(Boolean) ? 'Continue' : 'Start interview'}
               </Button>
             </>
           )}
@@ -474,6 +538,20 @@ const AiInterviewPage = () => {
             </span>
           </div>
           <p className={styles.question}>{current.question}</p>
+          {hasAudio && !recording && uploadState === 'idle' && (
+            <div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const url = audioUrlsRef.current.get(current.id)
+                  if (url) playUrl(url)
+                }}>
+                Play question again
+              </Button>
+            </div>
+          )}
           {mode === 'audio_video' && (
             <video
               ref={videoRef}

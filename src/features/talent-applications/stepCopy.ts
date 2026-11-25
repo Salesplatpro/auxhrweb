@@ -2,12 +2,6 @@ import { dayMonth, weekdayDayMonth } from './format'
 import { STEP_TITLE, TEST_KIND_BY_STEP } from './steps'
 import { CandidatePipeline, PipelineStep } from './types'
 
-const MATCH: Record<NonNullable<PipelineStep['matchLabel']>, string> = {
-  strong: 'Strong match',
-  good: 'Good match',
-  fair: 'Fair match',
-}
-
 const questions = (step: PipelineStep) =>
   [
     step.questionCount ? `${step.questionCount} questions` : null,
@@ -41,7 +35,7 @@ export const stepDescription = (
         current && step.dueAt && `due ${dayMonth(step.dueAt)}`,
       ])
     case 'cv_match':
-      if (done) return step.matchLabel ? MATCH[step.matchLabel] : 'Done'
+      if (done) return 'Done'
       return current ? 'Checking your CV' : 'Automatic'
     case 'ai_interview':
       if (done)

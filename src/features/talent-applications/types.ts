@@ -34,7 +34,6 @@ export interface PipelineStep {
   minutes: number | null
   score: number | null
   passed: boolean | null
-  matchLabel: 'strong' | 'good' | 'fair' | null
   answersSent: number | null
   retryAt: string | null
   interviewId: string | null

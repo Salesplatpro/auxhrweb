@@ -17,6 +17,7 @@ import { notify } from '@/utils/toastNotifications'
 
 import styles from './AiModels.module.scss'
 import { PromptDrawer } from './PromptDrawer'
+import { SkillsPanel } from './SkillsPanel'
 
 const formatDate = (isoDate: string) =>
   new Date(isoDate).toLocaleDateString('en-GB', {
@@ -261,6 +262,8 @@ const AiModels = () => {
           </ul>
         </PagePanel>
       ))}
+
+      <SkillsPanel />
 
       <PromptDrawer
         feature={editing}

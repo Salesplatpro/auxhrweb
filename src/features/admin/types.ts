@@ -366,4 +366,17 @@ export interface AiPromptPart {
   edited: boolean
   problem: string | null
   variables: Array<{ name: string; description: string }>
+  /** Shared skills placed before this part's text. */
+  skills: Array<{ key: string; label: string }>
+}
+
+/** An instruction several AI jobs share; editing it changes every job that uses it. */
+export interface AiSkill {
+  key: string
+  label: string
+  description: string
+  text: string
+  defaultText: string
+  edited: boolean
+  usedBy: Array<{ key: string; name: string }>
 }

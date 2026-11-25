@@ -47,7 +47,6 @@ const step = {
   questionCount: 5,
   score: null,
   passed: null,
-  matchLabel: null,
   answersSent: null,
   retryAt: null,
   refereeCount: null,

@@ -18,7 +18,6 @@ const base = {
   minutes: null,
   score: null,
   passed: null,
-  matchLabel: null,
   answersSent: null,
   retryAt: null,
   interviewId: null,

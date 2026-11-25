@@ -14,7 +14,6 @@ const step = (overrides: Partial<PipelineStep>): PipelineStep => ({
   minutes: null,
   score: null,
   passed: null,
-  matchLabel: null,
   answersSent: null,
   retryAt: null,
   interviewId: null,
@@ -33,11 +32,8 @@ describe('step descriptions', () => {
       ),
     ).toBe('Score 81% · passed')
     expect(
-      stepDescription(
-        step({ key: 'cv_match', state: 'done', matchLabel: 'strong' }),
-        'Kosana',
-      ),
-    ).toBe('Strong match')
+      stepDescription(step({ key: 'cv_match', state: 'done' }), 'Kosana'),
+    ).toBe('Done')
     expect(
       stepDescription(
         step({

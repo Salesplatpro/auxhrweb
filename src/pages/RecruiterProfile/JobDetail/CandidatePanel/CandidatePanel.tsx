@@ -26,7 +26,10 @@ import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { getStatusBadge } from '../../getJobStatus'
 import { AssessmentChat } from '../../MyJobPosts/AssessmentChat'
-import { CompanyTestResults } from '../../MyJobPosts/CompanyTestResults'
+import {
+  CompanyTestResults,
+  TestPanel,
+} from '../../MyJobPosts/CompanyTestResults'
 import { Messaging } from '../../MyJobPosts/Messaging/Messaging'
 import { sourceLabel, waitingForLabel } from '../candidateLabels'
 import styles from './CandidatePanel.module.scss'
@@ -216,6 +219,14 @@ export const CandidatePanel = ({
       )}
       {tab === 'answers' && (
         <>
+          {application.preAssessmentAnswers?.length &&
+          talent.prescreeningScore != null ? (
+            <TestPanel
+              title="Skills test"
+              score={talent.prescreeningScore}
+              answers={application.preAssessmentAnswers}
+            />
+          ) : null}
           <PagePanel title="Personality answers">
             <AssessmentChat
               items={application.personalityAnswers}

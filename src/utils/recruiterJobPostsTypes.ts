@@ -143,6 +143,7 @@ export type SingleJobDetails = {
   personalityFitScore?: number | null
   personalityFitReason?: string | null
   personalityFitPending?: boolean
+  preAssessmentAnswers?: GradedAnswer[] | null
   problemSolvingAnswers?: GradedAnswer[] | null
   cultureFitAnswers?: GradedAnswer[] | null
   /** Lower-cased link source, e.g. linkedin or whatsapp; null for a direct apply. */

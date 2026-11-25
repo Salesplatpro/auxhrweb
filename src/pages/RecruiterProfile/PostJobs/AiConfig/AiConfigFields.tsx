@@ -154,7 +154,7 @@ export const AiConfigFields = ({
       <ScreeningCard
         step="cvMatch"
         title="CV match"
-        description="Compares each CV with your job details and ranks the best fit first."
+        description="Compares each CV with your job details and ranks the best fit first. Candidates below the minimum are flagged for you and still go on to the next step."
         switchName={fieldName('cvSimilarity')}
         on={isOn('cvSimilarity')}>
         <NumberField

@@ -74,7 +74,7 @@ export const PreScreeningTab = ({
               }
             />
             <StatCard
-              label="CV match pass mark"
+              label="CV match flagged below"
               value={
                 config?.cvSimilarity
                   ? percent(config.minCvSimilarityScore ?? 0)

@@ -12,7 +12,7 @@ import type {
   SingleJobDetails,
 } from '@/utils/recruiterJobPostsTypes'
 
-import { BOARD_COLUMNS } from './candidateLabels'
+import { BelowCvMinimum, BOARD_COLUMNS } from './candidateLabels'
 import styles from './Candidates.module.scss'
 
 const COLUMN_PAGE = 10
@@ -66,6 +66,12 @@ const BoardCard = ({
             {application.cvSimilarityScore == null
               ? 'Pending'
               : `${Math.round(application.cvSimilarityScore)}%`}
+            {application.belowCvMinimum && (
+              <>
+                {' '}
+                <BelowCvMinimum />
+              </>
+            )}
           </dd>
         </div>
         <div>

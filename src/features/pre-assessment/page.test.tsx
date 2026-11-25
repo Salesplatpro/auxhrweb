@@ -8,9 +8,18 @@ import PreAssessmentPage from './page'
 import { usePreAssessmentStore } from './store'
 import { Assessment } from './types'
 
-const { hookState } = vi.hoisted(() => ({
+const { hookState, retakeMock, notifyMock } = vi.hoisted(() => ({
   hookState: { assessment: null as unknown },
+  retakeMock: vi.fn(),
+  notifyMock: vi.fn(),
 }))
+
+vi.mock('./api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./api')>()),
+  retakeAssessment: () => retakeMock(),
+}))
+
+vi.mock('@/utils/toastNotifications', () => ({ notify: notifyMock }))
 
 vi.mock('./hooks', async (importOriginal) => {
   const actual = await importOriginal<typeof import('./hooks')>()
@@ -121,5 +130,39 @@ describe('PreAssessmentPage start', () => {
     expect(
       screen.getByText('Generating your assessment questions...'),
     ).toBeTruthy()
+  })
+})
+
+describe('PreAssessmentPage retake', () => {
+  it('shows why a retake could not start, such as new questions still being written', async () => {
+    vi.useRealTimers()
+    hookState.assessment = {
+      ...ready,
+      status: 'completed',
+      score: 40,
+      attemptCount: 1,
+    }
+    retakeMock.mockRejectedValue({
+      response: {
+        data: {
+          error: {
+            code: 'VALIDATION_ERROR',
+            message:
+              'Your new questions are almost ready. Try again in a minute.',
+          },
+        },
+      },
+    })
+    renderPage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retake Assessment' }))
+
+    await vi.waitFor(() =>
+      expect(notifyMock).toHaveBeenCalledWith(
+        'error',
+        'Your new questions are almost ready. Try again in a minute.',
+        expect.anything(),
+      ),
+    )
   })
 })

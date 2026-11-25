@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '@/components/ui/Button'
+import { canApplyToJobs } from '@/features/pre-assessment/canApply'
 import PreAssessmentPage from '@/features/pre-assessment/page'
 import { usePreAssessmentStore } from '@/features/pre-assessment/store'
 
@@ -11,7 +12,7 @@ const PrescreeningStep: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>()
   const navigate = useNavigate()
   const assessment = usePreAssessmentStore((s) => s.assessment)
-  const isCompleted = assessment?.status === 'completed'
+  const isCompleted = canApplyToJobs(assessment)
 
   const goToJob = () => navigate(`/apply/${jobId}/details`)
 

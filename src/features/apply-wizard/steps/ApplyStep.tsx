@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -7,6 +7,8 @@ import {
 } from '@/components/features/jobs/JobDetailsView'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { canApplyToJobs } from '@/features/pre-assessment/canApply'
+import { usePreAssessment } from '@/features/pre-assessment/hooks'
 import { applicationPath } from '@/features/talent-applications/steps'
 import {
   useApplyToJobMutation,
@@ -22,6 +24,13 @@ const ApplyStep: React.FC = () => {
   const job: JobDetailsJob | undefined = data?.data?.job
 
   const [applyToJob, { isLoading: applying }] = useApplyToJobMutation()
+  const { assessment, isLoading: assessmentLoading } = usePreAssessment()
+  const needsAssessment = !assessmentLoading && !canApplyToJobs(assessment)
+
+  useEffect(() => {
+    if (needsAssessment)
+      navigate(`/apply/${jobId}/prescreen`, { replace: true })
+  }, [needsAssessment, jobId, navigate])
 
   const handleApply = async () => {
     if (!jobId) return
@@ -35,7 +44,8 @@ const ApplyStep: React.FC = () => {
     }
   }
 
-  if (isLoading) return <Spinner fullPage />
+  if (isLoading || assessmentLoading || needsAssessment)
+    return <Spinner fullPage />
 
   if (!job) return null
 

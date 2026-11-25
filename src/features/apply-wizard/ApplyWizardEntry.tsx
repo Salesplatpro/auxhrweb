@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { useAuthStore } from '@/features/auth/store/useAuthStore'
 import { dashboardPathForRole } from '@/features/auth/utils/dashboardPath'
+import { canApplyToJobs } from '@/features/pre-assessment/canApply'
 import { usePreAssessment } from '@/features/pre-assessment/hooks'
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { applicationPath } from '@/features/talent-applications/steps'
@@ -69,7 +70,7 @@ const ApplyWizardEntry: React.FC = () => {
       return
     }
 
-    if (assessment?.status !== 'completed') {
+    if (!canApplyToJobs(assessment)) {
       navigate('prescreen', { replace: true })
       return
     }
@@ -85,7 +86,7 @@ const ApplyWizardEntry: React.FC = () => {
     profile?.emailVerifiedAt,
     isLoading,
     isProfileIncomplete,
-    assessment?.status,
+    assessment,
     job?.applicationId,
     navigate,
   ])

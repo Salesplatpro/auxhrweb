@@ -79,7 +79,7 @@ export const TALENT_TOUR: TourStep[] = [
   {
     target: 'nav-pre-assessment',
     title: 'Assessments',
-    body: 'Take the pre-assessment once. Your score is reused for every job you apply to, so give it your best.',
+    body: 'Take the pre-assessment before you apply. You take it once, and your score is reused for every job, so give it your best.',
   },
   {
     target: 'nav-jobs',
@@ -173,7 +173,7 @@ export const STAGE_TOURS: Partial<Record<OnboardingStage, TourStep[]>> = {
       to: '/talentDashboard/talentQuiz',
       title: 'Take your pre-assessment',
       body: 'Open it when you have about 20 quiet minutes. It starts right away and locks the app until you finish.',
-      why: 'You take it once, and your score is reused for every job you apply to.',
+      why: 'You need it before you can apply, and your score is reused for every job.',
     },
   ],
   apply_to_job: [

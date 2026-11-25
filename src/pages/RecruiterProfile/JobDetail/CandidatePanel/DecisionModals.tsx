@@ -54,7 +54,7 @@ export const MoveForwardModal = ({
       if (result.interview === 'failed') {
         notify(
           'warning',
-          `${fullName} is shortlisted, but the interview questions couldn't be written`,
+          `The interview for ${fullName} couldn't start because its questions couldn't be written`,
           {
             description: 'Try Move forward again in a few minutes.',
             autoClose: 5000,

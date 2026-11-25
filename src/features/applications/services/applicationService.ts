@@ -38,7 +38,10 @@ export interface AdvanceResult {
   interview: 'invited' | 'ready' | 'failed' | 'skipped' | null
 }
 
-/** Move forward: shortlists, and starts the recorded interview when it is next. */
+/**
+ * Move forward: starts the recorded interview when it is the candidate's next step, otherwise
+ * shortlists a candidate who finished every step.
+ */
 export const advanceApplication = (
   applicationId: string,
   sendInterviewInvite: boolean,
@@ -49,12 +52,21 @@ export const advanceApplication = (
     })
     .then((response) => response.data.data)
 
+export interface BulkStatusResult {
+  updated: number
+  /** Candidates left as they were because they haven't finished every step yet. */
+  skipped: number
+}
+
 export const bulkUpdateApplicationStatus = (
   applicationIds: string[],
   status: ApplicationDecision,
 ) =>
   httpClient
-    .patch('/applications/status', { applicationIds, status })
+    .patch<{ data: BulkStatusResult }>('/applications/status', {
+      applicationIds,
+      status,
+    })
     .then((response) => response.data)
 
 export const jobApplicationsKey = (jobId: string) =>

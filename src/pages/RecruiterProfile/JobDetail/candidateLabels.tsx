@@ -85,8 +85,21 @@ export const VerificationPill = ({
   )
 }
 
-export const InterviewPill = ({ status }: { status?: InterviewProgress }) => {
-  const config = INTERVIEW[status ?? 'not_started']
+export const InterviewPill = ({
+  status,
+  failed = false,
+}: {
+  status?: InterviewProgress
+  failed?: boolean
+}) => {
+  if (failed) {
+    return (
+      <Pill tone="danger" size="sm" icon={<LuRefreshCw />}>
+        Couldn&apos;t score
+      </Pill>
+    )
+  }
+  const config = INTERVIEW[status ?? 'not_started'] ?? INTERVIEW.not_started
   return (
     <Pill tone={config.tone} size="sm" icon={config.icon}>
       {config.label}

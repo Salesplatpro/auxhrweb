@@ -64,6 +64,7 @@ export const InterviewPlayer = ({
 
   useEffect(() => {
     if (!clip) return
+    setError(null)
     const cached = urls.current.get(clip.id)
     if (cached) {
       setSrc(cached)

@@ -92,7 +92,12 @@ export const CandidatesList = ({
       {
         key: 'interview',
         header: 'Interview',
-        render: (row) => <InterviewPill status={row.interview?.status} />,
+        render: (row) => (
+          <InterviewPill
+            status={row.interview?.status}
+            failed={row.interview?.failed}
+          />
+        ),
       },
       {
         key: 'verification',

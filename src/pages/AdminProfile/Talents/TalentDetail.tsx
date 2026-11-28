@@ -10,8 +10,8 @@ import { useAdminTalentProfile } from '@/features/admin/hooks/useAdminTalentProf
 import { useTalentStuckApplications } from '@/features/admin/hooks/useTalentStuckApplications'
 import { useAdminTalentMessaging } from '@/features/messaging/hooks/useAdminTalentMessaging'
 import { DisplayMessage } from '@/pages/RecruiterProfile/MyJobPosts/Messaging/DisplayMessage'
+import { openCv } from '@/utils/openCv'
 import { notify } from '@/utils/toastNotifications'
-import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { ApplicationFollowUpDrawer } from '../Applications/ApplicationFollowUpDrawer'
 import onboardingStyles from '../Onboarding/Onboarding.module.scss'
@@ -43,8 +43,7 @@ const TalentDetail = () => {
     if (!talent) return
     setIsLoadingCv(true)
     try {
-      await viewCandidateCv({
-        cvUrl: talent.cvUrl,
+      await openCv({
         talentId: talent.id,
         notFoundMessage: 'This talent has no CV on file',
       })

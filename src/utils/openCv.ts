@@ -3,29 +3,17 @@ import { httpClient } from '@/features/auth/services/httpClient'
 import { getErrorMessage } from './getErrorMessage'
 import { notify } from './toastNotifications'
 
-interface ViewCandidateCvParams {
-  cvUrl?: string | null
+interface OpenCvParams {
   talentId: string
   notFoundMessage?: string
 }
 
-// Opens a candidate's CV in a new tab: the public Spaces URL directly when
-// present, or (legacy talents with no stored file) an authenticated fetch of
-// the on-demand generated PDF. Shared by the recruiter candidate dossier and
-// the admin talent detail page.
-export const viewCandidateCv = async ({
-  cvUrl,
+// CVs are private, so the file is fetched through the signed-in CV route. The tab opens
+// before the fetch so the browser doesn't block it as a popup.
+export const openCv = async ({
   talentId,
   notFoundMessage = 'This candidate has no CV on file',
-}: ViewCandidateCvParams): Promise<void> => {
-  if (cvUrl) {
-    window.open(cvUrl, '_blank', 'noopener')
-    return
-  }
-
-  // Open a blank tab synchronously (so the browser doesn't treat it as a
-  // popup) then point it at the on-demand generated PDF once the
-  // authenticated fetch resolves.
+}: OpenCvParams): Promise<void> => {
   const cvWindow = window.open('', '_blank')
   try {
     const response = await httpClient.get(`/user/profile/${talentId}/cv`, {

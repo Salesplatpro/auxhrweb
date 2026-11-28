@@ -20,9 +20,9 @@ import {
 import { ApplicationFollowUpDrawer } from '@/pages/AdminProfile/Applications/ApplicationFollowUpDrawer'
 import { humanStage } from '@/pages/TalentProfile/Job/jobPipeline'
 import { getErrorMessage } from '@/utils/getErrorMessage'
+import { openCv } from '@/utils/openCv'
 import type { SingleJobDetails } from '@/utils/recruiterJobPostsTypes'
 import { notify } from '@/utils/toastNotifications'
-import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { AssessmentChat } from './AssessmentChat'
 import styles from './CandidateDossierPanel.module.scss'
@@ -148,7 +148,7 @@ export const CandidateDossierPanel = ({
   const handleViewCv = async () => {
     setIsLoadingCv(true)
     try {
-      await viewCandidateCv({ cvUrl: talent.cvUrl, talentId: talent.id })
+      await openCv({ talentId: talent.id })
     } finally {
       setIsLoadingCv(false)
     }

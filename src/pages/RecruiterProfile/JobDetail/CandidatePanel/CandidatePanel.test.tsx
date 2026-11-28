@@ -23,7 +23,7 @@ const application = (overrides: Record<string, unknown> = {}) => ({
   status: 'awaiting_decision',
   createdAt: '2026-11-20T00:00:00Z',
   source: null,
-  talent: { id: 't1', firstName: 'Amaka', lastName: 'Obi', cvUrl: null },
+  talent: { id: 't1', firstName: 'Amaka', lastName: 'Obi' },
   readyForReview: false,
   waitingFor: 'references',
   canStartInterview: false,
@@ -92,7 +92,6 @@ describe('candidate panel answers', () => {
         id: 't1',
         firstName: 'Amaka',
         lastName: 'Obi',
-        cvUrl: null,
         prescreeningScore: 75,
       },
       preAssessmentAnswers: [

@@ -20,9 +20,9 @@ import { downloadCandidateFitReport } from '@/features/applications/services/app
 import { useProfile } from '@/features/profile/hooks/useProfile'
 import { humanStatus } from '@/pages/TalentProfile/Job/jobPipeline'
 import { getErrorMessage } from '@/utils/getErrorMessage'
+import { openCv } from '@/utils/openCv'
 import type { ApplicationDetail } from '@/utils/recruiterJobPostsTypes'
 import { notify } from '@/utils/toastNotifications'
-import { viewCandidateCv } from '@/utils/viewCandidateCv'
 
 import { getStatusBadge } from '../../getJobStatus'
 import { AssessmentChat } from '../../MyJobPosts/AssessmentChat'
@@ -92,7 +92,7 @@ export const CandidatePanel = ({
   const viewCv = async () => {
     setLoadingCv(true)
     try {
-      await viewCandidateCv({ cvUrl: talent.cvUrl, talentId: talent.id })
+      await openCv({ talentId: talent.id })
     } finally {
       setLoadingCv(false)
     }

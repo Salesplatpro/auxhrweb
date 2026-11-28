@@ -31,7 +31,7 @@ export const downloadScoutReport = async (
  * Scouted CVs are uploaded to private storage and served through an authenticated
  * route, so there is no public URL to link to. The tab is opened synchronously,
  * before the request, because a popup blocker rejects `window.open` once an await
- * has yielded — the same approach as `viewCandidateCv`.
+ * has yielded — the same approach as `openCv`.
  */
 export const openScoutCandidateCv = async (
   candidateId: string,

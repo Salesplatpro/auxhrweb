@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/Spinner'
 import { ProfileFormValues } from '@/features/profile/types'
 import { getIncompleteProfileFields } from '@/utils/calculateProgress'
 import { focusFieldByName } from '@/utils/focusField'
+import { openCv } from '@/utils/openCv'
 
 import BioTextArea from './BioTextArea'
 import styles from './Profile.module.scss'
@@ -332,7 +333,14 @@ const TalentProfile = ({ formikRef }: TalentProfileProps) => {
                     !isUploading ? (
                       <CvFile
                         fileName={profile.cvFileName || 'CV'}
-                        url={profile.cvUrl ?? undefined}
+                        onOpen={() => {
+                          if (profile.id) {
+                            void openCv({
+                              talentId: profile.id,
+                              notFoundMessage: 'Could not open your CV',
+                            })
+                          }
+                        }}
                         replaceInputId="cv"
                       />
                     ) : (

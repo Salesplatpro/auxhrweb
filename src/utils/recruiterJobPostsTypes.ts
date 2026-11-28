@@ -81,7 +81,6 @@ export type SingleJobDetails = {
     bio?: string | null
     experience?: string | null
     cvFileName?: string | null
-    cvUrl?: string | null
     cvUploadedAt?: string | null
     prescreeningScore?: number | null
     locationCity?: string | null

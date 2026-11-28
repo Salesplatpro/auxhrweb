@@ -23,7 +23,6 @@
   color: var(--color-primary);
 }
 
-.fileName,
 .fileNameButton,
 .fileNameStatic {
   flex: 1;
@@ -37,7 +36,6 @@
   text-align: left;
 }
 
-.fileName:hover,
 .fileNameButton:hover {
   color: var(--color-primary);
 }

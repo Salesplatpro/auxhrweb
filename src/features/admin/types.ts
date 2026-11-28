@@ -72,7 +72,6 @@ export interface AdminTalent {
   experience: string | null
   prescreeningScore: number | null
   cvFileName?: string | null
-  cvUrl?: string | null
   cvUploadedAt?: string | null
   locationCountry?: string | null
   createdAt: string

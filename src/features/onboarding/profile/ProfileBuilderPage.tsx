@@ -126,7 +126,7 @@ const ProfileBuilder = ({ profile }: { profile: ProfileUser }) => {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [missing, setMissing] = useState<string[]>([])
   const [cvName, setCvName] = useState<string | null>(
-    profile.cvFileName ?? (profile.cvUrl ? 'Your CV' : null),
+    profile.cvFileName ?? (profile.cvUploadedAt ? 'Your CV' : null),
   )
   const [cvSize, setCvSize] = useState<number | null>(null)
   const [cvError, setCvError] = useState<string | null>(null)

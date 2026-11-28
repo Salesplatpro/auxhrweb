@@ -27,7 +27,6 @@ export interface ProfileUser {
   bio?: string
   profileImageUrl?: string | null
   cvFileName?: string | null
-  cvUrl?: string | null
   cvUploadedAt?: string | null
   cvSkills?: string[] | null
   cvYearsExperience?: number | null

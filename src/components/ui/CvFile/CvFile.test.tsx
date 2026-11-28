@@ -5,17 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { CvFile } from './CvFile'
 
 describe('CvFile', () => {
-  it('renders a link to the CV with the correct href and file name', () => {
-    render(
-      <CvFile fileName="resume.pdf" url="https://example.com/resume.pdf" />,
-    )
-
-    const link = screen.getByText('resume.pdf') as HTMLAnchorElement
-    expect(link.getAttribute('href')).toBe('https://example.com/resume.pdf')
-    expect(link.getAttribute('target')).toBe('_blank')
-  })
-
-  it('renders a button that calls onOpen when no url is provided', () => {
+  it('renders a button that calls onOpen', () => {
     const onOpen = vi.fn()
     render(<CvFile fileName="resume.pdf" onOpen={onOpen} />)
 
@@ -23,7 +13,7 @@ describe('CvFile', () => {
     expect(onOpen).toHaveBeenCalledOnce()
   })
 
-  it('renders a non-clickable file name when neither url nor onOpen is provided', () => {
+  it('renders a non-clickable file name when onOpen is omitted', () => {
     render(<CvFile fileName="resume.pdf" replaceInputId="cv" />)
 
     expect(screen.getByText('resume.pdf').tagName).toBe('SPAN')
@@ -31,9 +21,7 @@ describe('CvFile', () => {
   })
 
   it('does not render a "Replace" label when replaceInputId is omitted', () => {
-    render(
-      <CvFile fileName="resume.pdf" url="https://example.com/resume.pdf" />,
-    )
+    render(<CvFile fileName="resume.pdf" onOpen={vi.fn()} />)
     expect(screen.queryByText('Replace')).toBeNull()
   })
 })

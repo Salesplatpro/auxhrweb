@@ -16,7 +16,7 @@ export interface Assessment {
   roles: string[]
   /** True while questions are still being generated server-side (fire-and-forget). */
   generating?: boolean
-  /** True after generation retries are exhausted. */
+  /** True when the last write failed and none is running, so the talent can try again. */
   generationFailed?: boolean
   /** The talent has a score from the last 90 days, so they can apply to jobs. */
   hasValidScore?: boolean
